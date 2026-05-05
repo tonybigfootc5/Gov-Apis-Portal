@@ -4,15 +4,16 @@ import { useEffect, useRef } from "react";
 
 export function HeroBackgroundVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const playbackRate = 0.45;
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    video.playbackRate = 0.6;
+    video.playbackRate = playbackRate;
 
     const handleCanPlay = () => {
-      video.playbackRate = 0.6;
+      video.playbackRate = playbackRate;
     };
 
     video.addEventListener("canplay", handleCanPlay);

@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Camera, CirclePlay, Mail, MapPin, MessageCircle, Phone, Users } from "lucide-react";
 import { institute } from "@/lib/fallback-data";
 
 export function SiteFooter() {
+  const whatsappUrl = "https://wa.me/919700284045";
+
   return (
     <footer className="border-t-4 border-[#f4b315] bg-[#120c12] text-[#ecdfe8] honeycomb-bg">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr] lg:px-8">
@@ -35,10 +37,33 @@ export function SiteFooter() {
           <Link href="/contact" className="text-[#d4c4ac] hover:text-[#ffd485]">
             Contact the center
           </Link>
+          <div className="mt-4 flex items-center gap-4 text-[#d4c4ac]">
+            <span className="inline-flex items-center gap-2" aria-label="YouTube">
+              <CirclePlay className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
+              <span className="text-xs font-semibold uppercase tracking-[0.12em]">YouTube</span>
+            </span>
+            <span className="inline-flex items-center gap-2" aria-label="Instagram">
+              <Camera className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
+              <span className="text-xs font-semibold uppercase tracking-[0.12em]">Insta</span>
+            </span>
+            <span className="inline-flex items-center gap-2" aria-label="Facebook">
+              <Users className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
+              <span className="text-xs font-semibold uppercase tracking-[0.12em]">Facebook</span>
+            </span>
+          </div>
         </div>
       </div>
       <div className="border-t border-[#3a2f24] px-4 py-4 text-center text-xs text-[#d4c4ac] sm:px-6 sm:text-sm lg:px-8">
-        Designed by Solution Architect: 9700284045
+        <span>Designed by Solution Architect:</span>{" "}
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 text-[#ffd485] transition hover:text-[#feb96d]"
+        >
+          <MessageCircle className="h-4 w-4" aria-hidden="true" />
+          <span>9700284045</span>
+        </a>
       </div>
     </footer>
   );
