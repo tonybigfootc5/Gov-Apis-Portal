@@ -1,6 +1,10 @@
-import { PrismaClient, ProgramLevel, EventStatus } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { EventStatus, PrismaClient, ProgramLevel } from "../src/generated/prisma/client";
 
-const prisma = new PrismaClient();
+const connectionString = process.env.DATABASE_URL ?? "postgresql://prisma:prisma@localhost:5432/prisma";
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString }),
+});
 
 async function main() {
   await prisma.program.upsert({

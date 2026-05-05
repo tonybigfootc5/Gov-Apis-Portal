@@ -42,6 +42,9 @@ npm.ps1
 # graphify
 graphify-out/
 
+# prisma generated client
+src/generated/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

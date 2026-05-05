@@ -14,11 +14,11 @@ export default async function AdminPage() {
   ]);
   return (
     <AdminConsole
-      initialPrograms={programs.map((program) => ({
+      initialPrograms={programs.map((program: (typeof programs)[number]) => ({
         ...program,
         updatedAt: program.updatedAt.toISOString(),
       }))}
-      initialEvents={events.map((event) => ({
+      initialEvents={events.map((event: (typeof events)[number]) => ({
         ...event,
         startsAt: event.startsAt.toISOString(),
         endsAt: event.endsAt?.toISOString() ?? null,

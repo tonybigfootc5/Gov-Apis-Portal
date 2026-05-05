@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { NextResponse } from "next/server";
 
 export function badRequest(message: string) {
@@ -25,14 +25,16 @@ export function serviceUnavailable(message: string) {
 
 export function prismaErrorResponse(error: unknown, entity: string) {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    if (error.code === "P2002") {
+    const knownError = error as Prisma.PrismaClientKnownRequestError;
+
+    if (knownError.code === "P2002") {
       return NextResponse.json(
         { error: `${entity} already exists. Use a different unique value.` },
         { status: 409 },
       );
     }
 
-    if (error.code === "P2025") {
+    if (knownError.code === "P2025") {
       return NextResponse.json({ error: `${entity} was not found.` }, { status: 404 });
     }
   }
