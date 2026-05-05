@@ -8,19 +8,19 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr] lg:px-8">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-[#feb96d]">API Culture</p>
-          <h2 className="font-display mt-3 text-3xl font-semibold text-[#ffd485]">{institute.legalName}</h2>
+          <h2 className="font-display mt-3 text-2xl font-semibold text-[#ffd485] sm:text-3xl">{institute.legalName}</h2>
           <p className="mt-4 max-w-xl text-sm leading-6 text-[#d4c4ac]">{institute.parent}</p>
         </div>
         <div className="space-y-3 text-sm text-[#d4c4ac]">
-          <p className="flex gap-3">
+          <p className="flex gap-3 break-words">
             <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#ffd485]" aria-hidden="true" />
             {institute.address}
           </p>
-          <p className="flex gap-3">
+          <p className="flex flex-wrap gap-3">
             <Phone className="mt-1 h-4 w-4 shrink-0 text-[#ffd485]" aria-hidden="true" />
             {institute.phone.join(" / ")}
           </p>
-          <p className="flex gap-3">
+          <p className="flex break-all gap-3">
             <Mail className="mt-1 h-4 w-4 shrink-0 text-[#ffd485]" aria-hidden="true" />
             {institute.email}
           </p>
@@ -37,7 +37,7 @@ export function SiteFooter() {
           </Link>
         </div>
       </div>
-      <div className="border-t border-[#3a2f24] px-4 py-4 text-center text-sm text-[#d4c4ac] sm:px-6 lg:px-8">
+      <div className="border-t border-[#3a2f24] px-4 py-4 text-center text-xs text-[#d4c4ac] sm:px-6 sm:text-sm lg:px-8">
         Designed by Solution Architect: 9700284045
       </div>
     </footer>

@@ -23,40 +23,40 @@ export default async function Home() {
 
   return (
     <>
-      <section className="relative isolate min-h-[820px] overflow-hidden bg-[#120c12]">
+      <section className="relative isolate min-h-[720px] overflow-hidden bg-[#120c12] sm:min-h-[820px]">
         <div className="pointer-events-none absolute inset-0">
           <HeroBackgroundVideo />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,#171117_0%,rgba(23,17,23,0.94)_45%,rgba(23,17,23,0.35)_100%)]" />
           <div className="absolute inset-0 honeycomb-bg opacity-70" />
           
-          <div className="absolute bottom-32 left-20 h-24 w-24 opacity-40">
+          <div className="absolute bottom-20 left-4 h-16 w-16 opacity-30 sm:bottom-32 sm:left-20 sm:h-24 sm:w-24 sm:opacity-40">
             <Image src="/hive-hexagon.svg" alt="" fill className="object-contain" />
           </div>
         </div>
 
-        <div className="relative mx-auto grid min-h-[calc(100svh-78px)] max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
+        <div className="relative mx-auto grid min-h-[calc(100svh-72px)] max-w-7xl items-center gap-12 px-4 py-16 sm:min-h-[calc(100svh-78px)] sm:px-6 sm:py-20 lg:grid-cols-[1fr_0.9fr] lg:px-8">
           <div className="max-w-3xl">
-            <p className="inline-flex items-center gap-3 rounded border border-[#ffd485]/30 bg-[#f4b315] px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-[#271900] shadow-xl shadow-black/30">
+            <p className="inline-flex max-w-full items-center gap-3 rounded border border-[#ffd485]/30 bg-[#f4b315] px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#271900] shadow-xl shadow-black/30 sm:text-xs sm:tracking-[0.22em]">
               <BadgeCheck className="h-4 w-4" aria-hidden="true" />
-              {institute.parent.split(",")[0]}
+              <span className="truncate">{institute.parent.split(",")[0]}</span>
             </p>
-            <h1 className="font-display mt-8 text-6xl font-semibold leading-[1.02] tracking-tight text-[#ecdfe8] sm:text-7xl lg:text-8xl">
+            <h1 className="font-display mt-8 max-w-4xl text-4xl font-semibold leading-[1.02] tracking-tight text-[#ecdfe8] sm:text-6xl lg:text-8xl">
               Advanced <span className="text-[#ffd485]">API CULTURE</span>
             </h1>
-            <p className="mt-7 max-w-2xl text-xl leading-9 text-[#d4c4ac]">
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[#d4c4ac] sm:mt-7 sm:text-xl sm:leading-9">
               API CULTURE is a field-focused apiculture technology center for scientific beekeeping training,
               rural enterprise, workshops, and institutional collaboration.
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
               <Link
                 href="/programs"
-                className="hex-soft inline-flex items-center gap-3 bg-[#f4b315] px-8 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#271900] shadow-xl shadow-black/30 transition hover:-translate-y-1"
+                className="hex-soft inline-flex w-full items-center justify-center gap-3 bg-[#f4b315] px-6 py-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#271900] shadow-xl shadow-black/30 transition hover:-translate-y-1 sm:w-auto sm:px-8"
               >
                 Training catalog <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link
                 href="/about"
-                className="inline-flex items-center gap-3 rounded border-2 border-[#504533] px-8 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#ecdfe8] transition hover:border-[#ffd485] hover:bg-[#241e24]"
+                className="inline-flex w-full items-center justify-center gap-3 rounded border-2 border-[#504533] px-6 py-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#ecdfe8] transition hover:border-[#ffd485] hover:bg-[#241e24] sm:w-auto sm:px-8"
               >
                 Learn mission
               </Link>
@@ -97,7 +97,7 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="grid gap-6 md:grid-cols-4">
+        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {[
             [GraduationCap, "Applied training", "Structured beekeeping programs"],
             [CalendarDays, "Workshops", "Events and orientation sessions"],
@@ -114,8 +114,8 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="grid gap-8 overflow-hidden rounded-[2rem] border border-[#504533] bg-[#1c151c] p-6 shadow-2xl shadow-black/30 lg:grid-cols-[0.72fr_1fr] lg:p-8">
-          <div className="relative min-h-[420px] overflow-hidden rounded-[1.5rem] border border-[#6d582f] bg-[#120c12]">
+        <div className="grid gap-8 overflow-hidden rounded-[2rem] border border-[#504533] bg-[#1c151c] p-5 shadow-2xl shadow-black/30 sm:p-6 lg:grid-cols-[0.72fr_1fr] lg:p-8">
+          <div className="relative min-h-[280px] overflow-hidden rounded-[1.5rem] border border-[#6d582f] bg-[#120c12] sm:min-h-[420px]">
             <Image
               src="/field-beekeeping.jpg"
               alt="Field beekeeping spotlight"
@@ -126,7 +126,7 @@ export default async function Home() {
           </div>
           <div className="flex flex-col justify-center">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-[#feb96d]">Field Spotlight</p>
-            <h2 className="font-display mt-4 text-4xl font-semibold leading-tight text-[#ecdfe8] sm:text-5xl">
+            <h2 className="font-display mt-4 text-3xl font-semibold leading-tight text-[#ecdfe8] sm:text-5xl">
               Beekeeping practice, captured in the field
             </h2>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[#d4c4ac]">
@@ -148,21 +148,54 @@ export default async function Home() {
             The training catalog is dynamic and managed through the secure admin dashboard backed by PostgreSQL and Prisma. All API CULTURE programs are designed for hands-on learning.
           </SectionHeading>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {programs.slice(0, 2).map((program) => (
-              <Link
-                key={program.id}
-                href={`/programs/${program.slug}`}
-                className="group relative overflow-hidden rounded-xl border border-[#504533] bg-[#120c12] p-8 shadow-xl transition hover:border-[#ffd485]/70"
-              >
-                <div className="absolute left-0 top-0 h-1.5 w-full bg-[#f4b315]" />
-                <Sparkles className="h-7 w-7 text-[#ffd485]" aria-hidden="true" />
-                <h3 className="font-display mt-5 text-3xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485]">{program.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">{program.summary}</p>
-                <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">
-                  {program.duration} / {program.level}
-                </p>
-              </Link>
-            ))}
+            {programs.slice(0, 2).map((program) => {
+              const isFoundation = program.slug === "scientific-beekeeping-foundation";
+              const isQueenRearing = program.slug === "queen-rearing-and-colony-multiplication";
+
+              return (
+                <Link
+                  key={program.id}
+                  href={`/programs/${program.slug}`}
+                  className="group relative overflow-hidden rounded-xl border border-[#504533] bg-[#120c12] p-6 shadow-xl transition hover:border-[#ffd485]/70 sm:p-8"
+                >
+                  {isFoundation || isQueenRearing ? (
+                    <div className="pointer-events-none absolute inset-0">
+                      <Image
+                        src={isFoundation ? "/scientific-foundation-bg.jpg" : "/queen-rearing-bg.jpg"}
+                        alt=""
+                        fill
+                        className={`object-cover object-center transition duration-500 group-hover:scale-105 ${
+                          isFoundation ? "opacity-35 group-hover:opacity-45" : "opacity-34 group-hover:opacity-44"
+                        }`}
+                      />
+                      <div
+                        className={`absolute inset-0 ${
+                          isFoundation
+                            ? "bg-[linear-gradient(135deg,rgba(18,12,18,0.82)_0%,rgba(18,12,18,0.58)_38%,rgba(18,12,18,0.86)_100%)]"
+                            : "bg-[linear-gradient(135deg,rgba(18,12,18,0.88)_0%,rgba(18,12,18,0.66)_34%,rgba(18,12,18,0.84)_100%)]"
+                        }`}
+                      />
+                      <div
+                        className={`absolute inset-0 ${
+                          isFoundation
+                            ? "bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.04)_18%,rgba(18,12,18,0)_44%),radial-gradient(circle_at_bottom_right,rgba(244,179,21,0.18)_0%,rgba(244,179,21,0.05)_26%,rgba(18,12,18,0)_56%)]"
+                            : "bg-[radial-gradient(circle_at_bottom_left,rgba(244,179,21,0.22)_0%,rgba(244,179,21,0.06)_24%,rgba(18,12,18,0)_54%),radial-gradient(circle_at_top_right,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_18%,rgba(18,12,18,0)_42%)]"
+                        }`}
+                      />
+                    </div>
+                  ) : null}
+                  <div className="absolute left-0 top-0 h-1.5 w-full bg-[#f4b315]" />
+                  <div className="relative">
+                    <Sparkles className="h-7 w-7 text-[#ffd485]" aria-hidden="true" />
+                    <h3 className="font-display mt-5 text-2xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485] sm:text-3xl">{program.title}</h3>
+                    <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">{program.summary}</p>
+                    <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">
+                      {program.duration} / {program.level}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -176,14 +209,14 @@ export default async function Home() {
             <Link
               key={event.id}
               href={`/events/${event.slug}`}
-              className="group relative grid gap-4 overflow-hidden rounded-xl border border-[#504533] bg-[#241e24] p-6 shadow-xl transition hover:border-[#ffd485]/70 sm:grid-cols-[170px_1fr_auto] sm:items-center"
+              className="group relative grid gap-4 overflow-hidden rounded-xl border border-[#504533] bg-[#241e24] p-5 shadow-xl transition hover:border-[#ffd485]/70 sm:grid-cols-[170px_1fr_auto] sm:items-center sm:p-6"
             >
               <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">{formatDate(event.startsAt)}</p>
               <div>
-                <h3 className="font-display text-2xl font-semibold text-[#ecdfe8]">{event.title}</h3>
+                <h3 className="font-display text-xl font-semibold text-[#ecdfe8] sm:text-2xl">{event.title}</h3>
                 <p className="mt-2 text-sm text-[#d4c4ac]">{event.summary}</p>
               </div>
-              <ArrowRight className="h-5 w-5 text-[#ffd485]" aria-hidden="true" />
+              <ArrowRight className="h-5 w-5 justify-self-start text-[#ffd485] sm:justify-self-auto" aria-hidden="true" />
             </Link>
           ))}
         </div>

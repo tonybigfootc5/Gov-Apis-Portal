@@ -26,17 +26,17 @@ export default async function EventDetailPage({ params }: Props) {
   if (!event) notFound();
 
   return (
-    <article className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
+    <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <Link href="/events" className="inline-flex items-center gap-2 text-sm font-black text-[#feb96d]">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         Events
       </Link>
       <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{event.status}</p>
-      <h1 className="font-display mt-3 text-5xl font-semibold tracking-tight text-[#ffd485] sm:text-6xl">{event.title}</h1>
-      <p className="mt-5 text-lg leading-8 text-[#d4c4ac]">{event.summary}</p>
+      <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[#ffd485] sm:text-5xl lg:text-6xl">{event.title}</h1>
+      <p className="mt-5 text-base leading-7 text-[#d4c4ac] sm:text-lg sm:leading-8">{event.summary}</p>
       <div className="glass-panel mt-8 rounded-xl p-6">
         <p className="font-black text-[#ffd485]">{formatDateTime(event.startsAt)}</p>
-        <p className="mt-3 inline-flex gap-2 text-sm font-bold text-[#d4c4ac]">
+        <p className="mt-3 inline-flex flex-wrap gap-2 text-sm font-bold text-[#d4c4ac]">
           <MapPin className="h-4 w-4 text-[#feb96d]" aria-hidden="true" />
           {event.location}
         </p>

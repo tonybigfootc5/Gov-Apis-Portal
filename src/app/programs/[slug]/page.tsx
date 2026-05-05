@@ -28,17 +28,17 @@ export default async function ProgramDetailPage({ params }: Props) {
   const isFoundation = slug === "scientific-beekeeping-foundation";
   const programBackgroundSrc =
     slug === "queen-rearing-and-colony-multiplication"
-      ? "/field-beekeeping.jpg"
+      ? "/queen-rearing-bg.jpg"
       : slug === "scientific-beekeeping-foundation"
         ? "/scientific-foundation-bg.jpg"
         : null;
 
   return (
-    <article className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
+    <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <div
         className={`relative overflow-hidden rounded-[2rem] border border-[#504533] ${
           isQueenRearing || isFoundation ? "bg-[#120c12]" : "honeycomb-bg bg-transparent"
-        } p-8 shadow-2xl shadow-black/25 sm:p-10`}
+        } p-5 shadow-2xl shadow-black/25 sm:p-8 lg:p-10`}
       >
         {programBackgroundSrc ? (
           <>
@@ -48,20 +48,20 @@ export default async function ProgramDetailPage({ params }: Props) {
                 alt=""
                 fill
                 priority
-                className={`object-cover ${isFoundation ? "opacity-24" : "opacity-28"}`}
+                className={`object-cover ${isFoundation ? "object-center opacity-24" : "object-center opacity-32"}`}
               />
               <div
                 className={`absolute inset-0 ${
                   isFoundation
                     ? "bg-[linear-gradient(135deg,rgba(18,12,18,0.86)_0%,rgba(18,12,18,0.56)_34%,rgba(18,12,18,0.84)_100%)]"
-                    : "bg-[linear-gradient(135deg,rgba(18,12,18,0.9)_0%,rgba(18,12,18,0.62)_38%,rgba(18,12,18,0.82)_100%)]"
+                    : "bg-[linear-gradient(135deg,rgba(18,12,18,0.9)_0%,rgba(18,12,18,0.68)_34%,rgba(18,12,18,0.84)_100%)]"
                 }`}
               />
               <div
                 className={`absolute inset-0 ${
                   isFoundation
                     ? "bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.05)_20%,rgba(18,12,18,0)_48%),radial-gradient(circle_at_bottom_right,rgba(244,179,21,0.18)_0%,rgba(244,179,21,0.06)_26%,rgba(18,12,18,0)_58%)]"
-                    : "bg-[radial-gradient(circle_at_top_right,rgba(244,179,21,0.24)_0%,rgba(244,179,21,0.08)_28%,rgba(18,12,18,0)_62%)]"
+                    : "bg-[radial-gradient(circle_at_bottom_left,rgba(244,179,21,0.22)_0%,rgba(244,179,21,0.08)_24%,rgba(18,12,18,0)_54%),radial-gradient(circle_at_top_right,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_18%,rgba(18,12,18,0)_42%)]"
                 }`}
               />
               <div className="absolute inset-0 honeycomb-bg opacity-25" />
@@ -72,14 +72,14 @@ export default async function ProgramDetailPage({ params }: Props) {
           </>
         ) : null}
 
-        <div className="relative">
+        <div className="relative min-w-0">
           <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-black text-[#feb96d]">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Training programs
           </Link>
           <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{program.level}</p>
-          <h1 className="font-display mt-3 text-5xl font-semibold tracking-tight text-[#ffd485] sm:text-6xl">{program.title}</h1>
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-[#d4c4ac]">{program.summary}</p>
+          <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[#ffd485] sm:text-5xl lg:text-6xl">{program.title}</h1>
+          <p className="mt-5 max-w-3xl text-base leading-7 text-[#d4c4ac] sm:text-lg sm:leading-8">{program.summary}</p>
           <div className="glass-panel mt-8 grid gap-4 rounded-xl p-6 sm:grid-cols-3">
             <Detail label="Duration" value={program.duration} />
             <Detail label="Capacity" value={`${program.capacity} participants`} />

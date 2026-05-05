@@ -16,25 +16,25 @@ export default async function EventsPage() {
   const events = await getEvents();
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <SectionHeading eyebrow="Events" title="Workshops, orientations, and field sessions">
         API CULTURE publishes timely events with structured status, dates, locations, and detailed public pages for all participants.
       </SectionHeading>
       <div className="mt-10 grid gap-6">
         {events.map((event) => (
           <Link key={event.id} href={`/events/${event.slug}`} className="group relative flex flex-col overflow-hidden rounded-xl border border-[#504533] bg-[#201a20] shadow-xl transition hover:border-[#ffd485]/70 md:flex-row">
-            <div className="grid min-h-48 place-items-center border-b border-[#504533] bg-[#2f282e] p-8 text-center md:w-64 md:border-b-0 md:border-r">
-              <div className="hex-clip grid h-28 w-32 place-items-center border border-[#ffd485]/30 bg-[#f4b315]/10">
-                <span className="font-display text-5xl font-bold text-[#ffd485]">{formatDateTime(event.startsAt).slice(0, 2)}</span>
+            <div className="grid min-h-36 place-items-center border-b border-[#504533] bg-[#2f282e] p-6 text-center md:min-h-48 md:w-64 md:border-b-0 md:border-r md:p-8">
+              <div className="hex-clip grid h-24 w-28 place-items-center border border-[#ffd485]/30 bg-[#f4b315]/10 sm:h-28 sm:w-32">
+                <span className="font-display text-4xl font-bold text-[#ffd485] sm:text-5xl">{formatDateTime(event.startsAt).slice(0, 2)}</span>
               </div>
             </div>
-            <div className="relative flex-1 p-7">
+            <div className="relative flex-1 p-5 sm:p-7">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">{event.status}</p>
-                <h2 className="font-display mt-3 text-3xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485]">{event.title}</h2>
+                <h2 className="font-display mt-3 text-2xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485] sm:text-3xl">{event.title}</h2>
               </div>
-              <ArrowRight className="h-5 w-5 text-[#ffd485]" aria-hidden="true" />
+              <ArrowRight className="h-5 w-5 shrink-0 text-[#ffd485]" aria-hidden="true" />
             </div>
             <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">{event.summary}</p>
             <div className="mt-6 flex flex-wrap gap-5 text-sm font-bold text-[#d4c4ac]">

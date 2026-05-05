@@ -101,7 +101,7 @@ export function AdminConsole({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-black uppercase tracking-[0.24em] text-[#feb96d]">Institutional oversight</p>
-          <h1 className="font-display mt-2 text-5xl font-semibold text-[#ffd485]">Admin Dashboard</h1>
+          <h1 className="font-display mt-2 text-3xl font-semibold text-[#ffd485] sm:text-4xl lg:text-5xl">Admin Dashboard</h1>
         </div>
         <button onClick={load} className="inline-flex items-center gap-2 rounded border border-[#504533] bg-[#241e24] px-4 py-2 text-sm font-bold text-[#ecdfe8]">
           <RefreshCw className="h-4 w-4" aria-hidden="true" />
@@ -140,7 +140,7 @@ function Editor({ title, children, onSave }: { title: string; children: React.Re
     <div className="glass-panel h-fit rounded-xl p-5">
       <h2 className="font-display text-2xl font-semibold text-[#ffd485]">{title}</h2>
       <div className="mt-4 grid gap-3">{children}</div>
-      <button onClick={onSave} className="mt-4 inline-flex items-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900]">
+      <button onClick={onSave} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900] sm:w-auto">
         <Plus className="h-4 w-4" aria-hidden="true" />
         Create
       </button>
@@ -163,7 +163,7 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
       <Field label="Slug"><input className={textClass()} value={value.slug} onChange={(e) => onChange({ ...value, slug: e.target.value })} /></Field>
       <Field label="Summary"><textarea className={textClass()} value={value.summary} onChange={(e) => onChange({ ...value, summary: e.target.value })} /></Field>
       <Field label="Description"><textarea rows={4} className={textClass()} value={value.description} onChange={(e) => onChange({ ...value, description: e.target.value })} /></Field>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Duration"><input className={textClass()} value={value.duration} onChange={(e) => onChange({ ...value, duration: e.target.value })} /></Field>
         <Field label="Capacity"><input type="number" className={textClass()} value={value.capacity} onChange={(e) => onChange({ ...value, capacity: Number(e.target.value) })} /></Field>
       </div>
@@ -202,9 +202,9 @@ function EventRow({ event, onSave, onDelete }: { event: EventItem; onSave: (body
 
 function RowActions({ onSave, onDelete }: { onSave: () => void; onDelete: () => void }) {
   return (
-    <div className="mt-4 flex gap-2">
-      <button onClick={onSave} className="inline-flex items-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900]"><Save className="h-4 w-4" aria-hidden="true" />Save</button>
-      <button onClick={onDelete} className="inline-flex items-center gap-2 rounded border border-[#ffb4ab]/40 px-4 py-2 text-sm font-black text-[#ffb4ab]"><Trash2 className="h-4 w-4" aria-hidden="true" />Delete</button>
+    <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+      <button onClick={onSave} className="inline-flex items-center justify-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900]"><Save className="h-4 w-4" aria-hidden="true" />Save</button>
+      <button onClick={onDelete} className="inline-flex items-center justify-center gap-2 rounded border border-[#ffb4ab]/40 px-4 py-2 text-sm font-black text-[#ffb4ab]"><Trash2 className="h-4 w-4" aria-hidden="true" />Delete</button>
     </div>
   );
 }

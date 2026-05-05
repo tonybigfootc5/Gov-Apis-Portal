@@ -39,6 +39,9 @@ npm.ps1
 # vercel
 .vercel
 
+# graphify
+graphify-out/cache/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

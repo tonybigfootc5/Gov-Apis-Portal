@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <section className="honeycomb-bg mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+    <section className="honeycomb-bg mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
       <div>
         <SectionHeading eyebrow="About" title="An institutional center for apiculture capability">
           {institute.legalName} operates as API CULTURE in Rajendranagar, Hyderabad, supporting scientific beekeeping training, field demonstration, rural livelihood enablement, and technology awareness.
         </SectionHeading>
-        <div className="mt-10 grid gap-5 border-l-4 border-[#f4b315] pl-6 text-base leading-8 text-[#d4c4ac]">
+        <div className="mt-8 grid gap-5 border-l-4 border-[#f4b315] pl-4 text-base leading-8 text-[#d4c4ac] sm:mt-10 sm:pl-6">
           <p>{institute.parent}</p>
           <p>
             The website is designed for long-term institutional use: structured pages, dynamic training and event publishing, secure environment variables, validated backend handling, and deployment-ready documentation for GitHub, Vercel, PostgreSQL, and GoDaddy DNS.
