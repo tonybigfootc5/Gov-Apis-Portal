@@ -42,7 +42,7 @@ export default async function ProgramDetailPage({ params }: Props) {
       >
         {programBackgroundSrc ? (
           <>
-            <div className="absolute inset-0">
+            <div className="pointer-events-none absolute inset-0">
               <Image
                 src={programBackgroundSrc}
                 alt=""
@@ -66,7 +66,7 @@ export default async function ProgramDetailPage({ params }: Props) {
               />
               <div className="absolute inset-0 honeycomb-bg opacity-25" />
             </div>
-            <div className="absolute right-8 top-8 hidden rounded-full border border-[#ffd485]/30 bg-[rgba(18,12,18,0.45)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#ffd485] backdrop-blur-xl md:block">
+            <div className="pointer-events-none absolute right-8 top-8 hidden rounded-full border border-[#ffd485]/30 bg-[rgba(18,12,18,0.45)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#ffd485] backdrop-blur-xl md:block">
               {isFoundation ? "Live apiary foundation" : "Queen line development"}
             </div>
           </>

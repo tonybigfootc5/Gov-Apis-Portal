@@ -24,7 +24,7 @@ export default async function Home() {
   return (
     <>
       <section className="relative isolate min-h-[820px] overflow-hidden bg-[#120c12]">
-        <div className="absolute inset-0">
+        <div className="pointer-events-none absolute inset-0">
           <HeroBackgroundVideo />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,#171117_0%,rgba(23,17,23,0.94)_45%,rgba(23,17,23,0.35)_100%)]" />
           <div className="absolute inset-0 honeycomb-bg opacity-70" />
@@ -64,8 +64,8 @@ export default async function Home() {
           </div>
 
           <div className="relative hidden min-h-[560px] lg:block">
-            <div className="absolute right-2 top-6 h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgba(244,179,21,0.24)_0%,rgba(244,179,21,0.1)_38%,rgba(244,179,21,0)_72%)] blur-3xl" />
-            <div className="hero-float absolute right-0 top-0 h-[455px] w-[500px]">
+            <div className="pointer-events-none absolute right-2 top-6 h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgba(244,179,21,0.24)_0%,rgba(244,179,21,0.1)_38%,rgba(244,179,21,0)_72%)] blur-3xl" />
+            <div className="pointer-events-none hero-float absolute right-0 top-0 h-[455px] w-[500px]">
               <div className="hex-clip absolute inset-0 border border-[#ffd485]/25 bg-[linear-gradient(180deg,rgba(255,212,133,0.16)_0%,rgba(255,212,133,0.06)_45%,rgba(18,12,18,0.02)_100%)] shadow-[0_40px_120px_rgba(0,0,0,0.34)] backdrop-blur-[10px]" />
               <div className="hex-clip absolute inset-[18px] border border-[#ffd485]/20 bg-[linear-gradient(135deg,rgba(255,212,133,0.09)_0%,rgba(36,30,36,0.05)_48%,rgba(255,212,133,0.02)_100%)]" />
               <div className="absolute left-[78px] top-[82px] h-[292px] w-[292px] rounded-full border border-[#ffd485]/18 bg-[radial-gradient(circle,rgba(255,212,133,0.22)_0%,rgba(255,212,133,0.08)_34%,rgba(18,12,18,0)_70%)]" />
@@ -122,7 +122,7 @@ export default async function Home() {
               fill
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,12,18,0.08)_0%,rgba(18,12,18,0.45)_100%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(18,12,18,0.08)_0%,rgba(18,12,18,0.45)_100%)]" />
           </div>
           <div className="flex flex-col justify-center">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-[#feb96d]">Field Spotlight</p>
