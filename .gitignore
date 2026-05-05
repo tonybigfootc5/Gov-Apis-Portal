@@ -40,7 +40,7 @@ npm.ps1
 .vercel
 
 # graphify
-graphify-out/cache/
+graphify-out/
 
 # typescript
 *.tsbuildinfo
