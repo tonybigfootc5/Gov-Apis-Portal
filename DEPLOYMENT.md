@@ -27,6 +27,7 @@ Set these in your Vercel project settings before deploying:
 - Go to [Vercel Dashboard](https://vercel.com)
 - Click `Add New` -> `Project`
 - Select the `tonybigfootc5/Gov-Apis-Portal` repository
+- Git URL: `https://github.com/tonybigfootc5/Gov-Apis-Portal.git`
 
 ### 2. Confirm Project Settings
 - Framework preset: `Next.js`

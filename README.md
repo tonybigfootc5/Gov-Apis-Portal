@@ -69,7 +69,7 @@ git init
 git add .
 git commit -m "Initial Honey House production website"
 git branch -M main
-git remote add origin https://github.com/<org-or-user>/api-culture.git
+git remote add origin https://github.com/tonybigfootc5/Gov-Apis-Portal.git
 git push -u origin main
 ```
 
