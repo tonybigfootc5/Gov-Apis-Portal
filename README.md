@@ -1,36 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# API Culture - Honey House
 
-## Getting Started
+Production-ready website for **Honey House - API Culture Technology Center (Bee Keeping)**, Rajendranagar, Hyderabad.
 
-First, run the development server:
+## Project Structure
+
+```txt
+src/app                  Next.js App Router pages and route handlers
+src/app/api              Backend API routes for contact, admin auth, CRUD
+src/components           Reusable UI and client-side admin/contact components
+src/lib                  Prisma client, validation, auth, data helpers
+prisma/schema.prisma     PostgreSQL data model
+prisma/seed.ts           Initial training/event content
+public/                  Optimized public assets
+```
+
+## Local Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create `.env` from `.env.example` and set:
+
+```bash
+DATABASE_URL="postgresql://..."
+NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+ADMIN_PASSWORD="use-a-long-random-password"
+ADMIN_SESSION_SECRET="use-a-separate-long-random-secret"
+```
+
+3. Generate Prisma and migrate PostgreSQL:
+
+```bash
+npm run prisma:generate
+npm run prisma:migrate
+npm run db:seed
+```
+
+4. Run the app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Admin URL: `/admin`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Development fallback password, only when `ADMIN_PASSWORD` is not set and `NODE_ENV` is not production:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```txt
+admin-development-pass
+```
 
-## Learn More
+## Implementation Notes
 
-To learn more about Next.js, take a look at the following resources:
+- Frontend: Next.js App Router, TypeScript, Tailwind CSS, `next/image`, `lucide-react`.
+- Backend: Next.js route handlers under `src/app/api`.
+- Database: PostgreSQL with Prisma ORM.
+- Security: signed HTTP-only admin session cookie, input validation with Zod, no secrets in client code, security headers in `next.config.ts`.
+- SEO: Metadata API, Open Graph, sitemap, robots rules.
+- Resilience: public pages fall back to bundled institutional data if the database is unavailable during early deployment.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## GitHub Workflow
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+git init
+git add .
+git commit -m "Initial Honey House production website"
+git branch -M main
+git remote add origin https://github.com/<org-or-user>/api-culture.git
+git push -u origin main
+```
 
-## Deploy on Vercel
+Use meaningful commit messages such as:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```txt
+Add program registration fields
+Improve admin event validation
+Update Honey House gallery assets
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Vercel Deployment
+
+1. Push the repository to GitHub.
+2. In Vercel, choose **Add New Project**.
+3. Import the GitHub repository.
+4. Framework preset: **Next.js**.
+5. Add environment variables in Vercel Project Settings:
+   - `DATABASE_URL`
+   - `NEXT_PUBLIC_SITE_URL`
+   - `ADMIN_PASSWORD`
+   - `ADMIN_SESSION_SECRET`
+6. Use a managed PostgreSQL provider such as Vercel Postgres, Neon, Supabase, or Railway.
+7. Run production migrations:
+
+```bash
+npm run prisma:deploy
+```
+
+8. Deploy. Vercel will automatically build on every push to `main`.
+
+Build verification:
+
+```bash
+npm run lint
+npm run build
+```
+
+## GoDaddy Domain to Vercel
+
+1. Open the Vercel project.
+2. Go to **Settings -> Domains**.
+3. Add the domain, for example:
+
+```txt
+apiculture.in
+www.apiculture.in
+```
+
+4. In GoDaddy DNS, use Vercel's recommended records.
+
+For apex/root domain:
+
+```txt
+Type: A
+Name: @
+Value: 76.76.21.21
+TTL: 600 or default
+```
+
+For `www`:
+
+```txt
+Type: CNAME
+Name: www
+Value: cname.vercel-dns.com
+TTL: 600 or default
+```
+
+5. Return to Vercel and click **Verify**.
+6. HTTPS is issued automatically by Vercel after DNS propagation.
+7. Set `NEXT_PUBLIC_SITE_URL` in Vercel to the final canonical URL, for example:
+
+```txt
+https://www.apiculture.in
+```
+
+DNS propagation can take a few minutes to 24 hours depending on GoDaddy cache state.
