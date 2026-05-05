@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, MapPin } from "lucide-react";
 import { getEvent } from "@/lib/data";
+import { getTranslatedEventContent, t } from "@/lib/i18n";
+import { getRequestLanguage } from "@/lib/request-language";
 import { formatDateTime } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -21,27 +23,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function EventDetailPage({ params }: Props) {
+  const language = await getRequestLanguage();
   const { slug } = await params;
   const event = await getEvent(slug);
   if (!event) notFound();
+  const translatedEvent = getTranslatedEventContent(event, language);
 
   return (
     <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <Link href="/events" className="inline-flex items-center gap-2 text-sm font-black text-[#feb96d]">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        Events
+        {t(language, "events.back")}
       </Link>
-      <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{event.status}</p>
-      <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[#ffd485] sm:text-5xl lg:text-6xl">{event.title}</h1>
-      <p className="mt-5 text-base leading-7 text-[#d4c4ac] sm:text-lg sm:leading-8">{event.summary}</p>
+      <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{translatedEvent.status}</p>
+      <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[#ffd485] sm:text-5xl lg:text-6xl">{translatedEvent.title}</h1>
+      <p className="mt-5 text-base leading-7 text-[#d4c4ac] sm:text-lg sm:leading-8">{translatedEvent.summary}</p>
       <div className="glass-panel mt-8 rounded-xl p-6">
-        <p className="font-black text-[#ffd485]">{formatDateTime(event.startsAt)}</p>
+        <p className="font-black text-[#ffd485]">{formatDateTime(translatedEvent.startsAt)}</p>
         <p className="mt-3 inline-flex flex-wrap gap-2 text-sm font-bold text-[#d4c4ac]">
           <MapPin className="h-4 w-4 text-[#feb96d]" aria-hidden="true" />
-          {event.location}
+          {translatedEvent.location}
         </p>
       </div>
-      <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#ecdfe8]">{event.description}</div>
+      <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#ecdfe8]">{translatedEvent.description}</div>
     </article>
   );
 }

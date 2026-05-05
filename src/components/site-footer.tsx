@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Camera, CirclePlay, Mail, MapPin, MessageCircle, Phone, Users } from "lucide-react";
 import { institute } from "@/lib/fallback-data";
+import type { SiteLanguage } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
 
-export function SiteFooter() {
+export function SiteFooter({ language }: { language: SiteLanguage }) {
   const whatsappUrl = "https://wa.me/919700284045";
 
   return (
@@ -29,32 +31,32 @@ export function SiteFooter() {
         </div>
         <div className="grid content-start gap-2 text-sm">
           <Link href="/programs" className="text-[#d4c4ac] hover:text-[#ffd485]">
-            Training programs
+            {t(language, "footer.programs")}
           </Link>
           <Link href="/events" className="text-[#d4c4ac] hover:text-[#ffd485]">
-            Events and workshops
+            {t(language, "footer.events")}
           </Link>
           <Link href="/contact" className="text-[#d4c4ac] hover:text-[#ffd485]">
-            Contact the center
+            {t(language, "footer.contact")}
           </Link>
           <div className="mt-4 flex items-center gap-4 text-[#d4c4ac]">
             <span className="inline-flex items-center gap-2" aria-label="YouTube">
               <CirclePlay className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
-              <span className="text-xs font-semibold uppercase tracking-[0.12em]">YouTube</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.12em]">{t(language, "footer.youtube")}</span>
             </span>
             <span className="inline-flex items-center gap-2" aria-label="Instagram">
               <Camera className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
-              <span className="text-xs font-semibold uppercase tracking-[0.12em]">Insta</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.12em]">{t(language, "footer.instagram")}</span>
             </span>
             <span className="inline-flex items-center gap-2" aria-label="Facebook">
               <Users className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
-              <span className="text-xs font-semibold uppercase tracking-[0.12em]">Facebook</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.12em]">{t(language, "footer.facebook")}</span>
             </span>
           </div>
         </div>
       </div>
       <div className="border-t border-[#3a2f24] px-4 py-4 text-center text-xs text-[#d4c4ac] sm:px-6 sm:text-sm lg:px-8">
-        <span>Designed by Solution Architect:</span>{" "}
+        <span>{t(language, "footer.designedBy")}</span>{" "}
         <a
           href={whatsappUrl}
           target="_blank"

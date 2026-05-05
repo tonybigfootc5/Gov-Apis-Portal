@@ -7,7 +7,7 @@ async function main() {
     where: { slug: "scientific-beekeeping-foundation" },
     update: {},
     create: {
-      title: "Scientific Beekeeping Foundation",
+      title: "Beekeeping",
       slug: "scientific-beekeeping-foundation",
       summary:
         "Practical training for beginners covering colony biology, hive handling, safety, and seasonal management.",

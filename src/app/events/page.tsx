@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
 import { getEvents } from "@/lib/data";
+import { getTranslatedEventContent, t } from "@/lib/i18n";
+import { getRequestLanguage } from "@/lib/request-language";
 import { formatDateTime } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -13,15 +15,17 @@ export const metadata: Metadata = {
 };
 
 export default async function EventsPage() {
+  const language = await getRequestLanguage();
   const events = await getEvents();
+  const translatedEvents = events.map((event) => getTranslatedEventContent(event, language));
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-      <SectionHeading eyebrow="Events" title="Workshops, orientations, and field sessions">
-        API CULTURE publishes timely events with structured status, dates, locations, and detailed public pages for all participants.
+      <SectionHeading eyebrow={t(language, "home.events.eyebrow")} title={t(language, "events.page.title")}>
+        {t(language, "events.page.body")}
       </SectionHeading>
       <div className="mt-10 grid gap-6">
-        {events.map((event) => (
+        {translatedEvents.map((event) => (
           <Link key={event.id} href={`/events/${event.slug}`} className="group relative flex flex-col overflow-hidden rounded-xl border border-[#504533] bg-[#201a20] shadow-xl transition hover:border-[#ffd485]/70 md:flex-row">
             <div className="grid min-h-36 place-items-center border-b border-[#504533] bg-[#2f282e] p-6 text-center md:min-h-48 md:w-64 md:border-b-0 md:border-r md:p-8">
               <div className="hex-clip grid h-24 w-28 place-items-center border border-[#ffd485]/30 bg-[#f4b315]/10 sm:h-28 sm:w-32">

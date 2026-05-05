@@ -7,19 +7,23 @@ import {
   GraduationCap,
   MapPin,
   Microscope,
-  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { SectionHeading } from "@/components/section-heading";
 import { getEvents, getPrograms } from "@/lib/data";
 import { institute } from "@/lib/fallback-data";
+import { getTranslatedEventContent, getTranslatedProgramContent, t } from "@/lib/i18n";
+import { getRequestLanguage } from "@/lib/request-language";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const language = await getRequestLanguage();
   const [programs, events] = await Promise.all([getPrograms(), getEvents()]);
+  const translatedPrograms = programs.map((program) => getTranslatedProgramContent(program, language));
+  const translatedEvents = events.map((event) => getTranslatedEventContent(event, language));
 
   return (
     <>
@@ -41,24 +45,23 @@ export default async function Home() {
               <span className="truncate">{institute.parent.split(",")[0]}</span>
             </p>
             <h1 className="font-display mt-8 max-w-4xl text-4xl font-semibold leading-[1.02] tracking-tight text-[#ecdfe8] sm:text-6xl lg:text-8xl">
-              Advanced <span className="text-[#ffd485]">API CULTURE</span>
+              {t(language, "home.hero.titlePrefix")} <span className="text-[#ffd485]">{t(language, "home.hero.titleHighlight")}</span>
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[#d4c4ac] sm:mt-7 sm:text-xl sm:leading-9">
-              API CULTURE is a field-focused apiculture technology center for scientific beekeeping training,
-              rural enterprise, workshops, and institutional collaboration.
+              {t(language, "home.hero.description")}
             </p>
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
               <Link
                 href="/programs"
                 className="hex-soft inline-flex w-full items-center justify-center gap-3 bg-[#f4b315] px-6 py-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#271900] shadow-xl shadow-black/30 transition hover:-translate-y-1 sm:w-auto sm:px-8"
               >
-                Training catalog <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                {t(language, "home.hero.cta.training")} <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
               <Link
                 href="/about"
                 className="inline-flex w-full items-center justify-center gap-3 rounded border-2 border-[#504533] px-6 py-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#ecdfe8] transition hover:border-[#ffd485] hover:bg-[#241e24] sm:w-auto sm:px-8"
               >
-                Learn mission
+                {t(language, "home.hero.cta.mission")}
               </Link>
             </div>
           </div>
@@ -72,24 +75,24 @@ export default async function Home() {
               <div className="absolute left-[145px] top-[124px] h-[156px] w-[156px] rounded-full border border-[#ffd485]/30 bg-[radial-gradient(circle,rgba(244,179,21,0.26)_0%,rgba(244,179,21,0.08)_50%,rgba(244,179,21,0)_100%)]" />
               <div className="absolute left-[160px] top-[139px] h-[126px] w-[126px] rounded-full border border-[#ffd485]/20" />
               <div className="absolute left-[64px] top-[56px] rounded-full border border-[#ffd485]/25 bg-[rgba(18,12,18,0.56)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#ffd485] backdrop-blur-xl">
-                Live campus motion
+                {t(language, "home.hero.liveCampus")}
               </div>
               <div className="absolute right-[68px] top-[100px] flex flex-col gap-3">
                 <div className="glass-panel hero-float-delayed rounded-2xl px-4 py-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#feb96d]">Location</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#feb96d]">{t(language, "home.hero.location")}</p>
                   <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-[#ecdfe8]">
                     <MapPin className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
                     Rajendranagar, Hyderabad
                   </p>
                 </div>
                 <div className="glass-panel rounded-2xl px-4 py-3">
-                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#feb96d]">Focus</p>
-                  <p className="mt-2 text-sm font-semibold text-[#ecdfe8]">Applied training, hive practice, rural enterprise</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#feb96d]">{t(language, "home.hero.focus")}</p>
+                  <p className="mt-2 text-sm font-semibold text-[#ecdfe8]">{t(language, "home.hero.focusText")}</p>
                 </div>
               </div>
               <div className="hero-float absolute bottom-[26px] left-[8px] rounded-[2rem] border border-[#ffd485]/26 bg-[linear-gradient(180deg,rgba(255,212,133,0.9)_0%,rgba(254,185,109,0.92)_100%)] px-8 py-7 text-[#3a2000] shadow-[0_32px_70px_rgba(0,0,0,0.3)]">
                 <p className="font-display text-6xl font-bold leading-none">40+</p>
-                <p className="mt-3 max-w-[220px] text-xs font-black uppercase tracking-[0.2em]">Training and field capability pathways</p>
+                <p className="mt-3 max-w-[220px] text-xs font-black uppercase tracking-[0.2em]">{t(language, "home.hero.stats")}</p>
               </div>
             </div>
           </div>
@@ -99,10 +102,9 @@ export default async function Home() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            [GraduationCap, "Applied training", "Structured beekeeping programs"],
-            [CalendarDays, "Workshops", "Events and orientation sessions"],
-            [Microscope, "Technology center", "Field-ready apiculture practices"],
-            [ShieldCheck, "Secure admin", "Protected CRUD and validated inputs"],
+            [GraduationCap, t(language, "home.cards.training.title"), t(language, "home.cards.training.text")],
+            [CalendarDays, t(language, "home.cards.workshops.title"), t(language, "home.cards.workshops.text")],
+            [Microscope, t(language, "home.cards.tech.title"), t(language, "home.cards.tech.text")],
           ].map(([Icon, title, text]) => (
             <div key={title as string} className="glass-panel rounded-xl p-6 transition hover:-translate-y-1">
               <Icon className="h-7 w-7 text-[#ffd485]" aria-hidden="true" />
@@ -127,16 +129,15 @@ export default async function Home() {
           <div className="flex flex-col justify-center">
             <p className="text-xs font-black uppercase tracking-[0.24em] text-[#feb96d]">Field Spotlight</p>
             <h2 className="font-display mt-4 text-3xl font-semibold leading-tight text-[#ecdfe8] sm:text-5xl">
-              Beekeeping practice, captured in the field
+              {t(language, "home.fieldSpotlight.title")}
             </h2>
             <p className="mt-6 max-w-2xl text-base leading-8 text-[#d4c4ac]">
-              API CULTURE connects classroom instruction with real-world observation, hive handling, and field-ready
-              apiculture methods that learners can carry into rural enterprise and institutional training programs.
+              {t(language, "home.fieldSpotlight.body")}
             </p>
             <div className="mt-8 flex flex-wrap gap-4 text-sm font-black uppercase tracking-[0.14em] text-[#ffd485]">
-              <span className="rounded-full border border-[#6d582f] px-4 py-2">Hands-on learning</span>
-              <span className="rounded-full border border-[#6d582f] px-4 py-2">Applied beekeeping</span>
-              <span className="rounded-full border border-[#6d582f] px-4 py-2">Field observation</span>
+              <span className="rounded-full border border-[#6d582f] px-4 py-2">{t(language, "home.fieldSpotlight.tag1")}</span>
+              <span className="rounded-full border border-[#6d582f] px-4 py-2">{t(language, "home.fieldSpotlight.tag2")}</span>
+              <span className="rounded-full border border-[#6d582f] px-4 py-2">{t(language, "home.fieldSpotlight.tag3")}</span>
             </div>
           </div>
         </div>
@@ -144,11 +145,11 @@ export default async function Home() {
 
       <section className="border-y border-[#504533]/60 bg-[#201a20] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading eyebrow="Training" title="Professional programs for practical apiculture capability">
-            The training catalog is dynamic and managed through the secure admin dashboard backed by PostgreSQL and Prisma. All API CULTURE programs are designed for hands-on learning.
+          <SectionHeading eyebrow={t(language, "home.training.eyebrow")} title={t(language, "home.training.title")}>
+            {t(language, "home.training.body")}
           </SectionHeading>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {programs.slice(0, 2).map((program) => {
+            {translatedPrograms.slice(0, 2).map((program) => {
               const isFoundation = program.slug === "scientific-beekeeping-foundation";
               const isQueenRearing = program.slug === "queen-rearing-and-colony-multiplication";
 
@@ -186,7 +187,19 @@ export default async function Home() {
                   ) : null}
                   <div className="absolute left-0 top-0 h-1.5 w-full bg-[#f4b315]" />
                   <div className="relative">
-                    <Sparkles className="h-7 w-7 text-[#ffd485]" aria-hidden="true" />
+                    {isFoundation ? (
+                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#ffd485]/25 bg-[rgba(18,12,18,0.72)] p-2 shadow-[0_20px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+                        <Image
+                          src="/scientific-beekeeping-icon.png"
+                          alt="Scientific Beekeeping Foundation icon"
+                          width={1024}
+                          height={1024}
+                          className="h-full w-full object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <Sparkles className="h-7 w-7 text-[#ffd485]" aria-hidden="true" />
+                    )}
                     <h3 className="font-display mt-5 text-2xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485] sm:text-3xl">{program.title}</h3>
                     <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">{program.summary}</p>
                     <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">
@@ -201,11 +214,11 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Events" title="Workshops and public programs">
-          Publish orientations, workshops, and field sessions with dynamic event detail pages hosted by API CULTURE.
+        <SectionHeading eyebrow={t(language, "home.events.eyebrow")} title={t(language, "home.events.title")}>
+          {t(language, "home.events.body")}
         </SectionHeading>
         <div className="mt-10 grid gap-5">
-          {events.slice(0, 3).map((event) => (
+          {translatedEvents.slice(0, 3).map((event) => (
             <Link
               key={event.id}
               href={`/events/${event.slug}`}

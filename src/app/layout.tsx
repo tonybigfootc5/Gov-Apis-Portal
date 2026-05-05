@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Newsreader, Work_Sans } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { supportedLanguages, t } from "@/lib/i18n";
+import { getRequestLanguage } from "@/lib/request-language";
 import "./globals.css";
 
 const workSans = Work_Sans({
@@ -39,20 +41,40 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const language = await getRequestLanguage();
+  const navItems = [
+    { label: t(language, "nav.home"), href: "/" },
+    { label: t(language, "nav.about"), href: "/about" },
+    { label: t(language, "nav.training"), href: "/programs" },
+    { label: t(language, "nav.events"), href: "/events" },
+    { label: t(language, "nav.gallery"), href: "/gallery" },
+    { label: t(language, "nav.contact"), href: "/contact" },
+  ];
+
   return (
     <html
-      lang="en"
+      lang={language}
       className={`${workSans.variable} ${newsreader.variable} h-full antialiased dark`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <SiteHeader />
+        <SiteHeader
+          currentLanguage={language}
+          languageLabel={t(language, "lang.label")}
+          languageOptions={supportedLanguages.map((value) => ({
+            value,
+            label: t(language, `lang.${value}`),
+          }))}
+          navItems={navItems}
+          adminLabel={t(language, "nav.admin")}
+          techCenterLabel={t(language, "header.techCenter")}
+        />
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <SiteFooter language={language} />
       </body>
     </html>
   );

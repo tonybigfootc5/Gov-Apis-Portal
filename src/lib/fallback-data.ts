@@ -13,7 +13,7 @@ export const institute = {
 export const fallbackPrograms = [
   {
     id: "program-foundation",
-    title: "Scientific Beekeeping Foundation",
+    title: "Beekeeping",
     slug: "scientific-beekeeping-foundation",
     summary:
       "Practical training covering colony biology, hive handling, safety, seasonal care, and honey hygiene.",

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getProgram } from "@/lib/data";
+import { getTranslatedProgramContent, t } from "@/lib/i18n";
+import { getRequestLanguage } from "@/lib/request-language";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +23,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProgramDetailPage({ params }: Props) {
+  const language = await getRequestLanguage();
   const { slug } = await params;
   const program = await getProgram(slug);
   if (!program) notFound();
+  const translatedProgram = getTranslatedProgramContent(program, language);
   const isQueenRearing = slug === "queen-rearing-and-colony-multiplication";
   const isFoundation = slug === "scientific-beekeeping-foundation";
   const programBackgroundSrc =
@@ -67,25 +71,37 @@ export default async function ProgramDetailPage({ params }: Props) {
               <div className="absolute inset-0 honeycomb-bg opacity-25" />
             </div>
             <div className="pointer-events-none absolute right-8 top-8 hidden rounded-full border border-[#ffd485]/30 bg-[rgba(18,12,18,0.45)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#ffd485] backdrop-blur-xl md:block">
-              {isFoundation ? "Live apiary foundation" : "Queen line development"}
+              {isFoundation ? t(language, "programs.detail.foundationBadge") : t(language, "programs.detail.queenBadge")}
             </div>
+            {isFoundation ? (
+              <div className="pointer-events-none absolute bottom-8 right-8 hidden h-28 w-28 items-center justify-center rounded-[2rem] border border-[#ffd485]/25 bg-[rgba(18,12,18,0.56)] p-3 shadow-[0_30px_70px_rgba(0,0,0,0.3)] backdrop-blur-xl md:flex">
+                <Image
+                  src="/scientific-beekeeping-icon.png"
+                  alt="Scientific Beekeeping Foundation icon"
+                  width={1024}
+                  height={1024}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
+            ) : null}
           </>
         ) : null}
 
         <div className="relative min-w-0">
           <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-black text-[#feb96d]">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Training programs
+            {t(language, "programs.back")}
           </Link>
-          <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{program.level}</p>
-          <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[#ffd485] sm:text-5xl lg:text-6xl">{program.title}</h1>
-          <p className="mt-5 max-w-3xl text-base leading-7 text-[#d4c4ac] sm:text-lg sm:leading-8">{program.summary}</p>
+          <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{translatedProgram.level}</p>
+          <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[#ffd485] sm:text-5xl lg:text-6xl">{translatedProgram.title}</h1>
+          <p className="mt-5 max-w-3xl text-base leading-7 text-[#d4c4ac] sm:text-lg sm:leading-8">{translatedProgram.summary}</p>
           <div className="glass-panel mt-8 grid gap-4 rounded-xl p-6 sm:grid-cols-3">
-            <Detail label="Duration" value={program.duration} />
-            <Detail label="Capacity" value={`${program.capacity} participants`} />
-            <Detail label="Fee" value={program.fee ?? "As notified"} />
+            <Detail label={t(language, "programs.detail.duration")} value={translatedProgram.duration} />
+            <Detail label={t(language, "programs.detail.capacity")} value={`${translatedProgram.capacity} participants`} />
+            <Detail label={t(language, "programs.detail.fee")} value={translatedProgram.fee ?? t(language, "programs.detail.fallbackFee")} />
           </div>
-          <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#ecdfe8]">{program.description}</div>
+          <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#ecdfe8]">{translatedProgram.description}</div>
         </div>
       </div>
     </article>
