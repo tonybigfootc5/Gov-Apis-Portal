@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const program = await getProgram(slug);
   return {
     title: program?.title ?? "Program",
-    description: program?.summary ?? "Honey House training program.",
+    description: program?.summary ?? "API CULTURE training program.",
   };
 }
 

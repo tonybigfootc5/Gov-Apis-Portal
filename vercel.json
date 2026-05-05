@@ -1,0 +1,21 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_SITE_URL": {
+      "description": "Public site URL for Open Graph and metadata"
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string. Format: postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require",
+      "required": true
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Admin login password (use a long random string)",
+      "required": true
+    },
+    "ADMIN_SESSION_SECRET": {
+      "description": "Session secret for admin authentication (use a 32-byte random string)",
+      "required": true
+    }
+  }
+}

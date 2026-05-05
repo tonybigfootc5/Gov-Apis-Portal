@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
@@ -9,7 +10,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Events and Workshops",
-  description: "Upcoming and completed apiculture events and workshops at Honey House.",
+  description: "Upcoming and completed apiculture events and workshops at API CULTURE.",
 };
 
 export default async function EventsPage() {
@@ -18,17 +19,20 @@ export default async function EventsPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <SectionHeading eyebrow="Events" title="Workshops, orientations, and field sessions">
-        Publish timely events with structured status, dates, locations, and detailed public pages.
+        API CULTURE publishes timely events with structured status, dates, locations, and detailed public pages for all participants.
       </SectionHeading>
       <div className="mt-10 grid gap-6">
         {events.map((event) => (
-          <Link key={event.id} href={`/events/${event.slug}`} className="group flex flex-col overflow-hidden rounded-xl border border-[#504533] bg-[#201a20] shadow-xl transition hover:border-[#ffd485]/70 md:flex-row">
+          <Link key={event.id} href={`/events/${event.slug}`} className="group relative flex flex-col overflow-hidden rounded-xl border border-[#504533] bg-[#201a20] shadow-xl transition hover:border-[#ffd485]/70 md:flex-row">
             <div className="grid min-h-48 place-items-center border-b border-[#504533] bg-[#2f282e] p-8 text-center md:w-64 md:border-b-0 md:border-r">
               <div className="hex-clip grid h-28 w-32 place-items-center border border-[#ffd485]/30 bg-[#f4b315]/10">
                 <span className="font-display text-5xl font-bold text-[#ffd485]">{formatDateTime(event.startsAt).slice(0, 2)}</span>
               </div>
             </div>
-            <div className="flex-1 p-7">
+            <div className="relative flex-1 p-7">
+            <div className="absolute right-4 top-4 h-8 w-8 opacity-15">
+              <Image src="/bee-icon.svg" alt="" fill className="object-contain" />
+            </div>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">{event.status}</p>

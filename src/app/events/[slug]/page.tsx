@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const event = await getEvent(slug);
   return {
     title: event?.title ?? "Event",
-    description: event?.summary ?? "Honey House event.",
+    description: event?.summary ?? "API CULTURE event.",
   };
 }
 

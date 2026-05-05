@@ -14,15 +14,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#504533]/70 bg-[#171117]/90 shadow-lg shadow-black/20 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="Honey House home">
+        <Link href="/" className="flex items-center gap-3" aria-label="API CULTURE home">
           <span className="hex-clip grid h-11 w-12 place-items-center bg-[#f4b315] text-[#271900] shadow-lg shadow-amber-950/30">
             <Hexagon className="h-6 w-6" aria-hidden="true" />
           </span>
           <span className="leading-tight">
             <span className="block font-display text-xl font-black uppercase tracking-[0.2em] text-[#ffd485]">
-              Honey House
+              API CULTURE
             </span>
-            <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#d4c4ac]">API Culture</span>
+            <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#d4c4ac]">Technology Center</span>
           </span>
         </Link>
 

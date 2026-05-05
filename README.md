@@ -1,6 +1,6 @@
-# API Culture - Honey House
+# API CULTURE - Technology Center
 
-Production-ready website for **Honey House - API Culture Technology Center (Bee Keeping)**, Rajendranagar, Hyderabad.
+Production-ready website for **API CULTURE Technology Center (Apiculture & Beekeeping)**, Rajendranagar, Hyderabad.
 
 ## Project Structure
 

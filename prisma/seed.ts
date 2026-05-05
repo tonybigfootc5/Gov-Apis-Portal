@@ -47,7 +47,7 @@ async function main() {
         "Open orientation on modern beekeeping, honey value chains, and rural enterprise opportunities.",
       description:
         "A public orientation for prospective trainees, farmer groups, and partner institutions. Sessions include center briefing, equipment demonstrations, and guidance on training enrollment.",
-      location: "Honey House, API Culture Technology Center, Rajendranagar, Hyderabad",
+      location: "API CULTURE Technology Center, Rajendranagar, Hyderabad",
       startsAt: new Date("2026-06-12T10:00:00.000Z"),
       endsAt: new Date("2026-06-12T13:00:00.000Z"),
       status: EventStatus.UPCOMING,

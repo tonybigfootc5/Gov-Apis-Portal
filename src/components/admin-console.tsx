@@ -46,7 +46,7 @@ const emptyEvent: Omit<EventItem, "id"> = {
   slug: "",
   summary: "",
   description: "",
-  location: "Honey House, Rajendranagar, Hyderabad",
+  location: "API CULTURE, Rajendranagar, Hyderabad",
   startsAt: "",
   endsAt: "",
   status: "UPCOMING",

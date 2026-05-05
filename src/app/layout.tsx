@@ -18,17 +18,17 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.apiculture.in"),
   title: {
-    default: "Honey House - API Culture Technology Center",
-    template: "%s | Honey House",
+    default: "API CULTURE Technology Center",
+    template: "%s | API CULTURE",
   },
   description:
-    "Government-grade apiculture training, technology, events, and institutional support from Honey House, API Culture Technology Center, Hyderabad.",
+    "Government-grade apiculture training, technology, events, and institutional support from API CULTURE Technology Center, Hyderabad.",
   openGraph: {
-    title: "Honey House - API Culture Technology Center",
+    title: "API CULTURE Technology Center",
     description:
       "Apiculture culture, beekeeping training, and rural enterprise technology center in Hyderabad.",
     url: "/",
-    siteName: "Honey House",
+    siteName: "API CULTURE",
     images: [{ url: "/honey-house-signboard.jpg", width: 1000, height: 563 }],
     locale: "en_IN",
     type: "website",
