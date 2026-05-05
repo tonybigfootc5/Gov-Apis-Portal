@@ -37,6 +37,9 @@ export function SiteFooter() {
           </Link>
         </div>
       </div>
+      <div className="border-t border-[#3a2f24] px-4 py-4 text-center text-sm text-[#d4c4ac] sm:px-6 lg:px-8">
+        Designed by Solution Architect: 9700284045
+      </div>
     </footer>
   );
 }
