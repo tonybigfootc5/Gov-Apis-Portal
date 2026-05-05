@@ -14,22 +14,26 @@ export function ContactForm({ language }: { language: SiteLanguage }) {
   async function submit(formData: FormData) {
     setState("loading");
     setMessage("");
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(formData)),
+      });
 
-    const response = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(Object.fromEntries(formData)),
-    });
+      if (response.ok) {
+        setState("success");
+        setMessage(t(language, "contact.form.success"));
+        return;
+      }
 
-    if (response.ok) {
-      setState("success");
-      setMessage(t(language, "contact.form.success"));
-      return;
+      const body = await response.json().catch(() => null);
+      setState("error");
+      setMessage(body?.error ?? t(language, "contact.form.error"));
+    } catch {
+      setState("error");
+      setMessage(t(language, "contact.form.error"));
     }
-
-    const body = await response.json().catch(() => null);
-    setState("error");
-    setMessage(body?.error ?? t(language, "contact.form.error"));
   }
 
   return (

@@ -14,6 +14,7 @@ type Program = {
   fee?: string | null;
   capacity: number;
   published: boolean;
+  updatedAt?: string;
 };
 
 type EventItem = {
@@ -27,6 +28,7 @@ type EventItem = {
   endsAt?: string | null;
   status: "UPCOMING" | "COMPLETED" | "CANCELLED";
   published: boolean;
+  updatedAt?: string;
 };
 
 const emptyProgram: Omit<Program, "id"> = {
@@ -65,35 +67,56 @@ export function AdminConsole({
   const [programDraft, setProgramDraft] = useState(emptyProgram);
   const [eventDraft, setEventDraft] = useState(emptyEvent);
   const [notice, setNotice] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function load() {
-    const [programResponse, eventResponse] = await Promise.all([
-      fetch("/api/admin/programs"),
-      fetch("/api/admin/events"),
-    ]);
-    if (programResponse.status === 401 || eventResponse.status === 401) {
-      window.location.href = "/admin/login";
-      return;
+    setLoading(true);
+    setNotice("");
+    try {
+      const [programResponse, eventResponse] = await Promise.all([
+        fetch("/api/admin/programs"),
+        fetch("/api/admin/events"),
+      ]);
+      if (programResponse.status === 401 || eventResponse.status === 401) {
+        window.location.href = "/admin/login";
+        return;
+      }
+      if (!programResponse.ok || !eventResponse.ok) {
+        setNotice("Unable to refresh the dashboard right now.");
+        return;
+      }
+      setPrograms(await programResponse.json());
+      setEvents(await eventResponse.json());
+    } catch {
+      setNotice("Unable to refresh the dashboard right now.");
+    } finally {
+      setLoading(false);
     }
-    setPrograms(await programResponse.json());
-    setEvents(await eventResponse.json());
   }
 
   async function mutate(url: string, method: string, body?: unknown) {
+    setLoading(true);
     setNotice("");
-    const response = await fetch(url, {
-      method,
-      headers: body ? { "Content-Type": "application/json" } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      setNotice(data?.error ?? "Request failed");
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: body ? { "Content-Type": "application/json" } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setNotice(data?.error ?? "Request failed");
+        return false;
+      }
+      setNotice("Saved successfully");
+      await load();
+      return true;
+    } catch {
+      setNotice("Request failed");
       return false;
+    } finally {
+      setLoading(false);
     }
-    setNotice("Saved successfully");
-    await load();
-    return true;
   }
 
   return (
@@ -103,31 +126,31 @@ export function AdminConsole({
           <p className="text-sm font-black uppercase tracking-[0.24em] text-[#feb96d]">Institutional oversight</p>
           <h1 className="font-display mt-2 text-3xl font-semibold text-[#ffd485] sm:text-4xl lg:text-5xl">Admin Dashboard</h1>
         </div>
-        <button onClick={load} className="inline-flex items-center gap-2 rounded border border-[#504533] bg-[#241e24] px-4 py-2 text-sm font-bold text-[#ecdfe8]">
-          <RefreshCw className="h-4 w-4" aria-hidden="true" />
+        <button disabled={loading} onClick={load} className="inline-flex items-center gap-2 rounded border border-[#504533] bg-[#241e24] px-4 py-2 text-sm font-bold text-[#ecdfe8] disabled:cursor-not-allowed disabled:opacity-60">
+          <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
           Refresh
         </button>
       </div>
       {notice ? <p className="mt-4 rounded bg-[#f4b315] px-4 py-3 text-sm font-semibold text-[#271900]">{notice}</p> : null}
 
       <section className="mt-8 grid gap-5 lg:grid-cols-[380px_1fr]">
-        <Editor title="Create program" onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}>
+        <Editor disabled={loading} title="Create program" onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}>
           <ProgramFields value={programDraft} onChange={setProgramDraft} />
         </Editor>
         <div className="grid gap-4">
           {programs.map((program) => (
-            <ProgramRow key={program.id} program={program} onSave={(body) => mutate(`/api/admin/programs/${program.id}`, "PATCH", body)} onDelete={() => mutate(`/api/admin/programs/${program.id}`, "DELETE")} />
+            <ProgramRow key={`${program.id}-${program.updatedAt ?? ""}`} disabled={loading} program={program} onSave={(body) => mutate(`/api/admin/programs/${program.id}`, "PATCH", body)} onDelete={() => mutate(`/api/admin/programs/${program.id}`, "DELETE")} />
           ))}
         </div>
       </section>
 
       <section className="mt-10 grid gap-5 lg:grid-cols-[380px_1fr]">
-        <Editor title="Create event" onSave={() => mutate("/api/admin/events", "POST", eventDraft).then((ok) => ok && setEventDraft(emptyEvent))}>
+        <Editor disabled={loading} title="Create event" onSave={() => mutate("/api/admin/events", "POST", eventDraft).then((ok) => ok && setEventDraft(emptyEvent))}>
           <EventFields value={eventDraft} onChange={setEventDraft} />
         </Editor>
         <div className="grid gap-4">
           {events.map((event) => (
-            <EventRow key={event.id} event={event} onSave={(body) => mutate(`/api/admin/events/${event.id}`, "PATCH", body)} onDelete={() => mutate(`/api/admin/events/${event.id}`, "DELETE")} />
+            <EventRow key={`${event.id}-${event.updatedAt ?? ""}`} disabled={loading} event={event} onSave={(body) => mutate(`/api/admin/events/${event.id}`, "PATCH", body)} onDelete={() => mutate(`/api/admin/events/${event.id}`, "DELETE")} />
           ))}
         </div>
       </section>
@@ -135,12 +158,12 @@ export function AdminConsole({
   );
 }
 
-function Editor({ title, children, onSave }: { title: string; children: React.ReactNode; onSave: () => void }) {
+function Editor({ title, children, onSave, disabled }: { title: string; children: React.ReactNode; onSave: () => void; disabled: boolean }) {
   return (
     <div className="glass-panel h-fit rounded-xl p-5">
       <h2 className="font-display text-2xl font-semibold text-[#ffd485]">{title}</h2>
       <div className="mt-4 grid gap-3">{children}</div>
-      <button onClick={onSave} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900] sm:w-auto">
+      <button disabled={disabled} onClick={onSave} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
         <Plus className="h-4 w-4" aria-hidden="true" />
         Create
       </button>
@@ -190,21 +213,21 @@ function EventFields<T extends Omit<EventItem, "id">>({ value, onChange }: { val
   );
 }
 
-function ProgramRow({ program, onSave, onDelete }: { program: Program; onSave: (body: Program) => void; onDelete: () => void }) {
+function ProgramRow({ program, onSave, onDelete, disabled }: { program: Program; onSave: (body: Program) => void; onDelete: () => void; disabled: boolean }) {
   const [draft, setDraft] = useState(program);
-  return <div className="rounded-xl border border-[#504533] bg-[#201a20] p-5 shadow-xl"><ProgramFields value={draft} onChange={setDraft} /><RowActions onSave={() => onSave(draft)} onDelete={onDelete} /></div>;
+  return <div className="rounded-xl border border-[#504533] bg-[#201a20] p-5 shadow-xl"><ProgramFields value={draft} onChange={setDraft} /><RowActions disabled={disabled} onSave={() => onSave(draft)} onDelete={onDelete} /></div>;
 }
 
-function EventRow({ event, onSave, onDelete }: { event: EventItem; onSave: (body: EventItem) => void; onDelete: () => void }) {
+function EventRow({ event, onSave, onDelete, disabled }: { event: EventItem; onSave: (body: EventItem) => void; onDelete: () => void; disabled: boolean }) {
   const [draft, setDraft] = useState(event);
-  return <div className="rounded-xl border border-[#504533] bg-[#201a20] p-5 shadow-xl"><EventFields value={draft} onChange={setDraft} /><RowActions onSave={() => onSave(draft)} onDelete={onDelete} /></div>;
+  return <div className="rounded-xl border border-[#504533] bg-[#201a20] p-5 shadow-xl"><EventFields value={draft} onChange={setDraft} /><RowActions disabled={disabled} onSave={() => onSave(draft)} onDelete={onDelete} /></div>;
 }
 
-function RowActions({ onSave, onDelete }: { onSave: () => void; onDelete: () => void }) {
+function RowActions({ onSave, onDelete, disabled }: { onSave: () => void; onDelete: () => void; disabled: boolean }) {
   return (
     <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-      <button onClick={onSave} className="inline-flex items-center justify-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900]"><Save className="h-4 w-4" aria-hidden="true" />Save</button>
-      <button onClick={onDelete} className="inline-flex items-center justify-center gap-2 rounded border border-[#ffb4ab]/40 px-4 py-2 text-sm font-black text-[#ffb4ab]"><Trash2 className="h-4 w-4" aria-hidden="true" />Delete</button>
+      <button disabled={disabled} onClick={onSave} className="inline-flex items-center justify-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900] disabled:cursor-not-allowed disabled:opacity-60"><Save className="h-4 w-4" aria-hidden="true" />Save</button>
+      <button disabled={disabled} onClick={onDelete} className="inline-flex items-center justify-center gap-2 rounded border border-[#ffb4ab]/40 px-4 py-2 text-sm font-black text-[#ffb4ab] disabled:cursor-not-allowed disabled:opacity-60"><Trash2 className="h-4 w-4" aria-hidden="true" />Delete</button>
     </div>
   );
 }

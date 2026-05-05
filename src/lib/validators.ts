@@ -37,4 +37,7 @@ export const eventSchema = z.object({
   endsAt: z.preprocess((value) => (value === "" ? null : value), z.coerce.date().optional().nullable()),
   status: z.enum(["UPCOMING", "COMPLETED", "CANCELLED"]),
   published: z.coerce.boolean().default(true),
+}).refine((data) => !data.endsAt || data.endsAt >= data.startsAt, {
+  message: "Event end time must be after the start time.",
+  path: ["endsAt"],
 });

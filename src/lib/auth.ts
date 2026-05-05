@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { unauthorized } from "@/lib/api-response";
 
 const COOKIE_NAME = "api_culture_admin";
 const ONE_DAY = 60 * 60 * 24;
@@ -62,7 +63,7 @@ export async function requireAdmin() {
 }
 
 export async function adminUnauthorized() {
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  return unauthorized();
 }
 
 export function isValidPassword(password: string) {

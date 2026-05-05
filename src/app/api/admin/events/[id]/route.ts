@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { prismaErrorResponse } from "@/lib/api-response";
 import { adminUnauthorized, requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { eventSchema } from "@/lib/validators";
@@ -14,13 +15,21 @@ export async function PATCH(request: Request, { params }: Props) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid event" }, { status: 400 });
   }
-  const event = await prisma.event.update({ where: { id }, data: parsed.data });
-  return NextResponse.json(event);
+  try {
+    const event = await prisma.event.update({ where: { id }, data: parsed.data });
+    return NextResponse.json(event);
+  } catch (error) {
+    return prismaErrorResponse(error, "Event");
+  }
 }
 
 export async function DELETE(_request: Request, { params }: Props) {
   if (!(await requireAdmin())) return adminUnauthorized();
   const { id } = await params;
-  await prisma.event.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
+  try {
+    await prisma.event.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    return prismaErrorResponse(error, "Event");
+  }
 }
