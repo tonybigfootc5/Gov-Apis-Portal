@@ -27,7 +27,7 @@ export default function AboutPage() {
       </div>
       <div className="relative">
         <div className="overflow-hidden rounded-xl border-4 border-[#504533] bg-[#241e24] shadow-2xl shadow-black/40">
-          <Image src="/beekeeping-illustration.svg" alt="API CULTURE beekeeping illustration" width={1000} height={563} className="h-full w-full object-cover p-8" priority />
+          <Image src="/honey-house-signboard.jpg" alt="API CULTURE center signboard" width={1000} height={563} className="h-full w-full object-cover" priority />
         </div>
         <div className="hex-clip absolute -bottom-10 -left-4 hidden h-32 w-36 place-items-center bg-[#f4b315] p-5 text-center text-[#271900] shadow-xl lg:grid">
           <p className="text-xs font-black uppercase tracking-[0.18em]">API CULTURE</p>

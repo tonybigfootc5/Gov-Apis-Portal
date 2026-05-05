@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
@@ -30,9 +29,6 @@ export default async function EventsPage() {
               </div>
             </div>
             <div className="relative flex-1 p-7">
-            <div className="absolute right-4 top-4 h-8 w-8 opacity-15">
-              <Image src="/bee-icon.svg" alt="" fill className="object-contain" />
-            </div>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">{event.status}</p>

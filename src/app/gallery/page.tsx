@@ -8,9 +8,9 @@ export const metadata: Metadata = {
 };
 
 const gallery = [
-  ["Center signboard", "/beekeeping-illustration.svg"],
+  ["Center signboard", "/honey-house-signboard.jpg"],
   ["Apiary learning space", "/hive-hexagon.svg"],
-  ["Training campus", "/bee-icon.svg"],
+  ["Training campus", "/honey-house-signboard.jpg"],
 ];
 
 export default function GalleryPage() {
