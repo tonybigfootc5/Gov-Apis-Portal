@@ -33,10 +33,6 @@ export default async function Home() {
           <div className="absolute inset-0 bg-[linear-gradient(90deg,#171117_0%,rgba(23,17,23,0.94)_45%,rgba(23,17,23,0.35)_100%)]" />
           <div className="absolute inset-0 honeycomb-bg opacity-70" />
           
-          {/* Bee illustrations */}
-          <div className="absolute top-20 right-10 h-20 w-20 opacity-60">
-            <Image src="/bee-icon.svg" alt="" fill className="object-contain" />
-          </div>
           <div className="absolute bottom-32 left-20 h-24 w-24 opacity-40">
             <Image src="/hive-hexagon.svg" alt="" fill className="object-contain" />
           </div>

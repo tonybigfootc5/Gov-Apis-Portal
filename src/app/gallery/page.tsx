@@ -17,7 +17,7 @@ export default function GalleryPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <SectionHeading eyebrow="Gallery" title="Visual record of the center">
-        API CULTURE's gallery showcases field photos, event documentation, training batches, and infrastructure images from our beekeeping technology center.
+        API CULTURE gallery showcases field photos, event documentation, training batches, and infrastructure images from our beekeeping technology center.
       </SectionHeading>
       <div className="mt-10 columns-1 gap-6 md:columns-2 lg:columns-3">
         {gallery.map(([title, src]) => (

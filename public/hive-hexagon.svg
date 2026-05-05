@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Hive hexagon</title>
+  <desc id="desc">Layered honeycomb hexagon graphic in warm beekeeping colors.</desc>
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFE09A"/>
+      <stop offset="100%" stop-color="#F4B315"/>
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="24" fill="#120C12"/>
+  <g transform="translate(14 14)">
+    <path d="M66 0l57 33v66l-57 33L9 99V33z" fill="url(#gold)" opacity=".28"/>
+    <path d="M66 18l41 24v48l-41 24-41-24V42z" fill="none" stroke="#F6D27A" stroke-width="7"/>
+    <path d="M66 38l24 14v28L66 94 42 80V52z" fill="#F4B315" opacity=".95"/>
+    <path d="M66 18v96M25 42l82 48M25 90l82-48" stroke="#241E24" stroke-linecap="round" stroke-width="4"/>
+  </g>
+</svg>

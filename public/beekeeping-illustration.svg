@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Beekeeping illustration</title>
+  <desc id="desc">Illustration of a beekeeper beside honeycomb and flowers.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF4D6"/>
+      <stop offset="100%" stop-color="#F7D784"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3B6329"/>
+      <stop offset="100%" stop-color="#22401A"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="#1A131A"/>
+  <circle cx="950" cy="150" r="78" fill="#FFD36A"/>
+  <rect x="0" y="0" width="1200" height="500" fill="url(#sky)" opacity=".95"/>
+  <rect x="0" y="500" width="1200" height="300" fill="url(#ground)"/>
+  <g opacity=".18" stroke="#8A5D13" stroke-width="18">
+    <path d="M150 140h190M240 70v140"/>
+    <path d="M410 130h190M505 60v140"/>
+    <path d="M670 140h190M765 70v140"/>
+  </g>
+  <g transform="translate(120 250)">
+    <path d="M0 180c70-120 240-180 380-120 56 24 90 54 124 114 32 57-1 136-62 136H80C12 310-30 233 0 180Z" fill="#D89A1D"/>
+    <path d="M82 59h170l65 121H18Z" fill="#B36E0E"/>
+    <path d="M65 59h203" stroke="#7A4908" stroke-linecap="round" stroke-width="16"/>
+    <path d="M135 110h126M101 161h194M76 214h241" stroke="#7A4908" stroke-linecap="round" stroke-width="12"/>
+  </g>
+  <g transform="translate(735 220)">
+    <ellipse cx="118" cy="382" rx="105" ry="24" fill="#181118" opacity=".25"/>
+    <path d="M118 96c49 0 88 39 88 88v163H30V184c0-49 39-88 88-88Z" fill="#FFF5DE"/>
+    <path d="M73 103c5-51 27-83 45-83 17 0 40 32 45 83" fill="none" stroke="#241E24" stroke-width="14"/>
+    <circle cx="118" cy="177" r="42" fill="#241E24"/>
+    <path d="M66 352h104v-98H66z" fill="#F4B315"/>
+    <path d="M46 347h143" stroke="#241E24" stroke-linecap="round" stroke-width="12"/>
+    <path d="M83 194c23 21 47 21 70 0" fill="none" stroke="#241E24" stroke-linecap="round" stroke-width="10"/>
+    <circle cx="101" cy="165" r="6" fill="#FFF5DE"/>
+    <circle cx="135" cy="165" r="6" fill="#FFF5DE"/>
+  </g>
+  <g fill="#F06C52">
+    <circle cx="180" cy="610" r="28"/>
+    <circle cx="275" cy="658" r="26"/>
+    <circle cx="1010" cy="615" r="28"/>
+  </g>
+  <g fill="#FFD36A">
+    <circle cx="220" cy="640" r="18"/>
+    <circle cx="960" cy="650" r="20"/>
+    <circle cx="1062" cy="650" r="18"/>
+  </g>
+  <g stroke="#241E24" stroke-linecap="round" stroke-width="8">
+    <path d="M200 636v70M960 650v58M1062 650v54"/>
+  </g>
+</svg>

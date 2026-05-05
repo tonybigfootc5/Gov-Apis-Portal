@@ -2,59 +2,62 @@
 
 ## Environment Variables Required
 
-To deploy to Vercel, you must set the following environment variables in your Vercel project settings:
+Set these in your Vercel project settings before deploying:
 
-### Required Variables
-
-1. **DATABASE_URL** (Required if using database features)
+1. **DATABASE_URL** (required for database-backed content)
    - PostgreSQL connection string
    - Format: `postgresql://USER:PASSWORD@HOST:5432/DATABASE?sslmode=require`
-   - If not provided, the app will use fallback data
+   - If omitted, the public site falls back to bundled sample data
 
-2. **ADMIN_PASSWORD** (Required for admin login)
-   - Long random string for admin panel authentication
-   - Example: A 32+ character random string
+2. **ADMIN_PASSWORD** (required for admin login)
+   - Use a long random string
 
-3. **ADMIN_SESSION_SECRET** (Required for admin sessions)
-   - 32-byte random string for session encryption
-   - Can be generated with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+3. **ADMIN_SESSION_SECRET** (required for admin sessions)
+   - Use a 32-byte random string
+   - Generate one with:
+     `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
-4. **NEXT_PUBLIC_SITE_URL** (Optional)
-   - Public URL for Open Graph metadata
-   - Default: `https://www.apiculture.in`
+4. **NEXT_PUBLIC_SITE_URL** (optional but recommended)
+   - Public URL used for metadata and SEO
+   - Example: `https://www.apiculture.in`
 
 ## Setup Instructions
 
 ### 1. Connect Repository
 - Go to [Vercel Dashboard](https://vercel.com)
-- Click "Add New" → "Project"
+- Click `Add New` -> `Project`
 - Select the `tonybigfootc5/Gov-Apis-Portal` repository
 
-### 2. Set Environment Variables
-In Vercel Project Settings → Environment Variables, add:
-```
+### 2. Confirm Project Settings
+- Framework preset: `Next.js`
+- Root directory: repository root
+- Do not set a custom output directory for this project
+
+### 3. Set Environment Variables
+In Vercel Project Settings -> Environment Variables, add:
+
+```txt
 DATABASE_URL=postgresql://...
 ADMIN_PASSWORD=your-long-random-password
 ADMIN_SESSION_SECRET=your-32-byte-random-secret
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
-### 3. Deploy
-- Push to main branch or manually trigger deployment
-- Vercel will automatically build and deploy
+### 4. Deploy
+- Push to `main` or trigger a redeploy from Vercel
+- Vercel will build and deploy the Next.js app automatically
 
-## Fallback Mode (Without Database)
+## Fallback Mode
 
-If DATABASE_URL is not configured:
-- The app will use fallback data
-- All pages will render correctly
-- Admin features and database queries will not work
-- Perfect for static site deployment
+If `DATABASE_URL` is not configured:
+- The app uses fallback data for public pages
+- The public website should still render
+- Admin features and database-backed CRUD will not work
 
 ## Troubleshooting
 
-**404 Errors**: Ensure all environment variables are set in Vercel project settings
+**Full-site 404 after deploy**: Check that the Vercel project is linked to the repo root, uses the `Next.js` framework preset, and does not override the output directory.
 
-**Build Failures**: Check the Vercel build logs for specific errors
+**Build failures**: Review the Vercel build logs first. Most failures will be environment-variable or database related.
 
-**Database Connection Issues**: Verify DATABASE_URL is correct and the database is accessible from Vercel's servers
+**Database connection issues**: Verify `DATABASE_URL` is valid and reachable from Vercel.
