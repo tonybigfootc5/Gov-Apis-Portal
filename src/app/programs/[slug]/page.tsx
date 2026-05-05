@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -23,22 +24,70 @@ export default async function ProgramDetailPage({ params }: Props) {
   const { slug } = await params;
   const program = await getProgram(slug);
   if (!program) notFound();
+  const isQueenRearing = slug === "queen-rearing-and-colony-multiplication";
+  const isFoundation = slug === "scientific-beekeeping-foundation";
+  const programBackgroundSrc =
+    slug === "queen-rearing-and-colony-multiplication"
+      ? "/field-beekeeping.jpg"
+      : slug === "scientific-beekeeping-foundation"
+        ? "/scientific-foundation-bg.jpg"
+        : null;
 
   return (
-    <article className="honeycomb-bg mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
-      <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-black text-[#feb96d]">
-        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        Training programs
-      </Link>
-      <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{program.level}</p>
-      <h1 className="font-display mt-3 text-5xl font-semibold tracking-tight text-[#ffd485] sm:text-6xl">{program.title}</h1>
-      <p className="mt-5 text-lg leading-8 text-[#d4c4ac]">{program.summary}</p>
-      <div className="glass-panel mt-8 grid gap-4 rounded-xl p-6 sm:grid-cols-3">
-        <Detail label="Duration" value={program.duration} />
-        <Detail label="Capacity" value={`${program.capacity} participants`} />
-        <Detail label="Fee" value={program.fee ?? "As notified"} />
+    <article className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
+      <div
+        className={`relative overflow-hidden rounded-[2rem] border border-[#504533] ${
+          isQueenRearing || isFoundation ? "bg-[#120c12]" : "honeycomb-bg bg-transparent"
+        } p-8 shadow-2xl shadow-black/25 sm:p-10`}
+      >
+        {programBackgroundSrc ? (
+          <>
+            <div className="absolute inset-0">
+              <Image
+                src={programBackgroundSrc}
+                alt=""
+                fill
+                priority
+                className={`object-cover ${isFoundation ? "opacity-24" : "opacity-28"}`}
+              />
+              <div
+                className={`absolute inset-0 ${
+                  isFoundation
+                    ? "bg-[linear-gradient(135deg,rgba(18,12,18,0.86)_0%,rgba(18,12,18,0.56)_34%,rgba(18,12,18,0.84)_100%)]"
+                    : "bg-[linear-gradient(135deg,rgba(18,12,18,0.9)_0%,rgba(18,12,18,0.62)_38%,rgba(18,12,18,0.82)_100%)]"
+                }`}
+              />
+              <div
+                className={`absolute inset-0 ${
+                  isFoundation
+                    ? "bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.05)_20%,rgba(18,12,18,0)_48%),radial-gradient(circle_at_bottom_right,rgba(244,179,21,0.18)_0%,rgba(244,179,21,0.06)_26%,rgba(18,12,18,0)_58%)]"
+                    : "bg-[radial-gradient(circle_at_top_right,rgba(244,179,21,0.24)_0%,rgba(244,179,21,0.08)_28%,rgba(18,12,18,0)_62%)]"
+                }`}
+              />
+              <div className="absolute inset-0 honeycomb-bg opacity-25" />
+            </div>
+            <div className="absolute right-8 top-8 hidden rounded-full border border-[#ffd485]/30 bg-[rgba(18,12,18,0.45)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#ffd485] backdrop-blur-xl md:block">
+              {isFoundation ? "Live apiary foundation" : "Queen line development"}
+            </div>
+          </>
+        ) : null}
+
+        <div className="relative">
+          <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-black text-[#feb96d]">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Training programs
+          </Link>
+          <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{program.level}</p>
+          <h1 className="font-display mt-3 text-5xl font-semibold tracking-tight text-[#ffd485] sm:text-6xl">{program.title}</h1>
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-[#d4c4ac]">{program.summary}</p>
+          <div className="glass-panel mt-8 grid gap-4 rounded-xl p-6 sm:grid-cols-3">
+            <Detail label="Duration" value={program.duration} />
+            <Detail label="Capacity" value={`${program.capacity} participants`} />
+            <Detail label="Fee" value={program.fee ?? "As notified"} />
+          </div>
+          <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#ecdfe8]">{program.description}</div>
+        </div>
       </div>
-      <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#ecdfe8]">{program.description}</div>
     </article>
   );
 }
