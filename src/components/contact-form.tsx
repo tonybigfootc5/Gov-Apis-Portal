@@ -31,41 +31,41 @@ export function ContactForm() {
   }
 
   return (
-    <form action={submit} className="grid gap-4 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
+    <form action={submit} className="glass-panel grid gap-4 rounded-xl p-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2 text-sm font-semibold text-stone-700">
+        <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
           Full name
-          <input name="name" required className="rounded-md border border-stone-300 px-3 py-2 outline-none ring-amber-400 focus:ring-2" />
+          <input name="name" required className="rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
         </label>
-        <label className="grid gap-2 text-sm font-semibold text-stone-700">
+        <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
           Email
-          <input type="email" name="email" required className="rounded-md border border-stone-300 px-3 py-2 outline-none ring-amber-400 focus:ring-2" />
+          <input type="email" name="email" required className="rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
         </label>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2 text-sm font-semibold text-stone-700">
+        <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
           Phone
-          <input name="phone" className="rounded-md border border-stone-300 px-3 py-2 outline-none ring-amber-400 focus:ring-2" />
+          <input name="phone" className="rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
         </label>
-        <label className="grid gap-2 text-sm font-semibold text-stone-700">
+        <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
           Subject
-          <input name="subject" required className="rounded-md border border-stone-300 px-3 py-2 outline-none ring-amber-400 focus:ring-2" />
+          <input name="subject" required className="rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
         </label>
       </div>
-      <label className="grid gap-2 text-sm font-semibold text-stone-700">
+      <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
         Message
-        <textarea name="message" required rows={6} className="rounded-md border border-stone-300 px-3 py-2 outline-none ring-amber-400 focus:ring-2" />
+        <textarea name="message" required rows={6} className="rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
       </label>
       <button
         type="submit"
         disabled={state === "loading"}
-        className="inline-flex w-fit items-center gap-2 rounded-md bg-emerald-950 px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+        className="hex-soft inline-flex w-fit items-center gap-2 bg-[#f4b315] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#271900] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Send className="h-4 w-4" aria-hidden="true" />
         {state === "loading" ? "Submitting" : "Send message"}
       </button>
       {message ? (
-        <p className={state === "success" ? "text-sm font-semibold text-emerald-700" : "text-sm font-semibold text-red-700"}>
+        <p className={state === "success" ? "text-sm font-semibold text-[#ffd485]" : "text-sm font-semibold text-[#ffb4ab]"}>
           {message}
         </p>
       ) : null}

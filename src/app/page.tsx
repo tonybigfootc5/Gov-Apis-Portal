@@ -1,6 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, CalendarDays, GraduationCap, ShieldCheck, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  CalendarDays,
+  GraduationCap,
+  Microscope,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
 import { getEvents, getPrograms } from "@/lib/data";
 import { institute } from "@/lib/fallback-data";
@@ -13,99 +21,123 @@ export default async function Home() {
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-emerald-950 text-white">
-        <div className="absolute inset-0 opacity-25">
-          <Image src="/honey-house-signboard.jpg" alt="" fill priority className="object-cover" />
+      <section className="relative isolate min-h-[820px] overflow-hidden bg-[#120c12]">
+        <div className="absolute inset-0">
+          <Image
+            src="/honey-house-signboard.jpg"
+            alt=""
+            fill
+            priority
+            className="object-cover opacity-35 saturate-125"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#171117_0%,rgba(23,17,23,0.94)_45%,rgba(23,17,23,0.35)_100%)]" />
+          <div className="absolute inset-0 honeycomb-bg opacity-70" />
         </div>
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,#052e24_0%,rgba(5,46,36,0.92)_44%,rgba(146,64,14,0.62)_100%)]" />
-        <div className="relative mx-auto grid min-h-[calc(100svh-69px)] max-w-7xl content-center gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
-          <div>
-            <p className="inline-flex rounded-md border border-amber-300/40 bg-amber-300/10 px-3 py-2 text-xs font-black uppercase tracking-[0.22em] text-amber-200">
-              {institute.legalName}
+
+        <div className="relative mx-auto grid min-h-[calc(100svh-78px)] max-w-7xl items-center gap-14 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
+          <div className="max-w-3xl">
+            <p className="inline-flex items-center gap-3 rounded border border-[#ffd485]/30 bg-[#f4b315] px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-[#271900] shadow-xl shadow-black/30">
+              <BadgeCheck className="h-4 w-4" aria-hidden="true" />
+              {institute.parent.split(",")[0]}
             </p>
-            <h1 className="mt-6 max-w-4xl text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl">
-              Honey House
+            <h1 className="font-display mt-8 text-6xl font-semibold leading-[1.02] tracking-tight text-[#ecdfe8] sm:text-7xl lg:text-8xl">
+              Advancing Sustainable <span className="text-[#ffd485]">Apiary Culture</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-emerald-50">
-              A future-ready apiculture culture and beekeeping technology center for training, rural enterprise, field demonstrations, and institutional collaboration.
+            <p className="mt-7 max-w-2xl text-xl leading-9 text-[#d4c4ac]">
+              Honey House is a field-focused apiculture technology center for scientific beekeeping training,
+              rural enterprise, workshops, and institutional collaboration.
             </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/programs" className="inline-flex items-center gap-2 rounded-md bg-amber-300 px-5 py-3 text-sm font-black text-emerald-950 shadow-lg shadow-amber-950/20">
-                Explore training <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            <div className="mt-10 flex flex-wrap gap-4">
+              <Link
+                href="/programs"
+                className="hex-soft inline-flex items-center gap-3 bg-[#f4b315] px-8 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#271900] shadow-xl shadow-black/30 transition hover:-translate-y-1"
+              >
+                Training catalog <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
-              <Link href="/contact" className="inline-flex items-center gap-2 rounded-md border border-white/25 px-5 py-3 text-sm font-black text-white">
-                Contact center
+              <Link
+                href="/about"
+                className="inline-flex items-center gap-3 rounded border-2 border-[#504533] px-8 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#ecdfe8] transition hover:border-[#ffd485] hover:bg-[#241e24]"
+              >
+                Learn mission
               </Link>
             </div>
           </div>
-          <div className="grid content-end gap-3">
-            {[
-              ["Government aligned", "Institutional-grade information architecture and secure admin operations."],
-              ["Training led", "Dynamic programs for farmers, entrepreneurs, and extension professionals."],
-              ["Field connected", "Events, workshops, gallery, and center contact channels built for real use."],
-            ].map(([title, text], index) => (
-              <div key={title} className="rounded-lg border border-white/15 bg-white/10 p-4 backdrop-blur-md">
-                <div className="flex gap-3">
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-amber-300 text-emerald-950">{index + 1}</span>
-                  <div>
-                    <h2 className="font-black">{title}</h2>
-                    <p className="mt-1 text-sm leading-6 text-emerald-50">{text}</p>
-                  </div>
-                </div>
+
+          <div className="relative hidden min-h-[520px] lg:block">
+            <div className="hex-clip absolute right-0 top-4 h-[430px] w-[470px] bg-[#f4b315] p-2 shadow-2xl shadow-black/50">
+              <div className="hex-clip relative h-full w-full overflow-hidden bg-[#241e24]">
+                <Image src="/honey-house-signboard.jpg" alt="Honey House API Culture signboard" fill className="object-cover" />
               </div>
-            ))}
+            </div>
+            <div className="hex-clip absolute bottom-6 left-0 grid h-56 w-64 place-items-center bg-[#feb96d] p-8 text-center text-[#492900] shadow-2xl shadow-black/40">
+              <div>
+                <p className="font-display text-6xl font-bold">40+</p>
+                <p className="mt-2 text-xs font-black uppercase tracking-[0.2em]">Training and field capability pathways</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-4 md:grid-cols-4">
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="grid gap-6 md:grid-cols-4">
           {[
             [GraduationCap, "Applied training", "Structured beekeeping programs"],
             [CalendarDays, "Workshops", "Events and orientation sessions"],
+            [Microscope, "Technology center", "Field-ready apiculture practices"],
             [ShieldCheck, "Secure admin", "Protected CRUD and validated inputs"],
-            [Sparkles, "Optimized", "Next/Image, SEO, sitemap, Vercel ready"],
           ].map(([Icon, title, text]) => (
-            <div key={title as string} className="rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
-              <Icon className="h-6 w-6 text-amber-700" aria-hidden="true" />
-              <h2 className="mt-4 font-black text-emerald-950">{title as string}</h2>
-              <p className="mt-2 text-sm leading-6 text-stone-700">{text as string}</p>
+            <div key={title as string} className="glass-panel rounded-xl p-6 transition hover:-translate-y-1">
+              <Icon className="h-7 w-7 text-[#ffd485]" aria-hidden="true" />
+              <h2 className="font-display mt-5 text-2xl font-semibold text-[#ffd485]">{title as string}</h2>
+              <p className="mt-3 text-sm leading-6 text-[#d4c4ac]">{text as string}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="bg-white py-16">
+      <section className="border-y border-[#504533]/60 bg-[#201a20] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading eyebrow="Training" title="Programs built for practical apiculture capability">
-            The training catalog is dynamic and managed through the admin dashboard backed by PostgreSQL and Prisma.
+          <SectionHeading eyebrow="Training" title="Professional programs for practical apiculture capability">
+            The training catalog is dynamic and managed through the secure admin dashboard backed by PostgreSQL and Prisma.
           </SectionHeading>
-          <div className="mt-8 grid gap-5 md:grid-cols-2">
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
             {programs.slice(0, 2).map((program) => (
-              <Link key={program.id} href={`/programs/${program.slug}`} className="group rounded-lg border border-stone-200 bg-[#fffaf0] p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                <BadgeCheck className="h-6 w-6 text-emerald-800" aria-hidden="true" />
-                <h3 className="mt-4 text-2xl font-black text-emerald-950">{program.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-stone-700">{program.summary}</p>
-                <p className="mt-5 text-sm font-black text-amber-700">{program.duration} / {program.level}</p>
+              <Link
+                key={program.id}
+                href={`/programs/${program.slug}`}
+                className="group relative overflow-hidden rounded-xl border border-[#504533] bg-[#120c12] p-8 shadow-xl transition hover:border-[#ffd485]/70"
+              >
+                <div className="absolute left-0 top-0 h-1.5 w-full bg-[#f4b315]" />
+                <Sparkles className="h-7 w-7 text-[#ffd485]" aria-hidden="true" />
+                <h3 className="font-display mt-5 text-3xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485]">{program.title}</h3>
+                <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">{program.summary}</p>
+                <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">
+                  {program.duration} / {program.level}
+                </p>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <SectionHeading eyebrow="Events" title="Workshops and public programs">
           Publish orientations, workshops, and field sessions with dynamic event detail pages.
         </SectionHeading>
-        <div className="mt-8 grid gap-4">
+        <div className="mt-10 grid gap-5">
           {events.slice(0, 3).map((event) => (
-            <Link key={event.id} href={`/events/${event.slug}`} className="grid gap-3 rounded-lg border border-stone-200 bg-white p-5 shadow-sm transition hover:border-amber-300 sm:grid-cols-[160px_1fr_auto] sm:items-center">
-              <p className="text-sm font-black uppercase tracking-[0.16em] text-amber-700">{formatDate(event.startsAt)}</p>
+            <Link
+              key={event.id}
+              href={`/events/${event.slug}`}
+              className="grid gap-4 rounded-xl border border-[#504533] bg-[#241e24] p-6 shadow-xl transition hover:border-[#ffd485]/70 sm:grid-cols-[170px_1fr_auto] sm:items-center"
+            >
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">{formatDate(event.startsAt)}</p>
               <div>
-                <h3 className="text-xl font-black text-emerald-950">{event.title}</h3>
-                <p className="mt-1 text-sm text-stone-700">{event.summary}</p>
+                <h3 className="font-display text-2xl font-semibold text-[#ecdfe8]">{event.title}</h3>
+                <p className="mt-2 text-sm text-[#d4c4ac]">{event.summary}</p>
               </div>
-              <ArrowRight className="h-5 w-5 text-stone-500" aria-hidden="true" />
+              <ArrowRight className="h-5 w-5 text-[#ffd485]" aria-hidden="true" />
             </Link>
           ))}
         </div>

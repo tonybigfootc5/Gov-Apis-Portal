@@ -1,27 +1,63 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fffaf0;
-  --foreground: #1c1917;
+  --background: #171117;
+  --foreground: #ecdfe8;
+  --surface: #201a20;
+  --surface-high: #2f282e;
+  --surface-low: #120c12;
+  --surface-variant: #3a3339;
+  --primary: #ffd485;
+  --primary-strong: #f4b315;
+  --secondary: #feb96d;
+  --muted: #d4c4ac;
+  --outline: #504533;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-work-sans);
+  --font-serif: var(--font-newsreader);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  min-height: 100dvh;
 }
 
 ::selection {
-  background: #fbbf24;
-  color: #022c22;
+  background: var(--primary-strong);
+  color: #271900;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+.font-display {
+  font-family: var(--font-newsreader), Georgia, serif;
+}
+
+.honeycomb-bg {
+  background-image:
+    radial-gradient(rgba(255, 212, 133, 0.13) 1px, transparent 1px),
+    linear-gradient(120deg, rgba(244, 179, 21, 0.08), transparent 38%);
+  background-size: 22px 22px, 100% 100%;
+}
+
+.hex-clip {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.hex-soft {
+  clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
+}
+
+.glass-panel {
+  border: 1px solid rgba(255, 212, 133, 0.14);
+  background: rgba(36, 30, 36, 0.78);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(18px);
 }

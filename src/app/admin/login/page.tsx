@@ -8,14 +8,14 @@ export const metadata: Metadata = {
 export default function AdminLoginPage() {
   return (
     <section className="mx-auto flex min-h-[70svh] max-w-md items-center px-4 py-16">
-      <form action="/api/admin/login" method="post" className="w-full rounded-lg border border-stone-200 bg-white p-6 shadow-sm">
-        <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-700">Restricted</p>
-        <h1 className="mt-2 text-3xl font-black text-emerald-950">Admin login</h1>
-        <label className="mt-6 grid gap-2 text-sm font-bold text-stone-700">
+      <form action="/api/admin/login" method="post" className="glass-panel w-full rounded-xl p-6">
+        <p className="text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">Restricted</p>
+        <h1 className="font-display mt-2 text-4xl font-semibold text-[#ffd485]">Admin login</h1>
+        <label className="mt-6 grid gap-2 text-sm font-bold text-[#d4c4ac]">
           Password
-          <input type="password" name="password" required className="rounded-md border border-stone-300 px-3 py-2 outline-none ring-amber-400 focus:ring-2" />
+          <input type="password" name="password" required className="rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
         </label>
-        <button className="mt-5 w-full rounded-md bg-emerald-950 px-4 py-3 text-sm font-black text-white" type="submit">
+        <button className="hex-soft mt-5 w-full bg-[#f4b315] px-4 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#271900]" type="submit">
           Continue
         </button>
       </form>

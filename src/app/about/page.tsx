@@ -10,20 +10,25 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
+    <section className="honeycomb-bg mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
       <div>
         <SectionHeading eyebrow="About" title="An institutional center for apiculture capability">
           {institute.legalName} operates as Honey House in Rajendranagar, Hyderabad, supporting scientific beekeeping training, field demonstration, rural livelihood enablement, and technology awareness.
         </SectionHeading>
-        <div className="mt-8 grid gap-4 text-base leading-7 text-stone-700">
+        <div className="mt-10 grid gap-5 border-l-4 border-[#f4b315] pl-6 text-base leading-8 text-[#d4c4ac]">
           <p>{institute.parent}</p>
           <p>
             The website is designed for long-term institutional use: structured pages, dynamic training and event publishing, secure environment variables, validated backend handling, and deployment-ready documentation for GitHub, Vercel, PostgreSQL, and GoDaddy DNS.
           </p>
         </div>
       </div>
-      <div className="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm">
-        <Image src="/honey-house-signboard.jpg" alt="Honey House API Culture Technology Center signboard" width={1000} height={563} className="h-full w-full object-cover" priority />
+      <div className="relative">
+        <div className="overflow-hidden rounded-xl border-4 border-[#504533] bg-[#241e24] shadow-2xl shadow-black/40">
+          <Image src="/honey-house-signboard.jpg" alt="Honey House API Culture Technology Center signboard" width={1000} height={563} className="h-full w-full object-cover" priority />
+        </div>
+        <div className="hex-clip absolute -bottom-10 -left-4 hidden h-32 w-36 place-items-center bg-[#f4b315] p-5 text-center text-[#271900] shadow-xl lg:grid">
+          <p className="text-xs font-black uppercase tracking-[0.18em]">Institutional identity</p>
+        </div>
       </div>
     </section>
   );

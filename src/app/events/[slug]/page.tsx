@@ -26,22 +26,22 @@ export default async function EventDetailPage({ params }: Props) {
   if (!event) notFound();
 
   return (
-    <article className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-      <Link href="/events" className="inline-flex items-center gap-2 text-sm font-black text-amber-700">
+    <article className="mx-auto max-w-4xl px-4 py-20 sm:px-6 lg:px-8">
+      <Link href="/events" className="inline-flex items-center gap-2 text-sm font-black text-[#feb96d]">
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         Events
       </Link>
-      <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-amber-700">{event.status}</p>
-      <h1 className="mt-3 text-4xl font-black tracking-tight text-emerald-950 sm:text-5xl">{event.title}</h1>
-      <p className="mt-5 text-lg leading-8 text-stone-700">{event.summary}</p>
-      <div className="mt-8 rounded-lg border border-stone-200 bg-white p-5 shadow-sm">
-        <p className="font-black text-emerald-950">{formatDateTime(event.startsAt)}</p>
-        <p className="mt-3 inline-flex gap-2 text-sm font-bold text-stone-700">
-          <MapPin className="h-4 w-4 text-amber-700" aria-hidden="true" />
+      <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#feb96d]">{event.status}</p>
+      <h1 className="font-display mt-3 text-5xl font-semibold tracking-tight text-[#ffd485] sm:text-6xl">{event.title}</h1>
+      <p className="mt-5 text-lg leading-8 text-[#d4c4ac]">{event.summary}</p>
+      <div className="glass-panel mt-8 rounded-xl p-6">
+        <p className="font-black text-[#ffd485]">{formatDateTime(event.startsAt)}</p>
+        <p className="mt-3 inline-flex gap-2 text-sm font-bold text-[#d4c4ac]">
+          <MapPin className="h-4 w-4 text-[#feb96d]" aria-hidden="true" />
           {event.location}
         </p>
       </div>
-      <div className="mt-8 whitespace-pre-line text-base leading-8 text-stone-800">{event.description}</div>
+      <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#ecdfe8]">{event.description}</div>
     </article>
   );
 }

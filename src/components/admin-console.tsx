@@ -97,18 +97,18 @@ export function AdminConsole({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="honeycomb-bg mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-700">Admin dashboard</p>
-          <h1 className="mt-2 text-3xl font-black text-emerald-950">Programs and events</h1>
+          <p className="text-sm font-black uppercase tracking-[0.24em] text-[#feb96d]">Institutional oversight</p>
+          <h1 className="font-display mt-2 text-5xl font-semibold text-[#ffd485]">Admin Dashboard</h1>
         </div>
-        <button onClick={load} className="inline-flex items-center gap-2 rounded-md border border-stone-300 px-4 py-2 text-sm font-bold">
+        <button onClick={load} className="inline-flex items-center gap-2 rounded border border-[#504533] bg-[#241e24] px-4 py-2 text-sm font-bold text-[#ecdfe8]">
           <RefreshCw className="h-4 w-4" aria-hidden="true" />
           Refresh
         </button>
       </div>
-      {notice ? <p className="mt-4 rounded-md bg-amber-100 px-4 py-3 text-sm font-semibold text-stone-800">{notice}</p> : null}
+      {notice ? <p className="mt-4 rounded bg-[#f4b315] px-4 py-3 text-sm font-semibold text-[#271900]">{notice}</p> : null}
 
       <section className="mt-8 grid gap-5 lg:grid-cols-[380px_1fr]">
         <Editor title="Create program" onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}>
@@ -137,10 +137,10 @@ export function AdminConsole({
 
 function Editor({ title, children, onSave }: { title: string; children: React.ReactNode; onSave: () => void }) {
   return (
-    <div className="h-fit rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
-      <h2 className="text-lg font-black text-emerald-950">{title}</h2>
+    <div className="glass-panel h-fit rounded-xl p-5">
+      <h2 className="font-display text-2xl font-semibold text-[#ffd485]">{title}</h2>
       <div className="mt-4 grid gap-3">{children}</div>
-      <button onClick={onSave} className="mt-4 inline-flex items-center gap-2 rounded-md bg-emerald-950 px-4 py-2 text-sm font-black text-white">
+      <button onClick={onSave} className="mt-4 inline-flex items-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900]">
         <Plus className="h-4 w-4" aria-hidden="true" />
         Create
       </button>
@@ -149,11 +149,11 @@ function Editor({ title, children, onSave }: { title: string; children: React.Re
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-stone-600">{label}{children}</label>;
+  return <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-[#d4c4ac]">{label}{children}</label>;
 }
 
 function textClass() {
-  return "rounded-md border border-stone-300 px-3 py-2 text-sm font-medium normal-case tracking-normal text-stone-900 outline-none ring-amber-400 focus:ring-2";
+  return "rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2";
 }
 
 function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { value: T; onChange: (next: T) => void }) {
@@ -169,7 +169,7 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
       </div>
       <Field label="Level"><select className={textClass()} value={value.level} onChange={(e) => onChange({ ...value, level: e.target.value as T["level"] })}><option>FOUNDATION</option><option>ADVANCED</option><option>PROFESSIONAL</option></select></Field>
       <Field label="Fee"><input className={textClass()} value={value.fee ?? ""} onChange={(e) => onChange({ ...value, fee: e.target.value })} /></Field>
-      <label className="flex items-center gap-2 text-sm font-bold text-stone-700"><input type="checkbox" checked={value.published} onChange={(e) => onChange({ ...value, published: e.target.checked })} /> Published</label>
+      <label className="flex items-center gap-2 text-sm font-bold text-[#d4c4ac]"><input type="checkbox" checked={value.published} onChange={(e) => onChange({ ...value, published: e.target.checked })} /> Published</label>
     </>
   );
 }
@@ -185,26 +185,26 @@ function EventFields<T extends Omit<EventItem, "id">>({ value, onChange }: { val
       <Field label="Starts at"><input type="datetime-local" className={textClass()} value={value.startsAt?.slice(0, 16) ?? ""} onChange={(e) => onChange({ ...value, startsAt: e.target.value })} /></Field>
       <Field label="Ends at"><input type="datetime-local" className={textClass()} value={value.endsAt?.slice(0, 16) ?? ""} onChange={(e) => onChange({ ...value, endsAt: e.target.value })} /></Field>
       <Field label="Status"><select className={textClass()} value={value.status} onChange={(e) => onChange({ ...value, status: e.target.value as T["status"] })}><option>UPCOMING</option><option>COMPLETED</option><option>CANCELLED</option></select></Field>
-      <label className="flex items-center gap-2 text-sm font-bold text-stone-700"><input type="checkbox" checked={value.published} onChange={(e) => onChange({ ...value, published: e.target.checked })} /> Published</label>
+      <label className="flex items-center gap-2 text-sm font-bold text-[#d4c4ac]"><input type="checkbox" checked={value.published} onChange={(e) => onChange({ ...value, published: e.target.checked })} /> Published</label>
     </>
   );
 }
 
 function ProgramRow({ program, onSave, onDelete }: { program: Program; onSave: (body: Program) => void; onDelete: () => void }) {
   const [draft, setDraft] = useState(program);
-  return <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm"><ProgramFields value={draft} onChange={setDraft} /><RowActions onSave={() => onSave(draft)} onDelete={onDelete} /></div>;
+  return <div className="rounded-xl border border-[#504533] bg-[#201a20] p-5 shadow-xl"><ProgramFields value={draft} onChange={setDraft} /><RowActions onSave={() => onSave(draft)} onDelete={onDelete} /></div>;
 }
 
 function EventRow({ event, onSave, onDelete }: { event: EventItem; onSave: (body: EventItem) => void; onDelete: () => void }) {
   const [draft, setDraft] = useState(event);
-  return <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm"><EventFields value={draft} onChange={setDraft} /><RowActions onSave={() => onSave(draft)} onDelete={onDelete} /></div>;
+  return <div className="rounded-xl border border-[#504533] bg-[#201a20] p-5 shadow-xl"><EventFields value={draft} onChange={setDraft} /><RowActions onSave={() => onSave(draft)} onDelete={onDelete} /></div>;
 }
 
 function RowActions({ onSave, onDelete }: { onSave: () => void; onDelete: () => void }) {
   return (
     <div className="mt-4 flex gap-2">
-      <button onClick={onSave} className="inline-flex items-center gap-2 rounded-md bg-emerald-950 px-4 py-2 text-sm font-black text-white"><Save className="h-4 w-4" aria-hidden="true" />Save</button>
-      <button onClick={onDelete} className="inline-flex items-center gap-2 rounded-md border border-red-200 px-4 py-2 text-sm font-black text-red-700"><Trash2 className="h-4 w-4" aria-hidden="true" />Delete</button>
+      <button onClick={onSave} className="inline-flex items-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-sm font-black text-[#271900]"><Save className="h-4 w-4" aria-hidden="true" />Save</button>
+      <button onClick={onDelete} className="inline-flex items-center gap-2 rounded border border-[#ffb4ab]/40 px-4 py-2 text-sm font-black text-[#ffb4ab]"><Trash2 className="h-4 w-4" aria-hidden="true" />Delete</button>
     </div>
   );
 }
