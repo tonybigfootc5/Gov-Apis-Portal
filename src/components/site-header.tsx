@@ -26,17 +26,17 @@ export function SiteHeader({
   techCenterLabel,
 }: SiteHeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-[#504533]/70 bg-[#171117]/90 shadow-lg shadow-black/20 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 border-b border-[rgba(27,59,43,0.08)] bg-[rgba(250,248,242,0.92)] shadow-[0_10px_40px_rgba(64,44,8,0.08)] backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
         <Link href="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3" aria-label="API CULTURE home">
-          <span className="hex-clip grid h-10 w-11 shrink-0 place-items-center bg-[#f4b315] text-[#271900] shadow-lg shadow-amber-950/30 sm:h-11 sm:w-12">
+          <span className="hex-clip grid h-10 w-11 shrink-0 place-items-center bg-[#ebb428] text-[#1b3b2b] shadow-lg shadow-amber-900/20 sm:h-11 sm:w-12">
             <Hexagon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
           </span>
           <span className="min-w-0 leading-tight">
-            <span className="block truncate font-display text-base font-black uppercase tracking-[0.1em] text-[#ffd485] sm:text-lg sm:tracking-[0.14em] xl:text-xl xl:tracking-[0.18em]">
+            <span className="block truncate font-display text-base font-black uppercase tracking-[0.1em] text-[#1b3b2b] sm:text-lg sm:tracking-[0.14em] xl:text-xl xl:tracking-[0.18em]">
               API CULTURE
             </span>
-            <span className="block truncate text-[9px] font-bold uppercase tracking-[0.16em] text-[#d4c4ac] sm:text-[10px] sm:tracking-[0.2em]">
+            <span className="block truncate text-[9px] font-bold uppercase tracking-[0.16em] text-[#516253] sm:text-[10px] sm:tracking-[0.2em]">
               {techCenterLabel}
             </span>
           </span>
@@ -47,7 +47,7 @@ export function SiteHeader({
             <Link
               key={item.href}
               href={item.href}
-              className="rounded px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#d4c4ac] transition hover:bg-[#2f282e] hover:text-[#ffd485]"
+              className="rounded-full px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#516253] transition hover:bg-[#f3ecdf] hover:text-[#1b3b2b]"
             >
               {item.label}
             </Link>
@@ -64,7 +64,7 @@ export function SiteHeader({
             href="https://www.apiculture.in"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded border border-[#504533] px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#d4c4ac] transition hover:border-[#ffd485] hover:text-[#ffd485]"
+            className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.18)] px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#516253] transition hover:border-[#1b3b2b] hover:text-[#1b3b2b]"
           >
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
             <span className="hidden xl:inline">Visit site</span>
@@ -72,7 +72,7 @@ export function SiteHeader({
           </a>
           <Link
             href="/admin"
-            className="inline-flex items-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#271900] shadow-lg shadow-black/20 transition hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-full bg-[#1b3b2b] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#faf8f2] shadow-lg shadow-emerald-950/15 transition hover:bg-[#2d312e]"
           >
             <UserCircle className="h-4 w-4" aria-hidden="true" />
             {adminLabel}
@@ -80,12 +80,12 @@ export function SiteHeader({
         </div>
 
         <details className="relative shrink-0 md:hidden">
-          <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded border border-[#504533] bg-[#241e24] text-[#ffd485]">
+          <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-full border border-[rgba(27,59,43,0.16)] bg-[#fffdf8] text-[#1b3b2b]">
             <Menu className="h-5 w-5" aria-hidden="true" />
           </summary>
-          <nav className="absolute right-0 z-10 mt-3 grid w-[min(16rem,calc(100vw-2rem))] gap-1 rounded border border-[#504533] bg-[#241e24] p-2 shadow-xl">
+          <nav className="absolute right-0 z-10 mt-3 grid w-[min(16rem,calc(100vw-2rem))] gap-1 rounded-3xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] p-2 shadow-xl">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="rounded px-3 py-2 text-sm font-semibold text-[#d4c4ac]">
+              <Link key={item.href} href={item.href} className="rounded-full px-3 py-2 text-sm font-semibold text-[#516253]">
                 {item.label}
               </Link>
             ))}
@@ -100,12 +100,12 @@ export function SiteHeader({
               href="https://www.apiculture.in"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-semibold text-[#d4c4ac]"
+              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-[#516253]"
             >
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
               Visit site
             </a>
-            <Link href="/admin" className="rounded bg-[#f4b315] px-3 py-2 text-sm font-bold text-[#271900]">
+            <Link href="/admin" className="rounded-full bg-[#1b3b2b] px-3 py-2 text-sm font-bold text-[#faf8f2]">
               {adminLabel}
             </Link>
           </nav>

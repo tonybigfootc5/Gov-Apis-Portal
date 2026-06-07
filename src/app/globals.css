@@ -1,17 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #171117;
-  --foreground: #ecdfe8;
-  --surface: #201a20;
-  --surface-high: #2f282e;
-  --surface-low: #120c12;
-  --surface-variant: #3a3339;
-  --primary: #ffd485;
-  --primary-strong: #f4b315;
-  --secondary: #feb96d;
-  --muted: #d4c4ac;
-  --outline: #504533;
+  --background: #faf8f2;
+  --foreground: #1b3b2b;
+  --surface: #fffdf8;
+  --surface-high: #f3ecdf;
+  --surface-low: #ece3d3;
+  --surface-variant: #f6efe4;
+  --primary: #ebb428;
+  --primary-strong: #b36b00;
+  --secondary: #c98618;
+  --muted: #516253;
+  --outline: rgba(27, 59, 43, 0.12);
+  --dark: #2d312e;
 }
 
 @theme inline {
@@ -28,6 +29,9 @@ body {
   overflow-x: hidden;
   user-select: text;
   -webkit-user-select: text;
+  background-image:
+    radial-gradient(circle at top left, rgba(235, 180, 40, 0.18), transparent 24rem),
+    linear-gradient(180deg, rgba(250, 248, 242, 0.98), rgba(244, 238, 228, 0.98));
 }
 
 img,
@@ -39,7 +43,7 @@ canvas {
 
 ::selection {
   background: var(--primary-strong);
-  color: #271900;
+  color: #fffdf8;
 }
 
 html {
@@ -52,41 +56,30 @@ html {
 
 .honeycomb-bg {
   background-image:
-    radial-gradient(rgba(255, 212, 133, 0.13) 1px, transparent 1px),
-    linear-gradient(120deg, rgba(244, 179, 21, 0.08), transparent 38%);
-  background-size: 22px 22px, 100% 100%;
+    radial-gradient(rgba(179, 107, 0, 0.09) 1px, transparent 1px),
+    linear-gradient(135deg, rgba(235, 180, 40, 0.09), rgba(250, 248, 242, 0.08));
+  background-size: 24px 24px, 100% 100%;
 }
 
 .hex-clip {
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }
 
-.hex-soft {
-  clip-path: polygon(7% 0, 93% 0, 100% 50%, 93% 100%, 7% 100%, 0 50%);
-}
-
 .glass-panel {
-  border: 1px solid rgba(255, 212, 133, 0.14);
-  background: rgba(36, 30, 36, 0.78);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(18px);
+  border: 1px solid rgba(27, 59, 43, 0.12);
+  background: rgba(255, 253, 248, 0.82);
+  box-shadow: 0 28px 70px rgba(64, 44, 8, 0.08);
+  backdrop-filter: blur(14px);
 }
 
-@keyframes heroFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
+.paper-panel {
+  border: 1px solid rgba(27, 59, 43, 0.12);
+  background: linear-gradient(180deg, rgba(255, 253, 248, 0.98), rgba(246, 239, 228, 0.98));
+  box-shadow: 0 28px 70px rgba(64, 44, 8, 0.08);
 }
 
-.hero-float {
-  animation: heroFloat 7s ease-in-out infinite;
-}
-
-.hero-float-delayed {
-  animation: heroFloat 9s ease-in-out infinite;
+.forest-band {
+  background:
+    linear-gradient(135deg, rgba(27, 59, 43, 0.96), rgba(45, 49, 46, 0.96)),
+    radial-gradient(circle at top right, rgba(235, 180, 40, 0.22), transparent 18rem);
 }

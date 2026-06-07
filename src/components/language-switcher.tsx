@@ -21,12 +21,12 @@ export function LanguageSwitcher({ currentLanguage, label, options }: Props) {
   }
 
   return (
-    <label className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-[#d4c4ac]">
+    <label className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-[#516253]">
       <span>{label}</span>
       <select
         value={currentLanguage}
         onChange={(event) => onChange(event.target.value as SiteLanguage)}
-        className="rounded border border-[#504533] bg-[#241e24] px-2 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#ffd485] outline-none ring-[#ffd485] focus:ring-2"
+        className="rounded-full border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

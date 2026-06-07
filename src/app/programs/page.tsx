@@ -22,17 +22,17 @@ export default async function ProgramsPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
       <div className="grid gap-8 lg:grid-cols-[1fr_0.45fr] lg:items-end">
-        <div className="border-l-4 border-[#f4b315] pl-4 sm:pl-6">
+        <div className="border-l-4 border-[#ebb428] pl-4 sm:pl-6">
           <SectionHeading eyebrow={t(language, "programs.eyebrow")} title={t(language, "programs.title")}>
             {t(language, "programs.body")}
           </SectionHeading>
         </div>
-        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 shadow-xl">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">Program structure</p>
-          <div className="mt-5 grid gap-4 text-sm leading-7 text-[#d4c4ac]">
-            <p className="inline-flex items-center gap-3"><GraduationCap className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Foundation and advanced modules</p>
-            <p className="inline-flex items-center gap-3"><Timer className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Short-format intensive training windows</p>
-            <p className="inline-flex items-center gap-3"><CircleDot className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Built for practice, not generic brochure copy</p>
+        <div className="paper-panel rounded-[2rem] p-6">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">Program structure</p>
+          <div className="mt-5 grid gap-4 text-sm leading-7 text-[#516253]">
+            <p className="inline-flex items-center gap-3"><GraduationCap className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Foundation and advanced modules</p>
+            <p className="inline-flex items-center gap-3"><Timer className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Short-format intensive training windows</p>
+            <p className="inline-flex items-center gap-3"><CircleDot className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Built for practice, not generic brochure copy</p>
           </div>
         </div>
       </div>
@@ -41,10 +41,10 @@ export default async function ProgramsPage() {
           const isFoundation = program.slug === "scientific-beekeeping-foundation";
 
           return (
-            <Link key={program.id} href={`/programs/${program.slug}`} className="group relative overflow-hidden rounded-xl border border-[#504533] bg-[#201a20] p-5 shadow-xl transition hover:-translate-y-1 hover:border-[#ffd485] sm:p-7">
-              <div className="absolute left-0 top-0 h-1.5 w-full bg-[#f4b315]" />
+            <Link key={program.id} href={`/programs/${program.slug}`} className="group relative overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-5 shadow-[0_24px_50px_rgba(64,44,8,0.08)] transition hover:-translate-y-1 hover:border-[#b36b00]/40 sm:p-7">
+              <div className="absolute left-0 top-0 h-1.5 w-full bg-[#ebb428]" />
               {isFoundation ? (
-                <div className="mb-5 flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[1.4rem] border border-[#ffd485]/25 bg-[rgba(18,12,18,0.72)] p-2 shadow-[0_20px_45px_rgba(0,0,0,0.28)] backdrop-blur-xl">
+                <div className="mb-5 flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-[1.4rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-2 shadow-[0_18px_40px_rgba(64,44,8,0.08)]">
                   <Image
                     src="/scientific-beekeeping-icon.png"
                     alt="Scientific Beekeeping Foundation icon"
@@ -54,17 +54,17 @@ export default async function ProgramsPage() {
                   />
                 </div>
               ) : null}
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">{program.level}</p>
-              <h2 className="font-display mt-4 text-2xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485] sm:text-3xl">{program.title}</h2>
-              <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">{program.summary}</p>
-              <div className="mt-5 grid gap-2 text-sm text-[#ecdfe8]">
-                <p className="inline-flex items-center gap-2"><CircleDot className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Capacity: {program.capacity} {t(language, "programs.seats")}</p>
-                <p className="inline-flex items-center gap-2"><CircleDot className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Duration: {program.duration}</p>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#b36b00]">{program.level}</p>
+              <h2 className="font-display mt-4 text-2xl font-semibold text-[#1b3b2b] group-hover:text-[#b36b00] sm:text-3xl">{program.title}</h2>
+              <p className="mt-4 text-sm leading-7 text-[#516253]">{program.summary}</p>
+              <div className="mt-5 grid gap-2 text-sm text-[#1b3b2b]">
+                <p className="inline-flex items-center gap-2"><CircleDot className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Capacity: {program.capacity} {t(language, "programs.seats")}</p>
+                <p className="inline-flex items-center gap-2"><CircleDot className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Duration: {program.duration}</p>
               </div>
-              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-black text-[#d4c4ac] sm:justify-between">
+              <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-black text-[#516253] sm:justify-between">
                 <span>{program.duration}</span>
                 <span>{program.capacity} {t(language, "programs.seats")}</span>
-                <ArrowRight className="h-5 w-5 text-[#ffd485] sm:ml-auto" aria-hidden="true" />
+                <ArrowRight className="h-5 w-5 text-[#b36b00] sm:ml-auto" aria-hidden="true" />
               </div>
             </Link>
           );

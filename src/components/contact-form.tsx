@@ -37,41 +37,41 @@ export function ContactForm({ language }: { language: SiteLanguage }) {
   }
 
   return (
-    <form action={submit} className="glass-panel grid gap-4 rounded-xl p-5 sm:p-6">
+    <form action={submit} className="paper-panel grid gap-4 rounded-[2rem] p-5 sm:p-6">
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
+        <label className="grid gap-2 text-sm font-semibold text-[#516253]">
           {t(language, "contact.form.name")}
-          <input name="name" required className="min-w-0 rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
+          <input name="name" required className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
         </label>
-        <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
+        <label className="grid gap-2 text-sm font-semibold text-[#516253]">
           {t(language, "contact.form.email")}
-          <input type="email" name="email" required className="min-w-0 rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
+          <input type="email" name="email" required className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
         </label>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
+        <label className="grid gap-2 text-sm font-semibold text-[#516253]">
           {t(language, "contact.form.phone")}
-          <input name="phone" className="min-w-0 rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
+          <input name="phone" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
         </label>
-        <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
+        <label className="grid gap-2 text-sm font-semibold text-[#516253]">
           {t(language, "contact.form.subject")}
-          <input name="subject" required className="min-w-0 rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
+          <input name="subject" required className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
         </label>
       </div>
-      <label className="grid gap-2 text-sm font-semibold text-[#d4c4ac]">
+      <label className="grid gap-2 text-sm font-semibold text-[#516253]">
         {t(language, "contact.form.message")}
-        <textarea name="message" required rows={6} className="min-w-0 rounded border border-[#504533] bg-[#120c12] px-3 py-2 text-[#ecdfe8] outline-none ring-[#ffd485] focus:ring-2" />
+        <textarea name="message" required rows={6} className="min-w-0 rounded-[1.5rem] border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
       </label>
       <button
         type="submit"
         disabled={state === "loading"}
-        className="hex-soft inline-flex w-full items-center justify-center gap-2 bg-[#f4b315] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#271900] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1b3b2b] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#faf8f2] transition hover:bg-[#2d312e] disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
       >
         <Send className="h-4 w-4" aria-hidden="true" />
         {state === "loading" ? t(language, "contact.form.submitting") : t(language, "contact.form.submit")}
       </button>
       {message ? (
-        <p className={state === "success" ? "text-sm font-semibold text-[#ffd485]" : "text-sm font-semibold text-[#ffb4ab]"}>
+        <p className={state === "success" ? "text-sm font-semibold text-[#b36b00]" : "text-sm font-semibold text-[#9d3d21]"}>
           {message}
         </p>
       ) : null}

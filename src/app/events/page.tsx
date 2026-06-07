@@ -25,35 +25,35 @@ export default async function EventsPage() {
         <SectionHeading eyebrow={t(language, "home.events.eyebrow")} title={t(language, "events.page.title")}>
           {t(language, "events.page.body")}
         </SectionHeading>
-        <div className="rounded-[2rem] border border-[#504533] bg-[#191419] p-6 shadow-xl">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">How these pages help</p>
-          <div className="mt-5 grid gap-4 text-sm leading-7 text-[#d4c4ac]">
-            <p className="inline-flex items-center gap-3"><CalendarDays className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Dates are visible before contact or travel planning.</p>
-            <p className="inline-flex items-center gap-3"><MapPin className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Location is included for public and institutional visitors.</p>
-            <p className="inline-flex items-center gap-3"><MessageSquareText className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />The next step is clear: see details, then contact the center.</p>
+        <div className="paper-panel rounded-[2rem] p-6">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">How these pages help</p>
+          <div className="mt-5 grid gap-4 text-sm leading-7 text-[#516253]">
+            <p className="inline-flex items-center gap-3"><CalendarDays className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Dates are visible before contact or travel planning.</p>
+            <p className="inline-flex items-center gap-3"><MapPin className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Location is included for public and institutional visitors.</p>
+            <p className="inline-flex items-center gap-3"><MessageSquareText className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />The next step is clear: see details, then contact the center.</p>
           </div>
         </div>
       </div>
       <div className="mt-10 grid gap-6">
         {translatedEvents.map((event) => (
-          <Link key={event.id} href={`/events/${event.slug}`} className="group relative flex flex-col overflow-hidden rounded-xl border border-[#504533] bg-[#201a20] shadow-xl transition hover:border-[#ffd485]/70 md:flex-row">
-            <div className="grid min-h-36 place-items-center border-b border-[#504533] bg-[#2f282e] p-6 text-center md:min-h-48 md:w-64 md:border-b-0 md:border-r md:p-8">
-              <div className="hex-clip grid h-24 w-28 place-items-center border border-[#ffd485]/30 bg-[#f4b315]/10 sm:h-28 sm:w-32">
-                <span className="font-display text-4xl font-bold text-[#ffd485] sm:text-5xl">{formatDateTime(event.startsAt).slice(0, 2)}</span>
+          <Link key={event.id} href={`/events/${event.slug}`} className="group relative flex flex-col overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.08)] transition hover:border-[#b36b00]/40 md:flex-row">
+            <div className="grid min-h-36 place-items-center border-b border-[rgba(27,59,43,0.12)] bg-[#f6efe4] p-6 text-center md:min-h-48 md:w-64 md:border-b-0 md:border-r md:p-8">
+              <div className="hex-clip grid h-24 w-28 place-items-center border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] sm:h-28 sm:w-32">
+                <span className="font-display text-4xl font-bold text-[#b36b00] sm:text-5xl">{formatDateTime(event.startsAt).slice(0, 2)}</span>
               </div>
             </div>
             <div className="relative flex-1 p-5 sm:p-7">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">{event.status}</p>
-                  <h2 className="font-display mt-3 text-2xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485] sm:text-3xl">{event.title}</h2>
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#b36b00]">{event.status}</p>
+                  <h2 className="font-display mt-3 text-2xl font-semibold text-[#1b3b2b] group-hover:text-[#b36b00] sm:text-3xl">{event.title}</h2>
                 </div>
-                <ArrowRight className="h-5 w-5 shrink-0 text-[#ffd485]" aria-hidden="true" />
+                <ArrowRight className="h-5 w-5 shrink-0 text-[#b36b00]" aria-hidden="true" />
               </div>
-              <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">{event.summary}</p>
-              <div className="mt-6 flex flex-wrap gap-5 text-sm font-bold text-[#d4c4ac]">
+              <p className="mt-4 text-sm leading-7 text-[#516253]">{event.summary}</p>
+              <div className="mt-6 flex flex-wrap gap-5 text-sm font-bold text-[#516253]">
                 <span>{formatDateTime(event.startsAt)}</span>
-                <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-[#feb96d]" aria-hidden="true" />{event.location}</span>
+                <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />{event.location}</span>
               </div>
             </div>
           </Link>

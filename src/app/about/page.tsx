@@ -37,7 +37,7 @@ export default async function AboutPage() {
           <SectionHeading eyebrow={t(language, "about.eyebrow")} title={t(language, "about.title")}>
             {t(language, "about.body")}
           </SectionHeading>
-          <div className="mt-8 grid gap-5 border-l-4 border-[#f4b315] pl-4 text-base leading-8 text-[#d4c4ac] sm:mt-10 sm:pl-6">
+          <div className="mt-8 grid gap-5 border-l-4 border-[#ebb428] pl-4 text-base leading-8 text-[#516253] sm:mt-10 sm:pl-6">
             <p>{t(language, "about.copy1")}</p>
             <p>{t(language, "about.copy2")}</p>
             <p>{t(language, "about.copy3")}</p>
@@ -47,7 +47,7 @@ export default async function AboutPage() {
               href="https://www.apiculture.in"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-[#ffd485]/30 bg-[#201a20] px-5 py-3 text-sm font-semibold text-[#f8f1ed] transition hover:border-[#ffd485] hover:text-[#ffd485]"
+              className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.16)] bg-[#fffdf8] px-5 py-3 text-sm font-semibold text-[#1b3b2b] transition hover:border-[#1b3b2b]"
             >
               Visit official website
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
@@ -55,36 +55,36 @@ export default async function AboutPage() {
           </div>
         </div>
         <div className="grid gap-6">
-          <div className="relative overflow-hidden rounded-[2rem] border border-[#504533] bg-[#241e24] shadow-2xl shadow-black/40">
+          <div className="relative overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] shadow-[0_28px_70px_rgba(64,44,8,0.08)]">
             <Image src="/honey-house-signboard.jpg" alt="API CULTURE center signboard" width={1000} height={563} className="h-full w-full object-cover" priority />
-            <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,rgba(18,12,18,0)_0%,rgba(18,12,18,0.88)_100%)] px-6 pb-6 pt-16">
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-[#feb96d]">Institutional campus</p>
-              <p className="mt-2 max-w-md text-sm leading-6 text-[#ecdfe8]">A public-facing technology center needs clarity, permanence, and trust in both its physical and digital presence.</p>
+            <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,rgba(27,59,43,0)_0%,rgba(27,59,43,0.9)_100%)] px-6 pb-6 pt-16">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-[#ebb428]">Institutional campus</p>
+              <p className="mt-2 max-w-md text-sm leading-6 text-[#faf8f2]">A public-facing technology center needs clarity, permanence, and trust in both its physical and digital presence.</p>
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {principles.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="rounded-3xl border border-[#504533] bg-[#1b151b] p-5 shadow-xl">
-                <Icon className="h-6 w-6 text-[#ffd485]" aria-hidden="true" />
-                <h3 className="font-display mt-4 text-2xl text-[#ffd485]">{title}</h3>
-                <p className="mt-3 text-sm leading-7 text-[#d4c4ac]">{body}</p>
+              <div key={title} className="paper-panel rounded-[2rem] p-5">
+                <Icon className="h-6 w-6 text-[#b36b00]" aria-hidden="true" />
+                <h3 className="font-display mt-4 text-2xl text-[#1b3b2b]">{title}</h3>
+                <p className="mt-3 text-sm leading-7 text-[#516253]">{body}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
       <div className="mt-14 grid gap-6 lg:grid-cols-3">
-        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 shadow-xl">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">What the portal does</p>
-          <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">It gives the center a cleaner public face for program discovery, event visibility, and direct inquiries.</p>
+        <div className="paper-panel rounded-[2rem] p-6">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">What the portal does</p>
+          <p className="mt-4 text-sm leading-7 text-[#516253]">It gives the center a cleaner public face for program discovery, event visibility, and direct inquiries.</p>
         </div>
-        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 shadow-xl">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">What visitors need</p>
-          <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">Clear location, practical training information, and confidence that the institution behind the page is real and reachable.</p>
+        <div className="paper-panel rounded-[2rem] p-6">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">What visitors need</p>
+          <p className="mt-4 text-sm leading-7 text-[#516253]">Clear location, practical training information, and confidence that the institution behind the page is real and reachable.</p>
         </div>
-        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 shadow-xl">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">Why the redesign matters</p>
-          <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">The site now leans more into trust, structure, and usability instead of decorative effects that diluted the message.</p>
+        <div className="paper-panel rounded-[2rem] p-6">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">Why the redesign matters</p>
+          <p className="mt-4 text-sm leading-7 text-[#516253]">The site now leans into trust, structure, and usability instead of decorative effects that diluted the message.</p>
         </div>
       </div>
     </section>

@@ -59,7 +59,7 @@ export default async function RootLayout({
   return (
     <html
       lang={language}
-      className={`${workSans.variable} ${newsreader.variable} h-full antialiased dark`}
+      className={`${workSans.variable} ${newsreader.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <SiteHeader
