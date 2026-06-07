@@ -1,15 +1,13 @@
 import Link from "next/link";
-import { Camera, CirclePlay, Mail, MapPin, MessageCircle, Phone, Users } from "lucide-react";
+import { ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { institute } from "@/lib/fallback-data";
 import type { SiteLanguage } from "@/lib/i18n";
 import { t } from "@/lib/i18n";
 
 export function SiteFooter({ language }: { language: SiteLanguage }) {
-  const whatsappUrl = "https://wa.me/919700284045";
-
   return (
     <footer className="border-t-4 border-[#f4b315] bg-[#120c12] text-[#ecdfe8] honeycomb-bg">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_1fr_0.9fr_0.9fr] lg:px-8">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.3em] text-[#feb96d]">API Culture</p>
           <h2 className="font-display mt-3 text-2xl font-semibold text-[#ffd485] sm:text-3xl">{institute.legalName}</h2>
@@ -39,33 +37,30 @@ export function SiteFooter({ language }: { language: SiteLanguage }) {
           <Link href="/contact" className="text-[#d4c4ac] hover:text-[#ffd485]">
             {t(language, "footer.contact")}
           </Link>
-          <div className="mt-4 flex items-center gap-4 text-[#d4c4ac]">
-            <span className="inline-flex items-center gap-2" aria-label="YouTube">
-              <CirclePlay className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
-              <span className="text-xs font-semibold uppercase tracking-[0.12em]">{t(language, "footer.youtube")}</span>
-            </span>
-            <span className="inline-flex items-center gap-2" aria-label="Instagram">
-              <Camera className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
-              <span className="text-xs font-semibold uppercase tracking-[0.12em]">{t(language, "footer.instagram")}</span>
-            </span>
-            <span className="inline-flex items-center gap-2" aria-label="Facebook">
-              <Users className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
-              <span className="text-xs font-semibold uppercase tracking-[0.12em]">{t(language, "footer.facebook")}</span>
-            </span>
-          </div>
+        </div>
+        <div className="grid content-start gap-3 text-sm text-[#d4c4ac]">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">Quick actions</p>
+          <a href={`tel:${institute.phone[0]}`} className="inline-flex items-center gap-2 hover:text-[#ffd485]">
+            <Phone className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
+            Call the center
+          </a>
+          <a href={`mailto:${institute.email}`} className="inline-flex items-center gap-2 hover:text-[#ffd485]">
+            <Mail className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
+            Email the team
+          </a>
+          <a
+            href={institute.website}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 hover:text-[#ffd485]"
+          >
+            <ExternalLink className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />
+            Visit official website
+          </a>
         </div>
       </div>
       <div className="border-t border-[#3a2f24] px-4 py-4 text-center text-xs text-[#d4c4ac] sm:px-6 sm:text-sm lg:px-8">
-        <span>{t(language, "footer.designedBy")}</span>{" "}
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 text-[#ffd485] transition hover:text-[#feb96d]"
-        >
-          <MessageCircle className="h-4 w-4" aria-hidden="true" />
-          <span>9700284045</span>
-        </a>
+        API CULTURE Technology Center public information portal for training, events, and institutional contact.
       </div>
     </footer>
   );

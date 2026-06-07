@@ -81,8 +81,9 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "gallery.body":
       "API CULTURE gallery showcases field photos, event documentation, training batches, and infrastructure images from our beekeeping technology center.",
     "gallery.image1": "Center signboard",
-    "gallery.image2": "Apiary learning space",
-    "gallery.image3": "Training campus",
+    "gallery.image2": "Field beekeeping",
+    "gallery.image3": "Scientific beekeeping foundation",
+    "gallery.image4": "Queen rearing and colony multiplication",
     "contact.eyebrow": "Contact",
     "contact.title": "Reach API CULTURE",
     "contact.body":

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { ArrowUpRight, Microscope, ShieldCheck, Sprout } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
 import { t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
@@ -11,25 +12,79 @@ export const metadata: Metadata = {
 
 export default async function AboutPage() {
   const language = await getRequestLanguage();
+  const principles = [
+    {
+      icon: Sprout,
+      title: "Field-first learning",
+      body: "Training is tied to practice, observation, and rural enterprise relevance.",
+    },
+    {
+      icon: Microscope,
+      title: "Scientific beekeeping",
+      body: "The center supports structured instruction rather than informal guesswork.",
+    },
+    {
+      icon: ShieldCheck,
+      title: "Institutional continuity",
+      body: "The site and the center both need to feel dependable, official, and maintained.",
+    },
+  ];
 
   return (
-    <section className="honeycomb-bg mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[0.95fr_1.05fr] lg:px-8">
-      <div>
-        <SectionHeading eyebrow={t(language, "about.eyebrow")} title={t(language, "about.title")}>
-          {t(language, "about.body")}
-        </SectionHeading>
-        <div className="mt-8 grid gap-5 border-l-4 border-[#f4b315] pl-4 text-base leading-8 text-[#d4c4ac] sm:mt-10 sm:pl-6">
-          <p>{t(language, "about.copy1")}</p>
-          <p>{t(language, "about.copy2")}</p>
-          <p>{t(language, "about.copy3")}</p>
+    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
+        <div>
+          <SectionHeading eyebrow={t(language, "about.eyebrow")} title={t(language, "about.title")}>
+            {t(language, "about.body")}
+          </SectionHeading>
+          <div className="mt-8 grid gap-5 border-l-4 border-[#f4b315] pl-4 text-base leading-8 text-[#d4c4ac] sm:mt-10 sm:pl-6">
+            <p>{t(language, "about.copy1")}</p>
+            <p>{t(language, "about.copy2")}</p>
+            <p>{t(language, "about.copy3")}</p>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <a
+              href="https://www.apiculture.in"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-[#ffd485]/30 bg-[#201a20] px-5 py-3 text-sm font-semibold text-[#f8f1ed] transition hover:border-[#ffd485] hover:text-[#ffd485]"
+            >
+              Visit official website
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+        <div className="grid gap-6">
+          <div className="relative overflow-hidden rounded-[2rem] border border-[#504533] bg-[#241e24] shadow-2xl shadow-black/40">
+            <Image src="/honey-house-signboard.jpg" alt="API CULTURE center signboard" width={1000} height={563} className="h-full w-full object-cover" priority />
+            <div className="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,rgba(18,12,18,0)_0%,rgba(18,12,18,0.88)_100%)] px-6 pb-6 pt-16">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-[#feb96d]">Institutional campus</p>
+              <p className="mt-2 max-w-md text-sm leading-6 text-[#ecdfe8]">A public-facing technology center needs clarity, permanence, and trust in both its physical and digital presence.</p>
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {principles.map(({ icon: Icon, title, body }) => (
+              <div key={title} className="rounded-3xl border border-[#504533] bg-[#1b151b] p-5 shadow-xl">
+                <Icon className="h-6 w-6 text-[#ffd485]" aria-hidden="true" />
+                <h3 className="font-display mt-4 text-2xl text-[#ffd485]">{title}</h3>
+                <p className="mt-3 text-sm leading-7 text-[#d4c4ac]">{body}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="relative">
-        <div className="overflow-hidden rounded-xl border-4 border-[#504533] bg-[#241e24] shadow-2xl shadow-black/40">
-          <Image src="/honey-house-signboard.jpg" alt="API CULTURE center signboard" width={1000} height={563} className="h-full w-full object-cover" priority />
+      <div className="mt-14 grid gap-6 lg:grid-cols-3">
+        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 shadow-xl">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">What the portal does</p>
+          <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">It gives the center a cleaner public face for program discovery, event visibility, and direct inquiries.</p>
         </div>
-        <div className="hex-clip absolute -bottom-10 -left-4 hidden h-32 w-36 place-items-center bg-[#f4b315] p-5 text-center text-[#271900] shadow-xl lg:grid">
-          <p className="text-xs font-black uppercase tracking-[0.18em]">API CULTURE</p>
+        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 shadow-xl">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">What visitors need</p>
+          <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">Clear location, practical training information, and confidence that the institution behind the page is real and reachable.</p>
+        </div>
+        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 shadow-xl">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">Why the redesign matters</p>
+          <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">The site now leans more into trust, structure, and usability instead of decorative effects that diluted the message.</p>
         </div>
       </div>
     </section>

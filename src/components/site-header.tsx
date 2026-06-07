@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Hexagon, Menu, Search, UserCircle } from "lucide-react";
+import { ExternalLink, Hexagon, Menu, UserCircle } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { SiteLanguage } from "@/lib/i18n";
 
@@ -33,7 +33,7 @@ export function SiteHeader({
             <Hexagon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
           </span>
           <span className="min-w-0 leading-tight">
-            <span className="block truncate font-display text-base font-black uppercase tracking-[0.14em] text-[#ffd485] sm:text-xl sm:tracking-[0.2em]">
+            <span className="block truncate font-display text-base font-black uppercase tracking-[0.1em] text-[#ffd485] sm:text-lg sm:tracking-[0.14em] xl:text-xl xl:tracking-[0.18em]">
               API CULTURE
             </span>
             <span className="block truncate text-[9px] font-bold uppercase tracking-[0.16em] text-[#d4c4ac] sm:text-[10px] sm:tracking-[0.2em]">
@@ -60,7 +60,16 @@ export function SiteHeader({
             label={languageLabel}
             options={languageOptions}
           />
-          <Search className="h-5 w-5 text-[#ffd485]" aria-hidden="true" />
+          <a
+            href="https://www.apiculture.in"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded border border-[#504533] px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#d4c4ac] transition hover:border-[#ffd485] hover:text-[#ffd485]"
+          >
+            <ExternalLink className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden xl:inline">Visit site</span>
+            <span className="xl:hidden">Visit</span>
+          </a>
           <Link
             href="/admin"
             className="inline-flex items-center gap-2 rounded bg-[#f4b315] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#271900] shadow-lg shadow-black/20 transition hover:brightness-110"
@@ -87,6 +96,15 @@ export function SiteHeader({
                 options={languageOptions}
               />
             </div>
+            <a
+              href="https://www.apiculture.in"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded px-3 py-2 text-sm font-semibold text-[#d4c4ac]"
+            >
+              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              Visit site
+            </a>
             <Link href="/admin" className="rounded bg-[#f4b315] px-3 py-2 text-sm font-bold text-[#271900]">
               {adminLabel}
             </Link>

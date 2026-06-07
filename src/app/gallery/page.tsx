@@ -11,8 +11,9 @@ export const metadata: Metadata = {
 
 const gallery = [
   ["Center signboard", "/honey-house-signboard.jpg"],
-  ["Apiary learning space", "/hive-hexagon.svg"],
-  ["Training campus", "/honey-house-signboard.jpg"],
+  ["Field beekeeping", "/field-beekeeping.jpg"],
+  ["Scientific beekeeping foundation", "/scientific-foundation-bg.jpg"],
+  ["Queen rearing and colony multiplication", "/queen-rearing-bg.jpg"],
 ];
 
 export default async function GalleryPage() {
@@ -20,9 +21,15 @@ export default async function GalleryPage() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-      <SectionHeading eyebrow={t(language, "gallery.eyebrow")} title={t(language, "gallery.title")}>
-        {t(language, "gallery.body")}
-      </SectionHeading>
+      <div className="grid gap-8 lg:grid-cols-[1fr_0.42fr] lg:items-end">
+        <SectionHeading eyebrow={t(language, "gallery.eyebrow")} title={t(language, "gallery.title")}>
+          {t(language, "gallery.body")}
+        </SectionHeading>
+        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 text-sm leading-7 text-[#d4c4ac] shadow-xl">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">Visual record</p>
+          <p className="mt-4">The gallery now shows real campus and field imagery instead of filler visuals, so the page supports trust rather than looking like placeholder inventory.</p>
+        </div>
+      </div>
       <div className="mt-10 columns-1 gap-5 sm:gap-6 md:columns-2 lg:columns-3">
         {gallery.map(([title, src], index) => (
           <figure key={title} className="mb-5 break-inside-avoid overflow-hidden rounded-xl border border-[#504533] bg-[#201a20] shadow-xl sm:mb-6">

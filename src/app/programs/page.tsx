@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CircleDot, GraduationCap, Timer } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
 import { getPrograms } from "@/lib/data";
 import { getTranslatedProgramContent, t } from "@/lib/i18n";
@@ -20,11 +20,21 @@ export default async function ProgramsPage() {
   const translatedPrograms = programs.map((program) => getTranslatedProgramContent(program, language));
 
   return (
-    <section className="honeycomb-bg mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-      <div className="border-l-4 border-[#f4b315] pl-4 sm:pl-6">
-        <SectionHeading eyebrow={t(language, "programs.eyebrow")} title={t(language, "programs.title")}>
-          {t(language, "programs.body")}
-        </SectionHeading>
+    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+      <div className="grid gap-8 lg:grid-cols-[1fr_0.45fr] lg:items-end">
+        <div className="border-l-4 border-[#f4b315] pl-4 sm:pl-6">
+          <SectionHeading eyebrow={t(language, "programs.eyebrow")} title={t(language, "programs.title")}>
+            {t(language, "programs.body")}
+          </SectionHeading>
+        </div>
+        <div className="rounded-[2rem] border border-[#504533] bg-[#1a141a] p-6 shadow-xl">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#feb96d]">Program structure</p>
+          <div className="mt-5 grid gap-4 text-sm leading-7 text-[#d4c4ac]">
+            <p className="inline-flex items-center gap-3"><GraduationCap className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Foundation and advanced modules</p>
+            <p className="inline-flex items-center gap-3"><Timer className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Short-format intensive training windows</p>
+            <p className="inline-flex items-center gap-3"><CircleDot className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Built for practice, not generic brochure copy</p>
+          </div>
+        </div>
       </div>
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         {translatedPrograms.map((program) => {
@@ -47,6 +57,10 @@ export default async function ProgramsPage() {
               <p className="text-xs font-black uppercase tracking-[0.18em] text-[#feb96d]">{program.level}</p>
               <h2 className="font-display mt-4 text-2xl font-semibold text-[#ecdfe8] group-hover:text-[#ffd485] sm:text-3xl">{program.title}</h2>
               <p className="mt-4 text-sm leading-7 text-[#d4c4ac]">{program.summary}</p>
+              <div className="mt-5 grid gap-2 text-sm text-[#ecdfe8]">
+                <p className="inline-flex items-center gap-2"><CircleDot className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Capacity: {program.capacity} {t(language, "programs.seats")}</p>
+                <p className="inline-flex items-center gap-2"><CircleDot className="h-4 w-4 text-[#ffd485]" aria-hidden="true" />Duration: {program.duration}</p>
+              </div>
               <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-black text-[#d4c4ac] sm:justify-between">
                 <span>{program.duration}</span>
                 <span>{program.capacity} {t(language, "programs.seats")}</span>
