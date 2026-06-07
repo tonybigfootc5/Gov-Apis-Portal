@@ -83,9 +83,3 @@ html {
     linear-gradient(135deg, rgba(27, 59, 43, 0.96), rgba(45, 49, 46, 0.96)),
     radial-gradient(circle at top right, rgba(235, 180, 40, 0.22), transparent 18rem);
 }
-
-.hero-video-shell {
-  background:
-    radial-gradient(circle at top left, rgba(235, 180, 40, 0.16), transparent 14rem),
-    linear-gradient(160deg, rgba(27, 59, 43, 0.96), rgba(45, 49, 46, 0.98));
-}

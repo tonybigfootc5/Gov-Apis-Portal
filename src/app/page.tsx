@@ -36,12 +36,6 @@ export default async function Home() {
   return (
     <>
       <section className="relative isolate overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-[-10%] top-[-8rem] h-[24rem] w-[24rem] rounded-full bg-[radial-gradient(circle,rgba(235,180,40,0.3)_0%,rgba(235,180,40,0.08)_42%,transparent_72%)] blur-2xl" />
-          <div className="absolute right-[-6%] top-[10%] h-[22rem] w-[22rem] rounded-full bg-[radial-gradient(circle,rgba(27,59,43,0.18)_0%,rgba(27,59,43,0.04)_46%,transparent_74%)] blur-3xl" />
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,rgba(250,248,242,0)_0%,rgba(250,248,242,0.88)_100%)]" />
-        </div>
-
         <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-16 sm:px-6 sm:pt-20 lg:px-8 lg:pb-20 lg:pt-24">
           <div className="grid gap-10 lg:grid-cols-[0.98fr_1.02fr] lg:items-center">
             <div className="max-w-3xl">
@@ -76,46 +70,20 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="relative">
-              <div className="absolute -left-4 top-8 hidden h-28 w-28 rounded-full border border-[rgba(27,59,43,0.08)] bg-[#fff7df] lg:block" />
-              <div className="absolute -right-4 bottom-12 hidden h-24 w-24 rounded-[1.75rem] bg-[#1b3b2b] lg:block" />
-              <div className="hero-video-shell relative overflow-hidden rounded-[2.5rem] border border-[rgba(27,59,43,0.1)] bg-[#2d312e] p-3 shadow-[0_34px_90px_rgba(45,49,46,0.22)] sm:p-4">
-                <div className="flex items-center justify-between rounded-[1.5rem] border border-[rgba(255,255,255,0.08)] bg-[rgba(255,248,227,0.08)] px-4 py-3 text-[#f7edd1]">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#ebb428]">Live field reel</p>
-                    <p className="mt-1 text-sm font-semibold text-[#fff7df]">Original training footage</p>
-                  </div>
-                  <span className="rounded-full border border-[rgba(255,247,223,0.18)] px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#fff7df]">
-                    smooth loop
-                  </span>
-                </div>
-                <div className="relative mt-3 overflow-hidden rounded-[2rem]">
-                  <div className="relative aspect-[4/5] min-h-[360px] bg-[#2d312e] sm:aspect-[5/6] lg:min-h-[520px]">
-                    <HeroBackgroundVideo />
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(180deg,rgba(27,59,43,0)_0%,rgba(27,59,43,0.34)_100%)]" />
-                  </div>
-                  <div className="pointer-events-none absolute inset-0 rounded-[2rem] ring-1 ring-inset ring-[rgba(255,247,223,0.08)]" />
-                </div>
-                <div className="mt-4 grid gap-4 md:grid-cols-3">
-                  <div className="rounded-[1.5rem] border border-[rgba(255,247,223,0.1)] bg-[rgba(255,248,227,0.08)] px-4 py-4">
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#ebb428]">{t(language, "home.hero.location")}</p>
-                    <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#fff7df]">
-                      <MapPin className="h-4 w-4 text-[#ebb428]" aria-hidden="true" />
-                      Rajendranagar
-                    </p>
-                  </div>
-                  <div className="rounded-[1.5rem] border border-[rgba(255,247,223,0.1)] bg-[rgba(255,248,227,0.08)] px-4 py-4 md:col-span-2">
-                    <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#ebb428]">{t(language, "home.hero.focus")}</p>
-                    <p className="mt-3 text-sm font-semibold text-[#fff7df]">{t(language, "home.hero.focusText")}</p>
-                  </div>
+            <div>
+              <div className="relative overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#ece3d3] shadow-[0_28px_70px_rgba(64,44,8,0.12)]">
+                <div className="relative aspect-[4/5] min-h-[360px] sm:aspect-[5/6] lg:min-h-[520px]">
+                  <HeroBackgroundVideo />
                 </div>
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto]">
                 <div className="paper-panel rounded-[2rem] px-5 py-5">
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">Why this section works better</p>
-                  <p className="mt-3 text-sm leading-7 text-[#516253]">
-                    The video is now presented as a dedicated visual anchor instead of being hidden behind pale overlays.
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">{t(language, "home.hero.location")}</p>
+                  <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#1b3b2b]">
+                    <MapPin className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />
+                    Rajendranagar, Hyderabad
                   </p>
+                  <p className="mt-3 text-sm leading-7 text-[#516253]">{t(language, "home.hero.focusText")}</p>
                 </div>
                 <div className="rounded-[2rem] bg-[linear-gradient(180deg,#ebb428_0%,#b36b00_100%)] px-5 py-6 text-[#faf8f2] shadow-[0_22px_50px_rgba(179,107,0,0.24)]">
                   <p className="font-display text-5xl font-bold leading-none">40+</p>
