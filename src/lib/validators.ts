@@ -26,6 +26,7 @@ export const programSchema = z.object({
   capacity: z.coerce.number().int().min(1).max(500),
   batchStartsAt: z.preprocess((value) => (value === "" ? null : value), z.coerce.date().optional().nullable()),
   enrollmentClosed: z.coerce.boolean().default(false),
+  popupEnabled: z.coerce.boolean().default(true),
   published: z.coerce.boolean().default(true),
 });
 

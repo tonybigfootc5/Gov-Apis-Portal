@@ -13,6 +13,7 @@ export type ProgramItem = {
   capacity: number;
   batchStartsAt: Date | null;
   enrollmentClosed: boolean;
+  popupEnabled: boolean;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -59,7 +60,13 @@ export async function getPrograms(): Promise<ProgramItem[]> {
 
 export function getAnnouncementPrograms(programs: ProgramItem[], now = new Date()) {
   return programs
-    .filter((program) => program.published && !program.enrollmentClosed && (!program.batchStartsAt || program.batchStartsAt > now))
+    .filter(
+      (program) =>
+        program.published &&
+        program.popupEnabled &&
+        !program.enrollmentClosed &&
+        (!program.batchStartsAt || program.batchStartsAt > now),
+    )
     .sort((left, right) => {
       if (left.batchStartsAt && right.batchStartsAt) {
         return left.batchStartsAt.getTime() - right.batchStartsAt.getTime();

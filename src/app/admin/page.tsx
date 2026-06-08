@@ -19,6 +19,7 @@ type AdminProgram = {
   capacity: number;
   batchStartsAt: Date | null;
   enrollmentClosed: boolean;
+  popupEnabled: boolean;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;

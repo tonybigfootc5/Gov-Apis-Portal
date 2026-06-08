@@ -23,6 +23,7 @@ async function main() {
       capacity: 30,
       batchStartsAt: new Date("2026-07-15T09:00:00.000Z"),
       enrollmentClosed: false,
+      popupEnabled: true,
     },
   });
 
@@ -42,6 +43,7 @@ async function main() {
       capacity: 20,
       batchStartsAt: new Date("2026-08-05T09:00:00.000Z"),
       enrollmentClosed: false,
+      popupEnabled: true,
     },
   });
 

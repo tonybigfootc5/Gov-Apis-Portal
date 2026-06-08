@@ -31,6 +31,7 @@ model Program {
   capacity         Int          @default(30)
   batchStartsAt    DateTime?
   enrollmentClosed Boolean      @default(false)
+  popupEnabled     Boolean      @default(true)
   published        Boolean      @default(true)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt

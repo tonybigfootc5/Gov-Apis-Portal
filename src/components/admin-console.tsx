@@ -35,6 +35,7 @@ type Program = {
   capacity: number;
   batchStartsAt?: string | null;
   enrollmentClosed: boolean;
+  popupEnabled: boolean;
   published: boolean;
   updatedAt?: string;
 };
@@ -109,6 +110,7 @@ const emptyProgram: Omit<Program, "id"> = {
   capacity: 30,
   batchStartsAt: "",
   enrollmentClosed: false,
+  popupEnabled: true,
   published: true,
 };
 
@@ -1074,6 +1076,9 @@ function ProgramsWorkspace({
                       ? `Starts ${formatDateTime(program.batchStartsAt)}`
                       : "Start date not set"}
                 </p>
+                <p className={`mt-1 text-[11px] font-semibold ${selectedProgramId === program.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>
+                  Popup {program.popupEnabled ? "enabled" : "disabled"}
+                </p>
               </button>
             ))}
           </div>
@@ -1215,14 +1220,24 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
             onChange={(event) => onChange({ ...value, batchStartsAt: event.target.value })}
           />
         </Field>
-        <label className="inline-flex items-center gap-2 rounded-xl bg-[#f3ecdf] px-3 py-2 text-sm font-semibold text-[#173f33] sm:self-end">
-          <input
-            type="checkbox"
-            checked={value.enrollmentClosed}
-            onChange={(event) => onChange({ ...value, enrollmentClosed: event.target.checked })}
-          />
-          Close batch enrollment
-        </label>
+        <div className="grid gap-3 sm:self-end">
+          <label className="inline-flex items-center gap-2 rounded-xl bg-[#f3ecdf] px-3 py-2 text-sm font-semibold text-[#173f33]">
+            <input
+              type="checkbox"
+              checked={value.enrollmentClosed}
+              onChange={(event) => onChange({ ...value, enrollmentClosed: event.target.checked })}
+            />
+            Close batch enrollment
+          </label>
+          <label className="inline-flex items-center gap-2 rounded-xl bg-[#f3ecdf] px-3 py-2 text-sm font-semibold text-[#173f33]">
+            <input
+              type="checkbox"
+              checked={value.popupEnabled}
+              onChange={(event) => onChange({ ...value, popupEnabled: event.target.checked })}
+            />
+            Enable homepage popup
+          </label>
+        </div>
       </div>
       <Field label="Level">
         <select className={fieldClass()} value={value.level} onChange={(event) => onChange({ ...value, level: event.target.value as T["level"] })}>
@@ -1311,6 +1326,9 @@ function ProgramEditorCard({
               : draft.batchStartsAt
                 ? `Batch starts ${formatDateTime(draft.batchStartsAt)}`
                 : "Batch start date not set"}
+          </p>
+          <p className="mt-1 text-xs font-semibold text-[#8a7d61]">
+            Homepage popup {draft.popupEnabled ? "enabled" : "disabled"}
           </p>
         </div>
         <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
