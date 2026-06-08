@@ -465,15 +465,6 @@ export function AdminConsole({
                   ))}
                 </div>
               </div>
-
-              <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(145deg,#fff8e8,#fffdf8)] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">Operations notes</p>
-                <ul className="mt-4 grid gap-3 text-sm leading-7 text-[#4f6255]">
-                  <li>Keep service titles and summaries simple so applicants can choose the right training quickly.</li>
-                  <li>Use upcoming events for orientations, field demonstrations, and batch announcements.</li>
-                  <li>Approve students only after cross-check and payment verification are both complete.</li>
-                </ul>
-              </div>
             </section>
           ) : null}
 
