@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, Menu, UserCircle } from "lucide-react";
+import { Menu, UserCircle } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { SiteLanguage } from "@/lib/i18n";
 
@@ -64,16 +64,6 @@ export function SiteHeader({
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <a
-            href="https://www.apiculture.in"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.18)] px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#516253] transition hover:border-[#1b3b2b] hover:text-[#1b3b2b]"
-          >
-            <ExternalLink className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden xl:inline">Visit site</span>
-            <span className="xl:hidden">Visit</span>
-          </a>
           <Link
             href="/admin"
             className="inline-flex items-center gap-2 rounded-full bg-[#1b3b2b] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#faf8f2] shadow-lg shadow-emerald-950/15 transition hover:bg-[#2d312e]"
@@ -85,6 +75,7 @@ export function SiteHeader({
             currentLanguage={currentLanguage}
             label={languageLabel}
             options={languageOptions}
+            variant="header"
           />
         </div>
 
@@ -93,27 +84,19 @@ export function SiteHeader({
             <Menu className="h-5 w-5" aria-hidden="true" />
           </summary>
           <nav className="absolute right-0 z-10 mt-3 grid w-[min(16rem,calc(100vw-2rem))] gap-1 rounded-3xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] p-2 shadow-xl">
+            <div className="rounded-[1.4rem] border border-[rgba(27,59,43,0.08)] bg-[#f6efe4] px-3 py-3">
+              <LanguageSwitcher
+                currentLanguage={currentLanguage}
+                label={languageLabel}
+                options={languageOptions}
+                variant="header"
+              />
+            </div>
             {navItems.map((item) => (
               <Link key={item.href} href={item.href} className="rounded-full px-3 py-2 text-sm font-semibold text-[#516253]">
                 {item.label}
               </Link>
             ))}
-            <div className="px-3 py-2">
-              <LanguageSwitcher
-                currentLanguage={currentLanguage}
-                label={languageLabel}
-                options={languageOptions}
-              />
-            </div>
-            <a
-              href="https://www.apiculture.in"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-[#516253]"
-            >
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
-              Visit site
-            </a>
             <Link href="/admin" className="rounded-full bg-[#1b3b2b] px-3 py-2 text-sm font-bold text-[#faf8f2]">
               {adminLabel}
             </Link>
