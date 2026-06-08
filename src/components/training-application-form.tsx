@@ -40,9 +40,16 @@ type FormState = {
 };
 
 type SubmitState = "idle" | "compressing" | "submitting" | "success" | "error";
+type ServiceOption = {
+  title: string;
+  duration: string;
+  level: string;
+};
+
+const DEFAULT_SERVICE_NAME = "Beekeeping";
 
 const INITIAL_FORM: FormState = {
-  serviceName: "Beekeeping Training",
+  serviceName: DEFAULT_SERVICE_NAME,
   applicationDate: new Date().toISOString().slice(0, 10),
   candidateName: "",
   guardianName: "",
@@ -157,8 +164,12 @@ function requiredStepFields(stepIndex: number, data: FormState) {
   return Boolean(data.photoDataUrl);
 }
 
-export function TrainingApplicationForm() {
-  const [form, setForm] = useState<FormState>(INITIAL_FORM);
+export function TrainingApplicationForm({ serviceOptions }: { serviceOptions: ServiceOption[] }) {
+  const normalizedServiceOptions = serviceOptions.length
+    ? serviceOptions
+    : [{ title: DEFAULT_SERVICE_NAME, duration: "As scheduled", level: "FOUNDATION" }];
+  const initialServiceName = normalizedServiceOptions[0].title;
+  const [form, setForm] = useState<FormState>({ ...INITIAL_FORM, serviceName: initialServiceName });
   const [step, setStep] = useState(0);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [message, setMessage] = useState("");
@@ -169,7 +180,7 @@ export function TrainingApplicationForm() {
 
   const summaryItems = useMemo(
     () => [
-      { label: "Application", value: form.serviceName || "Beekeeping Training", icon: ShieldCheck },
+      { label: "Selected service", value: form.serviceName || DEFAULT_SERVICE_NAME, icon: ShieldCheck },
       { label: "Candidate", value: form.candidateName || "Not filled yet", icon: UserRound },
       { label: "Mobile", value: form.phone || "Not filled yet", icon: Phone },
       { label: "Training dates", value: "08 Jun 2026 to 12 Jun 2026", icon: CalendarDays },
@@ -227,7 +238,7 @@ export function TrainingApplicationForm() {
       const body = await response.json();
       setSubmitState("success");
       setMessage(`Application submitted successfully. Reference: ${body.reference}`);
-      setForm(INITIAL_FORM);
+      setForm({ ...INITIAL_FORM, serviceName: initialServiceName });
       setStep(0);
       setPhotoStatus("Add a clear face photo. We shrink it automatically to make upload easier.");
     } catch (error) {
@@ -242,7 +253,7 @@ export function TrainingApplicationForm() {
         <div className="border-b border-[rgba(27,59,43,0.08)] bg-[linear-gradient(135deg,#fff4d1_0%,#f3d487_45%,#c98618_100%)] px-5 py-5 sm:px-7 sm:py-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-2xl">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-[#7a4a00]">Application for Beekeeping Training</p>
+              <p className="text-xs font-black uppercase tracking-[0.28em] text-[#7a4a00]">Application for training services</p>
               <h2 className="font-display mt-3 text-3xl font-semibold leading-tight text-[#1b3b2b] sm:text-4xl">
                 Easy step-by-step form for every applicant
               </h2>
@@ -292,6 +303,17 @@ export function TrainingApplicationForm() {
 
           {step === 0 ? (
             <div className="grid gap-4">
+              <label className="grid gap-2 text-sm font-semibold text-[#516253]">
+                Select service
+                <span className="text-xs font-normal text-[#7a867b]">Choose the training service the applicant wants to join</span>
+                <select value={form.serviceName} onChange={(event) => updateField("serviceName", event.target.value)} className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2">
+                  {normalizedServiceOptions.map((service) => (
+                    <option key={service.title} value={service.title}>
+                      {service.title} - {service.duration} - {service.level}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                   Date of application

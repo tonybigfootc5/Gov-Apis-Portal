@@ -11,6 +11,7 @@ export type ApplicationAttemptStatus =
 
 export type ApplicationPaymentStatus = "NOT_STARTED" | "PENDING" | "PAID" | "FAILED";
 export type ApplicationApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
+export type ApplicationCrossCheckStatus = "PENDING" | "VERIFIED";
 
 export type TrainingApplicationPayload = {
   version: 1;
@@ -37,6 +38,7 @@ export type TrainingApplicationPayload = {
   attemptStatus: ApplicationAttemptStatus;
   paymentStatus: ApplicationPaymentStatus;
   approvalStatus: ApplicationApprovalStatus;
+  crossCheckStatus: ApplicationCrossCheckStatus;
   attemptedAt: string;
   submittedAt: string;
   approvedAt: string | null;
@@ -62,6 +64,7 @@ export function buildTrainingApplicationPayload(
     | "attemptStatus"
     | "paymentStatus"
     | "approvalStatus"
+    | "crossCheckStatus"
     | "attemptedAt"
     | "submittedAt"
     | "approvedAt"
@@ -77,6 +80,7 @@ export function buildTrainingApplicationPayload(
     attemptStatus: "SUBMITTED",
     paymentStatus: "NOT_STARTED",
     approvalStatus: "PENDING",
+    crossCheckStatus: "PENDING",
     attemptedAt: now,
     submittedAt: now,
     approvedAt: null,

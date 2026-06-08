@@ -5,6 +5,7 @@ import { BadgeCheck, CreditCard, FileClock, Phone, RefreshCw, UserRound } from "
 import type {
   ApplicationApprovalStatus,
   ApplicationAttemptStatus,
+  ApplicationCrossCheckStatus,
   ApplicationPaymentStatus,
   TrainingApplicationRecord,
 } from "@/lib/training-application";
@@ -23,6 +24,7 @@ const attemptOptions: ApplicationAttemptStatus[] = [
 
 const paymentOptions: ApplicationPaymentStatus[] = ["NOT_STARTED", "PENDING", "PAID", "FAILED"];
 const approvalOptions: ApplicationApprovalStatus[] = ["PENDING", "APPROVED", "REJECTED"];
+const crossCheckOptions: ApplicationCrossCheckStatus[] = ["PENDING", "VERIFIED"];
 
 export function ApplicationAdminPanel({ initialApplications }: Props) {
   const [applications, setApplications] = useState(initialApplications);
@@ -56,6 +58,7 @@ export function ApplicationAdminPanel({ initialApplications }: Props) {
       attemptStatus: ApplicationAttemptStatus;
       paymentStatus: ApplicationPaymentStatus;
       approvalStatus: ApplicationApprovalStatus;
+      crossCheckStatus: ApplicationCrossCheckStatus;
       adminNotes: string;
       paymentReference: string;
     },
@@ -87,7 +90,7 @@ export function ApplicationAdminPanel({ initialApplications }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-sm font-black uppercase tracking-[0.24em] text-[#feb96d]">Admissions control</p>
-          <h2 className="font-display mt-2 text-3xl font-semibold text-[#ffd485]">Training applications</h2>
+          <h2 className="font-display mt-2 text-3xl font-semibold text-[#ffd485]">Training service applications</h2>
         </div>
         <button
           disabled={loading}
@@ -109,7 +112,7 @@ export function ApplicationAdminPanel({ initialApplications }: Props) {
         ) : (
           applications.map((application) => (
             <ApplicationCard
-              key={`${application.id}-${application.payload.attemptStatus}-${application.payload.paymentStatus}-${application.payload.approvalStatus}-${application.payload.paymentReference}-${application.payload.adminNotes}`}
+              key={`${application.id}-${application.payload.attemptStatus}-${application.payload.paymentStatus}-${application.payload.approvalStatus}-${application.payload.crossCheckStatus}-${application.payload.paymentReference}-${application.payload.adminNotes}`}
               application={application}
               disabled={loading}
               onSave={updateApplication}
@@ -134,6 +137,7 @@ function ApplicationCard({
       attemptStatus: ApplicationAttemptStatus;
       paymentStatus: ApplicationPaymentStatus;
       approvalStatus: ApplicationApprovalStatus;
+      crossCheckStatus: ApplicationCrossCheckStatus;
       adminNotes: string;
       paymentReference: string;
     },
@@ -142,6 +146,7 @@ function ApplicationCard({
   const [attemptStatus, setAttemptStatus] = useState<ApplicationAttemptStatus>(application.payload.attemptStatus);
   const [paymentStatus, setPaymentStatus] = useState<ApplicationPaymentStatus>(application.payload.paymentStatus);
   const [approvalStatus, setApprovalStatus] = useState<ApplicationApprovalStatus>(application.payload.approvalStatus);
+  const [crossCheckStatus, setCrossCheckStatus] = useState<ApplicationCrossCheckStatus>(application.payload.crossCheckStatus);
   const [adminNotes, setAdminNotes] = useState(application.payload.adminNotes);
   const [paymentReference, setPaymentReference] = useState(application.payload.paymentReference);
 
@@ -160,6 +165,7 @@ function ApplicationCard({
             <div className="flex flex-wrap gap-2">
               <StatusPill icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={attemptStatus} />
               <StatusPill icon={<CreditCard className="h-4 w-4" aria-hidden="true" />} label={paymentStatus} />
+              <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label={crossCheckStatus} />
               <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label={approvalStatus} />
             </div>
           </div>
@@ -206,19 +212,20 @@ function ApplicationCard({
           <div className="mt-4 grid gap-3">
             <SelectField label="Submission attempt" value={attemptStatus} onChange={(value) => setAttemptStatus(value as ApplicationAttemptStatus)} options={attemptOptions} />
             <SelectField label="Payment status" value={paymentStatus} onChange={(value) => setPaymentStatus(value as ApplicationPaymentStatus)} options={paymentOptions} />
+            <SelectField label="Cross check status" value={crossCheckStatus} onChange={(value) => setCrossCheckStatus(value as ApplicationCrossCheckStatus)} options={crossCheckOptions} />
             <SelectField label="Approval status" value={approvalStatus} onChange={(value) => setApprovalStatus(value as ApplicationApprovalStatus)} options={approvalOptions} />
             <TextField label="Payment reference" value={paymentReference} onChange={setPaymentReference} placeholder="Transaction ID / receipt no." />
             <TextAreaField label="Admin notes" value={adminNotes} onChange={setAdminNotes} placeholder="Internal note, follow-up detail, payment issue, approval comment..." />
           </div>
 
           <div className="mt-5 rounded-xl border border-[rgba(255,212,133,0.18)] bg-[rgba(255,212,133,0.06)] p-4 text-sm leading-7 text-[#ecdfe8]">
-            <p>Approve only after payment is confirmed and the application details are acceptable.</p>
-            <p className="mt-2">Once approved, the student can be treated as cleared to join the training batch.</p>
+            <p>Cross-check the application first, then approve only after payment is confirmed and the details are acceptable.</p>
+            <p className="mt-2">Once approved, the student can be treated as cleared to join the selected service batch.</p>
           </div>
 
           <button
             disabled={disabled}
-            onClick={() => onSave(application.id, { attemptStatus, paymentStatus, approvalStatus, adminNotes, paymentReference })}
+            onClick={() => onSave(application.id, { attemptStatus, paymentStatus, approvalStatus, crossCheckStatus, adminNotes, paymentReference })}
             className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded bg-[#f4b315] px-4 py-3 text-sm font-black text-[#271900] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Save application status

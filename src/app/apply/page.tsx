@@ -1,5 +1,6 @@
 import { CalendarDays, CheckCircle2, FileText, ShieldCheck } from "lucide-react";
 import { TrainingApplicationForm } from "@/components/training-application-form";
+import { getPrograms } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,14 @@ const steps = [
   },
 ];
 
-export default function ApplyPage() {
+export default async function ApplyPage() {
+  const programs = await getPrograms();
+  const serviceOptions = programs.map((program) => ({
+    title: program.title,
+    duration: program.duration,
+    level: program.level,
+  }));
+
   return (
     <div className="pb-20">
       <section className="border-b border-[rgba(27,59,43,0.08)] bg-[radial-gradient(circle_at_top_left,rgba(235,180,40,0.2),transparent_22rem),linear-gradient(180deg,#fbf7ee_0%,#f3ecdf_100%)]">
@@ -33,10 +41,10 @@ export default function ApplyPage() {
                 Training application
               </p>
               <h1 className="font-display mt-6 text-[clamp(2.8rem,8vw,5.2rem)] font-semibold leading-[0.95] tracking-tight text-[#1b3b2b]">
-                Online application that feels easy, guided, and human
+                Online service application that feels easy, guided, and human
               </h1>
               <p className="mt-5 max-w-3xl text-base leading-8 text-[#516253] sm:text-lg">
-                This form is designed so a first-time applicant, helper, volunteer, or family member can complete the beekeeping training application without confusion. Each section uses short labels, clear hints, and a step-by-step flow.
+                This form is designed so a first-time applicant, helper, volunteer, or family member can complete a training service application without confusion. Each section uses short labels, clear hints, and a step-by-step flow.
               </p>
             </div>
 
@@ -63,7 +71,7 @@ export default function ApplyPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <TrainingApplicationForm />
+        <TrainingApplicationForm serviceOptions={serviceOptions} />
       </section>
     </div>
   );

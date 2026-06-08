@@ -69,6 +69,7 @@ export const trainingApplicationAdminSchema = z.object({
   attemptStatus: z.enum(["ATTEMPTED", "SUBMITTED", "PAYMENT_INITIATED", "PAYMENT_FAILED", "PAYMENT_COMPLETED"]),
   paymentStatus: z.enum(["NOT_STARTED", "PENDING", "PAID", "FAILED"]),
   approvalStatus: z.enum(["PENDING", "APPROVED", "REJECTED"]),
+  crossCheckStatus: z.enum(["PENDING", "VERIFIED"]),
   adminNotes: z.string().trim().max(1000).optional().or(z.literal("")),
   paymentReference: z.string().trim().max(160).optional().or(z.literal("")),
 });
