@@ -7,12 +7,14 @@ import {
   FolderKanban,
   Layers3,
   LogOut,
+  Menu,
   Plus,
   RefreshCw,
   Save,
   Sparkles,
   Trash2,
   UsersRound,
+  X,
 } from "lucide-react";
 import { ApplicationAdminPanel } from "@/components/application-admin-panel";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
@@ -91,6 +93,7 @@ export function AdminConsole({
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<DashboardView>("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const applicationSummary = useMemo(() => {
     const ready = initialApplications.filter(
@@ -138,11 +141,11 @@ export function AdminConsole({
     },
   ];
 
-  const viewItems: { id: DashboardView; label: string; description: string }[] = [
-    { id: "overview", label: "Overview", description: "Daily picture" },
-    { id: "programs", label: "Services", description: "Training catalog" },
-    { id: "events", label: "Events", description: "Schedule control" },
-    { id: "applications", label: "Applications", description: "Admissions desk" },
+  const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
+    { id: "overview", label: "Overview", description: "Daily picture", icon: <Layers3 className="h-4 w-4" aria-hidden="true" /> },
+    { id: "programs", label: "Services", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
+    { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
+    { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
   ];
 
   async function load() {
@@ -204,7 +207,118 @@ export function AdminConsole({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-[96rem] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="lg:hidden">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="inline-flex items-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black uppercase tracking-[0.14em] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
+        >
+          <Menu className="h-4 w-4" aria-hidden="true" />
+          Dashboard menu
+        </button>
+      </div>
+
+      {sidebarOpen ? (
+        <div className="fixed inset-0 z-40 bg-[rgba(23,63,51,0.28)] lg:hidden" onClick={() => setSidebarOpen(false)}>
+          <div
+            className="h-full w-[20rem] max-w-[86vw] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_60px_rgba(0,0,0,0.25)]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#f5c65e]">Admin navigation</p>
+                <h2 className="font-display mt-2 text-3xl font-semibold">Command deck</h2>
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="rounded-full border border-[rgba(255,249,236,0.18)] p-2 text-[#fff9ec]"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </div>
+
+            <nav className="mt-6 grid gap-3">
+              {viewItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setView(item.id);
+                    setSidebarOpen(false);
+                  }}
+                  className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 text-left transition ${
+                    view === item.id
+                      ? "bg-[#fff9ec] text-[#173f33]"
+                      : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec]"
+                  }`}
+                >
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
+                    {item.icon}
+                  </span>
+                  <span>
+                    <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
+                    <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
+                  </span>
+                </button>
+              ))}
+            </nav>
+          </div>
+        </div>
+      ) : null}
+
+      <div className="mt-4 grid gap-6 lg:mt-0 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)]">
+        <aside className="hidden lg:block">
+          <div className="sticky top-24 rounded-[2rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_60px_rgba(23,63,51,0.2)]">
+            <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#f5c65e]">Admin navigation</p>
+            <h2 className="font-display mt-3 text-3xl font-semibold">Command deck</h2>
+            <p className="mt-3 text-sm leading-7 text-[#d7e1db]">
+              All main sections sit here on the left so the dashboard stays easy to move through.
+            </p>
+
+            <nav className="mt-6 grid gap-3">
+              {viewItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setView(item.id)}
+                  className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 text-left transition ${
+                    view === item.id
+                      ? "bg-[#fff9ec] text-[#173f33]"
+                      : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.1)]"
+                  }`}
+                >
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
+                    {item.icon}
+                  </span>
+                  <span>
+                    <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
+                    <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
+                  </span>
+                </button>
+              ))}
+            </nav>
+
+            <div className="mt-6 rounded-[1.4rem] border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] p-4">
+              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#f5c65e]">Quick actions</p>
+              <div className="mt-4 grid gap-3">
+                <button
+                  disabled={loading}
+                  onClick={load}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f5c65e] px-4 py-2.5 text-sm font-black text-[#173f33] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+                  Refresh data
+                </button>
+                <form action="/api/admin/logout" method="post">
+                  <button className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[rgba(255,249,236,0.2)] px-4 py-2.5 text-sm font-black text-[#fff9ec]">
+                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                    Logout
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <div className="grid gap-8">
       <section className="relative overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(145deg,rgba(255,253,248,0.98),rgba(243,236,223,0.96))] p-6 shadow-[0_30px_80px_rgba(64,44,8,0.08)] sm:p-8">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(235,180,40,0.18),transparent_22rem),radial-gradient(circle_at_bottom_left,rgba(27,59,43,0.08),transparent_24rem)]" />
         <div className="relative flex flex-col gap-6">
@@ -219,7 +333,7 @@ export function AdminConsole({
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3 lg:hidden">
               <button
                 disabled={loading}
                 onClick={load}
@@ -301,24 +415,6 @@ export function AdminConsole({
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section className="mt-8">
-        <div className="flex flex-wrap gap-3">
-          {viewItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setView(item.id)}
-              className={`rounded-full px-4 py-2 text-sm font-black uppercase tracking-[0.14em] transition ${
-                view === item.id
-                  ? "bg-[#173f33] text-[#fff9ec] shadow-[0_12px_24px_rgba(23,63,51,0.16)]"
-                  : "border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] text-[#607366] hover:bg-[#f7f2e8]"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
         </div>
       </section>
 
@@ -480,6 +576,8 @@ export function AdminConsole({
           <ApplicationAdminPanel databaseConfigured={databaseConfigured} initialApplications={initialApplications} />
         </div>
       ) : null}
+        </div>
+      </div>
     </div>
   );
 }
