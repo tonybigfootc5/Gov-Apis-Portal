@@ -655,9 +655,7 @@ export function AdminConsole({
                         </button>
                       </div>
                     </div>
-                    <p className="mt-4 font-black uppercase tracking-[0.18em] text-[#fff9ec]">Admissions</p>
-                    <p className="mt-2">Approval pipeline</p>
-                    <p className="mt-2">The applications desk remains focused on applicant review, payment confirmation, and approval decisions.</p>
+                    <p className="mt-4 text-sm text-[#dde4dc]">Track live learner movement, review readiness, and final approvals from one place.</p>
                   </div>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -670,57 +668,12 @@ export function AdminConsole({
           ) : null}
 
       {view === "overview" ? (
-        <section className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <DashboardSection
-            section="programs"
-            eyebrow="Training services"
-            title="Published catalog and drafting flow"
-            description="Keep the application-facing training list current. Use one section to create services and another to edit or remove existing services."
-            schedules={sectionSchedules.programs}
-            onOpenHistory={() => setActiveHistorySection("programs")}
-            onSchedule={(publishAt) => saveSchedule("programs", "Training services", publishAt)}
-          >
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-              <TaskLane
-                eyebrow="Service creation"
-                title="Add a new training service"
-                description="Create new training programs here with learner-friendly details."
-              >
-                <EditorPanel
-                  disabled={loading || !databaseConfigured}
-                  title="Create service"
-                  description="Add a new training service with clear learner-facing information."
-                  actionLabel="Create service"
-                  onSave={createProgram}
-                >
-                  <ProgramFields value={programDraft} onChange={setProgramDraft} />
-                </EditorPanel>
-              </TaskLane>
-              <TaskLane
-                eyebrow="Service maintenance"
-                title="Edit, publish, or remove services"
-                description="All existing programs stay together here so updates and deletions happen in one place."
-              >
-                <div className="grid gap-4">
-                  {programs.slice(0, 3).map((program) => (
-                    <ProgramRow
-                      key={`${program.id}-${program.updatedAt ?? ""}`}
-                      disabled={loading || !databaseConfigured}
-                      program={program}
-                      onSave={saveProgram}
-                      onDelete={() => removeProgram(program.id)}
-                    />
-                  ))}
-                </div>
-              </TaskLane>
-            </div>
-          </DashboardSection>
-
+        <section className="mt-8">
           <DashboardSection
             section="applications"
-            eyebrow="Admissions"
-            title="Approval pipeline"
-            description="The applications desk remains focused on applicant review, payment confirmation, and approval decisions."
+            eyebrow="Applications"
+            title="Learner review desk"
+            description="Handle cross-check, payment status, and final decisions from a single admissions workspace."
             schedules={sectionSchedules.applications}
             onOpenHistory={() => setActiveHistorySection("applications")}
             onSchedule={(publishAt) => saveSchedule("applications", "Applications desk", publishAt)}
@@ -1359,33 +1312,6 @@ function EventFields<T extends Omit<EventItem, "id">>({ value, onChange }: { val
         Published on website
       </label>
     </>
-  );
-}
-
-function ProgramRow({
-  program,
-  onSave,
-  onDelete,
-  disabled,
-}: {
-  program: Program;
-  onSave: (body: Program) => void;
-  onDelete: () => void;
-  disabled: boolean;
-}) {
-  const [draft, setDraft] = useState(program);
-
-  return (
-    <RecordCard
-      eyebrow={program.level.replaceAll("_", " ")}
-      title={program.title}
-      metadata={`${program.duration} | Capacity ${program.capacity} | ${program.published ? "Published" : "Draft"}`}
-      disabled={disabled}
-      onSave={() => onSave(draft)}
-      onDelete={onDelete}
-    >
-      <ProgramFields value={draft} onChange={setDraft} />
-    </RecordCard>
   );
 }
 
