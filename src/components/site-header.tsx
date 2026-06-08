@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, Hexagon, Menu, UserCircle } from "lucide-react";
+import { ExternalLink, Menu, UserCircle } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { SiteLanguage } from "@/lib/i18n";
 
@@ -37,8 +38,15 @@ export function SiteHeader({
         </div>
         <div className="flex items-center justify-between gap-3">
         <Link href="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3" aria-label="API CULTURE home">
-          <span className="hex-clip grid h-10 w-11 shrink-0 place-items-center bg-[#ebb428] text-[#1b3b2b] shadow-lg shadow-amber-900/20 sm:h-11 sm:w-12">
-            <Hexagon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+          <span className="relative h-12 w-14 shrink-0 overflow-hidden rounded-2xl border border-[rgba(27,59,43,0.12)] bg-[#fff8e6] shadow-lg shadow-amber-900/15 sm:h-14 sm:w-16">
+            <Image
+              src="/api-culture-logo.png"
+              alt="API CULTURE honeycomb logo"
+              fill
+              className="object-cover"
+              sizes="64px"
+              priority
+            />
           </span>
           <span className="min-w-0 leading-tight">
             <span className="block truncate font-display text-base font-black uppercase tracking-[0.1em] text-[#1b3b2b] sm:text-lg sm:tracking-[0.14em] xl:text-xl xl:tracking-[0.18em]">
