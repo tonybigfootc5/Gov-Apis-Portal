@@ -35,8 +35,8 @@ export function SiteFooter({ language, languageLabel, languageOptions }: SiteFoo
           </p>
         </div>
         <div className="grid content-start gap-2 text-sm">
-          <Link href="/apply" className="text-[#e5e7e3] hover:text-[#ebb428]">
-            Apply for training
+          <Link href="/programs" className="text-[#e5e7e3] hover:text-[#ebb428]">
+            Choose training and apply
           </Link>
           <Link href="/programs" className="text-[#e5e7e3] hover:text-[#ebb428]">
             {t(language, "footer.programs")}

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, FileText } from "lucide-react";
+import { TrainingApplicationForm } from "@/components/training-application-form";
 import { getProgram } from "@/lib/data";
 import { getTranslatedProgramContent, t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
@@ -28,6 +29,11 @@ export default async function ProgramDetailPage({ params }: Props) {
   const program = await getProgram(slug);
   if (!program) notFound();
   const translatedProgram = getTranslatedProgramContent(program, language);
+  const selectedService = {
+    title: translatedProgram.title,
+    duration: translatedProgram.duration,
+    level: translatedProgram.level,
+  };
   const isQueenRearing = slug === "queen-rearing-and-colony-multiplication";
   const isFoundation = slug === "scientific-beekeeping-foundation";
   const programBackgroundSrc =
@@ -102,9 +108,51 @@ export default async function ProgramDetailPage({ params }: Props) {
             <Detail label={t(language, "programs.detail.capacity")} value={`${translatedProgram.capacity} participants`} />
             <Detail label={t(language, "programs.detail.fee")} value={translatedProgram.fee ?? t(language, "programs.detail.fallbackFee")} />
           </div>
+          <div className="mt-8 grid gap-4 rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#f6efe4] p-5 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.2em] text-[#b36b00]">Application flow</p>
+              <p className="mt-3 text-sm leading-7 text-[#516253]">
+                You are now inside the selected training. Review the details, then use the application form below to apply directly for this training only.
+              </p>
+            </div>
+            <a
+              href="#training-application-form"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1b3b2b] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#faf8f2] shadow-[0_18px_40px_rgba(27,59,43,0.16)]"
+            >
+              Fill this training form
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </a>
+          </div>
           <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#435247]">{translatedProgram.description}</div>
         </div>
       </div>
+
+      <section id="training-application-form" className="mt-10 rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[linear-gradient(180deg,#fbf7ee_0%,#f3ecdf_100%)] p-5 shadow-[0_28px_70px_rgba(64,44,8,0.08)] sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-[0.72fr_1fr] lg:items-start">
+          <div className="grid gap-4">
+            <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">Selected training</p>
+              <h2 className="font-display mt-3 text-3xl font-semibold text-[#1b3b2b]">{translatedProgram.title}</h2>
+              <p className="mt-3 text-sm leading-7 text-[#516253]">{translatedProgram.summary}</p>
+              <div className="mt-5 grid gap-3 text-sm text-[#1b3b2b]">
+                <p className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Duration: {translatedProgram.duration}</p>
+                <p className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Level: {translatedProgram.level}</p>
+                <p className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Capacity: {translatedProgram.capacity} participants</p>
+              </div>
+            </div>
+            <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-5">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">Before filling</p>
+              <div className="mt-4 grid gap-3 text-sm leading-7 text-[#516253]">
+                <p className="inline-flex items-start gap-3"><FileText className="mt-1 h-4 w-4 shrink-0 text-[#b36b00]" aria-hidden="true" />The form below is already connected to this training, so there is no need to choose the service again.</p>
+                <p className="inline-flex items-start gap-3"><FileText className="mt-1 h-4 w-4 shrink-0 text-[#b36b00]" aria-hidden="true" />Keep the applicant photo ready before the final step.</p>
+                <p className="inline-flex items-start gap-3"><FileText className="mt-1 h-4 w-4 shrink-0 text-[#b36b00]" aria-hidden="true" />If the applicant does not have email or residence phone, those fields can stay blank.</p>
+              </div>
+            </div>
+          </div>
+
+          <TrainingApplicationForm serviceOptions={[selectedService]} selectedServiceTitle={selectedService.title} />
+        </div>
+      </section>
     </article>
   );
 }

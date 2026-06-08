@@ -54,7 +54,6 @@ export default async function RootLayout({
   const navItems = [
     { label: t(language, "nav.home"), href: "/" },
     { label: t(language, "nav.about"), href: "/about" },
-    { label: "Apply", href: "/apply" },
     { label: t(language, "nav.training"), href: "/programs" },
     { label: t(language, "nav.events"), href: "/events" },
     { label: t(language, "nav.gallery"), href: "/gallery" },

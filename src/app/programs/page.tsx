@@ -28,14 +28,21 @@ export default async function ProgramsPage() {
           </SectionHeading>
         </div>
         <div className="paper-panel rounded-[2rem] p-6">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">Program structure</p>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">How to apply</p>
           <div className="mt-5 grid gap-4 text-sm leading-7 text-[#516253]">
-            <p className="inline-flex items-center gap-3"><GraduationCap className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Foundation and advanced modules</p>
-            <p className="inline-flex items-center gap-3"><Timer className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Short-format intensive training windows</p>
-            <p className="inline-flex items-center gap-3"><CircleDot className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Built for practice, not generic brochure copy</p>
+            <p className="inline-flex items-center gap-3"><GraduationCap className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Choose the training the applicant wants</p>
+            <p className="inline-flex items-center gap-3"><Timer className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Open that training to see its full details</p>
+            <p className="inline-flex items-center gap-3"><CircleDot className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Fill the application form inside the selected training page</p>
           </div>
         </div>
       </div>
+      <div className="mt-8 rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#f6efe4] px-5 py-5 text-sm leading-7 text-[#516253] shadow-[0_18px_40px_rgba(64,44,8,0.06)]">
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">Training selection</p>
+        <p className="mt-3">
+          The application form is no longer separate. First open the training you want, then use the form inside that training page to submit the application for that exact program.
+        </p>
+      </div>
+
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         {translatedPrograms.map((program) => {
           const isFoundation = program.slug === "scientific-beekeeping-foundation";
@@ -64,7 +71,10 @@ export default async function ProgramsPage() {
               <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-black text-[#516253] sm:justify-between">
                 <span>{program.duration}</span>
                 <span>{program.capacity} {t(language, "programs.seats")}</span>
-                <ArrowRight className="h-5 w-5 text-[#b36b00] sm:ml-auto" aria-hidden="true" />
+                <span className="inline-flex items-center gap-2 rounded-full bg-[#f6efe4] px-3 py-2 text-xs uppercase tracking-[0.14em] text-[#1b3b2b] sm:ml-auto">
+                  Open training
+                  <ArrowRight className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />
+                </span>
               </div>
             </Link>
           );

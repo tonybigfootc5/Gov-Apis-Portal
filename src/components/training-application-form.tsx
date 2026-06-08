@@ -46,6 +46,11 @@ type ServiceOption = {
   level: string;
 };
 
+type Props = {
+  serviceOptions: ServiceOption[];
+  selectedServiceTitle?: string;
+};
+
 const DEFAULT_SERVICE_NAME = "Beekeeping";
 
 const INITIAL_FORM: FormState = {
@@ -164,11 +169,13 @@ function requiredStepFields(stepIndex: number, data: FormState) {
   return Boolean(data.photoDataUrl);
 }
 
-export function TrainingApplicationForm({ serviceOptions }: { serviceOptions: ServiceOption[] }) {
+export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }: Props) {
   const normalizedServiceOptions = serviceOptions.length
     ? serviceOptions
     : [{ title: DEFAULT_SERVICE_NAME, duration: "As scheduled", level: "FOUNDATION" }];
-  const initialServiceName = normalizedServiceOptions[0].title;
+  const lockedService =
+    normalizedServiceOptions.find((service) => service.title === selectedServiceTitle) ?? null;
+  const initialServiceName = lockedService?.title ?? normalizedServiceOptions[0].title;
   const [form, setForm] = useState<FormState>({ ...INITIAL_FORM, serviceName: initialServiceName });
   const [step, setStep] = useState(0);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
@@ -303,17 +310,30 @@ export function TrainingApplicationForm({ serviceOptions }: { serviceOptions: Se
 
           {step === 0 ? (
             <div className="grid gap-4">
-              <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                Select service
-                <span className="text-xs font-normal text-[#7a867b]">Choose the training service the applicant wants to join</span>
-                <select value={form.serviceName} onChange={(event) => updateField("serviceName", event.target.value)} className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2">
-                  {normalizedServiceOptions.map((service) => (
-                    <option key={service.title} value={service.title}>
-                      {service.title} - {service.duration} - {service.level}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              {lockedService ? (
+                <div className="rounded-[1.6rem] border border-[rgba(27,59,43,0.12)] bg-[#f6efe4] p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#b36b00]">Selected training</p>
+                  <p className="mt-2 text-xl font-semibold text-[#1b3b2b]">{lockedService.title}</p>
+                  <p className="mt-2 text-sm leading-7 text-[#516253]">
+                    {lockedService.duration} | {lockedService.level}
+                  </p>
+                  <p className="mt-2 text-sm leading-7 text-[#516253]">
+                    This form is now linked to the selected training, so the applicant does not need to choose again.
+                  </p>
+                </div>
+              ) : (
+                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
+                  Select service
+                  <span className="text-xs font-normal text-[#7a867b]">Choose the training service the applicant wants to join</span>
+                  <select value={form.serviceName} onChange={(event) => updateField("serviceName", event.target.value)} className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2">
+                    {normalizedServiceOptions.map((service) => (
+                      <option key={service.title} value={service.title}>
+                        {service.title} - {service.duration} - {service.level}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                   Date of application
