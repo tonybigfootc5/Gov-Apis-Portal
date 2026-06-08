@@ -48,6 +48,23 @@ type EventItem = {
   updatedAt?: string;
 };
 
+type ArticleItem = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  body: string;
+  category: string;
+  publishedAt: string;
+  authorName: string;
+  authorRole: string;
+  externalLink: string;
+  keyPoints: string;
+  seoTitle: string;
+  metaDescription: string;
+  published: boolean;
+};
+
 type Props = {
   databaseConfigured: boolean;
   initialApplications: TrainingApplicationRecord[];
@@ -81,6 +98,76 @@ const emptyEvent: Omit<EventItem, "id"> = {
   published: true,
 };
 
+const sampleArticles: ArticleItem[] = [
+  {
+    id: "article-queen-strength",
+    title: "Managing Bee Colonies in High Temperature Without Losing Strength",
+    slug: "managing-bee-colonies-in-high-temperature-without-losing-strength",
+    excerpt: "A practical field note on summer hive care, airflow, shade, and hydration management for colony stability.",
+    body:
+      "High temperature can place major pressure on colonies when airflow, shade, and water access are not managed in time. This article outlines simple steps for reducing heat stress, keeping brood areas stable, protecting worker activity, and avoiding unnecessary colony weakening during peak seasonal stress.\n\nThe guidance is written for field teams, trainees, and rural beekeepers who need direct, practical actions rather than theory-heavy instructions.",
+    category: "Field management",
+    publishedAt: "2026-06-14T10:00",
+    authorName: "API CULTURE Editorial Desk",
+    authorRole: "Training and Field Team",
+    externalLink: "",
+    keyPoints: "Shade near apiary\nWater source nearby\nReduce comb overheating",
+    seoTitle: "Managing Bee Colonies in High Temperature",
+    metaDescription: "Practical field methods for keeping bee colonies stable during high summer temperatures.",
+    published: true,
+  },
+  {
+    id: "article-honey-production",
+    title: "How To Select a Bee Honey Production During Monsoon Season in Beekeeping",
+    slug: "how-to-select-a-bee-honey-production-during-monsoon-season-in-beekeeping",
+    excerpt: "Monsoon conditions change forage, moisture, and disease pressure, so honey production decisions must stay seasonal.",
+    body:
+      "Monsoon season requires more careful honey production planning because forage conditions, hive moisture, and colony strength may shift quickly. This article helps trainees understand when to hold back, when to inspect, and how to judge whether conditions are suitable for honey-focused management.\n\nThe note is meant for application in training discussions, field visits, and extension support.",
+    category: "Seasonal guidance",
+    publishedAt: "2026-06-18T09:30",
+    authorName: "API CULTURE Training Wing",
+    authorRole: "Seasonal Practice Unit",
+    externalLink: "",
+    keyPoints: "Check forage availability\nWatch humidity levels\nPrevent fungal pressure",
+    seoTitle: "Monsoon Season Honey Production in Beekeeping",
+    metaDescription: "Seasonal considerations for planning honey production during monsoon conditions.",
+    published: true,
+  },
+  {
+    id: "article-pollination",
+    title: "Poor Pollination in Crop Fields: How Better Bee Placement Can Improve Results",
+    slug: "poor-pollination-in-crop-fields-how-better-bee-placement-can-improve-results",
+    excerpt: "Placement strategy matters. Small shifts in colony position can improve pollination effectiveness across crop fields.",
+    body:
+      "When pollination results remain weak, the issue is not always colony count alone. Field placement, distance from bloom concentration, shade, access routes, and crop timing all influence how well bees support pollination activity.\n\nThis article provides a field-oriented explanation that can be used in training sessions and institutional advisory work.",
+    category: "Pollination support",
+    publishedAt: "2026-06-22T08:45",
+    authorName: "API CULTURE Extension Team",
+    authorRole: "Crop Interface Support",
+    externalLink: "",
+    keyPoints: "Place near bloom density\nAvoid blocked flight paths\nReview field spread",
+    seoTitle: "Better Bee Placement for Crop Pollination",
+    metaDescription: "Why bee placement strategy can improve pollination performance across crop fields.",
+    published: true,
+  },
+];
+
+const emptyArticle: Omit<ArticleItem, "id"> = {
+  title: "",
+  slug: "",
+  excerpt: "",
+  body: "",
+  category: "",
+  publishedAt: new Date().toISOString().slice(0, 16),
+  authorName: "",
+  authorRole: "",
+  externalLink: "",
+  keyPoints: "",
+  seoTitle: "",
+  metaDescription: "",
+  published: true,
+};
+
 export function AdminConsole({
   databaseConfigured,
   initialApplications,
@@ -91,6 +178,8 @@ export function AdminConsole({
   const [events, setEvents] = useState<EventItem[]>(initialEvents);
   const [programDraft, setProgramDraft] = useState(emptyProgram);
   const [eventDraft, setEventDraft] = useState(emptyEvent);
+  const [articles, setArticles] = useState<ArticleItem[]>(sampleArticles);
+  const [articleDraft, setArticleDraft] = useState<Omit<ArticleItem, "id">>(emptyArticle);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<DashboardView>("overview");
@@ -207,6 +296,40 @@ export function AdminConsole({
     } finally {
       setLoading(false);
     }
+  }
+
+  function saveArticleDraft() {
+    if (!articleDraft.title.trim()) {
+      setNotice("Article title is required.");
+      return;
+    }
+
+    const slug = (articleDraft.slug || articleDraft.title)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    setArticles((current) => [
+      {
+        id: `article-${Date.now()}`,
+        ...articleDraft,
+        slug,
+      },
+      ...current,
+    ]);
+    setArticleDraft(emptyArticle);
+    setNotice("Article draft added to the article workspace.");
+  }
+
+  function updateArticle(id: string, next: ArticleItem) {
+    setArticles((current) => current.map((article) => (article.id === id ? next : article)));
+    setNotice("Article changes saved in the workspace.");
+  }
+
+  function deleteArticle(id: string) {
+    setArticles((current) => current.filter((article) => article.id !== id));
+    setNotice("Article removed from the workspace.");
   }
 
   return (
@@ -628,33 +751,18 @@ export function AdminConsole({
       {view === "articles" ? (
         <DashboardSection
           eyebrow="Article manager"
-          title="Articles and knowledge publishing"
-          description="This section is reserved for article publishing, center updates, learning notes, and future content management tools."
+          title="Manage Articles"
+          description="Create articles, publish field guidance, and maintain knowledge records for training, rural work, and institutional communication."
           className="mt-8"
         >
-          <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
-            <TaskLane
-              eyebrow="Coming next"
-              title="Create new article"
-              description="We can use this area for blog posts, training notices, beekeeping guidance, and institutional announcements."
-            >
-              <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
-                <p className="text-sm leading-7 text-[#607366]">
-                  Article creation tools are not built yet, but this workspace is now added to the admin navigation and ready for the next step.
-                </p>
-              </div>
-            </TaskLane>
-
-            <TaskLane
-              eyebrow="Publishing board"
-              title="Manage article library"
-              description="Existing and draft articles can be listed here once we connect the article database and editor."
-            >
-              <div className="rounded-[1.75rem] border border-dashed border-[rgba(27,59,43,0.16)] bg-[rgba(255,255,255,0.46)] p-6 text-sm leading-7 text-[#607366]">
-                No article records are connected yet. When you want, I can build the full article system next with create, edit, publish, and delete controls.
-              </div>
-            </TaskLane>
-          </div>
+          <ArticlesWorkspace
+            articles={articles}
+            draft={articleDraft}
+            onDraftChange={setArticleDraft}
+            onDraftSave={saveArticleDraft}
+            onArticleSave={updateArticle}
+            onArticleDelete={deleteArticle}
+          />
         </DashboardSection>
       ) : null}
         </div>
@@ -739,6 +847,59 @@ function TaskLane({
   );
 }
 
+function ArticlesWorkspace({
+  articles,
+  draft,
+  onDraftChange,
+  onDraftSave,
+  onArticleSave,
+  onArticleDelete,
+}: {
+  articles: ArticleItem[];
+  draft: Omit<ArticleItem, "id">;
+  onDraftChange: (next: Omit<ArticleItem, "id">) => void;
+  onDraftSave: () => void;
+  onArticleSave: (id: string, next: ArticleItem) => void;
+  onArticleDelete: (id: string) => void;
+}) {
+  return (
+    <div className="grid gap-6 xl:grid-cols-[330px_minmax(0,1fr)]">
+      <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
+        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">New article</p>
+        <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Add article</h3>
+        <p className="mt-2 text-sm leading-7 text-[#607366]">Create a new learning note, field article, or institutional update here.</p>
+        <div className="mt-4 rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
+          <ArticleFields value={draft} onChange={onDraftChange} />
+          <button
+            onClick={onDraftSave}
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f]"
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Add new article
+          </button>
+        </div>
+      </div>
+
+      <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Article library</p>
+            <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Edit existing articles</h3>
+          </div>
+          <div className="rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#607366]">
+            {articles.length} articles
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4">
+          {articles.map((article) => (
+            <ArticleRow key={article.id} article={article} onSave={onArticleSave} onDelete={onArticleDelete} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="grid gap-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#718477]">
@@ -750,6 +911,61 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 
 function fieldClass(multiline?: boolean) {
   return `${multiline ? "rounded-[1.35rem]" : "rounded-xl"} border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] px-3 py-2.5 text-sm font-medium text-[#173f33] outline-none ring-[#d9a127] transition placeholder:text-[#8ea091] focus:bg-white focus:ring-2`;
+}
+
+function ArticleFields<T extends Omit<ArticleItem, "id">>({
+  value,
+  onChange,
+}: {
+  value: T;
+  onChange: (next: T) => void;
+}) {
+  return (
+    <div className="grid gap-3">
+      <Field label="Title">
+        <input className={fieldClass()} value={value.title} onChange={(event) => onChange({ ...value, title: event.target.value })} />
+      </Field>
+      <Field label="Slug">
+        <input className={fieldClass()} value={value.slug} onChange={(event) => onChange({ ...value, slug: event.target.value })} />
+      </Field>
+      <Field label="Description">
+        <textarea rows={3} className={fieldClass(true)} value={value.excerpt} onChange={(event) => onChange({ ...value, excerpt: event.target.value })} />
+      </Field>
+      <Field label="Full content">
+        <textarea rows={7} className={fieldClass(true)} value={value.body} onChange={(event) => onChange({ ...value, body: event.target.value })} />
+      </Field>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Category">
+          <input className={fieldClass()} value={value.category} onChange={(event) => onChange({ ...value, category: event.target.value })} />
+        </Field>
+        <Field label="Published at">
+          <input type="datetime-local" className={fieldClass()} value={value.publishedAt} onChange={(event) => onChange({ ...value, publishedAt: event.target.value })} />
+        </Field>
+      </div>
+      <Field label="Author name">
+        <input className={fieldClass()} value={value.authorName} onChange={(event) => onChange({ ...value, authorName: event.target.value })} />
+      </Field>
+      <Field label="Author role">
+        <input className={fieldClass()} value={value.authorRole} onChange={(event) => onChange({ ...value, authorRole: event.target.value })} />
+      </Field>
+      <Field label="External link">
+        <input className={fieldClass()} value={value.externalLink} onChange={(event) => onChange({ ...value, externalLink: event.target.value })} />
+      </Field>
+      <Field label="Bullet points">
+        <textarea rows={4} className={fieldClass(true)} value={value.keyPoints} onChange={(event) => onChange({ ...value, keyPoints: event.target.value })} />
+      </Field>
+      <Field label="SEO title">
+        <input className={fieldClass()} value={value.seoTitle} onChange={(event) => onChange({ ...value, seoTitle: event.target.value })} />
+      </Field>
+      <Field label="Meta description">
+        <textarea rows={3} className={fieldClass(true)} value={value.metaDescription} onChange={(event) => onChange({ ...value, metaDescription: event.target.value })} />
+      </Field>
+      <label className="inline-flex items-center gap-2 rounded-xl bg-[#f3ecdf] px-3 py-2 text-sm font-semibold text-[#173f33]">
+        <input type="checkbox" checked={value.published} onChange={(event) => onChange({ ...value, published: event.target.checked })} />
+        Published article
+      </label>
+    </div>
+  );
 }
 
 function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { value: T; onChange: (next: T) => void }) {
@@ -885,6 +1101,54 @@ function EventRow({
     >
       <EventFields value={draft} onChange={setDraft} />
     </RecordCard>
+  );
+}
+
+function ArticleRow({
+  article,
+  onSave,
+  onDelete,
+}: {
+  article: ArticleItem;
+  onSave: (id: string, next: ArticleItem) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [draft, setDraft] = useState(article);
+
+  return (
+    <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">{draft.category || "Article"}</p>
+          <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{draft.title || "Untitled article"}</h3>
+          <p className="mt-2 text-sm leading-7 text-[#607366]">
+            {draft.authorName || "No author"} | {draft.publishedAt ? formatDateTime(draft.publishedAt) : "No publish date"}
+          </p>
+        </div>
+        <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+          {draft.published ? "Published" : "Draft"}
+        </span>
+      </div>
+
+      <ArticleFields value={draft} onChange={setDraft} />
+
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <button
+          onClick={() => onSave(article.id, draft)}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] transition hover:bg-[#204d3f]"
+        >
+          <Save className="h-4 w-4" aria-hidden="true" />
+          Save changes
+        </button>
+        <button
+          onClick={() => onDelete(article.id)}
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-4 py-2.5 text-sm font-black text-[#92462d] transition hover:bg-[#fbeee7]"
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+          Delete
+        </button>
+      </div>
+    </article>
   );
 }
 
