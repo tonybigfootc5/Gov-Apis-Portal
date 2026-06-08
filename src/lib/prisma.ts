@@ -6,6 +6,8 @@ const globalForPrisma = globalThis as unknown as {
 };
 let prismaClient: PrismaClient | undefined;
 
+export const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
+
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
