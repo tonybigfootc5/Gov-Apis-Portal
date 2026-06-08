@@ -12,7 +12,6 @@ import {
   Plus,
   RefreshCw,
   Save,
-  Sparkles,
   Trash2,
   UsersRound,
   X,
@@ -199,37 +198,6 @@ export function AdminConsole({
       ready,
     };
   }, [initialApplications]);
-
-  const overviewCards = [
-    {
-      label: "Published services",
-      value: programs.filter((program) => program.published).length,
-      detail: `${programs.length} total training services`,
-      icon: <FolderKanban className="h-5 w-5" aria-hidden="true" />,
-      accent: "from-[#173f33] to-[#2a5a49]",
-    },
-    {
-      label: "Live events",
-      value: events.filter((event) => event.published && event.status === "UPCOMING").length,
-      detail: `${events.length} event records managed`,
-      icon: <CalendarDays className="h-5 w-5" aria-hidden="true" />,
-      accent: "from-[#7f4f16] to-[#b87716]",
-    },
-    {
-      label: "Applications",
-      value: applicationSummary.total,
-      detail: `${applicationSummary.ready} ready for decision`,
-      icon: <UsersRound className="h-5 w-5" aria-hidden="true" />,
-      accent: "from-[#5e3d7c] to-[#915dc0]",
-    },
-    {
-      label: "Approved learners",
-      value: applicationSummary.approved,
-      detail: "Cleared to join services",
-      icon: <Sparkles className="h-5 w-5" aria-hidden="true" />,
-      accent: "from-[#285c46] to-[#4c9470]",
-    },
-  ];
 
   const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
     { id: "overview", label: "Overview", description: "Daily picture", icon: <Layers3 className="h-4 w-4" aria-hidden="true" /> },
@@ -452,17 +420,24 @@ export function AdminConsole({
           {view === "overview" ? (
             <section className="grid gap-4">
               <div className="rounded-[1.75rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_50px_rgba(23,63,51,0.18)]">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">
-                    <Layers3 className="h-4 w-4" aria-hidden="true" />
-                    Today at a glance
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">
+                      <Layers3 className="h-4 w-4" aria-hidden="true" />
+                      Live updates
+                    </div>
+                    <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#d9dfd5]">Quick operational summary</p>
                   </div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#d9dfd5]">Quick operational summary</p>
+                  <div className="max-w-xl text-sm leading-7 text-[#dde4dc]">
+                    <p className="font-black uppercase tracking-[0.18em] text-[#fff9ec]">Admissions</p>
+                    <p className="mt-2">Approval pipeline</p>
+                    <p className="mt-2">The applications desk remains focused on applicant review, payment confirmation, and approval decisions.</p>
+                  </div>
                 </div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                  {overviewCards.map((card) => (
-                    <CompactOverviewCard key={card.label} card={card} />
-                  ))}
+                <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                  <SummaryInlineCard label="Pending review" value={applicationSummary.total - applicationSummary.approved} detail="Applicants waiting in review flow" tone="warm" />
+                  <SummaryInlineCard label="Ready to approve" value={applicationSummary.ready} detail="Verified and ready for decision" tone="forest" />
+                  <SummaryInlineCard label="Approved learners" value={applicationSummary.approved} detail="Cleared to join services" tone="gold" />
                 </div>
               </div>
             </section>
@@ -1290,25 +1265,28 @@ function MiniStatCard({ label, value, tone }: { label: string; value: number; to
   );
 }
 
-function CompactOverviewCard({
-  card,
+function SummaryInlineCard({
+  label,
+  value,
+  detail,
+  tone,
 }: {
-  card: {
-    label: string;
-    value: number;
-    detail: string;
-    icon: ReactNode;
-    accent: string;
-  };
+  label: string;
+  value: number;
+  detail: string;
+  tone: "warm" | "forest" | "gold";
 }) {
+  const toneClass = {
+    warm: "bg-[rgba(255,245,234,0.1)] border-[rgba(255,245,234,0.16)] text-[#fff4e6]",
+    forest: "bg-[rgba(238,248,241,0.1)] border-[rgba(238,248,241,0.16)] text-[#e8fff0]",
+    gold: "bg-[rgba(255,248,223,0.1)] border-[rgba(255,248,223,0.16)] text-[#fff7de]",
+  }[tone];
+
   return (
-    <div className="rounded-[1.35rem] border border-[rgba(255,249,236,0.12)] bg-[rgba(255,255,255,0.07)] p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div className={`inline-flex rounded-full bg-gradient-to-r ${card.accent} p-2 text-white`}>{card.icon}</div>
-        <p className="font-display text-4xl font-semibold leading-none text-[#fff9ec]">{card.value}</p>
-      </div>
-      <p className="mt-4 text-[11px] font-black uppercase tracking-[0.18em] text-[#d9dfd5]">{card.label}</p>
-      <p className="mt-2 text-sm leading-6 text-[#dde4dc]">{card.detail}</p>
+    <div className={`rounded-[1.35rem] border p-4 ${toneClass}`}>
+      <p className="text-[11px] font-black uppercase tracking-[0.18em]">{label}</p>
+      <p className="font-display mt-3 text-4xl font-semibold leading-none">{value}</p>
+      <p className="mt-3 text-sm leading-6 text-[#dde4dc]">{detail}</p>
     </div>
   );
 }
