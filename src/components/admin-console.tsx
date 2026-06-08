@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
+  BookOpenText,
   CalendarDays,
   FolderKanban,
   Layers3,
@@ -54,7 +55,7 @@ type Props = {
   initialEvents: EventItem[];
 };
 
-type DashboardView = "overview" | "programs" | "events" | "applications";
+type DashboardView = "overview" | "programs" | "events" | "applications" | "articles";
 
 const emptyProgram: Omit<Program, "id"> = {
   title: "",
@@ -146,6 +147,7 @@ export function AdminConsole({
     { id: "programs", label: "Services", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
     { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
+    { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
   ];
   const activeView = viewItems.find((item) => item.id === view) ?? viewItems[0];
 
@@ -621,6 +623,39 @@ export function AdminConsole({
         <div className="mt-8">
           <ApplicationAdminPanel databaseConfigured={databaseConfigured} initialApplications={initialApplications} />
         </div>
+      ) : null}
+
+      {view === "articles" ? (
+        <DashboardSection
+          eyebrow="Article manager"
+          title="Articles and knowledge publishing"
+          description="This section is reserved for article publishing, center updates, learning notes, and future content management tools."
+          className="mt-8"
+        >
+          <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
+            <TaskLane
+              eyebrow="Coming next"
+              title="Create new article"
+              description="We can use this area for blog posts, training notices, beekeeping guidance, and institutional announcements."
+            >
+              <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
+                <p className="text-sm leading-7 text-[#607366]">
+                  Article creation tools are not built yet, but this workspace is now added to the admin navigation and ready for the next step.
+                </p>
+              </div>
+            </TaskLane>
+
+            <TaskLane
+              eyebrow="Publishing board"
+              title="Manage article library"
+              description="Existing and draft articles can be listed here once we connect the article database and editor."
+            >
+              <div className="rounded-[1.75rem] border border-dashed border-[rgba(27,59,43,0.16)] bg-[rgba(255,255,255,0.46)] p-6 text-sm leading-7 text-[#607366]">
+                No article records are connected yet. When you want, I can build the full article system next with create, edit, publish, and delete controls.
+              </div>
+            </TaskLane>
+          </div>
+        </DashboardSection>
       ) : null}
         </div>
       </div>
