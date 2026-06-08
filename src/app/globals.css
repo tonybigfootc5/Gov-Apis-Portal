@@ -84,3 +84,17 @@ html {
     linear-gradient(135deg, rgba(27, 59, 43, 0.96), rgba(45, 49, 46, 0.96)),
     radial-gradient(circle at top right, rgba(235, 180, 40, 0.22), transparent 18rem);
 }
+
+@keyframes float-gentle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.float-gentle {
+  animation: float-gentle 3.8s ease-in-out infinite;
+}
