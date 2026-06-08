@@ -1,11 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
   BookOpenText,
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
   FolderKanban,
+  History,
   Layers3,
   LogOut,
   Menu,
@@ -72,6 +76,25 @@ type Props = {
 };
 
 type DashboardView = "overview" | "programs" | "events" | "applications" | "articles";
+type HistorySection = DashboardView;
+
+type HistoryEntry = {
+  id: string;
+  section: HistorySection;
+  action: string;
+  label: string;
+  timestamp: string;
+  details?: string;
+};
+
+type PublishSchedule = {
+  id: string;
+  section: HistorySection;
+  label: string;
+  publishAt: string;
+  published: boolean;
+  publishedAt?: string;
+};
 
 const emptyProgram: Omit<Program, "id"> = {
   title: "",
@@ -167,6 +190,23 @@ const emptyArticle: Omit<ArticleItem, "id"> = {
   published: true,
 };
 
+const HISTORY_STORAGE_KEY = "api-culture-admin-history";
+const SCHEDULE_STORAGE_KEY = "api-culture-admin-schedules";
+const HISTORY_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
+
+function readStoredHistory() {
+  if (typeof window === "undefined") return [];
+
+  const now = Date.now();
+  const savedHistory = JSON.parse(window.localStorage.getItem(HISTORY_STORAGE_KEY) ?? "[]") as HistoryEntry[];
+  return savedHistory.filter((entry) => now - new Date(entry.timestamp).getTime() <= HISTORY_RETENTION_MS);
+}
+
+function readStoredSchedules() {
+  if (typeof window === "undefined") return [];
+  return JSON.parse(window.localStorage.getItem(SCHEDULE_STORAGE_KEY) ?? "[]") as PublishSchedule[];
+}
+
 export function AdminConsole({
   databaseConfigured,
   initialApplications,
@@ -183,6 +223,11 @@ export function AdminConsole({
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<DashboardView>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>(readStoredHistory);
+  const [schedules, setSchedules] = useState<PublishSchedule[]>(readStoredSchedules);
+  const [activeHistorySection, setActiveHistorySection] = useState<HistorySection | null>(null);
+  const [overviewScheduleAt, setOverviewScheduleAt] = useState("");
 
   const applicationSummary = useMemo(() => {
     const ready = initialApplications.filter(
@@ -199,6 +244,43 @@ export function AdminConsole({
     };
   }, [initialApplications]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyEntries));
+  }, [historyEntries]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(schedules));
+  }, [schedules]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const now = Date.now();
+
+      setHistoryEntries((current) =>
+        current.filter((entry) => now - new Date(entry.timestamp).getTime() <= HISTORY_RETENTION_MS),
+      );
+
+      setSchedules((current) => {
+        const dueSchedules = current.filter((schedule) => !schedule.published && new Date(schedule.publishAt).getTime() <= now);
+        if (!dueSchedules.length) return current;
+
+        dueSchedules.forEach((schedule) => {
+          appendHistory(schedule.section, "Scheduled publish", schedule.label, `Published automatically at ${formatDateTime(schedule.publishAt)}`);
+        });
+
+        return current.map((schedule) =>
+          dueSchedules.some((due) => due.id === schedule.id)
+            ? { ...schedule, published: true, publishedAt: new Date().toISOString() }
+            : schedule,
+        );
+      });
+    }, 30_000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
   const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
     { id: "overview", label: "Overview", description: "Daily picture", icon: <Layers3 className="h-4 w-4" aria-hidden="true" /> },
     { id: "programs", label: "Training", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
@@ -206,6 +288,53 @@ export function AdminConsole({
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
   ];
+
+  function appendHistory(section: HistorySection, action: string, label: string, details?: string) {
+    setHistoryEntries((current) => [
+      {
+        id: `${section}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        section,
+        action,
+        label,
+        timestamp: new Date().toISOString(),
+        details,
+      },
+      ...current,
+    ]);
+  }
+
+  function saveSchedule(section: HistorySection, label: string, publishAt: string) {
+    if (!publishAt) {
+      setNotice("Choose a publish time to schedule this section.");
+      return;
+    }
+
+    setSchedules((current) => [
+      {
+        id: `${section}-${Date.now()}`,
+        section,
+        label,
+        publishAt,
+        published: false,
+      },
+      ...current,
+    ]);
+    appendHistory(section, "Schedule created", label, `Scheduled for ${formatDateTime(publishAt)}`);
+    setNotice(`${label} scheduled for ${formatDateTime(publishAt)}.`);
+  }
+
+  const sectionSchedules = useMemo(
+    () =>
+      schedules.reduce<Record<HistorySection, PublishSchedule[]>>(
+        (accumulator, schedule) => {
+          accumulator[schedule.section].push(schedule);
+          return accumulator;
+        },
+        { overview: [], programs: [], events: [], applications: [], articles: [] },
+      ),
+    [schedules],
+  );
+
   async function load() {
     if (!databaseConfigured) {
       setNotice("Local preview is running without DATABASE_URL. You can review the layout, but save actions stay disabled until a database is connected.");
@@ -217,7 +346,7 @@ export function AdminConsole({
     try {
       const [programResponse, eventResponse] = await Promise.all([fetch("/api/admin/programs"), fetch("/api/admin/events")]);
       if (programResponse.status === 401 || eventResponse.status === 401) {
-        window.location.href = "/admin/login";
+        window.location.assign("/admin/login");
         return;
       }
       if (!programResponse.ok || !eventResponse.ok) {
@@ -226,6 +355,7 @@ export function AdminConsole({
       }
       setPrograms(await programResponse.json());
       setEvents(await eventResponse.json());
+      appendHistory("overview", "Refresh", "Dashboard data refreshed");
       setNotice("Dashboard refreshed.");
     } catch {
       setNotice("Unable to refresh the dashboard right now.");
@@ -284,18 +414,60 @@ export function AdminConsole({
       },
       ...current,
     ]);
+    appendHistory("articles", "Create article", articleDraft.title, "Article draft added to the workspace.");
     setArticleDraft(emptyArticle);
     setNotice("Article draft added to the article workspace.");
   }
 
   function updateArticle(id: string, next: ArticleItem) {
     setArticles((current) => current.map((article) => (article.id === id ? next : article)));
+    appendHistory("articles", "Update article", next.title, "Article details were updated.");
     setNotice("Article changes saved in the workspace.");
   }
 
   function deleteArticle(id: string) {
+    const article = articles.find((item) => item.id === id);
     setArticles((current) => current.filter((article) => article.id !== id));
+    appendHistory("articles", "Delete article", article?.title ?? "Article", "Article removed from the workspace.");
     setNotice("Article removed from the workspace.");
+  }
+
+  async function createProgram() {
+    const ok = await mutate("/api/admin/programs", "POST", programDraft);
+    if (ok) {
+      appendHistory("programs", "Create training", programDraft.title || "Untitled training", "Training service created.");
+      setProgramDraft(emptyProgram);
+    }
+  }
+
+  async function saveProgram(program: Program) {
+    const ok = await mutate(`/api/admin/programs/${program.id}`, "PATCH", program);
+    if (ok) appendHistory("programs", "Update training", program.title || "Untitled training", "Training service updated.");
+  }
+
+  async function removeProgram(id: string) {
+    const currentProgram = programs.find((program) => program.id === id);
+    const ok = await mutate(`/api/admin/programs/${id}`, "DELETE");
+    if (ok) appendHistory("programs", "Delete training", currentProgram?.title ?? "Training", "Training service deleted.");
+  }
+
+  async function createEvent() {
+    const ok = await mutate("/api/admin/events", "POST", eventDraft);
+    if (ok) {
+      appendHistory("events", "Create event", eventDraft.title || "Untitled event", "Event record created.");
+      setEventDraft(emptyEvent);
+    }
+  }
+
+  async function saveEvent(event: EventItem) {
+    const ok = await mutate(`/api/admin/events/${event.id}`, "PATCH", event);
+    if (ok) appendHistory("events", "Update event", event.title || "Untitled event", "Event record updated.");
+  }
+
+  async function removeEvent(id: string) {
+    const currentEvent = events.find((event) => event.id === id);
+    const ok = await mutate(`/api/admin/events/${id}`, "DELETE");
+    if (ok) appendHistory("events", "Delete event", currentEvent?.title ?? "Event", "Event record deleted.");
   }
 
   return (
@@ -357,60 +529,87 @@ export function AdminConsole({
         </div>
       ) : null}
 
-      <div className="mt-4 grid gap-6 lg:mt-0 lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)]">
-        <aside className="hidden lg:block">
+      <div
+        className={`mt-4 grid gap-6 lg:mt-0 ${
+          sidebarCollapsed
+            ? "lg:grid-cols-[6rem_minmax(0,1fr)]"
+            : "lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)]"
+        }`}
+      >
+        <aside className={`relative hidden lg:block ${sidebarCollapsed ? "w-[6rem]" : ""}`}>
+          <button
+            onClick={() => setSidebarCollapsed((current) => !current)}
+            className="absolute -right-4 top-10 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.12)]"
+            aria-label={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
+          >
+            {sidebarCollapsed ? <ChevronRight className="h-4 w-4" aria-hidden="true" /> : <ChevronLeft className="h-4 w-4" aria-hidden="true" />}
+          </button>
           <div className="sticky top-24 rounded-[2rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_60px_rgba(23,63,51,0.2)]">
-            <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#f5c65e]">Admin navigation</p>
-            <h2 className="font-display mt-3 text-3xl font-semibold">Command deck</h2>
-            <p className="mt-3 text-sm leading-7 text-[#d7e1db]">
-              All main sections sit here on the left so the dashboard stays easy to move through.
-            </p>
+            {!sidebarCollapsed ? (
+              <>
+                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#f5c65e]">Admin navigation</p>
+                <h2 className="font-display mt-3 text-3xl font-semibold">Command deck</h2>
+                <p className="mt-3 text-sm leading-7 text-[#d7e1db]">
+                  All main sections sit here on the left so the dashboard stays easy to move through.
+                </p>
+              </>
+            ) : (
+              <div className="flex justify-center">
+                <div className="rounded-full bg-[rgba(245,198,94,0.14)] px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-[#f5c65e]">
+                  Admin
+                </div>
+              </div>
+            )}
 
             <nav className="mt-6 grid gap-3">
               {viewItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setView(item.id)}
-                  className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 text-left transition ${
+                  className={`flex items-center ${sidebarCollapsed ? "justify-center px-2" : "gap-3 px-4"} rounded-[1.2rem] py-3 text-left transition ${
                     view === item.id
                       ? "bg-[#fff9ec] text-[#173f33]"
                       : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.1)]"
                   }`}
+                  title={item.label}
                 >
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
                     {item.icon}
                   </span>
-                  <span>
-                    <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
-                    <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
-                  </span>
+                  {!sidebarCollapsed ? (
+                    <span>
+                      <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
+                      <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
+                    </span>
+                  ) : null}
                 </button>
               ))}
             </nav>
-
-            <div className="mt-6 rounded-[1.4rem] border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#f5c65e]">Quick actions</p>
-              <div className="mt-4 grid gap-3">
-                <button
-                  disabled={loading}
-                  onClick={load}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f5c65e] px-4 py-2.5 text-sm font-black text-[#173f33] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-                  Refresh data
-                </button>
-                <form action="/api/admin/logout" method="post">
-                  <button className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-[rgba(255,249,236,0.2)] px-4 py-2.5 text-sm font-black text-[#fff9ec]">
-                    <LogOut className="h-4 w-4" aria-hidden="true" />
-                    Logout
-                  </button>
-                </form>
-              </div>
-            </div>
           </div>
         </aside>
 
         <div className="grid gap-8">
+          <div className="flex flex-wrap items-center justify-end gap-3">
+            <button
+              disabled={loading}
+              onClick={load}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] px-4 py-2.5 text-sm font-black text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.08)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+              Refresh data
+            </button>
+            <form
+              action="/api/admin/logout"
+              method="post"
+              onSubmit={() => appendHistory("overview", "Logout", "Admin session ended")}
+            >
+              <button className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]">
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Logout
+              </button>
+            </form>
+          </div>
+
           {notice ? (
             <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-5 py-4 text-sm font-semibold text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.06)]">
               {notice}
@@ -429,7 +628,34 @@ export function AdminConsole({
                     <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#d9dfd5]">Quick operational summary</p>
                   </div>
                   <div className="max-w-xl text-sm leading-7 text-[#dde4dc]">
-                    <p className="font-black uppercase tracking-[0.18em] text-[#fff9ec]">Admissions</p>
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      <button
+                        onClick={() => setActiveHistorySection("overview")}
+                        className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.08)] px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#fff9ec]"
+                      >
+                        <History className="h-4 w-4" aria-hidden="true" />
+                        History
+                      </button>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <input
+                          type="datetime-local"
+                          className="rounded-full border border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.08)] px-3 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-[#fff9ec] outline-none"
+                          value={overviewScheduleAt}
+                          onChange={(event) => setOverviewScheduleAt(event.target.value)}
+                        />
+                        <button
+                          onClick={() => {
+                            saveSchedule("overview", "Live updates", overviewScheduleAt);
+                            setOverviewScheduleAt("");
+                          }}
+                          className="inline-flex items-center gap-2 rounded-full bg-[#f5c65e] px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#173f33]"
+                        >
+                          <Clock3 className="h-4 w-4" aria-hidden="true" />
+                          Schedule
+                        </button>
+                      </div>
+                    </div>
+                    <p className="mt-4 font-black uppercase tracking-[0.18em] text-[#fff9ec]">Admissions</p>
                     <p className="mt-2">Approval pipeline</p>
                     <p className="mt-2">The applications desk remains focused on applicant review, payment confirmation, and approval decisions.</p>
                   </div>
@@ -446,9 +672,13 @@ export function AdminConsole({
       {view === "overview" ? (
         <section className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <DashboardSection
+            section="programs"
             eyebrow="Training services"
             title="Published catalog and drafting flow"
             description="Keep the application-facing training list current. Use one section to create services and another to edit or remove existing services."
+            schedules={sectionSchedules.programs}
+            onOpenHistory={() => setActiveHistorySection("programs")}
+            onSchedule={(publishAt) => saveSchedule("programs", "Training services", publishAt)}
           >
             <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
               <TaskLane
@@ -461,7 +691,7 @@ export function AdminConsole({
                   title="Create service"
                   description="Add a new training service with clear learner-facing information."
                   actionLabel="Create service"
-                  onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}
+                  onSave={createProgram}
                 >
                   <ProgramFields value={programDraft} onChange={setProgramDraft} />
                 </EditorPanel>
@@ -477,8 +707,8 @@ export function AdminConsole({
                       key={`${program.id}-${program.updatedAt ?? ""}`}
                       disabled={loading || !databaseConfigured}
                       program={program}
-                      onSave={(body) => mutate(`/api/admin/programs/${program.id}`, "PATCH", body)}
-                      onDelete={() => mutate(`/api/admin/programs/${program.id}`, "DELETE")}
+                      onSave={saveProgram}
+                      onDelete={() => removeProgram(program.id)}
                     />
                   ))}
                 </div>
@@ -487,9 +717,13 @@ export function AdminConsole({
           </DashboardSection>
 
           <DashboardSection
+            section="applications"
             eyebrow="Admissions"
             title="Approval pipeline"
             description="The applications desk remains focused on applicant review, payment confirmation, and approval decisions."
+            schedules={sectionSchedules.applications}
+            onOpenHistory={() => setActiveHistorySection("applications")}
+            onSchedule={(publishAt) => saveSchedule("applications", "Applications desk", publishAt)}
           >
             <div className="grid gap-4">
               <MiniStatCard label="Pending review" value={applicationSummary.total - applicationSummary.approved} tone="warm" />
@@ -510,9 +744,13 @@ export function AdminConsole({
 
       {view === "programs" ? (
         <DashboardSection
+          section="programs"
           eyebrow="Training manager"
           title="Manage training services"
           description="Use a focused training index to open one program at a time, edit it cleanly, or start a new training from the command deck."
+          schedules={sectionSchedules.programs}
+          onOpenHistory={() => setActiveHistorySection("programs")}
+          onSchedule={(publishAt) => saveSchedule("programs", "Training manager", publishAt)}
           className="mt-8"
         >
           <ProgramsWorkspace
@@ -521,18 +759,22 @@ export function AdminConsole({
             programs={programs}
             draft={programDraft}
             onDraftChange={setProgramDraft}
-            onDraftSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}
-            onProgramSave={(program) => mutate(`/api/admin/programs/${program.id}`, "PATCH", program)}
-            onProgramDelete={(id) => mutate(`/api/admin/programs/${id}`, "DELETE")}
+            onDraftSave={createProgram}
+            onProgramSave={saveProgram}
+            onProgramDelete={removeProgram}
           />
         </DashboardSection>
       ) : null}
 
       {view === "events" ? (
         <DashboardSection
+          section="events"
           eyebrow="Event planner"
           title="Schedule orientations and field sessions"
           description="Use the event board for public training touchpoints, demos, and attendance-driving announcements."
+          schedules={sectionSchedules.events}
+          onOpenHistory={() => setActiveHistorySection("events")}
+          onSchedule={(publishAt) => saveSchedule("events", "Event planner", publishAt)}
           className="mt-8"
         >
           <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
@@ -546,7 +788,7 @@ export function AdminConsole({
                 title="New event"
                 description="Build a publish-ready event with timing, location, and public summary."
                 actionLabel="Create event"
-                onSave={() => mutate("/api/admin/events", "POST", eventDraft).then((ok) => ok && setEventDraft(emptyEvent))}
+                onSave={createEvent}
               >
                 <EventFields value={eventDraft} onChange={setEventDraft} />
               </EditorPanel>
@@ -562,8 +804,8 @@ export function AdminConsole({
                     key={`${event.id}-${event.updatedAt ?? ""}`}
                     disabled={loading || !databaseConfigured}
                     event={event}
-                    onSave={(body) => mutate(`/api/admin/events/${event.id}`, "PATCH", body)}
-                    onDelete={() => mutate(`/api/admin/events/${event.id}`, "DELETE")}
+                    onSave={saveEvent}
+                    onDelete={() => removeEvent(event.id)}
                   />
                 ))}
               </div>
@@ -573,16 +815,29 @@ export function AdminConsole({
       ) : null}
 
       {view === "applications" ? (
-        <div className="mt-8">
+        <DashboardSection
+          section="applications"
+          eyebrow="Admissions desk"
+          title="Review and approve learners"
+          description="Handle payment confirmation, cross-check progress, and final learner approvals from one workspace."
+          schedules={sectionSchedules.applications}
+          onOpenHistory={() => setActiveHistorySection("applications")}
+          onSchedule={(publishAt) => saveSchedule("applications", "Admissions desk", publishAt)}
+          className="mt-8"
+        >
           <ApplicationAdminPanel databaseConfigured={databaseConfigured} initialApplications={initialApplications} />
-        </div>
+        </DashboardSection>
       ) : null}
 
       {view === "articles" ? (
         <DashboardSection
+          section="articles"
           eyebrow="Article manager"
           title="Manage Articles"
           description="Create articles, publish field guidance, and maintain knowledge records for training, rural work, and institutional communication."
+          schedules={sectionSchedules.articles}
+          onOpenHistory={() => setActiveHistorySection("articles")}
+          onSchedule={(publishAt) => saveSchedule("articles", "Article manager", publishAt)}
           className="mt-8"
         >
           <ArticlesWorkspace
@@ -597,28 +852,90 @@ export function AdminConsole({
       ) : null}
         </div>
       </div>
+
+      {activeHistorySection ? (
+        <HistoryDrawer
+          section={activeHistorySection}
+          entries={historyEntries.filter((entry) => entry.section === activeHistorySection)}
+          schedules={sectionSchedules[activeHistorySection]}
+          onClose={() => setActiveHistorySection(null)}
+        />
+      ) : null}
     </div>
   );
 }
 
 function DashboardSection({
+  section,
   eyebrow,
   title,
   description,
+  schedules,
+  onOpenHistory,
+  onSchedule,
   className = "",
   children,
 }: {
+  section: HistorySection;
   eyebrow: string;
   title: string;
   description: string;
+  schedules: PublishSchedule[];
+  onOpenHistory: () => void;
+  onSchedule: (publishAt: string) => void;
   className?: string;
   children: ReactNode;
 }) {
+  const [scheduleAt, setScheduleAt] = useState("");
+
   return (
     <section className={`rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-6 shadow-[0_24px_60px_rgba(64,44,8,0.08)] ${className}`}>
-      <p className="text-xs font-black uppercase tracking-[0.28em] text-[#9c6a18]">{eyebrow}</p>
-      <h2 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">{title}</h2>
-      <p className="mt-3 max-w-3xl text-sm leading-7 text-[#607366]">{description}</p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.28em] text-[#9c6a18]">{eyebrow}</p>
+          <h2 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">{title}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[#607366]">{description}</p>
+        </div>
+        <div className="min-w-[18rem] rounded-[1.35rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-3 shadow-[0_10px_24px_rgba(64,44,8,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <button
+              onClick={onOpenHistory}
+              className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
+            >
+              <History className="h-4 w-4" aria-hidden="true" />
+              History
+            </button>
+            <span className="rounded-full bg-[#eef8f1] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#21533f]">
+              {schedules.filter((schedule) => !schedule.published).length} scheduled
+            </span>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <input
+              type="datetime-local"
+              className={fieldClass()}
+              value={scheduleAt}
+              onChange={(event) => setScheduleAt(event.target.value)}
+            />
+            <button
+              onClick={() => {
+                onSchedule(scheduleAt);
+                setScheduleAt("");
+              }}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-[#fff9ec]"
+            >
+              <Clock3 className="h-4 w-4" aria-hidden="true" />
+              Schedule
+            </button>
+          </div>
+          {schedules.length ? (
+            <p className="mt-3 text-xs leading-6 text-[#607366]">
+              Next timer for {section}: {formatDateTime(schedules.filter((schedule) => !schedule.published)[0]?.publishAt ?? schedules[0]?.publishAt)}
+            </p>
+          ) : (
+            <p className="mt-3 text-xs leading-6 text-[#607366]">No timer is set for this section yet.</p>
+          )}
+        </div>
+      </div>
       <div className="mt-6">{children}</div>
     </section>
   );
@@ -754,7 +1071,7 @@ function ArticlesWorkspace({
 
       <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
         {selectedArticle ? (
-          <ArticleEditorCard article={selectedArticle} onSave={onArticleSave} onDelete={onArticleDelete} />
+          <ArticleEditorCard key={selectedArticle.id} article={selectedArticle} onSave={onArticleSave} onDelete={onArticleDelete} />
         ) : (
           <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -862,7 +1179,7 @@ function ProgramsWorkspace({
 
       <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
         {selectedProgram ? (
-          <ProgramEditorCard disabled={disabled} program={selectedProgram} onSave={onProgramSave} onDelete={onProgramDelete} />
+          <ProgramEditorCard key={selectedProgram.id} disabled={disabled} program={selectedProgram} onSave={onProgramSave} onDelete={onProgramDelete} />
         ) : (
           <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1247,6 +1564,87 @@ function RecordCard({
         </button>
       </div>
     </article>
+  );
+}
+
+function HistoryDrawer({
+  section,
+  entries,
+  schedules,
+  onClose,
+}: {
+  section: HistorySection;
+  entries: HistoryEntry[];
+  schedules: PublishSchedule[];
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-[rgba(16,33,27,0.38)] p-4 sm:p-6" onClick={onClose}>
+      <div
+        className="ml-auto flex h-full w-full max-w-[30rem] flex-col rounded-[2rem] bg-[#fffdf8] p-5 shadow-[0_28px_60px_rgba(16,33,27,0.24)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">{section}</p>
+            <h3 className="font-display mt-2 text-3xl font-semibold text-[#173f33]">30-day history</h3>
+            <p className="mt-2 text-sm leading-7 text-[#607366]">Recent edits, scheduling actions, and admin activity for this section.</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full border border-[rgba(27,59,43,0.12)] p-2 text-[#173f33]"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="mt-5 rounded-[1.4rem] border border-[rgba(27,59,43,0.08)] bg-[#f8f4ea] p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Active schedules</p>
+          <div className="mt-3 grid gap-3">
+            {schedules.length ? (
+              schedules.map((schedule) => (
+                <div key={schedule.id} className="rounded-[1.2rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-black uppercase tracking-[0.1em] text-[#173f33]">{schedule.label}</p>
+                    <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${schedule.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+                      {schedule.published ? "Published" : "Scheduled"}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-[#607366]">
+                    {schedule.published ? `Published at ${formatDateTime(schedule.publishedAt)}` : `Will publish at ${formatDateTime(schedule.publishAt)}`}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-[#607366]">No schedules have been added for this section yet.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
+          <div className="grid gap-3">
+            {entries.length ? (
+              entries.map((entry) => (
+                <div key={entry.id} className="rounded-[1.2rem] border border-[rgba(27,59,43,0.08)] bg-white p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">{entry.action}</p>
+                      <h4 className="mt-2 text-base font-semibold text-[#173f33]">{entry.label}</h4>
+                    </div>
+                    <span className="text-xs font-semibold text-[#607366]">{formatDateTime(entry.timestamp)}</span>
+                  </div>
+                  {entry.details ? <p className="mt-2 text-sm leading-6 text-[#607366]">{entry.details}</p> : null}
+                </div>
+              ))
+            ) : (
+              <div className="rounded-[1.4rem] border border-dashed border-[rgba(27,59,43,0.14)] bg-[#fffdf8] p-5 text-sm leading-7 text-[#607366]">
+                No history items have been recorded for this section yet.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
