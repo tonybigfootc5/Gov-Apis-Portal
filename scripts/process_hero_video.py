@@ -14,9 +14,11 @@ OUTPUT = ROOT / "public" / "hero-background.mp4"
 
 SEGMENT_START = 66
 SEGMENT_END = 156
-OUTPUT_FPS = 60
+OUTPUT_FPS = 30
 STABILIZE_RADIUS = 10
 ZOOM = 1.04
+OUTPUT_WIDTH = 450
+OUTPUT_HEIGHT = 800
 
 
 def read_segment(path: Path, start: int, end: int) -> list[np.ndarray]:
@@ -170,7 +172,7 @@ def create_slow_motion(frames: list[np.ndarray]) -> list[np.ndarray]:
 def make_ping_pong(frames: list[np.ndarray]) -> list[np.ndarray]:
     if len(frames) < 3:
         return frames
-    return frames + frames[-2:0:-1] + [frames[0]]
+    return frames + frames[-2:0:-1]
 
 
 def apply_color_grade(frame: np.ndarray) -> np.ndarray:
@@ -229,8 +231,14 @@ def soften_loop(frames: list[np.ndarray], blend_frames: int = 24) -> list[np.nda
             alpha,
             0,
         )
-    output[-1] = output[0].copy()
     return output
+
+
+def resize_frames(frames: list[np.ndarray]) -> list[np.ndarray]:
+    return [
+        cv2.resize(frame, (OUTPUT_WIDTH, OUTPUT_HEIGHT), interpolation=cv2.INTER_AREA)
+        for frame in frames
+    ]
 
 
 def write_video(path: Path, frames: list[np.ndarray], fps: int) -> None:
@@ -238,7 +246,7 @@ def write_video(path: Path, frames: list[np.ndarray], fps: int) -> None:
         path,
         fps=fps,
         codec="libx264",
-        quality=8,
+        quality=6,
         pixelformat="yuv420p",
         macro_block_size=None,
     )
@@ -255,6 +263,7 @@ def main() -> None:
     frames = add_temporal_motion_blur(frames)
     frames = [apply_color_grade(frame) for frame in frames]
     frames = soften_loop(frames)
+    frames = resize_frames(frames)
     write_video(OUTPUT, frames, OUTPUT_FPS)
     print(f"Wrote processed hero loop to {OUTPUT}")
 
