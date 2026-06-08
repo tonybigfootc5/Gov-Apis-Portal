@@ -37,6 +37,43 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
   const [paymentFilter, setPaymentFilter] = useState("ALL");
   const [crossCheckFilter, setCrossCheckFilter] = useState("ALL");
 
+  function applyPreset(preset: "ALL" | "READY" | "APPROVED" | "REJECTED" | "PAYMENT_ISSUE") {
+    setQuery("");
+    setServiceFilter("ALL");
+
+    if (preset === "ALL") {
+      setApprovalFilter("ALL");
+      setPaymentFilter("ALL");
+      setCrossCheckFilter("ALL");
+      return;
+    }
+
+    if (preset === "READY") {
+      setApprovalFilter("PENDING");
+      setPaymentFilter("PAID");
+      setCrossCheckFilter("VERIFIED");
+      return;
+    }
+
+    if (preset === "APPROVED") {
+      setApprovalFilter("APPROVED");
+      setPaymentFilter("ALL");
+      setCrossCheckFilter("ALL");
+      return;
+    }
+
+    if (preset === "REJECTED") {
+      setApprovalFilter("REJECTED");
+      setPaymentFilter("ALL");
+      setCrossCheckFilter("ALL");
+      return;
+    }
+
+    setApprovalFilter("ALL");
+    setPaymentFilter("FAILED");
+    setCrossCheckFilter("ALL");
+  }
+
   const serviceOptions = useMemo(
     () => Array.from(new Set(applications.map((application) => application.payload.serviceName))).sort(),
     [applications],
@@ -168,6 +205,17 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
         <SummaryCard label="Approved" value={summary.approved} tone="gold" />
       </div>
 
+      <div className="mt-6 rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">Approval sections</p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          <PresetButton label="All applications" helper="Full admissions list" onClick={() => applyPreset("ALL")} />
+          <PresetButton label="Ready for approval" helper="Verified and paid" onClick={() => applyPreset("READY")} />
+          <PresetButton label="Approved students" helper="Allowed to join" onClick={() => applyPreset("APPROVED")} />
+          <PresetButton label="Rejected cases" helper="Needs closure" onClick={() => applyPreset("REJECTED")} />
+          <PresetButton label="Payment issues" helper="Failed transactions" onClick={() => applyPreset("PAYMENT_ISSUE")} />
+        </div>
+      </div>
+
       <div className="mt-6 rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-4 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))]">
           <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-[#718477]">
@@ -237,6 +285,17 @@ function ApplicationCard({
   const readyToApprove = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "PENDING";
   const joinReady = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "APPROVED";
 
+  function saveDecision(nextApprovalStatus: ApplicationApprovalStatus) {
+    onSave(application.id, {
+      attemptStatus,
+      paymentStatus,
+      approvalStatus: nextApprovalStatus,
+      crossCheckStatus,
+      adminNotes,
+      paymentReference,
+    });
+  }
+
   return (
     <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-5 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
@@ -297,13 +356,46 @@ function ApplicationCard({
 
         <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_18px_44px_rgba(23,63,51,0.16)]">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">Admin controls</p>
-          <div className="mt-4 grid gap-3">
-            <SelectField label="Submission attempt" value={attemptStatus} onChange={(value) => setAttemptStatus(value as ApplicationAttemptStatus)} options={attemptOptions} />
-            <SelectField label="Payment status" value={paymentStatus} onChange={(value) => setPaymentStatus(value as ApplicationPaymentStatus)} options={paymentOptions} />
-            <SelectField label="Cross check status" value={crossCheckStatus} onChange={(value) => setCrossCheckStatus(value as ApplicationCrossCheckStatus)} options={crossCheckOptions} />
-            <SelectField label="Approval status" value={approvalStatus} onChange={(value) => setApprovalStatus(value as ApplicationApprovalStatus)} options={approvalOptions} />
-            <TextField label="Payment reference" value={paymentReference} onChange={setPaymentReference} placeholder="Transaction ID / receipt no." />
-            <TextAreaField label="Admin notes" value={adminNotes} onChange={setAdminNotes} placeholder="Internal note, follow-up detail, payment issue, approval comment..." />
+          <div className="mt-4 grid gap-4">
+            <ActionGroup
+              eyebrow="Verification and payment"
+              title="Cross-check applicant details"
+              description="Use this block for attempt, payment, cross-check, and transaction reference updates."
+            >
+              <div className="grid gap-3">
+                <SelectField label="Submission attempt" value={attemptStatus} onChange={(value) => setAttemptStatus(value as ApplicationAttemptStatus)} options={attemptOptions} />
+                <SelectField label="Payment status" value={paymentStatus} onChange={(value) => setPaymentStatus(value as ApplicationPaymentStatus)} options={paymentOptions} />
+                <SelectField label="Cross check status" value={crossCheckStatus} onChange={(value) => setCrossCheckStatus(value as ApplicationCrossCheckStatus)} options={crossCheckOptions} />
+                <TextField label="Payment reference" value={paymentReference} onChange={setPaymentReference} placeholder="Transaction ID / receipt no." />
+              </div>
+            </ActionGroup>
+
+            <ActionGroup
+              eyebrow="Decision desk"
+              title="Approve or decline application"
+              description="This section is only for final admission decisions and internal notes."
+            >
+              <div className="grid gap-3">
+                <SelectField label="Approval status" value={approvalStatus} onChange={(value) => setApprovalStatus(value as ApplicationApprovalStatus)} options={approvalOptions} />
+                <TextAreaField label="Admin notes" value={adminNotes} onChange={setAdminNotes} placeholder="Internal note, follow-up detail, payment issue, approval comment..." />
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <button
+                    disabled={disabled || !readyToApprove}
+                    onClick={() => saveDecision("APPROVED")}
+                    className="inline-flex items-center justify-center rounded-full bg-[#f5c65e] px-4 py-3 text-sm font-black text-[#173f33] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Approve student
+                  </button>
+                  <button
+                    disabled={disabled}
+                    onClick={() => saveDecision("REJECTED")}
+                    className="inline-flex items-center justify-center rounded-full border border-[rgba(255,249,236,0.24)] bg-transparent px-4 py-3 text-sm font-black text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Decline application
+                  </button>
+                </div>
+              </div>
+            </ActionGroup>
           </div>
 
           <div className="mt-5 rounded-2xl border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.08)] p-4 text-sm leading-7 text-[#eef2ed]">
@@ -318,25 +410,42 @@ function ApplicationCard({
           >
             Save application status
           </button>
-          <button
-            disabled={disabled || !readyToApprove}
-            onClick={() =>
-              onSave(application.id, {
-                attemptStatus,
-                paymentStatus,
-                approvalStatus: "APPROVED",
-                crossCheckStatus,
-                adminNotes,
-                paymentReference,
-              })
-            }
-            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border border-[rgba(255,249,236,0.24)] bg-transparent px-4 py-3 text-sm font-black text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Quick approve if ready
-          </button>
         </div>
       </div>
     </article>
+  );
+}
+
+function PresetButton({ label, helper, onClick }: { label: string; helper: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-[1.25rem] border border-[rgba(27,59,43,0.1)] bg-[#f7f2e8] px-4 py-4 text-left transition hover:bg-[#efe7d8]"
+    >
+      <span className="block text-sm font-black uppercase tracking-[0.16em] text-[#173f33]">{label}</span>
+      <span className="mt-1 block text-sm text-[#607366]">{helper}</span>
+    </button>
+  );
+}
+
+function ActionGroup({
+  eyebrow,
+  title,
+  description,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-[1.5rem] border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] p-4">
+      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f5c65e]">{eyebrow}</p>
+      <h4 className="mt-2 text-lg font-semibold text-[#fff9ec]">{title}</h4>
+      <p className="mt-1 text-sm leading-6 text-[#d4e1d8]">{description}</p>
+      <div className="mt-4">{children}</div>
+    </div>
   );
 }
 

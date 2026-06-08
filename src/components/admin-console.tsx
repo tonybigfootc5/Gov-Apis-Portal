@@ -327,29 +327,41 @@ export function AdminConsole({
           <DashboardSection
             eyebrow="Training services"
             title="Published catalog and drafting flow"
-            description="Keep the application-facing training list current. Use the creation panel to stage new services, and review existing entries on the right."
+            description="Keep the application-facing training list current. Use one section to create services and another to edit or remove existing services."
           >
             <div className="grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-              <EditorPanel
-                disabled={loading || !databaseConfigured}
-                title="Create service"
-                description="Add a new training service with clear learner-facing information."
-                actionLabel="Create service"
-                onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}
+              <TaskLane
+                eyebrow="Service creation"
+                title="Add a new training service"
+                description="Create new training programs here with learner-friendly details."
               >
-                <ProgramFields value={programDraft} onChange={setProgramDraft} />
-              </EditorPanel>
-              <div className="grid gap-4">
-                {programs.slice(0, 3).map((program) => (
-                  <ProgramRow
-                    key={`${program.id}-${program.updatedAt ?? ""}`}
-                    disabled={loading || !databaseConfigured}
-                    program={program}
-                    onSave={(body) => mutate(`/api/admin/programs/${program.id}`, "PATCH", body)}
-                    onDelete={() => mutate(`/api/admin/programs/${program.id}`, "DELETE")}
-                  />
-                ))}
-              </div>
+                <EditorPanel
+                  disabled={loading || !databaseConfigured}
+                  title="Create service"
+                  description="Add a new training service with clear learner-facing information."
+                  actionLabel="Create service"
+                  onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}
+                >
+                  <ProgramFields value={programDraft} onChange={setProgramDraft} />
+                </EditorPanel>
+              </TaskLane>
+              <TaskLane
+                eyebrow="Service maintenance"
+                title="Edit, publish, or remove services"
+                description="All existing programs stay together here so updates and deletions happen in one place."
+              >
+                <div className="grid gap-4">
+                  {programs.slice(0, 3).map((program) => (
+                    <ProgramRow
+                      key={`${program.id}-${program.updatedAt ?? ""}`}
+                      disabled={loading || !databaseConfigured}
+                      program={program}
+                      onSave={(body) => mutate(`/api/admin/programs/${program.id}`, "PATCH", body)}
+                      onDelete={() => mutate(`/api/admin/programs/${program.id}`, "DELETE")}
+                    />
+                  ))}
+                </div>
+              </TaskLane>
             </div>
           </DashboardSection>
 
@@ -383,26 +395,38 @@ export function AdminConsole({
           className="mt-8"
         >
           <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
-            <EditorPanel
-              disabled={loading || !databaseConfigured}
-              title="New service"
-              description="Write the program exactly as the applicant will understand it."
-              actionLabel="Create service"
-              onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}
+            <TaskLane
+              eyebrow="New program"
+              title="Create training service"
+              description="This section is only for adding new training programs."
             >
-              <ProgramFields value={programDraft} onChange={setProgramDraft} />
-            </EditorPanel>
-            <div className="grid gap-4">
-              {programs.map((program) => (
-                <ProgramRow
-                  key={`${program.id}-${program.updatedAt ?? ""}`}
-                  disabled={loading || !databaseConfigured}
-                  program={program}
-                  onSave={(body) => mutate(`/api/admin/programs/${program.id}`, "PATCH", body)}
-                  onDelete={() => mutate(`/api/admin/programs/${program.id}`, "DELETE")}
-                />
-              ))}
-            </div>
+              <EditorPanel
+                disabled={loading || !databaseConfigured}
+                title="New service"
+                description="Write the program exactly as the applicant will understand it."
+                actionLabel="Create service"
+                onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}
+              >
+                <ProgramFields value={programDraft} onChange={setProgramDraft} />
+              </EditorPanel>
+            </TaskLane>
+            <TaskLane
+              eyebrow="Program actions"
+              title="Edit or remove training services"
+              description="Everything related to updating, unpublishing, or deleting services lives here."
+            >
+              <div className="grid gap-4">
+                {programs.map((program) => (
+                  <ProgramRow
+                    key={`${program.id}-${program.updatedAt ?? ""}`}
+                    disabled={loading || !databaseConfigured}
+                    program={program}
+                    onSave={(body) => mutate(`/api/admin/programs/${program.id}`, "PATCH", body)}
+                    onDelete={() => mutate(`/api/admin/programs/${program.id}`, "DELETE")}
+                  />
+                ))}
+              </div>
+            </TaskLane>
           </div>
         </DashboardSection>
       ) : null}
@@ -415,26 +439,38 @@ export function AdminConsole({
           className="mt-8"
         >
           <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
-            <EditorPanel
-              disabled={loading || !databaseConfigured}
-              title="New event"
-              description="Build a publish-ready event with timing, location, and public summary."
-              actionLabel="Create event"
-              onSave={() => mutate("/api/admin/events", "POST", eventDraft).then((ok) => ok && setEventDraft(emptyEvent))}
+            <TaskLane
+              eyebrow="New event"
+              title="Create event listing"
+              description="This section is only for adding new event or orientation records."
             >
-              <EventFields value={eventDraft} onChange={setEventDraft} />
-            </EditorPanel>
-            <div className="grid gap-4">
-              {events.map((event) => (
-                <EventRow
-                  key={`${event.id}-${event.updatedAt ?? ""}`}
-                  disabled={loading || !databaseConfigured}
-                  event={event}
-                  onSave={(body) => mutate(`/api/admin/events/${event.id}`, "PATCH", body)}
-                  onDelete={() => mutate(`/api/admin/events/${event.id}`, "DELETE")}
-                />
-              ))}
-            </div>
+              <EditorPanel
+                disabled={loading || !databaseConfigured}
+                title="New event"
+                description="Build a publish-ready event with timing, location, and public summary."
+                actionLabel="Create event"
+                onSave={() => mutate("/api/admin/events", "POST", eventDraft).then((ok) => ok && setEventDraft(emptyEvent))}
+              >
+                <EventFields value={eventDraft} onChange={setEventDraft} />
+              </EditorPanel>
+            </TaskLane>
+            <TaskLane
+              eyebrow="Event actions"
+              title="Edit or remove events"
+              description="All event corrections, publishing changes, and deletions stay together here."
+            >
+              <div className="grid gap-4">
+                {events.map((event) => (
+                  <EventRow
+                    key={`${event.id}-${event.updatedAt ?? ""}`}
+                    disabled={loading || !databaseConfigured}
+                    event={event}
+                    onSave={(body) => mutate(`/api/admin/events/${event.id}`, "PATCH", body)}
+                    onDelete={() => mutate(`/api/admin/events/${event.id}`, "DELETE")}
+                  />
+                ))}
+              </div>
+            </TaskLane>
           </div>
         </DashboardSection>
       ) : null}
@@ -499,6 +535,27 @@ function EditorPanel({
         <Plus className="h-4 w-4" aria-hidden="true" />
         {actionLabel}
       </button>
+    </div>
+  );
+}
+
+function TaskLane({
+  eyebrow,
+  title,
+  description,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.44)] p-4">
+      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">{eyebrow}</p>
+      <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{title}</h3>
+      <p className="mt-2 text-sm leading-7 text-[#607366]">{description}</p>
+      <div className="mt-4">{children}</div>
     </div>
   );
 }
@@ -615,7 +672,7 @@ function ProgramRow({
     <RecordCard
       eyebrow={program.level.replaceAll("_", " ")}
       title={program.title}
-      metadata={`${program.duration} • Capacity ${program.capacity} • ${program.published ? "Published" : "Draft"}`}
+      metadata={`${program.duration} | Capacity ${program.capacity} | ${program.published ? "Published" : "Draft"}`}
       disabled={disabled}
       onSave={() => onSave(draft)}
       onDelete={onDelete}
@@ -642,7 +699,7 @@ function EventRow({
     <RecordCard
       eyebrow={event.status.replaceAll("_", " ")}
       title={event.title}
-      metadata={`${formatDateTime(event.startsAt)} • ${event.location}`}
+      metadata={`${formatDateTime(event.startsAt)} | ${event.location}`}
       disabled={disabled}
       onSave={() => onSave(draft)}
       onDelete={onDelete}
