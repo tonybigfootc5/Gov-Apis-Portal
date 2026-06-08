@@ -644,7 +644,6 @@ export function AdminConsole({
           section="programs"
           eyebrow="Training manager"
           title="Manage training services"
-          description="Use a focused training index to open one program at a time, edit it cleanly, or start a new training from the command deck."
           schedules={sectionSchedules.programs}
           onOpenHistory={() => setActiveHistorySection("programs")}
           onSchedule={(publishAt) => saveSchedule("programs", "Training manager", publishAt)}
@@ -668,7 +667,6 @@ export function AdminConsole({
           section="events"
           eyebrow="Event planner"
           title="Schedule orientations and field sessions"
-          description="Use the event board for public training touchpoints, demos, and attendance-driving announcements."
           schedules={sectionSchedules.events}
           onOpenHistory={() => setActiveHistorySection("events")}
           onSchedule={(publishAt) => saveSchedule("events", "Event planner", publishAt)}
@@ -716,7 +714,6 @@ export function AdminConsole({
           section="applications"
           eyebrow="Admissions desk"
           title="Review and approve learners"
-          description="Handle payment confirmation, cross-check progress, and final learner approvals from one workspace."
           schedules={sectionSchedules.applications}
           onOpenHistory={() => setActiveHistorySection("applications")}
           onSchedule={(publishAt) => saveSchedule("applications", "Admissions desk", publishAt)}
@@ -731,7 +728,6 @@ export function AdminConsole({
           section="articles"
           eyebrow="Article manager"
           title="Manage Articles"
-          description="Create articles, publish field guidance, and maintain knowledge records for training, rural work, and institutional communication."
           schedules={sectionSchedules.articles}
           onOpenHistory={() => setActiveHistorySection("articles")}
           onSchedule={(publishAt) => saveSchedule("articles", "Article manager", publishAt)}
@@ -766,7 +762,6 @@ function DashboardSection({
   section,
   eyebrow,
   title,
-  description,
   schedules,
   onOpenHistory,
   onSchedule,
@@ -776,7 +771,6 @@ function DashboardSection({
   section: HistorySection;
   eyebrow: string;
   title: string;
-  description: string;
   schedules: PublishSchedule[];
   onOpenHistory: () => void;
   onSchedule: (publishAt: string) => void;
@@ -787,13 +781,12 @@ function DashboardSection({
 
   return (
     <section className={`rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-6 shadow-[0_24px_60px_rgba(64,44,8,0.08)] ${className}`}>
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_27rem] xl:items-start">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.28em] text-[#9c6a18]">{eyebrow}</p>
           <h2 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">{title}</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-[#607366]">{description}</p>
         </div>
-        <div className="min-w-[18rem] rounded-[1.35rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-3 shadow-[0_10px_24px_rgba(64,44,8,0.06)]">
+        <div className="min-w-[18rem] rounded-[1.35rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-3 shadow-[0_10px_24px_rgba(64,44,8,0.06)] xl:ml-auto xl:w-full">
           <div className="flex items-center justify-between gap-3">
             <button
               onClick={onOpenHistory}
