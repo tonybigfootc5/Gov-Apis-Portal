@@ -490,20 +490,18 @@ export function AdminConsole({
             </div>
           ) : null}
 
-          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
             <div className="rounded-[1.75rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_50px_rgba(23,63,51,0.18)]">
-              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">
-                <Layers3 className="h-4 w-4" aria-hidden="true" />
-                Today at a glance
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">
+                  <Layers3 className="h-4 w-4" aria-hidden="true" />
+                  Today at a glance
+                </div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#d9dfd5]">Quick operational summary</p>
               </div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {overviewCards.map((card) => (
-                  <div key={card.label} className="rounded-[1.4rem] border border-[rgba(255,249,236,0.12)] bg-[rgba(255,255,255,0.07)] p-4">
-                    <div className={`inline-flex rounded-full bg-gradient-to-r ${card.accent} p-2 text-white`}>{card.icon}</div>
-                    <p className="mt-4 text-xs font-black uppercase tracking-[0.18em] text-[#d9dfd5]">{card.label}</p>
-                    <p className="font-display mt-2 text-4xl font-semibold">{card.value}</p>
-                    <p className="mt-2 text-sm text-[#dde4dc]">{card.detail}</p>
-                  </div>
+                  <CompactOverviewCard key={card.label} card={card} />
                 ))}
               </div>
             </div>
@@ -1265,6 +1263,29 @@ function MiniStatCard({ label, value, tone }: { label: string; value: number; to
     <div className={`rounded-[1.4rem] border p-4 shadow-[0_12px_28px_rgba(64,44,8,0.05)] ${styles}`}>
       <p className="text-xs font-black uppercase tracking-[0.2em]">{label}</p>
       <p className="font-display mt-3 text-4xl font-semibold">{value}</p>
+    </div>
+  );
+}
+
+function CompactOverviewCard({
+  card,
+}: {
+  card: {
+    label: string;
+    value: number;
+    detail: string;
+    icon: ReactNode;
+    accent: string;
+  };
+}) {
+  return (
+    <div className="rounded-[1.35rem] border border-[rgba(255,249,236,0.12)] bg-[rgba(255,255,255,0.07)] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className={`inline-flex rounded-full bg-gradient-to-r ${card.accent} p-2 text-white`}>{card.icon}</div>
+        <p className="font-display text-4xl font-semibold leading-none text-[#fff9ec]">{card.value}</p>
+      </div>
+      <p className="mt-4 text-[11px] font-black uppercase tracking-[0.18em] text-[#d9dfd5]">{card.label}</p>
+      <p className="mt-2 text-sm leading-6 text-[#dde4dc]">{card.detail}</p>
     </div>
   );
 }
