@@ -233,7 +233,7 @@ export function AdminConsole({
 
   const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
     { id: "overview", label: "Overview", description: "Daily picture", icon: <Layers3 className="h-4 w-4" aria-hidden="true" /> },
-    { id: "programs", label: "Services", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
+    { id: "programs", label: "Training", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
     { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
@@ -544,45 +544,21 @@ export function AdminConsole({
 
       {view === "programs" ? (
         <DashboardSection
-          eyebrow="Service manager"
+          eyebrow="Training manager"
           title="Manage training services"
-          description="Create, edit, and retire service records with clearer spacing, stronger contrast, and a simpler editing rhythm."
+          description="Use a focused training index to open one program at a time, edit it cleanly, or start a new training from the command deck."
           className="mt-8"
         >
-          <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
-            <TaskLane
-              eyebrow="New program"
-              title="Create training service"
-              description="This section is only for adding new training programs."
-            >
-              <EditorPanel
-                disabled={loading || !databaseConfigured}
-                title="New service"
-                description="Write the program exactly as the applicant will understand it."
-                actionLabel="Create service"
-                onSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}
-              >
-                <ProgramFields value={programDraft} onChange={setProgramDraft} />
-              </EditorPanel>
-            </TaskLane>
-            <TaskLane
-              eyebrow="Program actions"
-              title="Edit or remove training services"
-              description="Everything related to updating, unpublishing, or deleting services lives here."
-            >
-              <div className="grid gap-4">
-                {programs.map((program) => (
-                  <ProgramRow
-                    key={`${program.id}-${program.updatedAt ?? ""}`}
-                    disabled={loading || !databaseConfigured}
-                    program={program}
-                    onSave={(body) => mutate(`/api/admin/programs/${program.id}`, "PATCH", body)}
-                    onDelete={() => mutate(`/api/admin/programs/${program.id}`, "DELETE")}
-                  />
-                ))}
-              </div>
-            </TaskLane>
-          </div>
+          <ProgramsWorkspace
+            databaseConfigured={databaseConfigured}
+            disabled={loading || !databaseConfigured}
+            programs={programs}
+            draft={programDraft}
+            onDraftChange={setProgramDraft}
+            onDraftSave={() => mutate("/api/admin/programs", "POST", programDraft).then((ok) => ok && setProgramDraft(emptyProgram))}
+            onProgramSave={(program) => mutate(`/api/admin/programs/${program.id}`, "PATCH", program)}
+            onProgramDelete={(id) => mutate(`/api/admin/programs/${id}`, "DELETE")}
+          />
         </DashboardSection>
       ) : null}
 
@@ -839,6 +815,120 @@ function ArticlesWorkspace({
   );
 }
 
+function ProgramsWorkspace({
+  databaseConfigured,
+  disabled,
+  programs,
+  draft,
+  onDraftChange,
+  onDraftSave,
+  onProgramSave,
+  onProgramDelete,
+}: {
+  databaseConfigured: boolean;
+  disabled: boolean;
+  programs: Program[];
+  draft: Omit<Program, "id">;
+  onDraftChange: (next: Omit<Program, "id">) => void;
+  onDraftSave: () => void;
+  onProgramSave: (program: Program) => void;
+  onProgramDelete: (id: string) => void;
+}) {
+  const [selectedProgramId, setSelectedProgramId] = useState<string | "new">(programs[0]?.id ?? "new");
+  const selectedProgram =
+    selectedProgramId === "new"
+      ? null
+      : programs.find((program) => program.id === selectedProgramId) ?? programs[0] ?? null;
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
+        <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Training actions</p>
+          <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Training index</h3>
+          <p className="mt-2 text-sm leading-7 text-[#607366]">Open one training at a time from the list, or start a new training from the top.</p>
+          <button
+            onClick={() => setSelectedProgramId("new")}
+            className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-black transition ${
+              selectedProgramId === "new"
+                ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
+                : "bg-[#f5c65e] text-[#173f33]"
+            }`}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New training
+          </button>
+        </div>
+
+        <div className="mt-4 rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Existing trainings</p>
+            <div className="rounded-full bg-[#f6efe4] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#607366]">
+              {programs.length}
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3">
+            {programs.map((program, index) => (
+              <button
+                key={program.id}
+                onClick={() => setSelectedProgramId(program.id)}
+                className={`rounded-[1.3rem] border px-4 py-4 text-left transition ${
+                  selectedProgramId === program.id
+                    ? "border-[rgba(23,63,51,0.18)] bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.14)]"
+                    : "border-[rgba(27,59,43,0.08)] bg-[#faf7ef] text-[#173f33] hover:bg-[#f3ecdf]"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${selectedProgramId === program.id ? "bg-[rgba(255,255,255,0.14)] text-[#f5c65e]" : "bg-[#fffdf8] text-[#9c6a18]"}`}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${program.published ? selectedProgramId === program.id ? "bg-[rgba(255,255,255,0.14)] text-[#e4f6ea]" : "bg-[#eef8f1] text-[#21533f]" : selectedProgramId === program.id ? "bg-[rgba(255,255,255,0.14)] text-[#fff2d7]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+                    {program.published ? "Published" : "Draft"}
+                  </span>
+                </div>
+                <p className="mt-3 line-clamp-2 text-sm font-black uppercase tracking-[0.12em]">{program.title}</p>
+                <p className={`mt-2 text-sm leading-6 ${selectedProgramId === program.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>{program.level} | {program.duration}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
+        {selectedProgram ? (
+          <ProgramEditorCard disabled={disabled} program={selectedProgram} onSave={onProgramSave} onDelete={onProgramDelete} />
+        ) : (
+          <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">New training</p>
+                <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create training service</h3>
+                <p className="mt-2 text-sm leading-7 text-[#607366]">Write the training exactly as the applicant should understand it.</p>
+              </div>
+              {!databaseConfigured ? (
+                <span className="rounded-full bg-[#fff5ea] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#8c4d1e]">
+                  Read only
+                </span>
+              ) : null}
+            </div>
+            <div className="mt-5">
+              <ProgramFields value={draft} onChange={onDraftChange} />
+            </div>
+            <button
+              disabled={disabled}
+              onClick={onDraftSave}
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add new training
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="grid gap-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#718477]">
@@ -1013,6 +1103,58 @@ function ProgramRow({
     >
       <ProgramFields value={draft} onChange={setDraft} />
     </RecordCard>
+  );
+}
+
+function ProgramEditorCard({
+  program,
+  onSave,
+  onDelete,
+  disabled,
+}: {
+  program: Program;
+  onSave: (program: Program) => void;
+  onDelete: (id: string) => void;
+  disabled: boolean;
+}) {
+  const [draft, setDraft] = useState(program);
+
+  return (
+    <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">Selected training</p>
+          <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{draft.title || "Untitled training"}</h3>
+          <p className="mt-2 text-sm leading-7 text-[#607366]">
+            {draft.level} | {draft.duration} | Capacity {draft.capacity}
+          </p>
+        </div>
+        <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+          {draft.published ? "Published" : "Draft"}
+        </span>
+      </div>
+
+      <ProgramFields value={draft} onChange={setDraft} />
+
+      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <button
+          disabled={disabled}
+          onClick={() => onSave(draft)}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Save className="h-4 w-4" aria-hidden="true" />
+          Save changes
+        </button>
+        <button
+          disabled={disabled}
+          onClick={() => onDelete(program.id)}
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-4 py-2.5 text-sm font-black text-[#92462d] transition hover:bg-[#fbeee7] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+          Delete
+        </button>
+      </div>
+    </article>
   );
 }
 
