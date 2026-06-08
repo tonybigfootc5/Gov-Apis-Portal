@@ -111,16 +111,18 @@ export function TrainingAnnouncementPopup({
         onClick={showExpandedCard}
         className={`pointer-events-auto flex items-center gap-3 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-3 text-left shadow-[0_18px_42px_rgba(64,44,8,0.14)] transition-all duration-700 ease-out ${
           compactVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-        } float-gentle`}
+        }`}
         aria-label="Open new batch announcement"
       >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_10px_24px_rgba(64,44,8,0.16)]">
-          <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-        </span>
-        <span>
-          <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">New batch upcoming</span>
-          <span className="mt-0.5 block text-sm font-semibold text-[#1b3b2b]">
-            {programs.length > 1 ? `${programs.length} active training batches` : programs[0]?.title}
+        <span className="float-gentle flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_10px_24px_rgba(64,44,8,0.16)]">
+            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <span>
+            <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">New batch upcoming</span>
+            <span className="mt-0.5 block text-sm font-semibold text-[#1b3b2b]">
+              {programs.length > 1 ? `${programs.length} active training batches` : programs[0]?.title}
+            </span>
           </span>
         </span>
       </button>

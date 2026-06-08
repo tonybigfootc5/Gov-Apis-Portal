@@ -88,13 +88,14 @@ html {
 @keyframes float-gentle {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translateY(-6px);
+    transform: translate3d(0, -10px, 0);
   }
 }
 
 .float-gentle {
-  animation: float-gentle 3.8s ease-in-out infinite;
+  animation: float-gentle 2.8s ease-in-out infinite;
+  will-change: transform;
 }
