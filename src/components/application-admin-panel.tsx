@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { BadgeCheck, CreditCard, FileClock, Phone, RefreshCw, UserRound } from "lucide-react";
+import { useMemo, useState } from "react";
+import { BadgeCheck, CreditCard, FileClock, Phone, RefreshCw, Search, UserRound } from "lucide-react";
 import type {
   ApplicationApprovalStatus,
   ApplicationAttemptStatus,
@@ -30,6 +30,53 @@ export function ApplicationAdminPanel({ initialApplications }: Props) {
   const [applications, setApplications] = useState(initialApplications);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [serviceFilter, setServiceFilter] = useState("ALL");
+  const [approvalFilter, setApprovalFilter] = useState("ALL");
+  const [paymentFilter, setPaymentFilter] = useState("ALL");
+  const [crossCheckFilter, setCrossCheckFilter] = useState("ALL");
+
+  const serviceOptions = useMemo(
+    () => Array.from(new Set(applications.map((application) => application.payload.serviceName))).sort(),
+    [applications],
+  );
+
+  const summary = useMemo(() => {
+    const readyToApprove = applications.filter(
+      (application) =>
+        application.payload.crossCheckStatus === "VERIFIED" &&
+        application.payload.paymentStatus === "PAID" &&
+        application.payload.approvalStatus === "PENDING",
+    ).length;
+
+    return {
+      total: applications.length,
+      pendingCrossCheck: applications.filter((application) => application.payload.crossCheckStatus === "PENDING").length,
+      paymentPending: applications.filter((application) => application.payload.paymentStatus === "PENDING" || application.payload.paymentStatus === "NOT_STARTED").length,
+      readyToApprove,
+      approved: applications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
+    };
+  }, [applications]);
+
+  const filteredApplications = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return applications.filter((application) => {
+      const matchesQuery =
+        !normalizedQuery ||
+        application.payload.candidateName.toLowerCase().includes(normalizedQuery) ||
+        application.payload.serviceName.toLowerCase().includes(normalizedQuery) ||
+        application.payload.phone.toLowerCase().includes(normalizedQuery) ||
+        application.payload.guardianName.toLowerCase().includes(normalizedQuery);
+
+      const matchesService = serviceFilter === "ALL" || application.payload.serviceName === serviceFilter;
+      const matchesApproval = approvalFilter === "ALL" || application.payload.approvalStatus === approvalFilter;
+      const matchesPayment = paymentFilter === "ALL" || application.payload.paymentStatus === paymentFilter;
+      const matchesCrossCheck = crossCheckFilter === "ALL" || application.payload.crossCheckStatus === crossCheckFilter;
+
+      return matchesQuery && matchesService && matchesApproval && matchesPayment && matchesCrossCheck;
+    });
+  }, [applications, approvalFilter, crossCheckFilter, paymentFilter, query, serviceFilter]);
 
   async function load() {
     setLoading(true);
@@ -104,13 +151,42 @@ export function ApplicationAdminPanel({ initialApplications }: Props) {
 
       {notice ? <p className="mt-4 rounded bg-[#f4b315] px-4 py-3 text-sm font-semibold text-[#271900]">{notice}</p> : null}
 
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <SummaryCard label="Total applications" value={summary.total} tone="amber" />
+        <SummaryCard label="Pending cross-check" value={summary.pendingCrossCheck} tone="rose" />
+        <SummaryCard label="Payment pending" value={summary.paymentPending} tone="slate" />
+        <SummaryCard label="Ready to approve" value={summary.readyToApprove} tone="emerald" />
+        <SummaryCard label="Approved" value={summary.approved} tone="gold" />
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-[#504533] bg-[#201a20] p-4 shadow-xl">
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))]">
+          <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-[#d4c4ac]">
+            Search applicant
+            <div className="flex items-center rounded border border-[#504533] bg-[#120c12] px-3">
+              <Search className="h-4 w-4 text-[#d4c4ac]" aria-hidden="true" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Name, guardian, phone, or service"
+                className="w-full bg-transparent px-3 py-2 text-sm text-[#ecdfe8] outline-none"
+              />
+            </div>
+          </label>
+          <SelectField label="Service filter" value={serviceFilter} onChange={setServiceFilter} options={["ALL", ...serviceOptions]} />
+          <SelectField label="Approval filter" value={approvalFilter} onChange={setApprovalFilter} options={["ALL", ...approvalOptions]} />
+          <SelectField label="Payment filter" value={paymentFilter} onChange={setPaymentFilter} options={["ALL", ...paymentOptions]} />
+          <SelectField label="Cross-check filter" value={crossCheckFilter} onChange={setCrossCheckFilter} options={["ALL", ...crossCheckOptions]} />
+        </div>
+      </div>
+
       <div className="mt-6 grid gap-5">
-        {applications.length === 0 ? (
+        {filteredApplications.length === 0 ? (
           <div className="glass-panel rounded-xl p-6 text-sm font-semibold text-[#ecdfe8]">
-            No training applications have been submitted yet.
+            No training service applications match the current filters.
           </div>
         ) : (
-          applications.map((application) => (
+          filteredApplications.map((application) => (
             <ApplicationCard
               key={`${application.id}-${application.payload.attemptStatus}-${application.payload.paymentStatus}-${application.payload.approvalStatus}-${application.payload.crossCheckStatus}-${application.payload.paymentReference}-${application.payload.adminNotes}`}
               application={application}
@@ -149,6 +225,8 @@ function ApplicationCard({
   const [crossCheckStatus, setCrossCheckStatus] = useState<ApplicationCrossCheckStatus>(application.payload.crossCheckStatus);
   const [adminNotes, setAdminNotes] = useState(application.payload.adminNotes);
   const [paymentReference, setPaymentReference] = useState(application.payload.paymentReference);
+  const readyToApprove = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "PENDING";
+  const joinReady = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "APPROVED";
 
   return (
     <article className="rounded-2xl border border-[#504533] bg-[#201a20] p-5 shadow-xl">
@@ -193,6 +271,7 @@ function ApplicationCard({
               <p>Sponsoring organization: {application.payload.sponsoringOrganization || "Not provided"}</p>
               <p>Payment reference: {paymentReference || "Not provided"}</p>
               <p>Approved at: {application.payload.approvedAt ? formatDateLabel(application.payload.approvedAt) : "Pending"}</p>
+              <p>Join readiness: {joinReady ? "Ready to join" : readyToApprove ? "Ready for approval" : "Not ready yet"}</p>
             </InfoCard>
           </div>
 
@@ -230,9 +309,50 @@ function ApplicationCard({
           >
             Save application status
           </button>
+          <button
+            disabled={disabled || !readyToApprove}
+            onClick={() =>
+              onSave(application.id, {
+                attemptStatus,
+                paymentStatus,
+                approvalStatus: "APPROVED",
+                crossCheckStatus,
+                adminNotes,
+                paymentReference,
+              })
+            }
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded border border-[rgba(255,212,133,0.28)] px-4 py-3 text-sm font-black text-[#ffe3ac] disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Quick approve if ready
+          </button>
         </div>
       </div>
     </article>
+  );
+}
+
+function SummaryCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: "amber" | "rose" | "slate" | "emerald" | "gold";
+}) {
+  const toneClass = {
+    amber: "bg-[rgba(244,179,21,0.08)] text-[#ffd485] border-[rgba(244,179,21,0.16)]",
+    rose: "bg-[rgba(255,180,171,0.08)] text-[#ffd1c7] border-[rgba(255,180,171,0.16)]",
+    slate: "bg-[rgba(212,196,172,0.08)] text-[#ecdfe8] border-[rgba(212,196,172,0.16)]",
+    emerald: "bg-[rgba(116,245,180,0.08)] text-[#c9ffe1] border-[rgba(116,245,180,0.16)]",
+    gold: "bg-[rgba(255,227,172,0.08)] text-[#fff0c8] border-[rgba(255,227,172,0.16)]",
+  }[tone];
+
+  return (
+    <div className={`rounded-2xl border p-4 shadow-xl ${toneClass}`}>
+      <p className="text-[11px] font-black uppercase tracking-[0.18em]">{label}</p>
+      <p className="font-display mt-3 text-4xl font-semibold">{value}</p>
+    </div>
   );
 }
 
