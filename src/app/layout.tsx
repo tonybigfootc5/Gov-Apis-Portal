@@ -47,6 +47,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const language = await getRequestLanguage();
+  const languageOptions = supportedLanguages.map((value) => ({
+    value,
+    label: t(language, `lang.${value}`),
+  }));
   const navItems = [
     { label: t(language, "nav.home"), href: "/" },
     { label: t(language, "nav.about"), href: "/about" },
@@ -65,16 +69,17 @@ export default async function RootLayout({
         <SiteHeader
           currentLanguage={language}
           languageLabel={t(language, "lang.label")}
-          languageOptions={supportedLanguages.map((value) => ({
-            value,
-            label: t(language, `lang.${value}`),
-          }))}
+          languageOptions={languageOptions}
           navItems={navItems}
           adminLabel={t(language, "nav.admin")}
           techCenterLabel={t(language, "header.techCenter")}
         />
         <main className="flex-1">{children}</main>
-        <SiteFooter language={language} />
+        <SiteFooter
+          language={language}
+          languageLabel={t(language, "lang.label")}
+          languageOptions={languageOptions}
+        />
       </body>
     </html>
   );

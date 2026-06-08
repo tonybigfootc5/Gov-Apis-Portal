@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { ExternalLink, Mail, MapPin, Phone } from "lucide-react";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { institute } from "@/lib/fallback-data";
 import type { SiteLanguage } from "@/lib/i18n";
 import { t } from "@/lib/i18n";
 
-export function SiteFooter({ language }: { language: SiteLanguage }) {
+type SiteFooterProps = {
+  language: SiteLanguage;
+  languageLabel: string;
+  languageOptions: Array<{ value: SiteLanguage; label: string }>;
+};
+
+export function SiteFooter({ language, languageLabel, languageOptions }: SiteFooterProps) {
   return (
     <footer className="border-t-4 border-[#ebb428] forest-band text-[#faf8f2]">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_1fr_0.9fr_0.9fr] lg:px-8">
@@ -57,6 +64,14 @@ export function SiteFooter({ language }: { language: SiteLanguage }) {
             <ExternalLink className="h-4 w-4 text-[#ebb428]" aria-hidden="true" />
             Visit official website
           </a>
+          <div className="pt-2">
+            <LanguageSwitcher
+              currentLanguage={language}
+              label={languageLabel}
+              options={languageOptions}
+              variant="footer"
+            />
+          </div>
         </div>
       </div>
       <div className="border-t border-[rgba(250,248,242,0.14)] px-4 py-4 text-center text-xs text-[#e5e7e3] sm:px-6 sm:text-sm lg:px-8">

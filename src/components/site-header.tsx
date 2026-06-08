@@ -27,7 +27,15 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-[rgba(27,59,43,0.08)] bg-[rgba(250,248,242,0.92)] shadow-[0_10px_40px_rgba(64,44,8,0.08)] backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+        <div className="hidden justify-end md:flex">
+          <LanguageSwitcher
+            currentLanguage={currentLanguage}
+            label={languageLabel}
+            options={languageOptions}
+          />
+        </div>
+        <div className="flex items-center justify-between gap-3">
         <Link href="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3" aria-label="API CULTURE home">
           <span className="hex-clip grid h-10 w-11 shrink-0 place-items-center bg-[#ebb428] text-[#1b3b2b] shadow-lg shadow-amber-900/20 sm:h-11 sm:w-12">
             <Hexagon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
@@ -55,11 +63,6 @@ export function SiteHeader({
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          <LanguageSwitcher
-            currentLanguage={currentLanguage}
-            label={languageLabel}
-            options={languageOptions}
-          />
           <a
             href="https://www.apiculture.in"
             target="_blank"
@@ -110,6 +113,7 @@ export function SiteHeader({
             </Link>
           </nav>
         </details>
+        </div>
       </div>
     </header>
   );

@@ -35,57 +35,64 @@ export default async function Home() {
 
   return (
     <>
-      <section className="relative isolate overflow-hidden">
-        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-16 sm:px-6 sm:pt-20 lg:px-8 lg:pb-20 lg:pt-24">
-          <div className="grid gap-10 lg:grid-cols-[0.98fr_1.02fr] lg:items-center">
-            <div className="max-w-3xl">
-              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-[rgba(27,59,43,0.1)] bg-[#fffdf8]/92 px-4 py-2 text-[11px] font-black uppercase leading-5 tracking-[0.16em] text-[#b36b00] shadow-[0_18px_40px_rgba(64,44,8,0.08)] sm:text-xs sm:tracking-[0.22em]">
+      <section className="relative isolate overflow-hidden bg-[#101712]">
+        <div className="absolute inset-0">
+          <HeroBackgroundVideo />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(235,180,40,0.12),transparent_22rem),linear-gradient(110deg,rgba(6,10,8,0.36)_10%,rgba(7,12,10,0.18)_42%,rgba(7,12,10,0.28)_100%)]" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-[62%] bg-[linear-gradient(90deg,rgba(3,7,5,0.72)_0%,rgba(3,7,5,0.52)_36%,rgba(3,7,5,0.18)_72%,rgba(3,7,5,0)_100%)]" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-[linear-gradient(180deg,rgba(16,23,18,0)_0%,rgba(16,23,18,0.38)_100%)]" />
+        </div>
+        <div className="relative mx-auto max-w-7xl px-4 pb-18 pt-16 sm:px-6 sm:pb-20 sm:pt-20 lg:px-8 lg:pb-24 lg:pt-28">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end xl:grid-cols-[minmax(0,1fr)_22rem]">
+            <div className="max-w-4xl">
+              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-white/14 bg-[rgba(255,250,240,0.1)] px-4 py-2 text-[11px] font-black uppercase leading-5 tracking-[0.16em] text-[#f4cb61] shadow-[0_18px_40px_rgba(0,0,0,0.2)] backdrop-blur-md sm:text-xs sm:tracking-[0.22em]">
                 <BadgeCheck className="h-4 w-4" aria-hidden="true" />
                 <span>{institute.parent.split(",")[0]}</span>
               </p>
-              <h1 className="font-display mt-8 max-w-4xl text-[clamp(3rem,10vw,6.7rem)] font-semibold leading-[0.94] tracking-tight text-[#1b3b2b]">
-                Field-ready <span className="text-[#b36b00]">API CULTURE</span>
+              <h1 className="font-display mt-8 max-w-4xl text-[clamp(3.2rem,10vw,7rem)] font-semibold leading-[0.92] tracking-tight text-[#fff8ea] [text-shadow:0_10px_32px_rgba(0,0,0,0.45)]">
+                Field-ready <span className="text-[#f4cb61]">API CULTURE</span>
               </h1>
-              <p className="mt-6 max-w-2xl text-base leading-8 text-[#435247] sm:mt-7 sm:text-xl sm:leading-9">
+              <p className="mt-6 max-w-3xl text-base leading-8 text-[#f3ead9] [text-shadow:0_6px_24px_rgba(0,0,0,0.35)] sm:mt-7 sm:text-xl sm:leading-9">
                 {t(language, "home.hero.description")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3 text-xs font-black uppercase tracking-[0.18em] text-[#1b3b2b]">
-                <span className="rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8]/88 px-4 py-2">Rajendranagar, Hyderabad</span>
-                <span className="rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8]/88 px-4 py-2">Hands-on training</span>
-                <span className="rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8]/88 px-4 py-2">Field demonstrations</span>
+              <div className="mt-8 flex flex-wrap gap-3 text-xs font-black uppercase tracking-[0.18em] text-[#fff3d2]">
+                <span className="rounded-full border border-white/14 bg-black/20 px-4 py-2 backdrop-blur-sm">Rajendranagar, Hyderabad</span>
+                <span className="rounded-full border border-white/14 bg-black/20 px-4 py-2 backdrop-blur-sm">Hands-on training</span>
+                <span className="rounded-full border border-white/14 bg-black/20 px-4 py-2 backdrop-blur-sm">Field demonstrations</span>
               </div>
               <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                 <Link
                   href="/programs"
-                  className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#ebb428] px-6 py-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#1b3b2b] shadow-[0_18px_40px_rgba(179,107,0,0.18)] transition hover:-translate-y-1 sm:w-auto sm:px-8"
+                  className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-[#ebb428] px-6 py-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#1b3b2b] shadow-[0_22px_50px_rgba(0,0,0,0.28)] transition hover:-translate-y-1 sm:w-auto sm:px-8"
                 >
                   {t(language, "home.hero.cta.training")} <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link
                   href="/about"
-                  className="inline-flex w-full items-center justify-center gap-3 rounded-full border border-[rgba(27,59,43,0.18)] bg-[#fffdf8]/88 px-6 py-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#1b3b2b] transition hover:border-[#1b3b2b] sm:w-auto sm:px-8"
+                  className="inline-flex w-full items-center justify-center gap-3 rounded-full border border-white/18 bg-[rgba(255,250,240,0.12)] px-6 py-4 text-center text-sm font-black uppercase tracking-[0.14em] text-[#fff8ea] backdrop-blur-md transition hover:border-white/36 hover:bg-[rgba(255,250,240,0.18)] sm:w-auto sm:px-8"
                 >
                   {t(language, "home.hero.cta.mission")}
                 </Link>
               </div>
             </div>
 
-            <div>
-              <div className="relative overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#ece3d3] shadow-[0_28px_70px_rgba(64,44,8,0.12)]">
-                <div className="relative aspect-[4/5] min-h-[360px] sm:aspect-[5/6] lg:min-h-[520px]">
-                  <HeroBackgroundVideo />
-                </div>
+            <div className="grid gap-4 lg:justify-items-end">
+              <div className="w-full max-w-sm rounded-[2rem] border border-white/18 bg-[rgba(8,12,10,0.28)] px-5 py-5 text-[#fff8ea] shadow-[0_28px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#f4cb61]">{t(language, "home.hero.location")}</p>
+                <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#fff8ea]">
+                  <MapPin className="h-4 w-4 text-[#f4cb61]" aria-hidden="true" />
+                  Rajendranagar, Hyderabad
+                </p>
+                <p className="mt-3 text-sm leading-7 text-[#efe4d1]">{t(language, "home.hero.focusText")}</p>
               </div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto]">
-                <div className="paper-panel rounded-[2rem] px-5 py-5">
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">{t(language, "home.hero.location")}</p>
-                  <p className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#1b3b2b]">
-                    <MapPin className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />
-                    Rajendranagar, Hyderabad
+              <div className="grid w-full max-w-sm gap-4 sm:grid-cols-[1fr_auto] lg:grid-cols-1">
+                <div className="rounded-[2rem] border border-white/18 bg-[rgba(8,12,10,0.28)] px-5 py-5 text-[#fff8ea] shadow-[0_28px_60px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#f4cb61]">Live field atmosphere</p>
+                  <p className="mt-3 text-sm leading-7 text-[#efe4d1]">
+                    The landing section now opens directly into the field footage so the site feels closer to the real training environment.
                   </p>
-                  <p className="mt-3 text-sm leading-7 text-[#516253]">{t(language, "home.hero.focusText")}</p>
                 </div>
-                <div className="rounded-[2rem] bg-[linear-gradient(180deg,#ebb428_0%,#b36b00_100%)] px-5 py-6 text-[#faf8f2] shadow-[0_22px_50px_rgba(179,107,0,0.24)]">
+                <div className="rounded-[2rem] border border-[rgba(244,203,97,0.34)] bg-[linear-gradient(180deg,rgba(244,203,97,0.42)_0%,rgba(179,107,0,0.38)_100%)] px-5 py-6 text-[#faf8f2] shadow-[0_22px_50px_rgba(0,0,0,0.22)] backdrop-blur-xl">
                   <p className="font-display text-5xl font-bold leading-none">40+</p>
                   <p className="mt-3 text-xs font-black uppercase tracking-[0.2em] text-[#fff7df]">{t(language, "home.hero.stats")}</p>
                 </div>
