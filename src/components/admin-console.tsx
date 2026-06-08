@@ -147,6 +147,7 @@ export function AdminConsole({
     { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
   ];
+  const activeView = viewItems.find((item) => item.id === view) ?? viewItems[0];
 
   async function load() {
     if (!databaseConfigured) {
@@ -319,6 +320,7 @@ export function AdminConsole({
         </aside>
 
         <div className="grid gap-8">
+      {view === "overview" ? (
       <section className="relative overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(145deg,rgba(255,253,248,0.98),rgba(243,236,223,0.96))] p-6 shadow-[0_30px_80px_rgba(64,44,8,0.08)] sm:p-8">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(235,180,40,0.18),transparent_22rem),radial-gradient(circle_at_bottom_left,rgba(27,59,43,0.08),transparent_24rem)]" />
         <div className="relative flex flex-col gap-6">
@@ -417,6 +419,50 @@ export function AdminConsole({
           </div>
         </div>
       </section>
+      ) : (
+      <section className="rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-6 shadow-[0_24px_60px_rgba(64,44,8,0.08)]">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[#9c6a18]">Active workspace</p>
+            <h1 className="font-display mt-3 text-4xl font-semibold leading-none text-[#173f33] sm:text-5xl">
+              {activeView.label}
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-[#4f6255] sm:text-lg">
+              {activeView.description}. Only the selected section is shown on the right side so you can focus on one task at a time.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 lg:hidden">
+            <button
+              disabled={loading}
+              onClick={load}
+              className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#173f33] px-4 py-2.5 text-sm font-bold text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.18)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+              Refresh
+            </button>
+            <form action="/api/admin/logout" method="post">
+              <button className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-2.5 text-sm font-bold text-[#173f33] transition hover:bg-[#f7f1e4]">
+                <LogOut className="h-4 w-4" aria-hidden="true" />
+                Logout
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {!databaseConfigured ? (
+          <div className="mt-6 rounded-[1.5rem] border border-[rgba(179,107,0,0.18)] bg-[linear-gradient(135deg,rgba(255,239,192,0.9),rgba(255,246,221,0.98))] px-5 py-4 text-sm font-semibold leading-7 text-[#7a4b00]">
+            Local admin preview is running without `DATABASE_URL`. You can review the selected section, but create, edit, and delete actions remain disabled until a database is configured.
+          </div>
+        ) : null}
+
+        {notice ? (
+          <div className="mt-6 rounded-[1.5rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-5 py-4 text-sm font-semibold text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.06)]">
+            {notice}
+          </div>
+        ) : null}
+      </section>
+      )}
 
       {view === "overview" ? (
         <section className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
