@@ -255,7 +255,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] shadow-[0_28px_70px_rgba(64,44,8,0.08)]">
         <div className="border-b border-[rgba(27,59,43,0.08)] bg-[linear-gradient(135deg,#fff4d1_0%,#f3d487_45%,#c98618_100%)] px-5 py-5 sm:px-7 sm:py-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
@@ -268,7 +268,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                 Large fields, simple wording, bilingual hints, and photo auto-sizing so anyone can complete the form without confusion.
               </p>
             </div>
-            <div className="rounded-[1.5rem] bg-[rgba(255,253,248,0.72)] px-4 py-3 text-sm font-semibold text-[#1b3b2b] shadow-[0_16px_40px_rgba(122,74,0,0.12)] backdrop-blur-sm">
+            <div className="min-w-[13rem] rounded-[1.5rem] bg-[rgba(255,253,248,0.72)] px-4 py-3 text-sm font-semibold text-[#1b3b2b] shadow-[0_16px_40px_rgba(122,74,0,0.12)] backdrop-blur-sm">
               <p>Training dates</p>
               <p className="mt-1 text-[#7a4a00]">08 Jun 2026 to 12 Jun 2026</p>
             </div>
@@ -543,7 +543,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
         </div>
       </div>
 
-      <aside className="grid content-start gap-4">
+      <aside className="grid content-start gap-4 2xl:sticky 2xl:top-28">
         <div className="glass-panel rounded-[2rem] p-5">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#b36b00]">At a glance</p>
           <div className="mt-4 grid gap-3">

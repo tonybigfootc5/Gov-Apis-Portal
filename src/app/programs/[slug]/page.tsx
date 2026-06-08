@@ -44,7 +44,7 @@ export default async function ProgramDetailPage({ params }: Props) {
         : null;
 
   return (
-    <article className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+    <article className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-18 lg:px-8">
       <div
         className={`relative overflow-hidden rounded-[2rem] border border-[#504533] ${
           isQueenRearing || isFoundation ? "bg-[#f4ead8]" : "bg-[#fffdf8]"
@@ -95,7 +95,7 @@ export default async function ProgramDetailPage({ params }: Props) {
           </>
         ) : null}
 
-        <div className="relative min-w-0">
+        <div className="relative min-w-0 md:pr-32 lg:pr-36">
           <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-black text-[#b36b00]">
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             {t(language, "programs.back")}
@@ -103,12 +103,12 @@ export default async function ProgramDetailPage({ params }: Props) {
           <p className="mt-8 text-sm font-black uppercase tracking-[0.2em] text-[#b36b00]">{translatedProgram.level}</p>
           <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight text-[#1b3b2b] sm:text-5xl lg:text-6xl">{translatedProgram.title}</h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-[#516253] sm:text-lg sm:leading-8">{translatedProgram.summary}</p>
-          <div className="glass-panel mt-8 grid gap-4 rounded-[1.5rem] p-6 sm:grid-cols-3">
+          <div className="glass-panel mt-8 grid gap-4 rounded-[1.6rem] p-5 sm:grid-cols-3 sm:p-6">
             <Detail label={t(language, "programs.detail.duration")} value={translatedProgram.duration} />
             <Detail label={t(language, "programs.detail.capacity")} value={`${translatedProgram.capacity} participants`} />
             <Detail label={t(language, "programs.detail.fee")} value={translatedProgram.fee ?? t(language, "programs.detail.fallbackFee")} />
           </div>
-          <div className="mt-8 grid gap-4 rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#f6efe4] p-5 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div className="mt-8 grid gap-4 rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#f6efe4] p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.2em] text-[#b36b00]">Application flow</p>
               <p className="mt-3 text-sm leading-7 text-[#516253]">
@@ -123,12 +123,14 @@ export default async function ProgramDetailPage({ params }: Props) {
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </a>
           </div>
-          <div className="mt-8 whitespace-pre-line text-base leading-8 text-[#435247]">{translatedProgram.description}</div>
+          <div className="paper-panel mt-8 rounded-[1.75rem] p-5 sm:p-6">
+            <div className="whitespace-pre-line text-base leading-8 text-[#435247]">{translatedProgram.description}</div>
+          </div>
         </div>
       </div>
 
       <section id="training-application-form" className="mt-10 rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[linear-gradient(180deg,#fbf7ee_0%,#f3ecdf_100%)] p-5 shadow-[0_28px_70px_rgba(64,44,8,0.08)] sm:p-8">
-        <div className="grid gap-6 lg:grid-cols-[0.72fr_1fr] lg:items-start">
+        <div className="grid gap-6 xl:grid-cols-[0.72fr_minmax(0,1fr)] xl:items-start">
           <div className="grid gap-4">
             <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-5">
               <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">Selected training</p>
