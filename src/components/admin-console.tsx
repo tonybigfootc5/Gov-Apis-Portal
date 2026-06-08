@@ -238,8 +238,6 @@ export function AdminConsole({
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
   ];
-  const activeView = viewItems.find((item) => item.id === view) ?? viewItems[0];
-
   async function load() {
     if (!databaseConfigured) {
       setNotice("Local preview is running without DATABASE_URL. You can review the layout, but save actions stay disabled until a database is connected.");
@@ -445,87 +443,25 @@ export function AdminConsole({
         </aside>
 
         <div className="grid gap-8">
-      {view === "overview" ? (
-      <section className="relative overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(145deg,rgba(255,253,248,0.98),rgba(243,236,223,0.96))] p-6 shadow-[0_30px_80px_rgba(64,44,8,0.08)] sm:p-8">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(235,180,40,0.18),transparent_22rem),radial-gradient(circle_at_bottom_left,rgba(27,59,43,0.08),transparent_24rem)]" />
-        <div className="relative flex flex-col gap-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="max-w-3xl">
-              <p className="text-xs font-black uppercase tracking-[0.3em] text-[#9c6a18]">Institutional oversight</p>
-              <h1 className="font-display mt-3 text-4xl font-semibold leading-none text-[#173f33] sm:text-5xl">
-                Admin command deck
-              </h1>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-[#4f6255] sm:text-lg">
-                A clearer control room for training services, event planning, and applicant approvals. The layout is tuned for fast daily handling instead of dense back-office clutter.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3 lg:hidden">
-              <button
-                disabled={loading}
-                onClick={load}
-                className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#173f33] px-4 py-2.5 text-sm font-bold text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.18)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-                Refresh
-              </button>
-              <form action="/api/admin/logout" method="post">
-                <button className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-2.5 text-sm font-bold text-[#173f33] transition hover:bg-[#f7f1e4]">
-                  <LogOut className="h-4 w-4" aria-hidden="true" />
-                  Logout
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {!databaseConfigured ? (
-            <div className="rounded-[1.5rem] border border-[rgba(179,107,0,0.18)] bg-[linear-gradient(135deg,rgba(255,239,192,0.9),rgba(255,246,221,0.98))] px-5 py-4 text-sm font-semibold leading-7 text-[#7a4b00]">
-              Local admin preview is running without `DATABASE_URL`. You can open the dashboard and review the design, but create, edit, and delete actions remain disabled until a database is configured.
-            </div>
-          ) : null}
-
           {notice ? (
             <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-5 py-4 text-sm font-semibold text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.06)]">
               {notice}
             </div>
           ) : null}
 
-          <div className="grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
-            <div className="rounded-[1.75rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_50px_rgba(23,63,51,0.18)]">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">
-                  <Layers3 className="h-4 w-4" aria-hidden="true" />
-                  Today at a glance
+          {view === "overview" ? (
+            <section className="grid gap-4">
+              <div className="rounded-[1.75rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_50px_rgba(23,63,51,0.18)]">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">
+                    <Layers3 className="h-4 w-4" aria-hidden="true" />
+                    Today at a glance
+                  </div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#d9dfd5]">Quick operational summary</p>
                 </div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#d9dfd5]">Quick operational summary</p>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                {overviewCards.map((card) => (
-                  <CompactOverviewCard key={card.label} card={card} />
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-4">
-              <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">Quick routing</p>
-                <div className="mt-4 grid gap-3">
-                  {viewItems.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => setView(item.id)}
-                      className={`flex items-center justify-between rounded-[1.3rem] px-4 py-3 text-left transition ${
-                        view === item.id
-                          ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
-                          : "border border-[rgba(27,59,43,0.1)] bg-[#f7f2e8] text-[#173f33] hover:bg-[#efe7d8]"
-                      }`}
-                    >
-                      <span>
-                        <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
-                        <span className={`mt-1 block text-sm ${view === item.id ? "text-[#e9efea]" : "text-[#607366]"}`}>{item.description}</span>
-                      </span>
-                      <span className="text-xs font-black uppercase tracking-[0.18em]">{view === item.id ? "Open" : "View"}</span>
-                    </button>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  {overviewCards.map((card) => (
+                    <CompactOverviewCard key={card.label} card={card} />
                   ))}
                 </div>
               </div>
@@ -538,54 +474,8 @@ export function AdminConsole({
                   <li>Approve students only after cross-check and payment verification are both complete.</li>
                 </ul>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      ) : (
-      <section className="rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-6 shadow-[0_24px_60px_rgba(64,44,8,0.08)]">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="max-w-3xl">
-            <p className="text-xs font-black uppercase tracking-[0.3em] text-[#9c6a18]">Active workspace</p>
-            <h1 className="font-display mt-3 text-4xl font-semibold leading-none text-[#173f33] sm:text-5xl">
-              {activeView.label}
-            </h1>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-[#4f6255] sm:text-lg">
-              {activeView.description}. Only the selected section is shown on the right side so you can focus on one task at a time.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3 lg:hidden">
-            <button
-              disabled={loading}
-              onClick={load}
-              className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#173f33] px-4 py-2.5 text-sm font-bold text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.18)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-              Refresh
-            </button>
-            <form action="/api/admin/logout" method="post">
-              <button className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-2.5 text-sm font-bold text-[#173f33] transition hover:bg-[#f7f1e4]">
-                <LogOut className="h-4 w-4" aria-hidden="true" />
-                Logout
-              </button>
-            </form>
-          </div>
-        </div>
-
-        {!databaseConfigured ? (
-          <div className="mt-6 rounded-[1.5rem] border border-[rgba(179,107,0,0.18)] bg-[linear-gradient(135deg,rgba(255,239,192,0.9),rgba(255,246,221,0.98))] px-5 py-4 text-sm font-semibold leading-7 text-[#7a4b00]">
-            Local admin preview is running without `DATABASE_URL`. You can review the selected section, but create, edit, and delete actions remain disabled until a database is configured.
-          </div>
-        ) : null}
-
-        {notice ? (
-          <div className="mt-6 rounded-[1.5rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-5 py-4 text-sm font-semibold text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.06)]">
-            {notice}
-          </div>
-        ) : null}
-      </section>
-      )}
+            </section>
+          ) : null}
 
       {view === "overview" ? (
         <section className="mt-8 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
