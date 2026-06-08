@@ -12,6 +12,7 @@ import {
   Sprout,
 } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
+import { HomeArticlesSection } from "@/components/home-articles-section";
 import { SectionHeading } from "@/components/section-heading";
 import { getEvents, getPrograms } from "@/lib/data";
 import { institute } from "@/lib/fallback-data";
@@ -212,6 +213,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <HomeArticlesSection />
 
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <SectionHeading eyebrow={t(language, "home.events.eyebrow")} title={t(language, "home.events.title")}>

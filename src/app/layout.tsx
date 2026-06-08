@@ -55,6 +55,7 @@ export default async function RootLayout({
     { label: t(language, "nav.home"), href: "/" },
     { label: t(language, "nav.about"), href: "/about" },
     { label: t(language, "nav.training"), href: "/programs" },
+    { label: "Articles", href: "/#articles" },
     { label: t(language, "nav.events"), href: "/events" },
     { label: t(language, "nav.gallery"), href: "/gallery" },
     { label: t(language, "nav.contact"), href: "/contact" },
