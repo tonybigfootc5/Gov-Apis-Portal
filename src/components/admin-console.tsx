@@ -227,7 +227,6 @@ export function AdminConsole({
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>(readStoredHistory);
   const [schedules, setSchedules] = useState<PublishSchedule[]>(readStoredSchedules);
   const [activeHistorySection, setActiveHistorySection] = useState<HistorySection | null>(null);
-  const [overviewScheduleAt, setOverviewScheduleAt] = useState("");
 
   const applicationSummary = useMemo(() => {
     const ready = initialApplications.filter(
@@ -628,33 +627,6 @@ export function AdminConsole({
                     <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#d9dfd5]">Quick operational summary</p>
                   </div>
                   <div className="max-w-xl text-sm leading-7 text-[#dde4dc]">
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                      <button
-                        onClick={() => setActiveHistorySection("overview")}
-                        className="inline-flex items-center gap-2 rounded-full border border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.08)] px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#fff9ec]"
-                      >
-                        <History className="h-4 w-4" aria-hidden="true" />
-                        History
-                      </button>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <input
-                          type="datetime-local"
-                          className="rounded-full border border-[rgba(255,255,255,0.16)] bg-[rgba(255,255,255,0.08)] px-3 py-2 text-[11px] font-black uppercase tracking-[0.08em] text-[#fff9ec] outline-none"
-                          value={overviewScheduleAt}
-                          onChange={(event) => setOverviewScheduleAt(event.target.value)}
-                        />
-                        <button
-                          onClick={() => {
-                            saveSchedule("overview", "Live updates", overviewScheduleAt);
-                            setOverviewScheduleAt("");
-                          }}
-                          className="inline-flex items-center gap-2 rounded-full bg-[#f5c65e] px-3 py-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#173f33]"
-                        >
-                          <Clock3 className="h-4 w-4" aria-hidden="true" />
-                          Schedule
-                        </button>
-                      </div>
-                    </div>
                     <p className="mt-4 text-sm text-[#dde4dc]">Track live learner movement, review readiness, and final approvals from one place.</p>
                   </div>
                 </div>
@@ -666,34 +638,6 @@ export function AdminConsole({
               </div>
             </section>
           ) : null}
-
-      {view === "overview" ? (
-        <section className="mt-8">
-          <DashboardSection
-            section="applications"
-            eyebrow="Applications"
-            title="Learner review desk"
-            description="Handle cross-check, payment status, and final decisions from a single admissions workspace."
-            schedules={sectionSchedules.applications}
-            onOpenHistory={() => setActiveHistorySection("applications")}
-            onSchedule={(publishAt) => saveSchedule("applications", "Applications desk", publishAt)}
-          >
-            <div className="grid gap-4">
-              <MiniStatCard label="Pending review" value={applicationSummary.total - applicationSummary.approved} tone="warm" />
-              <MiniStatCard label="Ready to approve" value={applicationSummary.ready} tone="forest" />
-              <MiniStatCard label="Approved learners" value={applicationSummary.approved} tone="gold" />
-              <button
-                onClick={() => setView("applications")}
-                className="rounded-[1.4rem] bg-[#173f33] px-5 py-4 text-left text-[#fff9ec] shadow-[0_16px_34px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f]"
-              >
-                <span className="block text-xs font-black uppercase tracking-[0.2em] text-[#f5c65e]">Open review desk</span>
-                <span className="mt-2 block text-lg font-semibold">Go to application handling</span>
-                <span className="mt-1 block text-sm text-[#dde4dc]">Use filters, notes, payment status, and cross-check controls in one place.</span>
-              </button>
-            </div>
-          </DashboardSection>
-        </section>
-      ) : null}
 
       {view === "programs" ? (
         <DashboardSection
@@ -1570,21 +1514,6 @@ function HistoryDrawer({
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function MiniStatCard({ label, value, tone }: { label: string; value: number; tone: "warm" | "forest" | "gold" }) {
-  const styles = {
-    warm: "bg-[#fff5ea] text-[#8c4d1e] border-[rgba(140,77,30,0.12)]",
-    forest: "bg-[#eef8f1] text-[#21533f] border-[rgba(33,83,63,0.12)]",
-    gold: "bg-[#fff8df] text-[#7a5a00] border-[rgba(122,90,0,0.12)]",
-  }[tone];
-
-  return (
-    <div className={`rounded-[1.4rem] border p-4 shadow-[0_12px_28px_rgba(64,44,8,0.05)] ${styles}`}>
-      <p className="text-xs font-black uppercase tracking-[0.2em]">{label}</p>
-      <p className="font-display mt-3 text-4xl font-semibold">{value}</p>
     </div>
   );
 }
