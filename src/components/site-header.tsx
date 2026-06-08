@@ -29,13 +29,6 @@ export function SiteHeader({
   return (
     <header className="sticky top-0 z-50 border-b border-[rgba(27,59,43,0.08)] bg-[rgba(250,248,242,0.92)] shadow-[0_10px_40px_rgba(64,44,8,0.08)] backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
-        <div className="hidden justify-end md:flex">
-          <LanguageSwitcher
-            currentLanguage={currentLanguage}
-            label={languageLabel}
-            options={languageOptions}
-          />
-        </div>
         <div className="flex items-center justify-between gap-3">
         <Link href="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3" aria-label="API CULTURE home">
           <span className="relative h-12 w-14 shrink-0 sm:h-14 sm:w-16">
@@ -88,6 +81,11 @@ export function SiteHeader({
             <UserCircle className="h-4 w-4" aria-hidden="true" />
             {adminLabel}
           </Link>
+          <LanguageSwitcher
+            currentLanguage={currentLanguage}
+            label={languageLabel}
+            options={languageOptions}
+          />
         </div>
 
         <details className="relative shrink-0 md:hidden">

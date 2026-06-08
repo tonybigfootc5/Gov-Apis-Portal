@@ -6,7 +6,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [programs, events] = await Promise.all([getPrograms(), getEvents()]);
 
   return [
-    "", "/about", "/programs", "/events", "/gallery", "/contact",
+    "", "/about", "/programs", "/articles", "/events", "/gallery", "/contact",
     ...programs.map((program) => `/programs/${program.slug}`),
     ...events.map((event) => `/events/${event.slug}`),
   ].map((path) => ({
