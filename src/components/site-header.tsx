@@ -38,12 +38,12 @@ export function SiteHeader({
         </div>
         <div className="flex items-center justify-between gap-3">
         <Link href="/" className="flex min-w-0 items-center gap-2.5 sm:gap-3" aria-label="API CULTURE home">
-          <span className="relative h-12 w-14 shrink-0 overflow-hidden rounded-2xl border border-[rgba(27,59,43,0.12)] bg-[#fff8e6] shadow-lg shadow-amber-900/15 sm:h-14 sm:w-16">
+          <span className="relative h-12 w-14 shrink-0 sm:h-14 sm:w-16">
             <Image
               src="/api-culture-logo.png"
               alt="API CULTURE honeycomb logo"
               fill
-              className="object-cover"
+              className="object-contain"
               sizes="64px"
               priority
             />
