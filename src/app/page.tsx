@@ -15,7 +15,8 @@ import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { HomeAboutSection, HomeContactSection, HomeGallerySection } from "@/components/home-context-sections";
 import { HomeArticlesSection } from "@/components/home-articles-section";
 import { SectionHeading } from "@/components/section-heading";
-import { getEvents, getPrograms } from "@/lib/data";
+import { TrainingAnnouncementPopup } from "@/components/training-announcement-popup";
+import { getAnnouncementPrograms, getEvents, getPrograms } from "@/lib/data";
 import { institute } from "@/lib/fallback-data";
 import { getTranslatedEventContent, getTranslatedProgramContent, t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
@@ -28,6 +29,7 @@ export default async function Home() {
   const [programs, events] = await Promise.all([getPrograms(), getEvents()]);
   const translatedPrograms = programs.map((program) => getTranslatedProgramContent(program, language));
   const translatedEvents = events.map((event) => getTranslatedEventContent(event, language));
+  const activeAnnouncementPrograms = getAnnouncementPrograms(programs).map((program) => getTranslatedProgramContent(program, language));
   const featureCards = [
     [GraduationCap, t(language, "home.cards.training.title"), t(language, "home.cards.training.text")],
     [CalendarDays, t(language, "home.cards.workshops.title"), t(language, "home.cards.workshops.text")],
@@ -37,6 +39,8 @@ export default async function Home() {
 
   return (
     <>
+      <TrainingAnnouncementPopup programs={activeAnnouncementPrograms} />
+
       <section id="home" className="relative isolate overflow-hidden bg-[#101712] scroll-mt-32">
         <div className="absolute inset-0">
           <HeroBackgroundVideo />

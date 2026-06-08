@@ -20,18 +20,20 @@ enum EventStatus {
 }
 
 model Program {
-  id          String       @id @default(cuid())
-  title       String
-  slug        String       @unique
-  summary     String
-  description String
-  duration    String
-  level       ProgramLevel @default(FOUNDATION)
-  fee         String?
-  capacity    Int          @default(30)
-  published   Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id               String       @id @default(cuid())
+  title            String
+  slug             String       @unique
+  summary          String
+  description      String
+  duration         String
+  level            ProgramLevel @default(FOUNDATION)
+  fee              String?
+  capacity         Int          @default(30)
+  batchStartsAt    DateTime?
+  enrollmentClosed Boolean      @default(false)
+  published        Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 }
 
 model Event {

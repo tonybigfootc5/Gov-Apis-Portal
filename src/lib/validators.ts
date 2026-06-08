@@ -24,6 +24,8 @@ export const programSchema = z.object({
   level: z.enum(["FOUNDATION", "ADVANCED", "PROFESSIONAL"]),
   fee: z.string().trim().max(120).optional().or(z.literal("")),
   capacity: z.coerce.number().int().min(1).max(500),
+  batchStartsAt: z.preprocess((value) => (value === "" ? null : value), z.coerce.date().optional().nullable()),
+  enrollmentClosed: z.coerce.boolean().default(false),
   published: z.coerce.boolean().default(true),
 });
 

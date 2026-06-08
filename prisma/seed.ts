@@ -21,6 +21,8 @@ async function main() {
       level: ProgramLevel.FOUNDATION,
       fee: "As notified by the center",
       capacity: 30,
+      batchStartsAt: new Date("2026-07-15T09:00:00.000Z"),
+      enrollmentClosed: false,
     },
   });
 
@@ -38,6 +40,8 @@ async function main() {
       level: ProgramLevel.ADVANCED,
       fee: "As notified by the center",
       capacity: 20,
+      batchStartsAt: new Date("2026-08-05T09:00:00.000Z"),
+      enrollmentClosed: false,
     },
   });
 

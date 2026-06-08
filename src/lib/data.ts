@@ -11,6 +11,8 @@ export type ProgramItem = {
   level: string;
   fee: string | null;
   capacity: number;
+  batchStartsAt: Date | null;
+  enrollmentClosed: boolean;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -53,6 +55,19 @@ export async function getPrograms(): Promise<ProgramItem[]> {
   } catch {
     return fallbackPrograms;
   }
+}
+
+export function getAnnouncementPrograms(programs: ProgramItem[], now = new Date()) {
+  return programs
+    .filter((program) => program.published && !program.enrollmentClosed && (!program.batchStartsAt || program.batchStartsAt > now))
+    .sort((left, right) => {
+      if (left.batchStartsAt && right.batchStartsAt) {
+        return left.batchStartsAt.getTime() - right.batchStartsAt.getTime();
+      }
+      if (left.batchStartsAt) return -1;
+      if (right.batchStartsAt) return 1;
+      return left.title.localeCompare(right.title);
+    });
 }
 
 export async function getProgram(slug: string): Promise<ProgramItem | null> {

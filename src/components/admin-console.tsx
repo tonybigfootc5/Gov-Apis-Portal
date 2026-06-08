@@ -33,6 +33,8 @@ type Program = {
   level: "FOUNDATION" | "ADVANCED" | "PROFESSIONAL";
   fee?: string | null;
   capacity: number;
+  batchStartsAt?: string | null;
+  enrollmentClosed: boolean;
   published: boolean;
   updatedAt?: string;
 };
@@ -105,6 +107,8 @@ const emptyProgram: Omit<Program, "id"> = {
   level: "FOUNDATION",
   fee: "",
   capacity: 30,
+  batchStartsAt: "",
+  enrollmentClosed: false,
   published: true,
 };
 
@@ -1060,7 +1064,16 @@ function ProgramsWorkspace({
                   </span>
                 </div>
                 <p className="mt-3 line-clamp-2 text-sm font-black uppercase tracking-[0.12em]">{program.title}</p>
-                <p className={`mt-2 text-sm leading-6 ${selectedProgramId === program.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>{program.level} | {program.duration}</p>
+                <p className={`mt-2 text-sm leading-6 ${selectedProgramId === program.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>
+                  {program.level} | {program.duration}
+                </p>
+                <p className={`mt-1 text-xs font-semibold ${selectedProgramId === program.id ? "text-[#f4e7bd]" : "text-[#8a7d61]"}`}>
+                  {program.enrollmentClosed
+                    ? "Enrollment closed"
+                    : program.batchStartsAt
+                      ? `Starts ${formatDateTime(program.batchStartsAt)}`
+                      : "Start date not set"}
+                </p>
               </button>
             ))}
           </div>
@@ -1193,6 +1206,24 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
           <input type="number" className={fieldClass()} value={value.capacity} onChange={(event) => onChange({ ...value, capacity: Number(event.target.value) })} />
         </Field>
       </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="Batch starts at">
+          <input
+            type="datetime-local"
+            className={fieldClass()}
+            value={value.batchStartsAt?.slice(0, 16) ?? ""}
+            onChange={(event) => onChange({ ...value, batchStartsAt: event.target.value })}
+          />
+        </Field>
+        <label className="inline-flex items-center gap-2 rounded-xl bg-[#f3ecdf] px-3 py-2 text-sm font-semibold text-[#173f33] sm:self-end">
+          <input
+            type="checkbox"
+            checked={value.enrollmentClosed}
+            onChange={(event) => onChange({ ...value, enrollmentClosed: event.target.checked })}
+          />
+          Close batch enrollment
+        </label>
+      </div>
       <Field label="Level">
         <select className={fieldClass()} value={value.level} onChange={(event) => onChange({ ...value, level: event.target.value as T["level"] })}>
           <option>FOUNDATION</option>
@@ -1273,6 +1304,13 @@ function ProgramEditorCard({
           <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{draft.title || "Untitled training"}</h3>
           <p className="mt-2 text-sm leading-7 text-[#607366]">
             {draft.level} | {draft.duration} | Capacity {draft.capacity}
+          </p>
+          <p className="mt-1 text-xs font-semibold text-[#8a7d61]">
+            {draft.enrollmentClosed
+              ? "Enrollment closed by admin"
+              : draft.batchStartsAt
+                ? `Batch starts ${formatDateTime(draft.batchStartsAt)}`
+                : "Batch start date not set"}
           </p>
         </div>
         <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
