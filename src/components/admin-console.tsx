@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, RefreshCw, Save, Trash2 } from "lucide-react";
+import { LogOut, Plus, RefreshCw, Save, Trash2 } from "lucide-react";
+import { ApplicationAdminPanel } from "@/components/application-admin-panel";
+import type { TrainingApplicationRecord } from "@/lib/training-application";
 
 type Program = {
   id: string;
@@ -56,9 +58,11 @@ const emptyEvent: Omit<EventItem, "id"> = {
 };
 
 export function AdminConsole({
+  initialApplications,
   initialPrograms,
   initialEvents,
 }: {
+  initialApplications: TrainingApplicationRecord[];
   initialPrograms: Program[];
   initialEvents: EventItem[];
 }) {
@@ -126,10 +130,18 @@ export function AdminConsole({
           <p className="text-sm font-black uppercase tracking-[0.24em] text-[#feb96d]">Institutional oversight</p>
           <h1 className="font-display mt-2 text-3xl font-semibold text-[#ffd485] sm:text-4xl lg:text-5xl">Admin Dashboard</h1>
         </div>
-        <button disabled={loading} onClick={load} className="inline-flex items-center gap-2 rounded border border-[#504533] bg-[#241e24] px-4 py-2 text-sm font-bold text-[#ecdfe8] disabled:cursor-not-allowed disabled:opacity-60">
-          <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-          Refresh
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button disabled={loading} onClick={load} className="inline-flex items-center gap-2 rounded border border-[#504533] bg-[#241e24] px-4 py-2 text-sm font-bold text-[#ecdfe8] disabled:cursor-not-allowed disabled:opacity-60">
+            <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+            Refresh
+          </button>
+          <form action="/api/admin/logout" method="post">
+            <button className="inline-flex items-center gap-2 rounded border border-[rgba(255,180,171,0.38)] px-4 py-2 text-sm font-bold text-[#ffb4ab]">
+              <LogOut className="h-4 w-4" aria-hidden="true" />
+              Logout
+            </button>
+          </form>
+        </div>
       </div>
       {notice ? <p className="mt-4 rounded bg-[#f4b315] px-4 py-3 text-sm font-semibold text-[#271900]">{notice}</p> : null}
 
@@ -154,6 +166,8 @@ export function AdminConsole({
           ))}
         </div>
       </section>
+
+      <ApplicationAdminPanel initialApplications={initialApplications} />
     </div>
   );
 }
