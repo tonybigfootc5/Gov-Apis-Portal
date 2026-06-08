@@ -12,6 +12,7 @@ import {
   Sprout,
 } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
+import { HomeAboutSection, HomeContactSection, HomeGallerySection } from "@/components/home-context-sections";
 import { HomeArticlesSection } from "@/components/home-articles-section";
 import { SectionHeading } from "@/components/section-heading";
 import { getEvents, getPrograms } from "@/lib/data";
@@ -36,7 +37,7 @@ export default async function Home() {
 
   return (
     <>
-      <section className="relative isolate overflow-hidden bg-[#101712]">
+      <section id="home" className="relative isolate overflow-hidden bg-[#101712] scroll-mt-32">
         <div className="absolute inset-0">
           <HeroBackgroundVideo />
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(235,180,40,0.12),transparent_22rem),linear-gradient(110deg,rgba(6,10,8,0.36)_10%,rgba(7,12,10,0.18)_42%,rgba(7,12,10,0.28)_100%)]" />
@@ -148,7 +149,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="border-y border-[rgba(27,59,43,0.1)] bg-[#f3ecdf] py-20">
+      <HomeAboutSection language={language} />
+
+      <section id="training" className="scroll-mt-32 border-y border-[rgba(27,59,43,0.1)] bg-[#f3ecdf] py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading eyebrow={t(language, "home.training.eyebrow")} title={t(language, "home.training.title")}>
             {t(language, "home.training.body")}
@@ -216,7 +219,7 @@ export default async function Home() {
 
       <HomeArticlesSection />
 
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section id="events" className="mx-auto max-w-7xl scroll-mt-32 px-4 py-20 sm:px-6 lg:px-8">
         <SectionHeading eyebrow={t(language, "home.events.eyebrow")} title={t(language, "home.events.title")}>
           {t(language, "home.events.body")}
         </SectionHeading>
@@ -256,6 +259,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <HomeGallerySection language={language} />
+      <HomeContactSection language={language} />
     </>
   );
 }
