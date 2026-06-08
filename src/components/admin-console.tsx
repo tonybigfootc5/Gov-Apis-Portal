@@ -862,39 +862,90 @@ function ArticlesWorkspace({
   onArticleSave: (id: string, next: ArticleItem) => void;
   onArticleDelete: (id: string) => void;
 }) {
+  const [selectedArticleId, setSelectedArticleId] = useState<string | "new">(articles[0]?.id ?? "new");
+  const selectedArticle =
+    selectedArticleId === "new"
+      ? null
+      : articles.find((article) => article.id === selectedArticleId) ?? articles[0] ?? null;
+
   return (
-    <div className="grid gap-6 xl:grid-cols-[330px_minmax(0,1fr)]">
+    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
       <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
-        <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">New article</p>
-        <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Add article</h3>
-        <p className="mt-2 text-sm leading-7 text-[#607366]">Create a new learning note, field article, or institutional update here.</p>
-        <div className="mt-4 rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
-          <ArticleFields value={draft} onChange={onDraftChange} />
+        <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Article actions</p>
+          <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Article index</h3>
+          <p className="mt-2 text-sm leading-7 text-[#607366]">Use the index to open one article at a time, or start a new one from the top.</p>
           <button
-            onClick={onDraftSave}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f]"
+            onClick={() => setSelectedArticleId("new")}
+            className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-black transition ${
+              selectedArticleId === "new"
+                ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
+                : "bg-[#f5c65e] text-[#173f33]"
+            }`}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
-            Add new article
+            New article
           </button>
+        </div>
+
+        <div className="mt-4 rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Existing articles</p>
+            <div className="rounded-full bg-[#f6efe4] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#607366]">
+              {articles.length}
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3">
+            {articles.map((article, index) => (
+              <button
+                key={article.id}
+                onClick={() => setSelectedArticleId(article.id)}
+                className={`rounded-[1.3rem] border px-4 py-4 text-left transition ${
+                  selectedArticleId === article.id
+                    ? "border-[rgba(23,63,51,0.18)] bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.14)]"
+                    : "border-[rgba(27,59,43,0.08)] bg-[#faf7ef] text-[#173f33] hover:bg-[#f3ecdf]"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${selectedArticleId === article.id ? "bg-[rgba(255,255,255,0.14)] text-[#f5c65e]" : "bg-[#fffdf8] text-[#9c6a18]"}`}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${article.published ? selectedArticleId === article.id ? "bg-[rgba(255,255,255,0.14)] text-[#e4f6ea]" : "bg-[#eef8f1] text-[#21533f]" : selectedArticleId === article.id ? "bg-[rgba(255,255,255,0.14)] text-[#fff2d7]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+                    {article.published ? "Published" : "Draft"}
+                  </span>
+                </div>
+                <p className="mt-3 line-clamp-2 text-sm font-black uppercase tracking-[0.12em]">{article.title}</p>
+                <p className={`mt-2 text-sm leading-6 ${selectedArticleId === article.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>{article.category || "Uncategorized"} | {article.authorName || "No author"}</p>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Article library</p>
-            <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Edit existing articles</h3>
+        {selectedArticle ? (
+          <ArticleEditorCard article={selectedArticle} onSave={onArticleSave} onDelete={onArticleDelete} />
+        ) : (
+          <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">New article</p>
+                <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create article</h3>
+                <p className="mt-2 text-sm leading-7 text-[#607366]">Draft a new article from here. Once saved, it will move into the article index on the left.</p>
+              </div>
+            </div>
+            <div className="mt-5">
+              <ArticleFields value={draft} onChange={onDraftChange} />
+            </div>
+            <button
+              onClick={onDraftSave}
+              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f]"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add new article
+            </button>
           </div>
-          <div className="rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#607366]">
-            {articles.length} articles
-          </div>
-        </div>
-        <div className="mt-4 grid gap-4">
-          {articles.map((article) => (
-            <ArticleRow key={article.id} article={article} onSave={onArticleSave} onDelete={onArticleDelete} />
-          ))}
-        </div>
+        )}
       </div>
     </div>
   );
@@ -1104,7 +1155,7 @@ function EventRow({
   );
 }
 
-function ArticleRow({
+function ArticleEditorCard({
   article,
   onSave,
   onDelete,
@@ -1119,7 +1170,7 @@ function ArticleRow({
     <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">{draft.category || "Article"}</p>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">Selected article</p>
           <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{draft.title || "Untitled article"}</h3>
           <p className="mt-2 text-sm leading-7 text-[#607366]">
             {draft.authorName || "No author"} | {draft.publishedAt ? formatDateTime(draft.publishedAt) : "No publish date"}
