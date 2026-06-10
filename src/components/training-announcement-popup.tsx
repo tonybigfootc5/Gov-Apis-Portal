@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, BellRing, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BellRing, MessageCircle, X } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 
 type AnnouncementProgram = {
@@ -53,6 +53,24 @@ export function TrainingAnnouncementPopup({
 
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
+      <a
+        href="https://wa.me/919395507766"
+        target="_blank"
+        rel="noreferrer"
+        className={`pointer-events-auto flex items-center gap-3 rounded-full border border-[rgba(24,128,56,0.18)] bg-[#f7fff9] px-4 py-3 text-left shadow-[0_18px_42px_rgba(15,82,33,0.16)] transition-all duration-700 ease-out ${
+          compactVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+        }`}
+        aria-label="Send a WhatsApp enquiry to 9395507766"
+      >
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#2ac769,#128c37)] text-white shadow-[0_10px_24px_rgba(18,140,55,0.22)]">
+          <MessageCircle className="h-4 w-4" aria-hidden="true" />
+        </span>
+        <span>
+          <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#128c37]">WhatsApp enquiry</span>
+          <span className="mt-0.5 block text-sm font-semibold text-[#17432a]">Chat with 9395507766</span>
+        </span>
+      </a>
+
       <aside
         className={`pointer-events-auto w-[calc(100vw-1.5rem)] rounded-[1.8rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-4 shadow-[0_24px_60px_rgba(64,44,8,0.16)] transition-all duration-700 ease-out sm:w-[22rem] xl:w-[24vw] xl:max-w-[24rem] ${
           expandedVisible ? "translate-y-0 opacity-100" : "translate-y-14 opacity-0"

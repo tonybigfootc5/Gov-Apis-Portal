@@ -56,7 +56,7 @@ export function SiteHeader({
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-full px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-[#516253] transition hover:bg-[#f3ecdf] hover:text-[#1b3b2b]"
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-2.5 text-xs font-black uppercase tracking-[0.14em] text-[#1b3b2b] shadow-[0_10px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 hover:border-[#b36b00]/40 hover:bg-[#f6efe4] hover:text-[#b36b00]"
             >
               {item.label}
             </Link>
@@ -93,11 +93,18 @@ export function SiteHeader({
               />
             </div>
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className="rounded-full px-3 py-2 text-sm font-semibold text-[#516253]">
+              <Link
+                key={item.href}
+                href={item.href}
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-4 py-3 text-sm font-bold uppercase tracking-[0.08em] text-[#1b3b2b] shadow-[0_10px_24px_rgba(64,44,8,0.06)] transition hover:border-[#b36b00]/40 hover:bg-[#f6efe4] hover:text-[#b36b00]"
+              >
                 {item.label}
               </Link>
             ))}
-            <Link href="/admin" className="rounded-full bg-[#1b3b2b] px-3 py-2 text-sm font-bold text-[#faf8f2]">
+            <Link
+              href="/admin"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#1b3b2b] px-4 py-3 text-sm font-bold uppercase tracking-[0.08em] text-[#faf8f2]"
+            >
               {adminLabel}
             </Link>
           </nav>
