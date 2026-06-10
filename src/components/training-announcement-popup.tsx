@@ -106,15 +106,17 @@ export function TrainingAnnouncementPopup({
         </Link>
       </aside>
 
-      <button
-        type="button"
-        onClick={showExpandedCard}
-        className={`pointer-events-auto flex items-center gap-3 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-3 text-left shadow-[0_18px_42px_rgba(64,44,8,0.14)] transition-all duration-700 ease-out ${
+      <div
+        className={`pointer-events-auto transition-all duration-700 ease-out ${
           compactVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
         }`}
-        aria-label="Open new batch announcement"
       >
-        <span className="float-gentle flex items-center gap-3">
+        <button
+          type="button"
+          onClick={showExpandedCard}
+          className="float-gentle flex items-center gap-3 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-3 text-left shadow-[0_18px_42px_rgba(64,44,8,0.14)]"
+          aria-label="Open new batch announcement"
+        >
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_10px_24px_rgba(64,44,8,0.16)]">
             <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
           </span>
@@ -124,8 +126,8 @@ export function TrainingAnnouncementPopup({
               {programs.length > 1 ? `${programs.length} active training batches` : programs[0]?.title}
             </span>
           </span>
-        </span>
-      </button>
+        </button>
+      </div>
     </div>
   );
 }
