@@ -228,6 +228,54 @@ export function AdminConsole({
       ready,
     };
   }, [initialApplications]);
+  const [activeSummaryCard, setActiveSummaryCard] = useState<"pending" | "ready" | "approved" | null>(null);
+  const applicationSummaryLists = useMemo(
+    () => ({
+      pending: initialApplications
+        .filter((application) => application.payload.approvalStatus !== "APPROVED")
+        .map((application) => ({
+          id: application.id,
+          name: application.payload.candidateName,
+          service: application.payload.serviceName,
+          status:
+            application.payload.approvalStatus === "REJECTED"
+              ? "Denied"
+              : application.payload.crossCheckStatus === "VERIFIED" && application.payload.paymentStatus === "PAID"
+                ? "Ready"
+                : "In review",
+          tone:
+            application.payload.approvalStatus === "REJECTED"
+              ? ("danger" as const)
+              : application.payload.crossCheckStatus === "VERIFIED" && application.payload.paymentStatus === "PAID"
+                ? ("success" as const)
+                : ("pending" as const),
+        })),
+      ready: initialApplications
+        .filter(
+          (application) =>
+            application.payload.crossCheckStatus === "VERIFIED" &&
+            application.payload.paymentStatus === "PAID" &&
+            application.payload.approvalStatus === "PENDING",
+        )
+        .map((application) => ({
+          id: application.id,
+          name: application.payload.candidateName,
+          service: application.payload.serviceName,
+          status: "Ready",
+          tone: "success" as const,
+        })),
+      approved: initialApplications
+        .filter((application) => application.payload.approvalStatus === "APPROVED")
+        .map((application) => ({
+          id: application.id,
+          name: application.payload.candidateName,
+          service: application.payload.serviceName,
+          status: "Approved",
+          tone: "success" as const,
+        })),
+    }),
+    [initialApplications],
+  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -641,7 +689,7 @@ export function AdminConsole({
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setLogoutDialogOpen(true)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,249,236,0.18)] bg-[rgba(255,255,255,0.08)] text-[#fff9ec]"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,249,236,0.18)] bg-[#fffdf8] text-[#173f33] shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
                   aria-label="Open logout confirmation"
                 >
                   <Power className="h-4 w-4" aria-hidden="true" />
@@ -704,7 +752,7 @@ export function AdminConsole({
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setLogoutDialogOpen(true)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,249,236,0.18)] bg-[rgba(255,255,255,0.08)] text-[#fff9ec]"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,249,236,0.18)] bg-[#fffdf8] text-[#173f33] shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
                   aria-label="Open logout confirmation"
                 >
                   <Power className="h-4 w-4" aria-hidden="true" />
@@ -715,7 +763,7 @@ export function AdminConsole({
               <div className="flex justify-center">
                 <button
                   onClick={() => setLogoutDialogOpen(true)}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(245,198,94,0.14)] text-[#f5c65e]"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#fffdf8] text-[#173f33] shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
                   aria-label="Open logout confirmation"
                 >
                   <Power className="h-4 w-4" aria-hidden="true" />
@@ -758,18 +806,27 @@ export function AdminConsole({
                 value={applicationSummary.pendingReview}
                 detail="Applicants in review flow"
                 tone="warm"
+                expanded={activeSummaryCard === "pending"}
+                onToggle={() => setActiveSummaryCard((current) => (current === "pending" ? null : "pending"))}
+                items={applicationSummaryLists.pending}
               />
               <TopStatusChip
                 label="Ready to approve"
                 value={applicationSummary.ready}
                 detail="Verified and ready"
                 tone="forest"
+                expanded={activeSummaryCard === "ready"}
+                onToggle={() => setActiveSummaryCard((current) => (current === "ready" ? null : "ready"))}
+                items={applicationSummaryLists.ready}
               />
               <TopStatusChip
                 label="Approved learners"
                 value={applicationSummary.approved}
                 detail="Cleared to join"
                 tone="gold"
+                expanded={activeSummaryCard === "approved"}
+                onToggle={() => setActiveSummaryCard((current) => (current === "approved" ? null : "approved"))}
+                items={applicationSummaryLists.approved}
               />
             </div>
 
@@ -869,12 +926,8 @@ export function AdminConsole({
 
       {view === "programs" ? (
         <DashboardSection
-          section="programs"
           eyebrow="Training manager"
           title="Manage training services"
-          schedules={sectionSchedules.programs}
-          onOpenHistory={() => setActiveHistorySection("programs")}
-          onSchedule={(publishAt) => saveSchedule("programs", "Training manager", publishAt)}
           className="mt-8"
         >
           <ProgramsWorkspace
@@ -882,6 +935,9 @@ export function AdminConsole({
             disabled={loading || !databaseConfigured}
             programs={programs}
             draft={programDraft}
+            schedules={sectionSchedules.programs}
+            onOpenHistory={() => setActiveHistorySection("programs")}
+            onSchedule={(label, publishAt) => saveSchedule("programs", label, publishAt)}
             onDraftChange={setProgramDraft}
             onDraftSave={createProgram}
             onProgramSave={saveProgram}
@@ -892,78 +948,50 @@ export function AdminConsole({
 
       {view === "events" ? (
         <DashboardSection
-          section="events"
           eyebrow="Event planner"
           title="Schedule orientations and field sessions"
-          schedules={sectionSchedules.events}
-          onOpenHistory={() => setActiveHistorySection("events")}
-          onSchedule={(publishAt) => saveSchedule("events", "Event planner", publishAt)}
           className="mt-8"
         >
-          <div className="grid gap-6 xl:grid-cols-[370px_minmax(0,1fr)]">
-            <TaskLane
-              eyebrow="New event"
-              title="Create event listing"
-              description="This section is only for adding new event or orientation records."
-            >
-              <EditorPanel
-                disabled={loading || !databaseConfigured}
-                title="New event"
-                description="Build a publish-ready event with timing, location, and public summary."
-                actionLabel="Create event"
-                onSave={createEvent}
-              >
-                <EventFields value={eventDraft} onChange={setEventDraft} />
-              </EditorPanel>
-            </TaskLane>
-            <TaskLane
-              eyebrow="Event actions"
-              title="Edit or remove events"
-              description="All event corrections, publishing changes, and deletions stay together here."
-            >
-              <div className="grid gap-4">
-                {events.map((event) => (
-                  <EventRow
-                    key={`${event.id}-${event.updatedAt ?? ""}`}
-                    disabled={loading || !databaseConfigured}
-                    event={event}
-                    onSave={saveEvent}
-                    onDelete={() => removeEvent(event.id)}
-                  />
-                ))}
-              </div>
-            </TaskLane>
-          </div>
+          <EventsWorkspace
+            disabled={loading || !databaseConfigured}
+            events={events}
+            draft={eventDraft}
+            schedules={sectionSchedules.events}
+            onOpenHistory={() => setActiveHistorySection("events")}
+            onSchedule={(label, publishAt) => saveSchedule("events", label, publishAt)}
+            onDraftChange={setEventDraft}
+            onDraftSave={createEvent}
+            onEventSave={saveEvent}
+            onEventDelete={removeEvent}
+          />
         </DashboardSection>
       ) : null}
 
       {view === "applications" ? (
         <DashboardSection
-          section="applications"
           eyebrow="Admissions desk"
-          title="Review and approve learners"
-          schedules={sectionSchedules.applications}
-          onOpenHistory={() => setActiveHistorySection("applications")}
-          onSchedule={(publishAt) => saveSchedule("applications", "Admissions desk", publishAt)}
-          className="mt-8"
+          title=""
+          className="mt-8 bg-[linear-gradient(180deg,rgba(244,236,220,0.98),rgba(232,241,234,0.96))]"
         >
-          <ApplicationAdminPanel databaseConfigured={databaseConfigured} initialApplications={initialApplications} />
+          <ApplicationAdminPanel
+            databaseConfigured={databaseConfigured}
+            initialApplications={initialApplications}
+          />
         </DashboardSection>
       ) : null}
 
       {view === "articles" ? (
         <DashboardSection
-          section="articles"
           eyebrow="Article manager"
           title="Manage Articles"
-          schedules={sectionSchedules.articles}
-          onOpenHistory={() => setActiveHistorySection("articles")}
-          onSchedule={(publishAt) => saveSchedule("articles", "Article manager", publishAt)}
           className="mt-8"
         >
           <ArticlesWorkspace
             articles={articles}
             draft={articleDraft}
+            schedules={sectionSchedules.articles}
+            onOpenHistory={() => setActiveHistorySection("articles")}
+            onSchedule={(label, publishAt) => saveSchedule("articles", label, publishAt)}
             onDraftChange={setArticleDraft}
             onDraftSave={saveArticleDraft}
             onArticleSave={updateArticle}
@@ -1021,127 +1049,195 @@ export function AdminConsole({
 }
 
 function DashboardSection({
-  section,
   eyebrow,
   title,
-  schedules,
-  onOpenHistory,
-  onSchedule,
   className = "",
   children,
 }: {
-  section: HistorySection;
   eyebrow: string;
   title: string;
-  schedules: PublishSchedule[];
-  onOpenHistory: () => void;
-  onSchedule: (publishAt: string) => void;
   className?: string;
   children: ReactNode;
 }) {
-  const [scheduleAt, setScheduleAt] = useState("");
-
   return (
     <section className={`rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-6 shadow-[0_24px_60px_rgba(64,44,8,0.08)] ${className}`}>
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_27rem] xl:items-start">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.28em] text-[#9c6a18]">{eyebrow}</p>
-          <h2 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">{title}</h2>
-        </div>
-        <div className="min-w-[18rem] rounded-[1.35rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-3 shadow-[0_10px_24px_rgba(64,44,8,0.06)] xl:ml-auto xl:w-full">
-          <div className="flex items-center justify-between gap-3">
-            <button
-              onClick={onOpenHistory}
-              className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
-            >
-              <History className="h-4 w-4" aria-hidden="true" />
-              History
-            </button>
-            <span className="rounded-full bg-[#eef8f1] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#21533f]">
-              {schedules.filter((schedule) => !schedule.published).length} scheduled
-            </span>
-          </div>
-          <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-            <input
-              type="datetime-local"
-              className={fieldClass()}
-              value={scheduleAt}
-              onChange={(event) => setScheduleAt(event.target.value)}
-            />
-            <button
-              onClick={() => {
-                onSchedule(scheduleAt);
-                setScheduleAt("");
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-[#fff9ec]"
-            >
-              <Clock3 className="h-4 w-4" aria-hidden="true" />
-              Schedule
-            </button>
-          </div>
-          {schedules.length ? (
-            <p className="mt-3 text-xs leading-6 text-[#607366]">
-              Next timer for {section}: {formatDateTime(schedules.filter((schedule) => !schedule.published)[0]?.publishAt ?? schedules[0]?.publishAt)}
-            </p>
-          ) : (
-            <p className="mt-3 text-xs leading-6 text-[#607366]">No timer is set for this section yet.</p>
-          )}
-        </div>
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.28em] text-[#9c6a18]">{eyebrow}</p>
+        {title ? <h2 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">{title}</h2> : null}
       </div>
-      <div className="mt-6">{children}</div>
+      <div className={title ? "mt-6" : "mt-3"}>{children}</div>
     </section>
   );
 }
 
-function EditorPanel({
-  title,
-  description,
-  children,
-  onSave,
-  actionLabel,
-  disabled,
+function ScheduleActionRow({
+  section,
+  label,
+  schedules,
+  onSchedule,
 }: {
-  title: string;
-  description: string;
-  children: ReactNode;
-  onSave: () => void;
-  actionLabel: string;
-  disabled: boolean;
+  section: HistorySection;
+  label: string;
+  schedules: PublishSchedule[];
+  onSchedule: (label: string, publishAt: string) => void;
 }) {
+  const [scheduleAt, setScheduleAt] = useState("");
+  const nextSchedule = schedules.find((schedule) => !schedule.published) ?? schedules[0];
+
   return (
-    <div className="h-fit rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
-      <h3 className="font-display text-2xl font-semibold text-[#173f33]">{title}</h3>
-      <p className="mt-2 text-sm leading-7 text-[#607366]">{description}</p>
-      <div className="mt-5 grid gap-3">{children}</div>
-      <button
-        disabled={disabled}
-        onClick={onSave}
-        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        <Plus className="h-4 w-4" aria-hidden="true" />
-        {actionLabel}
-      </button>
+    <div className="min-w-0 rounded-[1.35rem] border border-[rgba(27,59,43,0.08)] bg-[#f8f4ea] p-3">
+      <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto]">
+        <input
+          type="datetime-local"
+          className={fieldClass()}
+          value={scheduleAt}
+          onChange={(event) => setScheduleAt(event.target.value)}
+        />
+        <button
+          type="button"
+          onClick={() => {
+            onSchedule(label, scheduleAt);
+            setScheduleAt("");
+          }}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-[#fff9ec]"
+        >
+          <Clock3 className="h-4 w-4" aria-hidden="true" />
+          Schedule
+        </button>
+      </div>
+      <p className="mt-2 text-xs leading-6 text-[#607366]">
+        {nextSchedule
+          ? `Next scheduled publish: ${formatDateTime(nextSchedule.publishAt)}`
+          : `No schedule is set for ${section} yet.`}
+      </p>
     </div>
   );
 }
 
-function TaskLane({
-  eyebrow,
-  title,
-  description,
-  children,
+function EventsWorkspace({
+  disabled,
+  events,
+  draft,
+  schedules,
+  onOpenHistory,
+  onSchedule,
+  onDraftChange,
+  onDraftSave,
+  onEventSave,
+  onEventDelete,
 }: {
-  eyebrow: string;
-  title: string;
-  description: string;
-  children: ReactNode;
+  disabled: boolean;
+  events: EventItem[];
+  draft: Omit<EventItem, "id">;
+  schedules: PublishSchedule[];
+  onOpenHistory: () => void;
+  onSchedule: (label: string, publishAt: string) => void;
+  onDraftChange: (next: Omit<EventItem, "id">) => void;
+  onDraftSave: () => void;
+  onEventSave: (body: EventItem) => void;
+  onEventDelete: (id: string) => void;
 }) {
+  const [selectedEventId, setSelectedEventId] = useState<string | "new">(events[0]?.id ?? "new");
+  const selectedEvent =
+    selectedEventId === "new" ? null : events.find((event) => event.id === selectedEventId) ?? events[0] ?? null;
+
   return (
-    <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.44)] p-4">
-      <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">{eyebrow}</p>
-      <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{title}</h3>
-      <p className="mt-2 text-sm leading-7 text-[#607366]">{description}</p>
-      <div className="mt-4">{children}</div>
+    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
+        <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Existing events</p>
+            <div className="rounded-full bg-[#f6efe4] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#607366]">
+              {events.length}
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3">
+            {events.map((event, index) => (
+              <button
+                key={event.id}
+                onClick={() => setSelectedEventId(event.id)}
+                className={`rounded-[1.3rem] border px-4 py-4 text-left transition ${
+                  selectedEventId === event.id
+                    ? "border-[rgba(23,63,51,0.18)] bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.14)]"
+                    : "border-[rgba(27,59,43,0.08)] bg-[#faf7ef] text-[#173f33] hover:bg-[#f3ecdf]"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${selectedEventId === event.id ? "bg-[rgba(255,255,255,0.14)] text-[#f5c65e]" : "bg-[#fffdf8] text-[#9c6a18]"}`}>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${event.published ? selectedEventId === event.id ? "bg-[rgba(255,255,255,0.14)] text-[#e4f6ea]" : "bg-[#eef8f1] text-[#21533f]" : selectedEventId === event.id ? "bg-[rgba(255,255,255,0.14)] text-[#fff2d7]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+                    {event.published ? "Published" : "Draft"}
+                  </span>
+                </div>
+                <p className="mt-3 line-clamp-2 text-sm font-black uppercase tracking-[0.12em]">{event.title}</p>
+                <p className={`mt-2 text-sm leading-6 ${selectedEventId === event.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>
+                  {event.status} | {event.location}
+                </p>
+                <p className={`mt-1 text-xs font-semibold ${selectedEventId === event.id ? "text-[#f4e7bd]" : "text-[#8a7d61]"}`}>
+                  {event.startsAt ? `Starts ${formatDateTime(event.startsAt)}` : "Start date not set"}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        <div className="flex flex-col items-end gap-3">
+          <button
+            type="button"
+            onClick={onOpenHistory}
+            className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
+          >
+            <History className="h-4 w-4" aria-hidden="true" />
+            History
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedEventId("new")}
+            className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black transition ${
+              selectedEventId === "new"
+                ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
+                : "bg-[#f5c65e] text-[#173f33]"
+            }`}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New event
+          </button>
+        </div>
+
+        <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
+          {selectedEvent ? (
+            <EventRow
+              key={`${selectedEvent.id}-${selectedEvent.updatedAt ?? ""}`}
+              disabled={disabled}
+              event={selectedEvent}
+              schedules={schedules}
+              onSchedule={onSchedule}
+              onSave={onEventSave}
+              onDelete={() => onEventDelete(selectedEvent.id)}
+            />
+          ) : (
+            <RecordCard
+              eyebrow="New event"
+              title="Create event listing"
+              metadata="Build a publish-ready event with timing, location, and public summary."
+              disabled={disabled}
+              onSave={onDraftSave}
+              onDelete={() => onDraftChange(emptyEvent)}
+              saveLabel="Create event"
+              deleteLabel="Delete draft"
+              schedules={schedules}
+              section="events"
+              scheduleLabel={draft.title || "New event draft"}
+              onSchedule={onSchedule}
+            >
+              <EventFields value={draft} onChange={onDraftChange} />
+            </RecordCard>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -1149,6 +1245,9 @@ function TaskLane({
 function ArticlesWorkspace({
   articles,
   draft,
+  schedules,
+  onOpenHistory,
+  onSchedule,
   onDraftChange,
   onDraftSave,
   onArticleSave,
@@ -1156,6 +1255,9 @@ function ArticlesWorkspace({
 }: {
   articles: ArticleItem[];
   draft: Omit<ArticleItem, "id">;
+  schedules: PublishSchedule[];
+  onOpenHistory: () => void;
+  onSchedule: (label: string, publishAt: string) => void;
   onDraftChange: (next: Omit<ArticleItem, "id">) => void;
   onDraftSave: () => void;
   onArticleSave: (id: string, next: ArticleItem) => void;
@@ -1171,23 +1273,6 @@ function ArticlesWorkspace({
     <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
       <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
         <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Article actions</p>
-          <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Article index</h3>
-          <p className="mt-2 text-sm leading-7 text-[#607366]">Use the index to open one article at a time, or start a new one from the top.</p>
-          <button
-            onClick={() => setSelectedArticleId("new")}
-            className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-black transition ${
-              selectedArticleId === "new"
-                ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
-                : "bg-[#f5c65e] text-[#173f33]"
-            }`}
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            New article
-          </button>
-        </div>
-
-        <div className="mt-4 rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
           <div className="flex items-center justify-between gap-3">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Existing articles</p>
             <div className="rounded-full bg-[#f6efe4] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#607366]">
@@ -1221,30 +1306,77 @@ function ArticlesWorkspace({
         </div>
       </div>
 
-      <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
-        {selectedArticle ? (
-          <ArticleEditorCard key={selectedArticle.id} article={selectedArticle} onSave={onArticleSave} onDelete={onArticleDelete} />
-        ) : (
-          <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">New article</p>
-                <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create article</h3>
-                <p className="mt-2 text-sm leading-7 text-[#607366]">Draft a new article from here. Once saved, it will move into the article index on the left.</p>
+      <div className="grid gap-4">
+        <div className="flex flex-col items-end gap-3">
+          <button
+            type="button"
+            onClick={onOpenHistory}
+            className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
+          >
+            <History className="h-4 w-4" aria-hidden="true" />
+            History
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedArticleId("new")}
+            className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black transition ${
+              selectedArticleId === "new"
+                ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
+                : "bg-[#f5c65e] text-[#173f33]"
+            }`}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New article
+          </button>
+        </div>
+
+        <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
+          {selectedArticle ? (
+            <ArticleEditorCard
+              key={selectedArticle.id}
+              article={selectedArticle}
+              schedules={schedules}
+              onSchedule={onSchedule}
+              onOpenHistory={onOpenHistory}
+              onSave={onArticleSave}
+              onDelete={onArticleDelete}
+            />
+          ) : (
+            <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
+              <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">New article</p>
+                  <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create article</h3>
+                  <p className="mt-2 text-sm leading-7 text-[#607366]">Draft a new article from here. Once saved, it will move into the article index on the left.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onDraftChange(emptyArticle)}
+                  className="inline-flex items-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#92462d]"
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  Delete draft
+                </button>
               </div>
-            </div>
-            <div className="mt-5">
               <ArticleFields value={draft} onChange={onDraftChange} />
-            </div>
-            <button
-              onClick={onDraftSave}
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f]"
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              Add new article
-            </button>
-          </div>
-        )}
+              <div className="mt-5 grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-start">
+                <button
+                  onClick={onDraftSave}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] transition hover:bg-[#204d3f]"
+                >
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                  Add new article
+                </button>
+                <ScheduleActionRow
+                  section="articles"
+                  label={draft.title || "New article draft"}
+                  schedules={schedules}
+                  onSchedule={onSchedule}
+                />
+              </div>
+            </article>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1255,6 +1387,9 @@ function ProgramsWorkspace({
   disabled,
   programs,
   draft,
+  schedules,
+  onOpenHistory,
+  onSchedule,
   onDraftChange,
   onDraftSave,
   onProgramSave,
@@ -1264,6 +1399,9 @@ function ProgramsWorkspace({
   disabled: boolean;
   programs: Program[];
   draft: Omit<Program, "id">;
+  schedules: PublishSchedule[];
+  onOpenHistory: () => void;
+  onSchedule: (label: string, publishAt: string) => void;
   onDraftChange: (next: Omit<Program, "id">) => void;
   onDraftSave: () => void;
   onProgramSave: (program: Program) => void;
@@ -1275,27 +1413,15 @@ function ProgramsWorkspace({
       ? null
       : programs.find((program) => program.id === selectedProgramId) ?? programs[0] ?? null;
 
+  function discardNewTrainingDraft() {
+    onDraftChange(emptyProgram);
+    setSelectedProgramId(programs[0]?.id ?? "new");
+  }
+
   return (
     <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
       <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
         <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
-          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Training actions</p>
-          <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Training index</h3>
-          <p className="mt-2 text-sm leading-7 text-[#607366]">Open one training at a time from the list, or start a new training from the top.</p>
-          <button
-            onClick={() => setSelectedProgramId("new")}
-            className={`mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-black transition ${
-              selectedProgramId === "new"
-                ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
-                : "bg-[#f5c65e] text-[#173f33]"
-            }`}
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            New training
-          </button>
-        </div>
-
-        <div className="mt-4 rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
           <div className="flex items-center justify-between gap-3">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Existing trainings</p>
             <div className="rounded-full bg-[#f6efe4] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#607366]">
@@ -1333,7 +1459,7 @@ function ProgramsWorkspace({
                       : "Start date not set"}
                 </p>
                 <p className={`mt-1 text-[11px] font-semibold ${selectedProgramId === program.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>
-                  Popup {program.popupEnabled ? "enabled" : "disabled"}
+                  Banner {program.popupEnabled ? "enabled" : "disabled"}
                 </p>
               </button>
             ))}
@@ -1341,9 +1467,40 @@ function ProgramsWorkspace({
         </div>
       </div>
 
+      <div className="grid gap-4">
+        <div className="flex flex-col items-end gap-3">
+          <button
+            type="button"
+            onClick={onOpenHistory}
+            className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
+          >
+            <History className="h-4 w-4" aria-hidden="true" />
+            History
+          </button>
+          <button
+            onClick={() => setSelectedProgramId("new")}
+            className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black transition ${
+              selectedProgramId === "new"
+                ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
+                : "bg-[#f5c65e] text-[#173f33]"
+            }`}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New training
+          </button>
+        </div>
+
       <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
         {selectedProgram ? (
-          <ProgramEditorCard key={selectedProgram.id} disabled={disabled} program={selectedProgram} onSave={onProgramSave} onDelete={onProgramDelete} />
+          <ProgramEditorCard
+            key={selectedProgram.id}
+            disabled={disabled}
+            program={selectedProgram}
+            schedules={schedules}
+            onSchedule={onSchedule}
+            onSave={onProgramSave}
+            onDelete={onProgramDelete}
+          />
         ) : (
           <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1352,25 +1509,44 @@ function ProgramsWorkspace({
                 <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create training service</h3>
                 <p className="mt-2 text-sm leading-7 text-[#607366]">Write the training exactly as the applicant should understand it.</p>
               </div>
-              {!databaseConfigured ? (
-                <span className="rounded-full bg-[#fff5ea] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#8c4d1e]">
-                  Read only
-                </span>
-              ) : null}
+              <div className="flex items-center gap-2">
+                {!databaseConfigured ? (
+                  <span className="rounded-full bg-[#fff5ea] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#8c4d1e]">
+                    Read only
+                  </span>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={discardNewTrainingDraft}
+                  className="inline-flex items-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#92462d]"
+                >
+                  <Trash2 className="h-4 w-4" aria-hidden="true" />
+                  Delete draft
+                </button>
+              </div>
             </div>
             <div className="mt-5">
               <ProgramFields value={draft} onChange={onDraftChange} />
             </div>
-            <button
-              disabled={disabled}
-              onClick={onDraftSave}
-              className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              Add new training
-            </button>
+            <div className="mt-5 grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-start">
+              <button
+                disabled={disabled}
+                onClick={onDraftSave}
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                Add new training
+              </button>
+              <ScheduleActionRow
+                section="programs"
+                label={draft.title || "New training draft"}
+                schedules={schedules}
+                onSchedule={onSchedule}
+              />
+            </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
@@ -1583,14 +1759,6 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
             />
             Close batch enrollment
           </label>
-          <label className="inline-flex items-center gap-2 rounded-xl bg-[#f3ecdf] px-3 py-2 text-sm font-semibold text-[#173f33]">
-            <input
-              type="checkbox"
-              checked={value.popupEnabled}
-              onChange={(event) => onChange({ ...value, popupEnabled: event.target.checked })}
-            />
-            Enable homepage popup
-          </label>
         </div>
       </div>
       <Field label="Level">
@@ -1603,10 +1771,40 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
       <Field label="Fee">
         <input className={fieldClass()} value={value.fee ?? ""} onChange={(event) => onChange({ ...value, fee: event.target.value })} />
       </Field>
-      <label className="inline-flex items-center gap-2 rounded-xl bg-[#f3ecdf] px-3 py-2 text-sm font-semibold text-[#173f33]">
-        <input type="checkbox" checked={value.published} onChange={(event) => onChange({ ...value, published: event.target.checked })} />
-        Published on website
-      </label>
+      <div className="grid gap-3">
+        <label className="inline-flex items-center gap-2 rounded-xl bg-[#f3ecdf] px-3 py-2 text-sm font-semibold text-[#173f33]">
+          <input type="checkbox" checked={value.published} onChange={(event) => onChange({ ...value, published: event.target.checked })} />
+          Published on website
+        </label>
+        <div className="rounded-[1.2rem] border border-[rgba(27,59,43,0.1)] bg-[#f8f4ea] px-4 py-3">
+          <button
+            type="button"
+            onClick={() => onChange({ ...value, popupEnabled: !value.popupEnabled })}
+            className="flex w-full items-center justify-between gap-4 text-left"
+            aria-pressed={value.popupEnabled}
+          >
+            <span>
+              <span className="block text-sm font-semibold text-[#173f33]">Show in upcoming training banner</span>
+              <span className="mt-1 block text-xs font-semibold text-[#718477]">
+                {value.popupEnabled
+                  ? "Banner is on. This training can appear in the homepage batch update popup."
+                  : "Banner is off. This training will stay hidden from the homepage batch update popup."}
+              </span>
+            </span>
+            <span
+              className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full p-1 transition ${
+                value.popupEnabled ? "bg-[#34c759]" : "bg-[#d3d9d4]"
+              }`}
+            >
+              <span
+                className={`h-6 w-6 rounded-full bg-white shadow-[0_4px_10px_rgba(0,0,0,0.16)] transition ${
+                  value.popupEnabled ? "translate-x-6" : "translate-x-0"
+                }`}
+              />
+            </span>
+          </button>
+        </div>
+      </div>
     </>
   );
 }
@@ -1654,11 +1852,15 @@ function EventFields<T extends Omit<EventItem, "id">>({ value, onChange }: { val
 
 function ProgramEditorCard({
   program,
+  schedules,
+  onSchedule,
   onSave,
   onDelete,
   disabled,
 }: {
   program: Program;
+  schedules: PublishSchedule[];
+  onSchedule: (label: string, publishAt: string) => void;
   onSave: (program: Program) => void;
   onDelete: (id: string) => void;
   disabled: boolean;
@@ -1682,17 +1884,27 @@ function ProgramEditorCard({
                 : "Batch start date not set"}
           </p>
           <p className="mt-1 text-xs font-semibold text-[#8a7d61]">
-            Homepage popup {draft.popupEnabled ? "enabled" : "disabled"}
+            Upcoming banner {draft.popupEnabled ? "enabled" : "disabled"}
           </p>
         </div>
-        <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
-          {draft.published ? "Published" : "Draft"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+            {draft.published ? "Published" : "Draft"}
+          </span>
+          <button
+            disabled={disabled}
+            onClick={() => onDelete(program.id)}
+            className="inline-flex items-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#92462d] transition hover:bg-[#fbeee7] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+            Delete
+          </button>
+        </div>
       </div>
 
       <ProgramFields value={draft} onChange={setDraft} />
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-5 grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-start">
         <button
           disabled={disabled}
           onClick={() => onSave(draft)}
@@ -1701,14 +1913,12 @@ function ProgramEditorCard({
           <Save className="h-4 w-4" aria-hidden="true" />
           Save changes
         </button>
-        <button
-          disabled={disabled}
-          onClick={() => onDelete(program.id)}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-4 py-2.5 text-sm font-black text-[#92462d] transition hover:bg-[#fbeee7] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <Trash2 className="h-4 w-4" aria-hidden="true" />
-          Delete
-        </button>
+        <ScheduleActionRow
+          section="programs"
+          label={draft.title || "Untitled training"}
+          schedules={schedules}
+          onSchedule={onSchedule}
+        />
       </div>
     </article>
   );
@@ -1716,11 +1926,15 @@ function ProgramEditorCard({
 
 function EventRow({
   event,
+  schedules,
+  onSchedule,
   onSave,
   onDelete,
   disabled,
 }: {
   event: EventItem;
+  schedules: PublishSchedule[];
+  onSchedule: (label: string, publishAt: string) => void;
   onSave: (body: EventItem) => void;
   onDelete: () => void;
   disabled: boolean;
@@ -1735,6 +1949,10 @@ function EventRow({
       disabled={disabled}
       onSave={() => onSave(draft)}
       onDelete={onDelete}
+      schedules={schedules}
+      section="events"
+      scheduleLabel={draft.title || "Untitled event"}
+      onSchedule={onSchedule}
     >
       <EventFields value={draft} onChange={setDraft} />
     </RecordCard>
@@ -1743,10 +1961,16 @@ function EventRow({
 
 function ArticleEditorCard({
   article,
+  schedules,
+  onSchedule,
+  onOpenHistory,
   onSave,
   onDelete,
 }: {
   article: ArticleItem;
+  schedules: PublishSchedule[];
+  onSchedule: (label: string, publishAt: string) => void;
+  onOpenHistory: () => void;
   onSave: (id: string, next: ArticleItem) => void;
   onDelete: (id: string) => void;
 }) {
@@ -1762,14 +1986,31 @@ function ArticleEditorCard({
             {draft.authorName || "No author"} | {draft.publishedAt ? formatDateTime(draft.publishedAt) : "No publish date"}
           </p>
         </div>
-        <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
-          {draft.published ? "Published" : "Draft"}
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onOpenHistory}
+            className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
+          >
+            <History className="h-4 w-4" aria-hidden="true" />
+            History
+          </button>
+          <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+            {draft.published ? "Published" : "Draft"}
+          </span>
+          <button
+            onClick={() => onDelete(article.id)}
+            className="inline-flex items-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#92462d] transition hover:bg-[#fbeee7]"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden="true" />
+            Delete
+          </button>
+        </div>
       </div>
 
       <ArticleFields value={draft} onChange={setDraft} />
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-5 grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-start">
         <button
           onClick={() => onSave(article.id, draft)}
           className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] transition hover:bg-[#204d3f]"
@@ -1777,13 +2018,12 @@ function ArticleEditorCard({
           <Save className="h-4 w-4" aria-hidden="true" />
           Save changes
         </button>
-        <button
-          onClick={() => onDelete(article.id)}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-4 py-2.5 text-sm font-black text-[#92462d] transition hover:bg-[#fbeee7]"
-        >
-          <Trash2 className="h-4 w-4" aria-hidden="true" />
-          Delete
-        </button>
+        <ScheduleActionRow
+          section="articles"
+          label={draft.title || "Untitled article"}
+          schedules={schedules}
+          onSchedule={onSchedule}
+        />
       </div>
     </article>
   );
@@ -1797,6 +2037,12 @@ function RecordCard({
   onSave,
   onDelete,
   disabled,
+  schedules,
+  section,
+  scheduleLabel,
+  onSchedule,
+  saveLabel = "Save changes",
+  deleteLabel = "Delete",
 }: {
   eyebrow: string;
   title: string;
@@ -1805,6 +2051,12 @@ function RecordCard({
   onSave: () => void;
   onDelete: () => void;
   disabled: boolean;
+  schedules: PublishSchedule[];
+  section: HistorySection;
+  scheduleLabel: string;
+  onSchedule: (label: string, publishAt: string) => void;
+  saveLabel?: string;
+  deleteLabel?: string;
 }) {
   return (
     <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
@@ -1814,27 +2066,28 @@ function RecordCard({
           <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{title}</h3>
           <p className="mt-2 text-sm leading-7 text-[#607366]">{metadata}</p>
         </div>
+        <button
+          disabled={disabled}
+          onClick={onDelete}
+          className="inline-flex items-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#92462d] transition hover:bg-[#fbeee7] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+          {deleteLabel}
+        </button>
       </div>
 
       <div className="grid gap-3">{children}</div>
 
-      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+      <div className="mt-5 grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-start">
         <button
           disabled={disabled}
           onClick={onSave}
           className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save className="h-4 w-4" aria-hidden="true" />
-          Save changes
+          {saveLabel}
         </button>
-        <button
-          disabled={disabled}
-          onClick={onDelete}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-4 py-2.5 text-sm font-black text-[#92462d] transition hover:bg-[#fbeee7] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <Trash2 className="h-4 w-4" aria-hidden="true" />
-          Delete
-        </button>
+        <ScheduleActionRow section={section} label={scheduleLabel} schedules={schedules} onSchedule={onSchedule} />
       </div>
     </article>
   );
@@ -1926,25 +2179,75 @@ function TopStatusChip({
   value,
   detail,
   tone,
+  expanded,
+  onToggle,
+  items,
 }: {
   label: string;
   value: number;
   detail: string;
   tone: "warm" | "forest" | "gold";
+  expanded: boolean;
+  onToggle: () => void;
+  items: Array<{
+    id: string;
+    name: string;
+    service: string;
+    status: string;
+    tone: "success" | "pending" | "danger";
+  }>;
 }) {
   const toneClass = {
     warm: "bg-[#fff5ea] border-[rgba(153,70,45,0.12)] text-[#92462d]",
     forest: "bg-[#eef8f1] border-[rgba(33,83,63,0.12)] text-[#21533f]",
     gold: "bg-[#fff8df] border-[rgba(122,90,0,0.12)] text-[#7a5a00]",
   }[tone];
+  const statusToneClass = {
+    success: "bg-[#eef8f1] text-[#21533f]",
+    pending: "bg-[#fff5ea] text-[#8c4d1e]",
+    danger: "bg-[#fff0ea] text-[#9b3f2b]",
+  } as const;
 
   return (
-    <div className={`min-w-[14rem] rounded-[1.35rem] border px-5 py-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)] ${toneClass}`}>
-      <p className="text-[11px] font-black uppercase tracking-[0.18em]">{label}</p>
-      <div className="mt-2.5 flex items-end gap-3">
-        <p className="font-display text-4xl font-semibold leading-none">{value}</p>
-        <p className="pb-1 text-sm font-semibold opacity-80">{detail}</p>
-      </div>
+    <div className={`min-w-[14rem] rounded-[1.35rem] border shadow-[0_12px_28px_rgba(64,44,8,0.06)] ${toneClass}`}>
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full px-5 py-4 text-left"
+      >
+        <p className="text-[11px] font-black uppercase tracking-[0.18em]">{label}</p>
+        <div className="mt-2.5 flex items-end gap-3">
+          <p className="font-display text-4xl font-semibold leading-none">{value}</p>
+          <p className="pb-1 text-sm font-semibold opacity-80">{detail}</p>
+        </div>
+      </button>
+      {expanded ? (
+        <div className="border-t border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.55)] px-3 py-3">
+          <div className="max-h-56 overflow-y-auto pr-1">
+            <div className="grid gap-2">
+              {items.length ? (
+                items.map((item) => (
+                  <div key={item.id} className="rounded-[1rem] bg-[#fffdf8] px-3 py-3 shadow-[0_8px_18px_rgba(64,44,8,0.05)]">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-black text-[#173f33]">{item.name}</p>
+                        <p className="mt-1 text-xs font-semibold text-[#718477]">{item.service}</p>
+                      </div>
+                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${statusToneClass[item.tone]}`}>
+                        {item.status}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-[1rem] bg-[#fffdf8] px-3 py-4 text-sm font-semibold text-[#718477]">
+                  No learner names in this list yet.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

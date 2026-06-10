@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminConsole } from "@/components/admin-console";
 import { requireAdmin } from "@/lib/auth";
-import { fallbackArticles, fallbackEvents, fallbackPrograms } from "@/lib/fallback-data";
+import { fallbackApplications, fallbackArticles, fallbackEvents, fallbackPrograms } from "@/lib/fallback-data";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { mapTrainingApplicationRecord, TRAINING_APPLICATION_SUBJECT_PREFIX } from "@/lib/training-application";
 
@@ -83,7 +83,7 @@ export default async function AdminPage() {
     mediaType: article.mediaType as AdminArticle["mediaType"],
     externalLink: article.externalLink || null,
   }));
-  let applications: NonNullable<ReturnType<typeof mapTrainingApplicationRecord>>[] = [];
+  let applications: NonNullable<ReturnType<typeof mapTrainingApplicationRecord>>[] = fallbackApplications;
 
   if (hasDatabaseUrl) {
     try {
