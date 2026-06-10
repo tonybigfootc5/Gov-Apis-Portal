@@ -14,7 +14,7 @@ export type ApplicationApprovalStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type ApplicationCrossCheckStatus = "PENDING" | "VERIFIED";
 
 export type TrainingApplicationPayload = {
-  version: 1;
+  version: 1 | 2;
   serviceName: string;
   applicationDate: string;
   candidateName: string;
@@ -34,7 +34,9 @@ export type TrainingApplicationPayload = {
   sponsoringOrganization: string;
   photoName: string;
   photoType: string;
-  photoDataUrl: string;
+  photoUrl?: string;
+  photoObjectKey?: string;
+  photoDataUrl?: string;
   attemptStatus: ApplicationAttemptStatus;
   paymentStatus: ApplicationPaymentStatus;
   approvalStatus: ApplicationApprovalStatus;
@@ -75,7 +77,7 @@ export function buildTrainingApplicationPayload(
 ): TrainingApplicationPayload {
   const now = new Date().toISOString();
   return {
-    version: 1,
+    version: 2,
     ...input,
     attemptStatus: "SUBMITTED",
     paymentStatus: "NOT_STARTED",
@@ -101,7 +103,11 @@ export function serializeTrainingApplication(payload: TrainingApplicationPayload
 export function parseTrainingApplicationMessage(message: string) {
   try {
     const parsed = JSON.parse(message) as TrainingApplicationPayload;
-    if (parsed && parsed.version === 1 && typeof parsed.candidateName === "string") {
+    if (
+      parsed &&
+      (parsed.version === 1 || parsed.version === 2) &&
+      typeof parsed.candidateName === "string"
+    ) {
       return parsed;
     }
     return null;

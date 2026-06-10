@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next";
-import { getEvents, getPrograms } from "@/lib/data";
+import { getArticles, getEvents, getPrograms } from "@/lib/data";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.apiculture.in";
-  const [programs, events] = await Promise.all([getPrograms(), getEvents()]);
+  const [programs, events, articles] = await Promise.all([getPrograms(), getEvents(), getArticles()]);
 
   return [
     "", "/about", "/programs", "/articles", "/events", "/gallery", "/contact",
     ...programs.map((program) => `/programs/${program.slug}`),
+    ...articles.map((article) => `/articles/${article.slug}`),
     ...events.map((event) => `/events/${event.slug}`),
   ].map((path) => ({
     url: `${base}${path}`,

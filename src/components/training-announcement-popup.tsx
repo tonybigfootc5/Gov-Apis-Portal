@@ -51,31 +51,49 @@ export function TrainingAnnouncementPopup({
 
   if (!programs.length) return null;
 
+  const whatsappCta = (
+    <a
+      href="https://wa.me/919395507766"
+      target="_blank"
+      rel="noreferrer"
+      className="pointer-events-auto flex items-center gap-3 rounded-full border border-[rgba(24,128,56,0.18)] bg-[#f7fff9] px-4 py-3 text-left shadow-[0_18px_42px_rgba(15,82,33,0.16)]"
+      aria-label="Send a WhatsApp enquiry to 9395507766"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#2ac769,#128c37)] text-white shadow-[0_10px_24px_rgba(18,140,55,0.22)]">
+        <MessageCircle className="h-4 w-4" aria-hidden="true" />
+      </span>
+      <span>
+        <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#128c37]">WhatsApp enquiry</span>
+        <span className="mt-0.5 block text-sm font-semibold text-[#17432a]">Chat with 9395507766</span>
+      </span>
+    </a>
+  );
+
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
-      <a
-        href="https://wa.me/919395507766"
-        target="_blank"
-        rel="noreferrer"
-        className={`pointer-events-auto flex items-center gap-3 rounded-full border border-[rgba(24,128,56,0.18)] bg-[#f7fff9] px-4 py-3 text-left shadow-[0_18px_42px_rgba(15,82,33,0.16)] transition-all duration-700 ease-out ${
-          compactVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-        }`}
-        aria-label="Send a WhatsApp enquiry to 9395507766"
-      >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#2ac769,#128c37)] text-white shadow-[0_10px_24px_rgba(18,140,55,0.22)]">
-          <MessageCircle className="h-4 w-4" aria-hidden="true" />
-        </span>
-        <span>
-          <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#128c37]">WhatsApp enquiry</span>
-          <span className="mt-0.5 block text-sm font-semibold text-[#17432a]">Chat with 9395507766</span>
-        </span>
-      </a>
+      {compactVisible ? (
+        <div className="pointer-events-auto transition-all duration-700 ease-out translate-y-0 opacity-100">
+          <button
+            type="button"
+            onClick={showExpandedCard}
+            className="float-gentle flex items-center gap-3 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-3 text-left shadow-[0_18px_42px_rgba(64,44,8,0.14)]"
+            aria-label="Open new batch announcement"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_10px_24px_rgba(64,44,8,0.16)]">
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <span>
+              <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">New batch upcoming</span>
+              <span className="mt-0.5 block text-sm font-semibold text-[#1b3b2b]">
+                {programs.length > 1 ? `${programs.length} active training batches` : programs[0]?.title}
+              </span>
+            </span>
+          </button>
+        </div>
+      ) : null}
 
-      <aside
-        className={`pointer-events-auto w-[calc(100vw-1.5rem)] rounded-[1.8rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-4 shadow-[0_24px_60px_rgba(64,44,8,0.16)] transition-all duration-700 ease-out sm:w-[22rem] xl:w-[24vw] xl:max-w-[24rem] ${
-          expandedVisible ? "translate-y-0 opacity-100" : "translate-y-14 opacity-0"
-        }`}
-      >
+      {expandedVisible ? (
+        <aside className="pointer-events-auto w-[calc(100vw-1.5rem)] rounded-[1.8rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-4 shadow-[0_24px_60px_rgba(64,44,8,0.16)] transition-all duration-700 ease-out sm:w-[22rem] xl:w-[24vw] xl:max-w-[24rem]">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_12px_30px_rgba(64,44,8,0.18)]">
@@ -122,30 +140,10 @@ export function TrainingAnnouncementPopup({
           View training batches
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
-      </aside>
+        </aside>
+      ) : null}
 
-      <div
-        className={`pointer-events-auto transition-all duration-700 ease-out ${
-          compactVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-        }`}
-      >
-        <button
-          type="button"
-          onClick={showExpandedCard}
-          className="float-gentle flex items-center gap-3 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-3 text-left shadow-[0_18px_42px_rgba(64,44,8,0.14)]"
-          aria-label="Open new batch announcement"
-        >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_10px_24px_rgba(64,44,8,0.16)]">
-            <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-          </span>
-          <span>
-            <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">New batch upcoming</span>
-            <span className="mt-0.5 block text-sm font-semibold text-[#1b3b2b]">
-              {programs.length > 1 ? `${programs.length} active training batches` : programs[0]?.title}
-            </span>
-          </span>
-        </button>
-      </div>
+      <div className="pointer-events-auto">{whatsappCta}</div>
     </div>
   );
 }

@@ -1,7 +1,20 @@
 import type { NextConfig } from "next";
 
+const publicMediaBaseUrl = process.env.R2_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL;
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: publicMediaBaseUrl
+    ? {
+        remotePatterns: [
+          {
+            protocol: new URL(publicMediaBaseUrl).protocol.replace(":", "") as "http" | "https",
+            hostname: new URL(publicMediaBaseUrl).hostname,
+            pathname: "/**",
+          },
+        ],
+      }
+    : undefined,
   async headers() {
     return [
       {

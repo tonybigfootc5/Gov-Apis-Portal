@@ -19,6 +19,12 @@ enum EventStatus {
   CANCELLED
 }
 
+enum MediaAssetType {
+  IMAGE
+  VIDEO
+  ARTICLE_ASSET
+}
+
 model Program {
   id               String       @id @default(cuid())
   title            String
@@ -50,6 +56,28 @@ model Event {
   published   Boolean     @default(true)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+}
+
+model Article {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  excerpt         String
+  body            String
+  category        String
+  publishedAt     DateTime
+  authorName      String
+  authorRole      String
+  mediaUrl        String?
+  mediaObjectKey  String?
+  mediaType       MediaAssetType?
+  externalLink    String?
+  keyPoints       String
+  seoTitle        String
+  metaDescription String
+  published       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model ContactMessage {

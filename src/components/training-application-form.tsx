@@ -15,6 +15,7 @@ import {
   Upload,
   UserRound,
 } from "lucide-react";
+import { getApplicationPhotoUploadUrlAction } from "@/app/actions/storage";
 
 type FormState = {
   serviceName: string;
@@ -36,7 +37,8 @@ type FormState = {
   sponsoringOrganization: string;
   photoName: string;
   photoType: string;
-  photoDataUrl: string;
+  photoUrl: string;
+  photoObjectKey: string;
 };
 
 type SubmitState = "idle" | "compressing" | "submitting" | "success" | "error";
@@ -73,7 +75,8 @@ const INITIAL_FORM: FormState = {
   sponsoringOrganization: "",
   photoName: "",
   photoType: "",
-  photoDataUrl: "",
+  photoUrl: "",
+  photoObjectKey: "",
 };
 
 const STEPS = [
@@ -134,7 +137,8 @@ async function optimizePhoto(file: File) {
 
   const dataUrl = await dataUrlFromBlob(blob);
   return {
-    photoDataUrl: dataUrl,
+    previewUrl: dataUrl,
+    blob,
     photoType: "image/jpeg",
     photoName: file.name.replace(/\.[^.]+$/, "") + ".jpg",
   };
@@ -166,7 +170,7 @@ function requiredStepFields(stepIndex: number, data: FormState) {
     return true;
   }
 
-  return Boolean(data.photoDataUrl);
+  return Boolean(data.photoUrl);
 }
 
 export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }: Props) {
@@ -180,6 +184,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
   const [step, setStep] = useState(0);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [message, setMessage] = useState("");
+  const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [photoStatus, setPhotoStatus] = useState("Add a clear face photo. We shrink it automatically to make upload easier.");
 
   const progress = ((step + 1) / STEPS.length) * 100;
@@ -201,9 +206,11 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
   async function onPhotoChange(file: File | null) {
     if (!file) {
-      updateField("photoDataUrl", "");
+      updateField("photoUrl", "");
+      updateField("photoObjectKey", "");
       updateField("photoName", "");
       updateField("photoType", "");
+      setPhotoPreviewUrl("");
       setPhotoStatus("Add a clear face photo. We shrink it automatically to make upload easier.");
       return;
     }
@@ -212,8 +219,32 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
     setMessage("");
     try {
       const optimized = await optimizePhoto(file);
-      setForm((current) => ({ ...current, ...optimized }));
-      setPhotoStatus(`Photo ready: ${optimized.photoName}`);
+      const { uploadUrl, publicUrl, objectKey } = await getApplicationPhotoUploadUrlAction(
+        optimized.photoName,
+        optimized.photoType,
+      );
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": optimized.photoType,
+        },
+        body: optimized.blob,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error("Photo upload failed.");
+      }
+
+      setForm((current) => ({
+        ...current,
+        photoName: optimized.photoName,
+        photoType: optimized.photoType,
+        photoUrl: publicUrl,
+        photoObjectKey: objectKey,
+      }));
+      setPhotoPreviewUrl(optimized.previewUrl);
+      setPhotoStatus(`Photo uploaded successfully: ${optimized.photoName}`);
       setSubmitState("idle");
     } catch (error) {
       setSubmitState("error");
@@ -247,6 +278,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
       setMessage(`Application submitted successfully. Reference: ${body.reference}`);
       setForm({ ...INITIAL_FORM, serviceName: initialServiceName });
       setStep(0);
+      setPhotoPreviewUrl("");
       setPhotoStatus("Add a clear face photo. We shrink it automatically to make upload easier.");
     } catch (error) {
       setSubmitState("error");
@@ -470,10 +502,10 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                     className="block w-full text-sm text-[#516253] file:mr-4 file:rounded-full file:border-0 file:bg-[#1b3b2b] file:px-4 file:py-2 file:text-sm file:font-black file:uppercase file:tracking-[0.12em] file:text-[#faf8f2]"
                   />
                   <p className="mt-3 text-sm text-[#516253]">{photoStatus}</p>
-                  {form.photoDataUrl ? (
+                  {photoPreviewUrl ? (
                     <div className="mt-4 overflow-hidden rounded-[1.5rem] border border-[rgba(27,59,43,0.12)] bg-white p-3">
                       <div className="relative h-48 w-full overflow-hidden rounded-[1rem]">
-                        <Image src={form.photoDataUrl} alt="Applicant preview" fill unoptimized className="object-cover" />
+                        <Image src={photoPreviewUrl} alt="Applicant preview" fill unoptimized className="object-cover" />
                       </div>
                     </div>
                   ) : null}

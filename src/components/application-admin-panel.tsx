@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BadgeCheck, CreditCard, FileClock, Phone, RefreshCw, Search, UserRound } from "lucide-react";
+import { BadgeCheck, CheckCircle2, CreditCard, FileClock, Phone, RefreshCw, Search, ShieldCheck, UserRound, WalletCards } from "lucide-react";
 import type {
   ApplicationApprovalStatus,
   ApplicationAttemptStatus,
@@ -36,43 +36,6 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
   const [approvalFilter, setApprovalFilter] = useState("ALL");
   const [paymentFilter, setPaymentFilter] = useState("ALL");
   const [crossCheckFilter, setCrossCheckFilter] = useState("ALL");
-
-  function applyPreset(preset: "ALL" | "READY" | "APPROVED" | "REJECTED" | "PAYMENT_ISSUE") {
-    setQuery("");
-    setServiceFilter("ALL");
-
-    if (preset === "ALL") {
-      setApprovalFilter("ALL");
-      setPaymentFilter("ALL");
-      setCrossCheckFilter("ALL");
-      return;
-    }
-
-    if (preset === "READY") {
-      setApprovalFilter("PENDING");
-      setPaymentFilter("PAID");
-      setCrossCheckFilter("VERIFIED");
-      return;
-    }
-
-    if (preset === "APPROVED") {
-      setApprovalFilter("APPROVED");
-      setPaymentFilter("ALL");
-      setCrossCheckFilter("ALL");
-      return;
-    }
-
-    if (preset === "REJECTED") {
-      setApprovalFilter("REJECTED");
-      setPaymentFilter("ALL");
-      setCrossCheckFilter("ALL");
-      return;
-    }
-
-    setApprovalFilter("ALL");
-    setPaymentFilter("FAILED");
-    setCrossCheckFilter("ALL");
-  }
 
   const serviceOptions = useMemo(
     () => Array.from(new Set(applications.map((application) => application.payload.serviceName))).sort(),
@@ -179,61 +142,48 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
   }
 
   return (
-    <section className="mt-10">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-black uppercase tracking-[0.24em] text-[#9c6a18]">Admissions control</p>
-          <h2 className="font-display mt-2 text-3xl font-semibold text-[#173f33]">Training service applications</h2>
-        </div>
-        <button
-          disabled={loading || !databaseConfigured}
-          onClick={load}
-          className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#173f33] px-4 py-2.5 text-sm font-bold text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-          Refresh applications
-        </button>
-      </div>
-
-      {notice ? <p className="mt-4 rounded-[1.4rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-4 py-3 text-sm font-semibold text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.05)]">{notice}</p> : null}
+    <section className="mt-6">
+      {notice ? <p className="rounded-[1.4rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-4 py-3 text-sm font-semibold text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.05)]">{notice}</p> : null}
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <SummaryCard label="Total applications" value={summary.total} tone="amber" />
-        <SummaryCard label="Pending cross-check" value={summary.pendingCrossCheck} tone="rose" />
-        <SummaryCard label="Payment pending" value={summary.paymentPending} tone="slate" />
-        <SummaryCard label="Ready to approve" value={summary.readyToApprove} tone="emerald" />
+        <SummaryCard label="Payment pending" value={summary.paymentPending} tone="amber" />
+        <SummaryCard label="Total applications" value={summary.total} tone="slate" />
         <SummaryCard label="Approved" value={summary.approved} tone="gold" />
       </div>
 
-      <div className="mt-6 rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">Approval sections</p>
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          <PresetButton label="All applications" helper="Full admissions list" onClick={() => applyPreset("ALL")} />
-          <PresetButton label="Ready for approval" helper="Verified and paid" onClick={() => applyPreset("READY")} />
-          <PresetButton label="Approved students" helper="Allowed to join" onClick={() => applyPreset("APPROVED")} />
-          <PresetButton label="Rejected cases" helper="Needs closure" onClick={() => applyPreset("REJECTED")} />
-          <PresetButton label="Payment issues" helper="Failed transactions" onClick={() => applyPreset("PAYMENT_ISSUE")} />
+      <div className="mt-6 rounded-[1.85rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-5 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">Find and filter</p>
+          <button
+            disabled={loading || !databaseConfigured}
+            onClick={load}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] shadow-[0_14px_28px_rgba(23,63,51,0.14)] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+            Refresh applications
+          </button>
         </div>
-      </div>
 
-      <div className="mt-6 rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-4 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
-        <div className="grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_repeat(4,minmax(0,1fr))]">
+        <div className="mt-4 grid gap-3">
           <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-[#718477]">
             Search applicant
-            <div className="flex items-center rounded-2xl border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] px-3">
+            <div className="flex items-center rounded-2xl border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
               <Search className="h-4 w-4 text-[#718477]" aria-hidden="true" />
               <input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Name, guardian, phone, or service"
-                className="w-full bg-transparent px-3 py-2 text-sm text-[#173f33] outline-none"
+                className="w-full bg-transparent px-3 py-3 text-sm text-[#173f33] outline-none placeholder:text-[#90a094]"
               />
             </div>
           </label>
-          <SelectField label="Service filter" value={serviceFilter} onChange={setServiceFilter} options={["ALL", ...serviceOptions]} />
-          <SelectField label="Approval filter" value={approvalFilter} onChange={setApprovalFilter} options={["ALL", ...approvalOptions]} />
-          <SelectField label="Payment filter" value={paymentFilter} onChange={setPaymentFilter} options={["ALL", ...paymentOptions]} />
-          <SelectField label="Cross-check filter" value={crossCheckFilter} onChange={setCrossCheckFilter} options={["ALL", ...crossCheckOptions]} />
+
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <SelectField theme="light" label="Service filter" value={serviceFilter} onChange={setServiceFilter} options={["ALL", ...serviceOptions]} />
+            <SelectField theme="light" label="Approval filter" value={approvalFilter} onChange={setApprovalFilter} options={["ALL", ...approvalOptions]} />
+            <SelectField theme="light" label="Payment filter" value={paymentFilter} onChange={setPaymentFilter} options={["ALL", ...paymentOptions]} />
+            <SelectField theme="light" label="Cross-check filter" value={crossCheckFilter} onChange={setCrossCheckFilter} options={["ALL", ...crossCheckOptions]} />
+          </div>
         </div>
       </div>
 
@@ -284,6 +234,12 @@ function ApplicationCard({
   const [paymentReference, setPaymentReference] = useState(application.payload.paymentReference);
   const readyToApprove = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "PENDING";
   const joinReady = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "APPROVED";
+  const photoSrc = application.payload.photoUrl || application.payload.photoDataUrl;
+  const blockers = [
+    crossCheckStatus !== "VERIFIED" ? "Cross-check still pending" : null,
+    paymentStatus !== "PAID" ? "Payment not confirmed" : null,
+    approvalStatus === "REJECTED" ? "Application already rejected" : null,
+  ].filter(Boolean) as string[];
 
   function saveDecision(nextApprovalStatus: ApplicationApprovalStatus) {
     onSave(application.id, {
@@ -298,7 +254,7 @@ function ApplicationCard({
 
   return (
     <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-5 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_24rem]">
         <div className="grid gap-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -316,8 +272,23 @@ function ApplicationCard({
             </div>
           </div>
 
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+            <InfoCard icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} label="Review status">
+              <p>Attempt status: {attemptStatus.replaceAll("_", " ")}</p>
+              <p>Payment status: {paymentStatus.replaceAll("_", " ")}</p>
+              <p>Cross-check status: {crossCheckStatus.replaceAll("_", " ")}</p>
+              <p>Approval status: {approvalStatus.replaceAll("_", " ")}</p>
+              <p>Join readiness: {joinReady ? "Ready to join" : readyToApprove ? "Ready for approval" : "Not ready yet"}</p>
+            </InfoCard>
+            <InfoCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Stored billing data">
+              <p>Payment reference: {paymentReference || "Not provided"}</p>
+              <p>Approved at: {application.payload.approvedAt ? formatDateLabel(application.payload.approvedAt) : "Pending"}</p>
+              <p>Incoming billing proof is handled from the main site submission flow.</p>
+            </InfoCard>
+          </div>
+
           <div className="grid gap-3 md:grid-cols-2">
-            <InfoCard icon={<UserRound className="h-4 w-4" aria-hidden="true" />} label="Applicant details">
+            <InfoCard icon={<UserRound className="h-4 w-4" aria-hidden="true" />} label="Applicant identity">
               <p>Name: {application.payload.candidateName}</p>
               <p>Gender: {application.payload.gender}</p>
               <p>DOB: {application.payload.dateOfBirth}</p>
@@ -334,38 +305,67 @@ function ApplicationCard({
               <p>{application.payload.mandal}, {application.payload.district}</p>
               <p>{application.payload.state}</p>
             </InfoCard>
-            <InfoCard icon={<CreditCard className="h-4 w-4" aria-hidden="true" />} label="Enrollment readiness">
+            <InfoCard icon={<CreditCard className="h-4 w-4" aria-hidden="true" />} label="Background details">
               <p>Occupation: {application.payload.occupation || "Not provided"}</p>
               <p>Sponsoring organization: {application.payload.sponsoringOrganization || "Not provided"}</p>
-              <p>Payment reference: {paymentReference || "Not provided"}</p>
-              <p>Approved at: {application.payload.approvedAt ? formatDateLabel(application.payload.approvedAt) : "Pending"}</p>
-              <p>Join readiness: {joinReady ? "Ready to join" : readyToApprove ? "Ready for approval" : "Not ready yet"}</p>
+              <p>Application date: {application.payload.applicationDate}</p>
+              <p>Submitted at: {formatDateLabel(application.payload.submittedAt)}</p>
             </InfoCard>
           </div>
 
-          {application.payload.photoDataUrl ? (
+          {photoSrc ? (
             <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#f3ecdf] p-4">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#9c6a18]">Applicant photo</p>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#9c6a18]">Stored submission media</p>
+                <span className="rounded-full bg-[#fff8ea] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#8a5612]">
+                  Applicant photo
+                </span>
+              </div>
               <div className="mt-3 relative h-56 w-full overflow-hidden rounded-xl border border-[rgba(27,59,43,0.1)] bg-[#fffdf8]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={application.payload.photoDataUrl} alt={`${application.payload.candidateName} photo`} className="h-full w-full object-cover" />
+                <img
+                  src={photoSrc}
+                  alt={`${application.payload.candidateName} photo`}
+                  className="h-full w-full object-cover"
+                />
               </div>
             </div>
           ) : null}
         </div>
 
-        <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_18px_44px_rgba(23,63,51,0.16)]">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">Admin controls</p>
+        <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_18px_44px_rgba(23,63,51,0.16)] xl:sticky xl:top-28">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">Decision desk</p>
+          <div className="mt-4 rounded-[1.5rem] border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.08)] p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f5c65e]">Current priority</p>
+                <h4 className="mt-2 text-lg font-semibold text-[#fff9ec]">
+                  {joinReady ? "Learner cleared to join" : readyToApprove ? "Ready for final approval" : "Needs review before approval"}
+                </h4>
+              </div>
+              <CheckCircle2 className={`h-5 w-5 ${joinReady || readyToApprove ? "text-[#f5c65e]" : "text-[#d4e1d8]"}`} aria-hidden="true" />
+            </div>
+            {blockers.length ? (
+              <div className="mt-3 grid gap-2 text-sm leading-6 text-[#d7e1db]">
+                {blockers.map((blocker) => (
+                  <p key={blocker}>- {blocker}</p>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-3 text-sm leading-6 text-[#d7e1db]">This application has passed the required review gates.</p>
+            )}
+          </div>
+
           <div className="mt-4 grid gap-4">
             <ActionGroup
               eyebrow="Verification and payment"
-              title="Cross-check applicant details"
-              description="Use this block for attempt, payment, cross-check, and transaction reference updates."
+              title="Validate incoming proof and details"
+              description="Update the applicant submission stage, billing state, cross-check result, and transaction reference."
             >
               <div className="grid gap-3">
-                <SelectField label="Submission attempt" value={attemptStatus} onChange={(value) => setAttemptStatus(value as ApplicationAttemptStatus)} options={attemptOptions} />
-                <SelectField label="Payment status" value={paymentStatus} onChange={(value) => setPaymentStatus(value as ApplicationPaymentStatus)} options={paymentOptions} />
-                <SelectField label="Cross check status" value={crossCheckStatus} onChange={(value) => setCrossCheckStatus(value as ApplicationCrossCheckStatus)} options={crossCheckOptions} />
+                <SelectField theme="dark" label="Submission attempt" value={attemptStatus} onChange={(value) => setAttemptStatus(value as ApplicationAttemptStatus)} options={attemptOptions} />
+                <SelectField theme="dark" label="Payment status" value={paymentStatus} onChange={(value) => setPaymentStatus(value as ApplicationPaymentStatus)} options={paymentOptions} />
+                <SelectField theme="dark" label="Cross check status" value={crossCheckStatus} onChange={(value) => setCrossCheckStatus(value as ApplicationCrossCheckStatus)} options={crossCheckOptions} />
                 <TextField label="Payment reference" value={paymentReference} onChange={setPaymentReference} placeholder="Transaction ID / receipt no." />
               </div>
             </ActionGroup>
@@ -373,10 +373,10 @@ function ApplicationCard({
             <ActionGroup
               eyebrow="Decision desk"
               title="Approve or decline application"
-              description="This section is only for final admission decisions and internal notes."
+              description="Use this block only for the final learner decision and internal review notes."
             >
               <div className="grid gap-3">
-                <SelectField label="Approval status" value={approvalStatus} onChange={(value) => setApprovalStatus(value as ApplicationApprovalStatus)} options={approvalOptions} />
+                <SelectField theme="dark" label="Approval status" value={approvalStatus} onChange={(value) => setApprovalStatus(value as ApplicationApprovalStatus)} options={approvalOptions} />
                 <TextAreaField label="Admin notes" value={adminNotes} onChange={setAdminNotes} placeholder="Internal note, follow-up detail, payment issue, approval comment..." />
                 <div className="grid gap-2 sm:grid-cols-2">
                   <button
@@ -413,18 +413,6 @@ function ApplicationCard({
         </div>
       </div>
     </article>
-  );
-}
-
-function PresetButton({ label, helper, onClick }: { label: string; helper: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="rounded-[1.25rem] border border-[rgba(27,59,43,0.1)] bg-[#f7f2e8] px-4 py-4 text-left transition hover:bg-[#efe7d8]"
-    >
-      <span className="block text-sm font-black uppercase tracking-[0.16em] text-[#173f33]">{label}</span>
-      <span className="mt-1 block text-sm text-[#607366]">{helper}</span>
-    </button>
   );
 }
 
@@ -500,18 +488,39 @@ function SelectField({
   value,
   onChange,
   options,
+  theme = "dark",
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   options: string[];
+  theme?: "dark" | "light";
 }) {
+  const palette =
+    theme === "light"
+      ? {
+          label: "text-[#718477]",
+          control:
+            "border-[rgba(27,59,43,0.12)] bg-[#fffdf8] text-[#173f33]",
+          option: "text-[#173f33]",
+        }
+      : {
+          label: "text-[#d4e1d8]",
+          control:
+            "border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.08)] text-[#fff9ec]",
+          option: "text-[#173f33]",
+        };
+
   return (
-    <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-[#d4e1d8]">
+    <label className={`grid gap-1 text-xs font-black uppercase tracking-[0.12em] ${palette.label}`}>
       {label}
-      <select value={value} onChange={(event) => onChange(event.target.value)} className="rounded-2xl border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.08)] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#fff9ec] outline-none ring-[#f5c65e] focus:ring-2">
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={`rounded-2xl border px-3 py-2.5 text-sm font-medium normal-case tracking-normal outline-none ring-[#f5c65e] focus:ring-2 ${palette.control}`}
+      >
         {options.map((option) => (
-          <option key={option} value={option}>
+          <option key={option} value={option} className={palette.option}>
             {option.replaceAll("_", " ")}
           </option>
         ))}

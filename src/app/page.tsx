@@ -4,31 +4,23 @@ import {
   ArrowRight,
   BadgeCheck,
   CalendarDays,
-  CircleDot,
   GraduationCap,
   MapPin,
   Microscope,
   ShieldCheck,
-  Sprout,
 } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
-import { HomeAboutSection, HomeContactSection, HomeGallerySection } from "@/components/home-context-sections";
-import { HomeArticlesSection } from "@/components/home-articles-section";
-import { SectionHeading } from "@/components/section-heading";
 import { TrainingAnnouncementPopup } from "@/components/training-announcement-popup";
-import { getAnnouncementPrograms, getEvents, getPrograms } from "@/lib/data";
+import { getAnnouncementPrograms, getPrograms } from "@/lib/data";
 import { institute } from "@/lib/fallback-data";
-import { getTranslatedEventContent, getTranslatedProgramContent, t } from "@/lib/i18n";
+import { getTranslatedProgramContent, t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
-import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const language = await getRequestLanguage();
-  const [programs, events] = await Promise.all([getPrograms(), getEvents()]);
-  const translatedPrograms = programs.map((program) => getTranslatedProgramContent(program, language));
-  const translatedEvents = events.map((event) => getTranslatedEventContent(event, language));
+  const programs = await getPrograms();
   const activeAnnouncementPrograms = getAnnouncementPrograms(programs).map((program) => getTranslatedProgramContent(program, language));
   const featureCards = [
     [GraduationCap, t(language, "home.cards.training.title"), t(language, "home.cards.training.text")],
@@ -152,120 +144,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      <HomeAboutSection language={language} />
-
-      <section id="training" className="scroll-mt-32 border-y border-[rgba(27,59,43,0.1)] bg-[#f3ecdf] py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading eyebrow={t(language, "home.training.eyebrow")} title={t(language, "home.training.title")}>
-            {t(language, "home.training.body")}
-          </SectionHeading>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {translatedPrograms.slice(0, 2).map((program) => {
-              const isFoundation = program.slug === "scientific-beekeeping-foundation";
-              const isQueenRearing = program.slug === "queen-rearing-and-colony-multiplication";
-
-              return (
-                <Link
-                  key={program.id}
-                  href={`/programs/${program.slug}`}
-                  className="group relative overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-6 shadow-[0_24px_50px_rgba(64,44,8,0.08)] transition hover:border-[#b36b00]/40 sm:p-8"
-                >
-                  {isFoundation || isQueenRearing ? (
-                    <div className="pointer-events-none absolute inset-0">
-                      <Image
-                        src={isFoundation ? "/scientific-foundation-bg.jpg" : "/queen-rearing-bg.jpg"}
-                        alt=""
-                        fill
-                        sizes="(min-width: 768px) 50vw, 100vw"
-                        className="object-cover object-center opacity-28 transition duration-500 group-hover:scale-105 group-hover:opacity-36"
-                      />
-                      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(250,248,242,0.92)_0%,rgba(250,248,242,0.68)_38%,rgba(250,248,242,0.94)_100%)]" />
-                    </div>
-                  ) : null}
-                  <div className="absolute left-0 top-0 h-1.5 w-full bg-[#ebb428]" />
-                  <div className="relative">
-                    {isFoundation ? (
-                      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#fffdf8]/82 p-2 shadow-[0_18px_40px_rgba(64,44,8,0.08)]">
-                        <Image
-                          src="/scientific-beekeeping-icon.png"
-                          alt="Scientific Beekeeping Foundation icon"
-                          width={1024}
-                          height={1024}
-                          className="h-full w-full object-contain"
-                        />
-                      </div>
-                    ) : (
-                      <Sprout className="h-7 w-7 text-[#b36b00]" aria-hidden="true" />
-                    )}
-                    <h3 className="font-display mt-5 text-2xl font-semibold text-[#1b3b2b] group-hover:text-[#b36b00] sm:text-3xl">{program.title}</h3>
-                    <p className="mt-4 text-sm leading-7 text-[#516253]">{program.summary}</p>
-                    <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-[#b36b00]">
-                      {program.duration} / {program.level}
-                    </p>
-                    <div className="mt-5 flex flex-wrap gap-3 text-xs font-semibold text-[#1b3b2b]">
-                      <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] px-3 py-1.5">
-                        <CircleDot className="h-3.5 w-3.5 text-[#b36b00]" aria-hidden="true" />
-                        Practical sessions
-                      </span>
-                      <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] px-3 py-1.5">
-                        <CircleDot className="h-3.5 w-3.5 text-[#b36b00]" aria-hidden="true" />
-                        Capacity {program.capacity}
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <HomeArticlesSection />
-
-      <section id="events" className="mx-auto max-w-7xl scroll-mt-32 px-4 py-20 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow={t(language, "home.events.eyebrow")} title={t(language, "home.events.title")}>
-          {t(language, "home.events.body")}
-        </SectionHeading>
-        <div className="mt-10 grid gap-5 lg:grid-cols-[1.1fr_0.75fr]">
-          <div className="grid gap-5">
-            {translatedEvents.slice(0, 3).map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.slug}`}
-                className="group relative grid gap-4 overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-5 shadow-[0_20px_45px_rgba(64,44,8,0.08)] transition hover:border-[#b36b00]/40 sm:grid-cols-[170px_1fr_auto] sm:items-center sm:p-6"
-              >
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#b36b00]">{formatDate(event.startsAt)}</p>
-                <div>
-                  <h3 className="font-display text-xl font-semibold text-[#1b3b2b] sm:text-2xl">{event.title}</h3>
-                  <p className="mt-2 text-sm text-[#516253]">{event.summary}</p>
-                </div>
-                <ArrowRight className="h-5 w-5 justify-self-start text-[#b36b00] sm:justify-self-auto" aria-hidden="true" />
-              </Link>
-            ))}
-          </div>
-          <div className="paper-panel rounded-[2rem] p-6">
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#b36b00]">Participation flow</p>
-            <div className="mt-6 grid gap-4 text-sm leading-7 text-[#516253]">
-              <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] p-4">
-                <p className="font-semibold text-[#1b3b2b]">1. Watch upcoming sessions</p>
-                <p className="mt-2">Orientations and field sessions are published with date, location, and status.</p>
-              </div>
-              <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] p-4">
-                <p className="font-semibold text-[#1b3b2b]">2. Contact the center</p>
-                <p className="mt-2">Use the contact page or official details for enrollment, institutional visits, or collaboration.</p>
-              </div>
-              <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] p-4">
-                <p className="font-semibold text-[#1b3b2b]">3. Join field-led learning</p>
-                <p className="mt-2">The emphasis is applied practice, not empty event branding.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <HomeGallerySection language={language} />
-      <HomeContactSection language={language} />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminConsole } from "@/components/admin-console";
 import { requireAdmin } from "@/lib/auth";
-import { fallbackEvents, fallbackPrograms } from "@/lib/fallback-data";
+import { fallbackArticles, fallbackEvents, fallbackPrograms } from "@/lib/fallback-data";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { mapTrainingApplicationRecord, TRAINING_APPLICATION_SUBJECT_PREFIX } from "@/lib/training-application";
 
@@ -40,6 +40,28 @@ type AdminEvent = {
   updatedAt: Date;
 };
 
+type AdminArticle = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  body: string;
+  category: string;
+  publishedAt: Date;
+  authorName: string;
+  authorRole: string;
+  mediaUrl: string | null;
+  mediaObjectKey: string | null;
+  mediaType: "IMAGE" | "VIDEO" | "ARTICLE_ASSET" | null;
+  externalLink: string | null;
+  keyPoints: string;
+  seoTitle: string;
+  metaDescription: string;
+  published: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export default async function AdminPage() {
   const allowed = await requireAdmin();
   if (!allowed) redirect("/admin/login");
@@ -54,13 +76,21 @@ export default async function AdminPage() {
     status: event.status as AdminEvent["status"],
     endsAt: event.endsAt ?? null,
   }));
+  let articles: AdminArticle[] = fallbackArticles.map((article) => ({
+    ...article,
+    mediaUrl: article.mediaUrl ?? null,
+    mediaObjectKey: article.mediaObjectKey ?? null,
+    mediaType: article.mediaType as AdminArticle["mediaType"],
+    externalLink: article.externalLink || null,
+  }));
   let applications: NonNullable<ReturnType<typeof mapTrainingApplicationRecord>>[] = [];
 
   if (hasDatabaseUrl) {
     try {
-      const [dbPrograms, dbEvents, applicationMessages] = await Promise.all([
+      const [dbPrograms, dbEvents, dbArticles, applicationMessages] = await Promise.all([
         prisma.program.findMany({ orderBy: { updatedAt: "desc" } }),
         prisma.event.findMany({ orderBy: { startsAt: "desc" } }),
+        prisma.article.findMany({ orderBy: { publishedAt: "desc" } }),
         prisma.contactMessage.findMany({
           where: {
             subject: {
@@ -81,6 +111,13 @@ export default async function AdminPage() {
         status: event.status,
         endsAt: event.endsAt ?? null,
       }));
+      articles = dbArticles.map((article) => ({
+        ...article,
+        mediaUrl: article.mediaUrl ?? null,
+        mediaObjectKey: article.mediaObjectKey ?? null,
+        mediaType: article.mediaType ?? null,
+        externalLink: article.externalLink ?? null,
+      }));
       applications = applicationMessages
         .map(mapTrainingApplicationRecord)
         .filter((value): value is NonNullable<typeof value> => Boolean(value));
@@ -97,6 +134,15 @@ export default async function AdminPage() {
         ...program,
         batchStartsAt: program.batchStartsAt?.toISOString() ?? null,
         updatedAt: program.updatedAt.toISOString(),
+      }))}
+      initialArticles={articles.map((article: (typeof articles)[number]) => ({
+        ...article,
+        mediaUrl: article.mediaUrl ?? "",
+        mediaObjectKey: article.mediaObjectKey ?? "",
+        mediaType: article.mediaType ?? null,
+        externalLink: article.externalLink ?? "",
+        publishedAt: article.publishedAt.toISOString().slice(0, 16),
+        updatedAt: article.updatedAt.toISOString(),
       }))}
       initialEvents={events.map((event: (typeof events)[number]) => ({
         ...event,

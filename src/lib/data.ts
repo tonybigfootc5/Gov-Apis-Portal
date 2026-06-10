@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { fallbackEvents, fallbackPrograms } from "@/lib/fallback-data";
+import { fallbackArticles, fallbackEvents, fallbackPrograms } from "@/lib/fallback-data";
 
 export type ProgramItem = {
   id: string;
@@ -29,6 +29,28 @@ export type EventItem = {
   startsAt: Date;
   endsAt: Date | null;
   status: string;
+  published: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type ArticleItem = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  body: string;
+  category: string;
+  publishedAt: Date;
+  authorName: string;
+  authorRole: string;
+  mediaUrl: string | null;
+  mediaObjectKey: string | null;
+  mediaType: "IMAGE" | "VIDEO" | "ARTICLE_ASSET" | null;
+  externalLink: string | null;
+  keyPoints: string;
+  seoTitle: string;
+  metaDescription: string;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -114,5 +136,33 @@ export async function getEvent(slug: string): Promise<EventItem | null> {
     return event ?? fallbackEvents.find((item) => item.slug === slug) ?? null;
   } catch {
     return fallbackEvents.find((item) => item.slug === slug) ?? null;
+  }
+}
+
+export async function getArticles(): Promise<ArticleItem[]> {
+  const fallback = fallbackArticles as ArticleItem[];
+  if (!process.env.DATABASE_URL) return fallback;
+  try {
+    return await prisma.article.findMany({
+      where: { published: true },
+      orderBy: { publishedAt: "desc" },
+    });
+  } catch {
+    return fallback;
+  }
+}
+
+export async function getArticle(slug: string): Promise<ArticleItem | null> {
+  const fallback = (fallbackArticles as ArticleItem[]).find((item) => item.slug === slug) ?? null;
+  if (!process.env.DATABASE_URL) {
+    return fallback;
+  }
+  try {
+    const article = await prisma.article.findFirst({
+      where: { slug, published: true },
+    });
+    return article ?? fallback;
+  } catch {
+    return fallback;
   }
 }

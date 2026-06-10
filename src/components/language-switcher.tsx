@@ -28,7 +28,7 @@ export function LanguageSwitcher({ currentLanguage, label, options, variant = "d
   return (
     <label
       className={`inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] ${
-        isFooter ? "text-[#e5e7e3]" : isHeader ? "rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-3 py-1.5 text-[#1b3b2b] shadow-[0_10px_24px_rgba(64,44,8,0.08)]" : "text-[#516253]"
+        isFooter ? "text-[#e5e7e3]" : isHeader ? "rounded-full border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.58),rgba(255,253,248,0.28))] px-3 py-1.5 text-[#1b3b2b] shadow-[inset_0_1px_0_rgba(255,255,255,0.8),0_10px_24px_rgba(64,44,8,0.08)] backdrop-blur-xl" : "text-[#516253]"
       }`}
     >
       {isHeader ? <Languages className="h-4 w-4 text-[#b36b00]" aria-hidden="true" /> : null}
@@ -40,8 +40,8 @@ export function LanguageSwitcher({ currentLanguage, label, options, variant = "d
           isFooter
             ? "border border-[rgba(250,248,242,0.22)] bg-[rgba(255,253,248,0.08)] text-[#faf8f2]"
             : isHeader
-              ? "min-w-[5.5rem] border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] text-[#1b3b2b]"
-            : "border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] text-[#1b3b2b]"
+              ? "min-w-[5.5rem] border border-white/50 bg-[rgba(255,255,255,0.44)] text-[#1b3b2b] shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]"
+              : "border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] text-[#1b3b2b]"
         }`}
       >
         {options.map((option) => (

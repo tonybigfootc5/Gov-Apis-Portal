@@ -45,6 +45,25 @@ export const eventSchema = z.object({
   path: ["endsAt"],
 });
 
+export const articleSchema = z.object({
+  title: z.string().trim().min(3).max(180),
+  slug,
+  excerpt: z.string().trim().min(20).max(320),
+  body: z.string().trim().min(40).max(12000),
+  category: z.string().trim().min(2).max(120),
+  publishedAt: z.coerce.date(),
+  authorName: z.string().trim().min(2).max(160),
+  authorRole: z.string().trim().min(2).max(160),
+  mediaUrl: z.string().trim().url().max(2000).optional().or(z.literal("")),
+  mediaObjectKey: z.string().trim().max(1000).optional().or(z.literal("")),
+  mediaType: z.enum(["IMAGE", "VIDEO", "ARTICLE_ASSET"]).optional().nullable(),
+  externalLink: z.string().trim().url().max(400).optional().or(z.literal("")),
+  keyPoints: z.string().trim().max(2000),
+  seoTitle: z.string().trim().min(3).max(180),
+  metaDescription: z.string().trim().min(20).max(320),
+  published: z.coerce.boolean().default(true),
+});
+
 export const trainingApplicationSchema = z.object({
   serviceName: z.string().trim().min(3).max(160),
   applicationDate: z.string().trim().min(8).max(30),
@@ -65,7 +84,8 @@ export const trainingApplicationSchema = z.object({
   sponsoringOrganization: z.string().trim().max(200).optional().or(z.literal("")),
   photoName: z.string().trim().min(1).max(160),
   photoType: z.string().trim().min(3).max(80),
-  photoDataUrl: z.string().trim().startsWith("data:image/", "Upload a valid image."),
+  photoUrl: z.string().trim().url("Upload a valid image URL."),
+  photoObjectKey: z.string().trim().min(3).max(1000),
 });
 
 export const trainingApplicationAdminSchema = z.object({

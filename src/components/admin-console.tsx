@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { ReactNode } from "react";
 import {
+  Bell,
   BookOpenText,
   CalendarDays,
   ChevronLeft,
@@ -10,9 +11,9 @@ import {
   Clock3,
   FolderKanban,
   History,
-  Layers3,
   LogOut,
   Menu,
+  Power,
   Plus,
   RefreshCw,
   Save,
@@ -20,7 +21,9 @@ import {
   UsersRound,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { ApplicationAdminPanel } from "@/components/application-admin-panel";
+import { getPresignedUploadUrlAction } from "@/app/actions/storage";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
 
 type Program = {
@@ -64,6 +67,9 @@ type ArticleItem = {
   publishedAt: string;
   authorName: string;
   authorRole: string;
+  mediaUrl: string;
+  mediaObjectKey: string;
+  mediaType: "IMAGE" | "VIDEO" | "ARTICLE_ASSET" | null;
   externalLink: string;
   keyPoints: string;
   seoTitle: string;
@@ -75,11 +81,12 @@ type Props = {
   databaseConfigured: boolean;
   initialApplications: TrainingApplicationRecord[];
   initialPrograms: Program[];
+  initialArticles: ArticleItem[];
   initialEvents: EventItem[];
 };
 
-type DashboardView = "overview" | "programs" | "events" | "applications" | "articles";
-type HistorySection = DashboardView;
+type DashboardView = "programs" | "events" | "applications" | "articles";
+type HistorySection = "overview" | DashboardView;
 
 type HistoryEntry = {
   id: string;
@@ -97,6 +104,16 @@ type PublishSchedule = {
   publishAt: string;
   published: boolean;
   publishedAt?: string;
+};
+
+type NotificationItem = {
+  id: string;
+  section: HistorySection;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  variant: "success" | "warning" | "alert";
 };
 
 const emptyProgram: Omit<Program, "id"> = {
@@ -126,60 +143,6 @@ const emptyEvent: Omit<EventItem, "id"> = {
   published: true,
 };
 
-const sampleArticles: ArticleItem[] = [
-  {
-    id: "article-queen-strength",
-    title: "Managing Bee Colonies in High Temperature Without Losing Strength",
-    slug: "managing-bee-colonies-in-high-temperature-without-losing-strength",
-    excerpt: "A practical field note on summer hive care, airflow, shade, and hydration management for colony stability.",
-    body:
-      "High temperature can place major pressure on colonies when airflow, shade, and water access are not managed in time. This article outlines simple steps for reducing heat stress, keeping brood areas stable, protecting worker activity, and avoiding unnecessary colony weakening during peak seasonal stress.\n\nThe guidance is written for field teams, trainees, and rural beekeepers who need direct, practical actions rather than theory-heavy instructions.",
-    category: "Field management",
-    publishedAt: "2026-06-14T10:00",
-    authorName: "API CULTURE Editorial Desk",
-    authorRole: "Training and Field Team",
-    externalLink: "",
-    keyPoints: "Shade near apiary\nWater source nearby\nReduce comb overheating",
-    seoTitle: "Managing Bee Colonies in High Temperature",
-    metaDescription: "Practical field methods for keeping bee colonies stable during high summer temperatures.",
-    published: true,
-  },
-  {
-    id: "article-honey-production",
-    title: "How To Select a Bee Honey Production During Monsoon Season in Beekeeping",
-    slug: "how-to-select-a-bee-honey-production-during-monsoon-season-in-beekeeping",
-    excerpt: "Monsoon conditions change forage, moisture, and disease pressure, so honey production decisions must stay seasonal.",
-    body:
-      "Monsoon season requires more careful honey production planning because forage conditions, hive moisture, and colony strength may shift quickly. This article helps trainees understand when to hold back, when to inspect, and how to judge whether conditions are suitable for honey-focused management.\n\nThe note is meant for application in training discussions, field visits, and extension support.",
-    category: "Seasonal guidance",
-    publishedAt: "2026-06-18T09:30",
-    authorName: "API CULTURE Training Wing",
-    authorRole: "Seasonal Practice Unit",
-    externalLink: "",
-    keyPoints: "Check forage availability\nWatch humidity levels\nPrevent fungal pressure",
-    seoTitle: "Monsoon Season Honey Production in Beekeeping",
-    metaDescription: "Seasonal considerations for planning honey production during monsoon conditions.",
-    published: true,
-  },
-  {
-    id: "article-pollination",
-    title: "Poor Pollination in Crop Fields: How Better Bee Placement Can Improve Results",
-    slug: "poor-pollination-in-crop-fields-how-better-bee-placement-can-improve-results",
-    excerpt: "Placement strategy matters. Small shifts in colony position can improve pollination effectiveness across crop fields.",
-    body:
-      "When pollination results remain weak, the issue is not always colony count alone. Field placement, distance from bloom concentration, shade, access routes, and crop timing all influence how well bees support pollination activity.\n\nThis article provides a field-oriented explanation that can be used in training sessions and institutional advisory work.",
-    category: "Pollination support",
-    publishedAt: "2026-06-22T08:45",
-    authorName: "API CULTURE Extension Team",
-    authorRole: "Crop Interface Support",
-    externalLink: "",
-    keyPoints: "Place near bloom density\nAvoid blocked flight paths\nReview field spread",
-    seoTitle: "Better Bee Placement for Crop Pollination",
-    metaDescription: "Why bee placement strategy can improve pollination performance across crop fields.",
-    published: true,
-  },
-];
-
 const emptyArticle: Omit<ArticleItem, "id"> = {
   title: "",
   slug: "",
@@ -189,6 +152,9 @@ const emptyArticle: Omit<ArticleItem, "id"> = {
   publishedAt: new Date().toISOString().slice(0, 16),
   authorName: "",
   authorRole: "",
+  mediaUrl: "",
+  mediaObjectKey: "",
+  mediaType: null,
   externalLink: "",
   keyPoints: "",
   seoTitle: "",
@@ -198,6 +164,7 @@ const emptyArticle: Omit<ArticleItem, "id"> = {
 
 const HISTORY_STORAGE_KEY = "api-culture-admin-history";
 const SCHEDULE_STORAGE_KEY = "api-culture-admin-schedules";
+const NOTIFICATION_STORAGE_KEY = "api-culture-admin-notifications";
 const HISTORY_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 function readStoredHistory() {
@@ -213,26 +180,38 @@ function readStoredSchedules() {
   return JSON.parse(window.localStorage.getItem(SCHEDULE_STORAGE_KEY) ?? "[]") as PublishSchedule[];
 }
 
+function readStoredNotifications() {
+  if (typeof window === "undefined") return [];
+  return JSON.parse(window.localStorage.getItem(NOTIFICATION_STORAGE_KEY) ?? "[]") as NotificationItem[];
+}
+
 export function AdminConsole({
   databaseConfigured,
   initialApplications,
   initialPrograms,
+  initialArticles,
   initialEvents,
 }: Props) {
   const [programs, setPrograms] = useState<Program[]>(initialPrograms);
   const [events, setEvents] = useState<EventItem[]>(initialEvents);
   const [programDraft, setProgramDraft] = useState(emptyProgram);
   const [eventDraft, setEventDraft] = useState(emptyEvent);
-  const [articles, setArticles] = useState<ArticleItem[]>(sampleArticles);
+  const [articles, setArticles] = useState<ArticleItem[]>(initialArticles);
   const [articleDraft, setArticleDraft] = useState<Omit<ArticleItem, "id">>(emptyArticle);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
-  const [view, setView] = useState<DashboardView>("overview");
+  const [view, setView] = useState<DashboardView>("programs");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>(readStoredHistory);
   const [schedules, setSchedules] = useState<PublishSchedule[]>(readStoredSchedules);
   const [activeHistorySection, setActiveHistorySection] = useState<HistorySection | null>(null);
+  const [notifications, setNotifications] = useState<NotificationItem[]>(readStoredNotifications);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [readSystemNotificationIds, setReadSystemNotificationIds] = useState<string[]>([]);
+  const [dismissedSystemNotificationIds, setDismissedSystemNotificationIds] = useState<string[]>([]);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const notificationPanelRef = useRef<HTMLDivElement | null>(null);
 
   const applicationSummary = useMemo(() => {
     const ready = initialApplications.filter(
@@ -244,6 +223,7 @@ export function AdminConsole({
 
     return {
       total: initialApplications.length,
+      pendingReview: initialApplications.length - initialApplications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
       approved: initialApplications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
       ready,
     };
@@ -260,6 +240,25 @@ export function AdminConsole({
   }, [schedules]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(notifications));
+  }, [notifications]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (!notificationPanelRef.current?.contains(event.target as Node)) {
+        setNotificationOpen(false);
+      }
+    }
+
+    if (notificationOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [notificationOpen]);
+
+  useEffect(() => {
     const timer = window.setInterval(() => {
       const now = Date.now();
 
@@ -273,6 +272,12 @@ export function AdminConsole({
 
         dueSchedules.forEach((schedule) => {
           appendHistory(schedule.section, "Scheduled publish", schedule.label, `Published automatically at ${formatDateTime(schedule.publishAt)}`);
+          pushNotification({
+            section: schedule.section,
+            title: `${schedule.label} posted successfully`,
+            message: `Scheduled content was published automatically at ${formatDateTime(schedule.publishAt)}.`,
+            variant: "success",
+          });
         });
 
         return current.map((schedule) =>
@@ -287,12 +292,63 @@ export function AdminConsole({
   }, []);
 
   const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
-    { id: "overview", label: "Overview", description: "Daily picture", icon: <Layers3 className="h-4 w-4" aria-hidden="true" /> },
     { id: "programs", label: "Training", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
     { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
   ];
+
+  const systemNotifications = useMemo(() => {
+    const liveNotifications: NotificationItem[] = [];
+
+    if (applicationSummary.ready > 0) {
+      liveNotifications.push({
+        id: "system-pending-approvals",
+        section: "applications",
+        title: "Pending approvals need attention",
+        message: `${applicationSummary.ready} learner${applicationSummary.ready === 1 ? "" : "s"} are waiting for final approval in Applications.`,
+        timestamp: new Date().toISOString(),
+        read: readSystemNotificationIds.includes("system-pending-approvals"),
+        variant: "warning",
+      });
+    }
+
+    if (!databaseConfigured) {
+      liveNotifications.push({
+        id: "system-local-preview",
+        section: "overview",
+        title: "System alert: local preview is read-only",
+        message: "DATABASE_URL is not configured locally, so save actions stay disabled until deployment setup is ready.",
+        timestamp: new Date().toISOString(),
+        read: readSystemNotificationIds.includes("system-local-preview"),
+        variant: "alert",
+      });
+    }
+
+    return liveNotifications.filter((notification) => !dismissedSystemNotificationIds.includes(notification.id));
+  }, [applicationSummary.ready, databaseConfigured, dismissedSystemNotificationIds, readSystemNotificationIds]);
+
+  const allNotifications = useMemo(
+    () =>
+      [...systemNotifications, ...notifications].sort(
+        (left, right) => new Date(right.timestamp).getTime() - new Date(left.timestamp).getTime(),
+      ),
+    [notifications, systemNotifications],
+  );
+
+  const unreadNotifications = allNotifications.filter((notification) => !notification.read).length;
+
+  function pushNotification(input: Omit<NotificationItem, "id" | "timestamp" | "read">) {
+    setNotifications((current) => [
+      {
+        ...input,
+        id: `${input.section}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        timestamp: new Date().toISOString(),
+        read: false,
+      },
+      ...current,
+    ].slice(0, 40));
+  }
 
   function appendHistory(section: HistorySection, action: string, label: string, details?: string) {
     setHistoryEntries((current) => [
@@ -325,6 +381,12 @@ export function AdminConsole({
       ...current,
     ]);
     appendHistory(section, "Schedule created", label, `Scheduled for ${formatDateTime(publishAt)}`);
+    pushNotification({
+      section,
+      title: `${label} scheduled successfully`,
+      message: `Scheduled for ${formatDateTime(publishAt)}.`,
+      variant: "success",
+    });
     setNotice(`${label} scheduled for ${formatDateTime(publishAt)}.`);
   }
 
@@ -349,18 +411,29 @@ export function AdminConsole({
     setLoading(true);
     setNotice("");
     try {
-      const [programResponse, eventResponse] = await Promise.all([fetch("/api/admin/programs"), fetch("/api/admin/events")]);
-      if (programResponse.status === 401 || eventResponse.status === 401) {
+      const [programResponse, eventResponse, articleResponse] = await Promise.all([
+        fetch("/api/admin/programs"),
+        fetch("/api/admin/events"),
+        fetch("/api/admin/articles"),
+      ]);
+      if (programResponse.status === 401 || eventResponse.status === 401 || articleResponse.status === 401) {
         window.location.assign("/admin/login");
         return;
       }
-      if (!programResponse.ok || !eventResponse.ok) {
+      if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok) {
         setNotice("Unable to refresh the dashboard right now.");
         return;
       }
       setPrograms(await programResponse.json());
       setEvents(await eventResponse.json());
+      setArticles(await articleResponse.json());
       appendHistory("overview", "Refresh", "Dashboard data refreshed");
+      pushNotification({
+        section: "overview",
+        title: "Dashboard refreshed",
+        message: "Programs, events, and articles were refreshed successfully.",
+        variant: "success",
+      });
       setNotice("Dashboard refreshed.");
     } catch {
       setNotice("Unable to refresh the dashboard right now.");
@@ -400,79 +473,150 @@ export function AdminConsole({
   }
 
   function saveArticleDraft() {
-    if (!articleDraft.title.trim()) {
-      setNotice("Article title is required.");
-      return;
-    }
-
-    const slug = (articleDraft.slug || articleDraft.title)
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-
-    setArticles((current) => [
-      {
-        id: `article-${Date.now()}`,
-        ...articleDraft,
-        slug,
-      },
-      ...current,
-    ]);
-    appendHistory("articles", "Create article", articleDraft.title, "Article draft added to the workspace.");
-    setArticleDraft(emptyArticle);
-    setNotice("Article draft added to the article workspace.");
+    void (async () => {
+      const ok = await mutate("/api/admin/articles", "POST", articleDraft);
+      if (ok) {
+        appendHistory("articles", "Create article", articleDraft.title || "Untitled article", "Article created.");
+        pushNotification({
+          section: "articles",
+          title: "Article saved",
+          message: `${articleDraft.title || "Untitled article"} was created successfully.`,
+          variant: "success",
+        });
+        setArticleDraft(emptyArticle);
+      }
+    })();
   }
 
   function updateArticle(id: string, next: ArticleItem) {
-    setArticles((current) => current.map((article) => (article.id === id ? next : article)));
-    appendHistory("articles", "Update article", next.title, "Article details were updated.");
-    setNotice("Article changes saved in the workspace.");
+    void (async () => {
+      const ok = await mutate(`/api/admin/articles/${id}`, "PATCH", next);
+      if (ok) {
+        appendHistory("articles", "Update article", next.title, "Article details were updated.");
+        pushNotification({
+          section: "articles",
+          title: "Article updated",
+          message: `${next.title} was updated successfully.`,
+          variant: "success",
+        });
+      }
+    })();
   }
 
   function deleteArticle(id: string) {
-    const article = articles.find((item) => item.id === id);
-    setArticles((current) => current.filter((article) => article.id !== id));
-    appendHistory("articles", "Delete article", article?.title ?? "Article", "Article removed from the workspace.");
-    setNotice("Article removed from the workspace.");
+    void (async () => {
+      const article = articles.find((item) => item.id === id);
+      const ok = await mutate(`/api/admin/articles/${id}`, "DELETE");
+      if (ok) {
+        appendHistory("articles", "Delete article", article?.title ?? "Article", "Article removed.");
+        pushNotification({
+          section: "articles",
+          title: "Article removed",
+          message: `${article?.title ?? "Article"} was deleted from the dashboard.`,
+          variant: "warning",
+        });
+      }
+    })();
   }
 
   async function createProgram() {
     const ok = await mutate("/api/admin/programs", "POST", programDraft);
     if (ok) {
       appendHistory("programs", "Create training", programDraft.title || "Untitled training", "Training service created.");
+      pushNotification({
+        section: "programs",
+        title: "Training service posted",
+        message: `${programDraft.title || "Untitled training"} was created successfully.`,
+        variant: "success",
+      });
       setProgramDraft(emptyProgram);
     }
   }
 
   async function saveProgram(program: Program) {
     const ok = await mutate(`/api/admin/programs/${program.id}`, "PATCH", program);
-    if (ok) appendHistory("programs", "Update training", program.title || "Untitled training", "Training service updated.");
+    if (ok) {
+      appendHistory("programs", "Update training", program.title || "Untitled training", "Training service updated.");
+      pushNotification({
+        section: "programs",
+        title: "Training service updated",
+        message: `${program.title || "Untitled training"} was updated successfully.`,
+        variant: "success",
+      });
+    }
   }
 
   async function removeProgram(id: string) {
     const currentProgram = programs.find((program) => program.id === id);
     const ok = await mutate(`/api/admin/programs/${id}`, "DELETE");
-    if (ok) appendHistory("programs", "Delete training", currentProgram?.title ?? "Training", "Training service deleted.");
+    if (ok) {
+      appendHistory("programs", "Delete training", currentProgram?.title ?? "Training", "Training service deleted.");
+      pushNotification({
+        section: "programs",
+        title: "Training service removed",
+        message: `${currentProgram?.title ?? "Training"} was deleted from the dashboard.`,
+        variant: "warning",
+      });
+    }
   }
 
   async function createEvent() {
     const ok = await mutate("/api/admin/events", "POST", eventDraft);
     if (ok) {
       appendHistory("events", "Create event", eventDraft.title || "Untitled event", "Event record created.");
+      pushNotification({
+        section: "events",
+        title: "Event posted",
+        message: `${eventDraft.title || "Untitled event"} was created successfully.`,
+        variant: "success",
+      });
       setEventDraft(emptyEvent);
     }
   }
 
   async function saveEvent(event: EventItem) {
     const ok = await mutate(`/api/admin/events/${event.id}`, "PATCH", event);
-    if (ok) appendHistory("events", "Update event", event.title || "Untitled event", "Event record updated.");
+    if (ok) {
+      appendHistory("events", "Update event", event.title || "Untitled event", "Event record updated.");
+      pushNotification({
+        section: "events",
+        title: "Event updated",
+        message: `${event.title || "Untitled event"} was updated successfully.`,
+        variant: "success",
+      });
+    }
   }
 
   async function removeEvent(id: string) {
     const currentEvent = events.find((event) => event.id === id);
     const ok = await mutate(`/api/admin/events/${id}`, "DELETE");
-    if (ok) appendHistory("events", "Delete event", currentEvent?.title ?? "Event", "Event record deleted.");
+    if (ok) {
+      appendHistory("events", "Delete event", currentEvent?.title ?? "Event", "Event record deleted.");
+      pushNotification({
+        section: "events",
+        title: "Event removed",
+        message: `${currentEvent?.title ?? "Event"} was deleted from the dashboard.`,
+        variant: "warning",
+      });
+    }
+  }
+
+  function markNotificationRead(id: string) {
+    if (id.startsWith("system-")) {
+      setReadSystemNotificationIds((current) => (current.includes(id) ? current : [...current, id]));
+      return;
+    }
+
+    setNotifications((current) =>
+      current.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
+    );
+  }
+
+  function clearNotifications() {
+    setNotifications([]);
+    setDismissedSystemNotificationIds((current) => [
+      ...new Set([...current, ...systemNotifications.map((notification) => notification.id)]),
+    ]);
   }
 
   return (
@@ -494,9 +638,15 @@ export function AdminConsole({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-center justify-between gap-3">
-              <div>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setLogoutDialogOpen(true)}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,249,236,0.18)] bg-[rgba(255,255,255,0.08)] text-[#fff9ec]"
+                  aria-label="Open logout confirmation"
+                >
+                  <Power className="h-4 w-4" aria-hidden="true" />
+                </button>
                 <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#f5c65e]">Admin navigation</p>
-                <h2 className="font-display mt-2 text-3xl font-semibold">Command deck</h2>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -506,7 +656,7 @@ export function AdminConsole({
               </button>
             </div>
 
-            <nav className="mt-6 grid gap-3">
+            <nav className="mt-5 grid gap-3">
               {viewItems.map((item) => (
                 <button
                   key={item.id}
@@ -551,22 +701,29 @@ export function AdminConsole({
           </button>
           <div className="sticky top-24 rounded-[2rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_60px_rgba(23,63,51,0.2)]">
             {!sidebarCollapsed ? (
-              <>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setLogoutDialogOpen(true)}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,249,236,0.18)] bg-[rgba(255,255,255,0.08)] text-[#fff9ec]"
+                  aria-label="Open logout confirmation"
+                >
+                  <Power className="h-4 w-4" aria-hidden="true" />
+                </button>
                 <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#f5c65e]">Admin navigation</p>
-                <h2 className="font-display mt-3 text-3xl font-semibold">Command deck</h2>
-                <p className="mt-3 text-sm leading-7 text-[#d7e1db]">
-                  All main sections sit here on the left so the dashboard stays easy to move through.
-                </p>
-              </>
+              </div>
             ) : (
               <div className="flex justify-center">
-                <div className="rounded-full bg-[rgba(245,198,94,0.14)] px-3 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-[#f5c65e]">
-                  Admin
-                </div>
+                <button
+                  onClick={() => setLogoutDialogOpen(true)}
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(245,198,94,0.14)] text-[#f5c65e]"
+                  aria-label="Open logout confirmation"
+                >
+                  <Power className="h-4 w-4" aria-hidden="true" />
+                </button>
               </div>
             )}
 
-            <nav className="mt-6 grid gap-3">
+            <nav className="mt-5 grid gap-3">
               {viewItems.map((item) => (
                 <button
                   key={item.id}
@@ -594,55 +751,120 @@ export function AdminConsole({
         </aside>
 
         <div className="grid gap-8">
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            <button
-              disabled={loading}
-              onClick={load}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] px-4 py-2.5 text-sm font-black text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.08)] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-              Refresh data
-            </button>
-            <form
-              action="/api/admin/logout"
-              method="post"
-              onSubmit={() => appendHistory("overview", "Logout", "Admin session ended")}
-            >
-              <button className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]">
-                <LogOut className="h-4 w-4" aria-hidden="true" />
-                Logout
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+            <div className="flex flex-1 flex-wrap items-center gap-3">
+              <TopStatusChip
+                label="Pending review"
+                value={applicationSummary.pendingReview}
+                detail="Applicants in review flow"
+                tone="warm"
+              />
+              <TopStatusChip
+                label="Ready to approve"
+                value={applicationSummary.ready}
+                detail="Verified and ready"
+                tone="forest"
+              />
+              <TopStatusChip
+                label="Approved learners"
+                value={applicationSummary.approved}
+                detail="Cleared to join"
+                tone="gold"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-end gap-3 xl:flex-nowrap">
+              <button
+                disabled={loading}
+                onClick={load}
+                className="inline-flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.08)] disabled:cursor-not-allowed disabled:opacity-60"
+                aria-label="Refresh data"
+              >
+                <RefreshCw className={`h-5 w-5${loading ? " animate-spin" : ""}`} aria-hidden="true" />
               </button>
-            </form>
+
+              <div className="relative" ref={notificationPanelRef}>
+                <button
+                  onClick={() => setNotificationOpen((current) => !current)}
+                  className="relative inline-flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.08)]"
+                  aria-label="Open notifications"
+                  aria-expanded={notificationOpen}
+                >
+                  <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#f5f1e7]">
+                    <Bell className="h-5 w-5" aria-hidden="true" />
+                    {unreadNotifications ? (
+                      <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d12e2e] px-1.5 py-0.5 text-[10px] font-black text-white">
+                        {unreadNotifications}
+                      </span>
+                    ) : null}
+                  </span>
+                </button>
+
+                {notificationOpen ? (
+                  <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[24rem] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
+                    <div className="flex items-center justify-between gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
+                      <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Admin notifications</p>
+                        <p className="mt-1 text-sm font-semibold text-[#607366]">{unreadNotifications} unread</p>
+                      </div>
+                      <button
+                        onClick={clearNotifications}
+                        className="rounded-full bg-[#f3ecdf] px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-[#173f33]"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+
+                    <div className="max-h-[26rem] overflow-y-auto p-3">
+                      {allNotifications.length ? (
+                        <div className="grid gap-3">
+                          {allNotifications.map((notification) => (
+                            <button
+                              key={notification.id}
+                              onClick={() => markNotificationRead(notification.id)}
+                              className={`rounded-[1.2rem] border p-4 text-left transition ${
+                                notification.read
+                                  ? "border-[rgba(27,59,43,0.08)] bg-[#f7f4ed]"
+                                  : "border-[rgba(28,95,212,0.16)] bg-[rgba(214,230,255,0.55)]"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div>
+                                  <p className="text-sm font-black text-[#173f33]">{notification.title}</p>
+                                  <p className="mt-2 text-sm leading-6 text-[#607366]">{notification.message}</p>
+                                </div>
+                                <span
+                                  className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
+                                    notification.variant === "success"
+                                      ? "bg-[#eef8f1] text-[#21533f]"
+                                      : notification.variant === "warning"
+                                        ? "bg-[#fff5ea] text-[#8c4d1e]"
+                                        : "bg-[#fff0ea] text-[#99462d]"
+                                  }`}
+                                >
+                                  {notification.section}
+                                </span>
+                              </div>
+                              <p className="mt-3 text-xs font-semibold text-[#7a8b80]">{timeAgo(notification.timestamp)}</p>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
+                          No critical notifications right now.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </div>
           </div>
 
           {notice ? (
             <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-5 py-4 text-sm font-semibold text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.06)]">
               {notice}
             </div>
-          ) : null}
-
-          {view === "overview" ? (
-            <section className="grid gap-4">
-              <div className="rounded-[1.75rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_50px_rgba(23,63,51,0.18)]">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.22em] text-[#f5c65e]">
-                      <Layers3 className="h-4 w-4" aria-hidden="true" />
-                      Live updates
-                    </div>
-                    <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#d9dfd5]">Quick operational summary</p>
-                  </div>
-                  <div className="max-w-xl text-sm leading-7 text-[#dde4dc]">
-                    <p className="mt-4 text-sm text-[#dde4dc]">Track live learner movement, review readiness, and final approvals from one place.</p>
-                  </div>
-                </div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <SummaryInlineCard label="Pending review" value={applicationSummary.total - applicationSummary.approved} detail="Applicants waiting in review flow" tone="warm" />
-                  <SummaryInlineCard label="Ready to approve" value={applicationSummary.ready} detail="Verified and ready for decision" tone="forest" />
-                  <SummaryInlineCard label="Approved learners" value={applicationSummary.approved} detail="Cleared to join services" tone="gold" />
-                </div>
-              </div>
-            </section>
           ) : null}
 
       {view === "programs" ? (
@@ -759,6 +981,40 @@ export function AdminConsole({
           schedules={sectionSchedules[activeHistorySection]}
           onClose={() => setActiveHistorySection(null)}
         />
+      ) : null}
+
+      {logoutDialogOpen ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(16,33,27,0.38)] p-4">
+          <div className="w-full max-w-md rounded-[1.9rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-6 shadow-[0_28px_60px_rgba(16,33,27,0.24)]">
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Logout confirmation</p>
+            <h3 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">Leave the command deck?</h3>
+            <p className="mt-3 text-sm leading-7 text-[#607366]">
+              This extra step helps avoid accidental logout clicks while you are working in the admin dashboard.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={() => setLogoutDialogOpen(false)}
+                className="inline-flex flex-1 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f7f4ed] px-4 py-3 text-sm font-black text-[#173f33]"
+              >
+                Stay here
+              </button>
+              <form
+                action="/api/admin/logout"
+                method="post"
+                onSubmit={() => appendHistory("overview", "Logout", "Admin session ended")}
+                className="flex-1"
+              >
+                <button
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
+                >
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  Logout now
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       ) : null}
     </div>
   );
@@ -1133,6 +1389,103 @@ function fieldClass(multiline?: boolean) {
   return `${multiline ? "rounded-[1.35rem]" : "rounded-xl"} border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] px-3 py-2.5 text-sm font-medium text-[#173f33] outline-none ring-[#d9a127] transition placeholder:text-[#8ea091] focus:bg-white focus:ring-2`;
 }
 
+function ArticleMediaUploader<T extends Omit<ArticleItem, "id">>({
+  value,
+  onChange,
+}: {
+  value: T;
+  onChange: (next: T) => void;
+}) {
+  const [notice, setNotice] = useState("");
+  const [isPending, startTransition] = useTransition();
+
+  function handleFileChange(file: File | null) {
+    if (!file) return;
+
+    startTransition(async () => {
+      try {
+        const { uploadUrl, publicUrl, objectKey } = await getPresignedUploadUrlAction(file.name, file.type);
+        const uploadResponse = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": file.type,
+          },
+          body: file,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Article media upload failed.");
+        }
+
+        onChange({
+          ...value,
+          mediaUrl: publicUrl,
+          mediaObjectKey: objectKey,
+          mediaType: file.type.startsWith("video/") ? "VIDEO" : "IMAGE",
+        });
+        setNotice("Article media uploaded successfully.");
+      } catch (error) {
+        setNotice(error instanceof Error ? error.message : "Article media upload failed.");
+      }
+    });
+  }
+
+  return (
+    <div className="rounded-[1.4rem] border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] p-4">
+      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#718477]">Article media</p>
+      <p className="mt-2 text-sm leading-6 text-[#607366]">
+        Upload the main article image or video directly to R2 from here. This replaces the separate media desk workflow.
+      </p>
+
+      <div className="mt-4 grid gap-3">
+        <input
+          type="file"
+          accept="image/*,video/*"
+          onChange={(event) => handleFileChange(event.target.files?.[0] ?? null)}
+          className="block w-full rounded-[1rem] border border-dashed border-[rgba(27,59,43,0.18)] bg-white px-3 py-3 text-sm text-[#173f33]"
+        />
+
+        {value.mediaUrl ? (
+          <div className="overflow-hidden rounded-[1rem] border border-[rgba(27,59,43,0.12)] bg-white">
+            <div className="relative h-48">
+              {value.mediaType === "VIDEO" ? (
+                <video src={value.mediaUrl} controls className="h-full w-full object-cover" preload="metadata" />
+              ) : (
+                <Image src={value.mediaUrl} alt={value.title || "Article media"} fill unoptimized className="object-cover" />
+              )}
+            </div>
+            <div className="flex items-center justify-between gap-3 p-3 text-xs font-semibold text-[#516253]">
+              <span>{value.mediaType ?? "IMAGE"}</span>
+              <button
+                type="button"
+                onClick={() =>
+                  onChange({
+                    ...value,
+                    mediaUrl: "",
+                    mediaObjectKey: "",
+                    mediaType: null,
+                  })
+                }
+                className="rounded-full bg-[#fff5ea] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#92462d]"
+              >
+                Remove media
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {notice ? (
+          <p className="text-sm font-semibold text-[#516253]">{notice}</p>
+        ) : null}
+
+        {isPending ? (
+          <p className="text-sm font-semibold text-[#9c6a18]">Uploading article media...</p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function ArticleFields<T extends Omit<ArticleItem, "id">>({
   value,
   onChange,
@@ -1168,6 +1521,7 @@ function ArticleFields<T extends Omit<ArticleItem, "id">>({
       <Field label="Author role">
         <input className={fieldClass()} value={value.authorRole} onChange={(event) => onChange({ ...value, authorRole: event.target.value })} />
       </Field>
+      <ArticleMediaUploader value={value} onChange={onChange} />
       <Field label="External link">
         <input className={fieldClass()} value={value.externalLink} onChange={(event) => onChange({ ...value, externalLink: event.target.value })} />
       </Field>
@@ -1567,7 +1921,7 @@ function HistoryDrawer({
   );
 }
 
-function SummaryInlineCard({
+function TopStatusChip({
   label,
   value,
   detail,
@@ -1579,16 +1933,18 @@ function SummaryInlineCard({
   tone: "warm" | "forest" | "gold";
 }) {
   const toneClass = {
-    warm: "bg-[rgba(255,245,234,0.1)] border-[rgba(255,245,234,0.16)] text-[#fff4e6]",
-    forest: "bg-[rgba(238,248,241,0.1)] border-[rgba(238,248,241,0.16)] text-[#e8fff0]",
-    gold: "bg-[rgba(255,248,223,0.1)] border-[rgba(255,248,223,0.16)] text-[#fff7de]",
+    warm: "bg-[#fff5ea] border-[rgba(153,70,45,0.12)] text-[#92462d]",
+    forest: "bg-[#eef8f1] border-[rgba(33,83,63,0.12)] text-[#21533f]",
+    gold: "bg-[#fff8df] border-[rgba(122,90,0,0.12)] text-[#7a5a00]",
   }[tone];
 
   return (
-    <div className={`rounded-[1.35rem] border p-4 ${toneClass}`}>
+    <div className={`min-w-[14rem] rounded-[1.35rem] border px-5 py-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)] ${toneClass}`}>
       <p className="text-[11px] font-black uppercase tracking-[0.18em]">{label}</p>
-      <p className="font-display mt-3 text-4xl font-semibold leading-none">{value}</p>
-      <p className="mt-3 text-sm leading-6 text-[#dde4dc]">{detail}</p>
+      <div className="mt-2.5 flex items-end gap-3">
+        <p className="font-display text-4xl font-semibold leading-none">{value}</p>
+        <p className="pb-1 text-sm font-semibold opacity-80">{detail}</p>
+      </div>
     </div>
   );
 }
@@ -1602,4 +1958,21 @@ function formatDateTime(value?: string | null) {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function timeAgo(value: string) {
+  const diffMs = Date.now() - new Date(value).getTime();
+  const diffMinutes = Math.max(1, Math.floor(diffMs / 60_000));
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes} min${diffMinutes === 1 ? "" : "s"} ago`;
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) {
+    return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  }
+
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
 }
