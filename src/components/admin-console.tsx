@@ -11,6 +11,7 @@ import {
   Clock3,
   FolderKanban,
   History,
+  Images,
   LogOut,
   Menu,
   Power,
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { ApplicationAdminPanel } from "@/components/application-admin-panel";
+import { GalleryWorkspace, type GalleryAdminItem, type GalleryDraftInput } from "@/components/gallery-workspace";
 import { getPresignedUploadUrlAction } from "@/app/actions/storage";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
 
@@ -83,9 +85,10 @@ type Props = {
   initialPrograms: Program[];
   initialArticles: ArticleItem[];
   initialEvents: EventItem[];
+  initialGalleryImages: GalleryAdminItem[];
 };
 
-type DashboardView = "programs" | "events" | "applications" | "articles";
+type DashboardView = "programs" | "events" | "applications" | "articles" | "gallery";
 type HistorySection = "overview" | DashboardView;
 
 type HistoryEntry = {
@@ -191,12 +194,14 @@ export function AdminConsole({
   initialPrograms,
   initialArticles,
   initialEvents,
+  initialGalleryImages,
 }: Props) {
   const [programs, setPrograms] = useState<Program[]>(initialPrograms);
   const [events, setEvents] = useState<EventItem[]>(initialEvents);
   const [programDraft, setProgramDraft] = useState(emptyProgram);
   const [eventDraft, setEventDraft] = useState(emptyEvent);
   const [articles, setArticles] = useState<ArticleItem[]>(initialArticles);
+  const [galleryImages, setGalleryImages] = useState<GalleryAdminItem[]>(initialGalleryImages);
   const [articleDraft, setArticleDraft] = useState<Omit<ArticleItem, "id">>(emptyArticle);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
@@ -340,10 +345,11 @@ export function AdminConsole({
   }, []);
 
   const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
-    { id: "programs", label: "Training", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
-    { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
+    { id: "gallery", label: "Gallery", description: "Media showcase", icon: <Images className="h-4 w-4" aria-hidden="true" /> },
+    { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
+    { id: "programs", label: "Training", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
   ];
 
   const systemNotifications = useMemo(() => {
@@ -445,7 +451,7 @@ export function AdminConsole({
           accumulator[schedule.section].push(schedule);
           return accumulator;
         },
-        { overview: [], programs: [], events: [], applications: [], articles: [] },
+        { overview: [], programs: [], events: [], applications: [], articles: [], gallery: [] },
       ),
     [schedules],
   );
@@ -459,27 +465,34 @@ export function AdminConsole({
     setLoading(true);
     setNotice("");
     try {
-      const [programResponse, eventResponse, articleResponse] = await Promise.all([
+      const [programResponse, eventResponse, articleResponse, galleryResponse] = await Promise.all([
         fetch("/api/admin/programs"),
         fetch("/api/admin/events"),
         fetch("/api/admin/articles"),
+        fetch("/api/admin/gallery"),
       ]);
-      if (programResponse.status === 401 || eventResponse.status === 401 || articleResponse.status === 401) {
+      if (
+        programResponse.status === 401 ||
+        eventResponse.status === 401 ||
+        articleResponse.status === 401 ||
+        galleryResponse.status === 401
+      ) {
         window.location.assign("/admin/login");
         return;
       }
-      if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok) {
+      if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok || !galleryResponse.ok) {
         setNotice("Unable to refresh the dashboard right now.");
         return;
       }
       setPrograms(await programResponse.json());
       setEvents(await eventResponse.json());
       setArticles(await articleResponse.json());
+      setGalleryImages(await galleryResponse.json());
       appendHistory("overview", "Refresh", "Dashboard data refreshed");
       pushNotification({
         section: "overview",
         title: "Dashboard refreshed",
-        message: "Programs, events, and articles were refreshed successfully.",
+        message: "Programs, events, articles, and gallery images were refreshed successfully.",
         variant: "success",
       });
       setNotice("Dashboard refreshed.");
@@ -644,6 +657,46 @@ export function AdminConsole({
         section: "events",
         title: "Event removed",
         message: `${currentEvent?.title ?? "Event"} was deleted from the dashboard.`,
+        variant: "warning",
+      });
+    }
+  }
+
+  async function createGalleryImages(records: GalleryDraftInput[]) {
+    const ok = await mutate("/api/admin/gallery", "POST", records);
+    if (ok) {
+      appendHistory("gallery", "Create gallery images", records[0]?.caption || "Gallery image", "Gallery images were added.");
+      pushNotification({
+        section: "gallery",
+        title: "Gallery updated",
+        message: `${records.length} gallery image${records.length === 1 ? "" : "s"} added successfully.`,
+        variant: "success",
+      });
+    }
+  }
+
+  async function saveGalleryImage(id: string, record: GalleryDraftInput) {
+    const ok = await mutate(`/api/admin/gallery/${id}`, "PATCH", record);
+    if (ok) {
+      appendHistory("gallery", "Update gallery image", record.caption || "Gallery image", "Gallery image details were updated.");
+      pushNotification({
+        section: "gallery",
+        title: "Gallery image updated",
+        message: `${record.caption || "Gallery image"} was updated successfully.`,
+        variant: "success",
+      });
+    }
+  }
+
+  async function deleteGalleryImage(id: string) {
+    const image = galleryImages.find((item) => item.id === id);
+    const ok = await mutate(`/api/admin/gallery/${id}`, "DELETE");
+    if (ok) {
+      appendHistory("gallery", "Delete gallery image", image?.caption ?? "Gallery image", "Gallery image deleted.");
+      pushNotification({
+        section: "gallery",
+        title: "Gallery image removed",
+        message: `${image?.caption ?? "Gallery image"} was removed from the gallery manager.`,
         variant: "warning",
       });
     }
@@ -996,6 +1049,23 @@ export function AdminConsole({
             onDraftSave={saveArticleDraft}
             onArticleSave={updateArticle}
             onArticleDelete={deleteArticle}
+          />
+        </DashboardSection>
+      ) : null}
+
+      {view === "gallery" ? (
+        <DashboardSection
+          eyebrow="Gallery manager"
+          title="Manage gallery showcase"
+          className="mt-8"
+        >
+          <GalleryWorkspace
+            disabled={loading || !databaseConfigured}
+            images={galleryImages}
+            onOpenHistory={() => setActiveHistorySection("gallery")}
+            onCreate={createGalleryImages}
+            onSave={saveGalleryImage}
+            onDelete={deleteGalleryImage}
           />
         </DashboardSection>
       ) : null}

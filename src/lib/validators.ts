@@ -64,6 +64,16 @@ export const articleSchema = z.object({
   published: z.coerce.boolean().default(true),
 });
 
+export const galleryImageSchema = z.object({
+  url: z.string().trim().min(1).max(2000),
+  caption: z.string().trim().min(3).max(240),
+  date: z.coerce.date(),
+  place: z.string().trim().max(240).optional().or(z.literal("")),
+  category: z.string().trim().min(2).max(120),
+  year: z.coerce.number().int().min(2000).max(2100),
+  published: z.coerce.boolean().default(true),
+});
+
 export const trainingApplicationSchema = z.object({
   serviceName: z.string().trim().min(3).max(160),
   applicationDate: z.string().trim().min(8).max(30),

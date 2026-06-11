@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminConsole } from "@/components/admin-console";
 import { requireAdmin } from "@/lib/auth";
-import { fallbackApplications, fallbackArticles, fallbackEvents, fallbackPrograms } from "@/lib/fallback-data";
+import { fallbackApplications, fallbackArticles, fallbackEvents, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { mapTrainingApplicationRecord, TRAINING_APPLICATION_SUBJECT_PREFIX } from "@/lib/training-application";
 
@@ -62,6 +62,19 @@ type AdminArticle = {
   updatedAt: Date;
 };
 
+type AdminGalleryImage = {
+  id: string;
+  url: string;
+  caption: string;
+  date: Date;
+  place: string | null;
+  category: string;
+  year: number;
+  published: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export default async function AdminPage() {
   const allowed = await requireAdmin();
   if (!allowed) redirect("/admin/login");
@@ -83,14 +96,19 @@ export default async function AdminPage() {
     mediaType: article.mediaType as AdminArticle["mediaType"],
     externalLink: article.externalLink || null,
   }));
+  let galleryImages: AdminGalleryImage[] = fallbackGalleryImages.map((image) => ({
+    ...image,
+    place: image.place ?? null,
+  }));
   let applications: NonNullable<ReturnType<typeof mapTrainingApplicationRecord>>[] = fallbackApplications;
 
   if (hasDatabaseUrl) {
     try {
-      const [dbPrograms, dbEvents, dbArticles, applicationMessages] = await Promise.all([
+      const [dbPrograms, dbEvents, dbArticles, dbGalleryImages, applicationMessages] = await Promise.all([
         prisma.program.findMany({ orderBy: { updatedAt: "desc" } }),
         prisma.event.findMany({ orderBy: { startsAt: "desc" } }),
         prisma.article.findMany({ orderBy: { publishedAt: "desc" } }),
+        prisma.galleryImage.findMany({ orderBy: [{ date: "desc" }, { createdAt: "desc" }] }),
         prisma.contactMessage.findMany({
           where: {
             subject: {
@@ -118,6 +136,12 @@ export default async function AdminPage() {
         mediaType: article.mediaType ?? null,
         externalLink: article.externalLink ?? null,
       }));
+      galleryImages = dbGalleryImages.length
+        ? dbGalleryImages.map((image) => ({
+            ...image,
+            place: image.place ?? null,
+          }))
+        : galleryImages;
       applications = applicationMessages
         .map(mapTrainingApplicationRecord)
         .filter((value): value is NonNullable<typeof value> => Boolean(value));
@@ -149,6 +173,13 @@ export default async function AdminPage() {
         startsAt: event.startsAt.toISOString(),
         endsAt: event.endsAt?.toISOString() ?? null,
         updatedAt: event.updatedAt.toISOString(),
+      }))}
+      initialGalleryImages={galleryImages.map((image: (typeof galleryImages)[number]) => ({
+        ...image,
+        date: image.date.toISOString(),
+        place: image.place ?? "",
+        createdAt: image.createdAt.toISOString(),
+        updatedAt: image.updatedAt.toISOString(),
       }))}
     />
   );

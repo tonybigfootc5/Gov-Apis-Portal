@@ -19,7 +19,11 @@ async function assertAdminAccess() {
   }
 }
 
-export async function getPresignedUploadUrlAction(filename: string, fileType: string) {
+export async function getPresignedUploadUrlAction(
+  filename: string,
+  fileType: string,
+  section: "articles" | "gallery" = "articles",
+) {
   await assertAdminAccess();
 
   if (!filename.trim()) {
@@ -30,7 +34,7 @@ export async function getPresignedUploadUrlAction(filename: string, fileType: st
 
   const safeFilename = sanitizeFilename(filename);
   const inferredType = fileType.startsWith("video/") ? "VIDEO" : "IMAGE";
-  const objectKey = buildMediaObjectKey("articles", inferredType, safeFilename);
+  const objectKey = buildMediaObjectKey(section, inferredType, safeFilename);
 
   const client = getR2Client();
   const bucket = getR2BucketName();

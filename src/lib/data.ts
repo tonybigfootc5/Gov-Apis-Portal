@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { fallbackArticles, fallbackEvents, fallbackPrograms } from "@/lib/fallback-data";
+import { fallbackArticles, fallbackEvents, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
 
 export type ProgramItem = {
   id: string;
@@ -51,6 +51,19 @@ export type ArticleItem = {
   keyPoints: string;
   seoTitle: string;
   metaDescription: string;
+  published: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type GalleryImageItem = {
+  id: string;
+  url: string;
+  caption: string;
+  date: Date;
+  place: string | null;
+  category: string;
+  year: number;
   published: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -164,5 +177,18 @@ export async function getArticle(slug: string): Promise<ArticleItem | null> {
     return article ?? fallback;
   } catch {
     return fallback;
+  }
+}
+
+export async function getGalleryImages(): Promise<GalleryImageItem[]> {
+  if (!process.env.DATABASE_URL) return fallbackGalleryImages;
+  try {
+    const images = await prisma.galleryImage.findMany({
+      where: { published: true },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+    });
+    return images.length ? images : fallbackGalleryImages;
+  } catch {
+    return fallbackGalleryImages;
   }
 }
