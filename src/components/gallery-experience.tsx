@@ -75,8 +75,8 @@ export function GalleryExperience({
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="relative overflow-hidden rounded-[2.5rem] border border-[rgba(27,59,43,0.08)] bg-[linear-gradient(135deg,rgba(255,253,248,0.98),rgba(245,238,223,0.98))] p-6 shadow-[0_26px_70px_rgba(64,44,8,0.08)] sm:p-10 lg:p-14">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(235,180,40,0.18),transparent_24rem),radial-gradient(circle_at_bottom_left,rgba(27,59,43,0.08),transparent_24rem)]" />
-          <div className="relative grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">
-            <div className="max-w-4xl">
+          <div className="relative">
+            <div className="max-w-5xl">
               <p className="text-xs font-black uppercase tracking-[0.28em] text-[#b36b00]">{eyebrow}</p>
               <h1 className="font-display mt-4 text-4xl font-semibold tracking-tight text-[#1b3b2b] sm:text-5xl lg:text-6xl">
                 {title}
@@ -84,17 +84,6 @@ export function GalleryExperience({
               <p className="mt-5 max-w-3xl text-base leading-8 text-[#516253] sm:text-lg">
                 {subtitle}
               </p>
-            </div>
-
-            <div className="rounded-[2rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.76)] p-5 backdrop-blur-xl">
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#b36b00]">Curated archive</p>
-              <p className="mt-3 text-sm leading-7 text-[#516253]">
-                Field documentation, training moments, institutional visits, and campus visuals arranged as a living visual record of the center.
-              </p>
-              <div className="mt-5 flex items-center gap-3 text-sm font-semibold text-[#1b3b2b]">
-                <span className="rounded-full bg-[#1b3b2b] px-3 py-1.5 text-[#faf8f2]">{filteredItems.length} frames</span>
-                <span className="rounded-full bg-[#f2ebdc] px-3 py-1.5">{year === "ALL" ? "All years" : year}</span>
-              </div>
             </div>
           </div>
         </div>

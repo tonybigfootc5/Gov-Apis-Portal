@@ -1056,7 +1056,7 @@ export function AdminConsole({
       {view === "gallery" ? (
         <DashboardSection
           eyebrow="Gallery manager"
-          title="Manage gallery showcase"
+          title=""
           className="mt-8"
         >
           <GalleryWorkspace
