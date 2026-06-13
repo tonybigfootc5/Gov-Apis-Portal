@@ -36,13 +36,6 @@ export default async function ProgramsPage() {
           </div>
         </div>
       </div>
-      <div className="mt-8 rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#f6efe4] px-5 py-5 text-sm leading-7 text-[#516253] shadow-[0_18px_40px_rgba(64,44,8,0.06)]">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">Training selection</p>
-        <p className="mt-3">
-          The application form is no longer separate. First open the training you want, then use the form inside that training page to submit the application for that exact program.
-        </p>
-      </div>
-
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         {translatedPrograms.map((program) => {
           const isFoundation = program.slug === "scientific-beekeeping-foundation";
