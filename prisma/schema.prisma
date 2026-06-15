@@ -103,3 +103,9 @@ model ContactMessage {
   ipHash    String?
   createdAt DateTime @default(now())
 }
+
+model AdminBackupCodeUse {
+  id       String   @id @default(cuid())
+  codeHash String   @unique
+  usedAt   DateTime @default(now())
+}
