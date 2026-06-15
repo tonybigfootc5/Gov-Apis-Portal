@@ -36,6 +36,7 @@ npm.ps1
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
+ADMIN_MFA_SECRETS.local.md
 
 # vercel
 .vercel
