@@ -1,5 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { EventStatus, PrismaClient, ProgramLevel } from "../src/generated/prisma/client";
+import { trainingProgramCatalog } from "../src/lib/training-programs";
 
 const connectionString = process.env.DATABASE_URL ?? "postgresql://prisma:prisma@localhost:5432/prisma";
 const prisma = new PrismaClient({
@@ -7,45 +8,38 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  await prisma.program.upsert({
-    where: { slug: "scientific-beekeeping-foundation" },
-    update: {},
-    create: {
-      title: "Beekeeping",
-      slug: "scientific-beekeeping-foundation",
-      summary:
-        "Practical training for beginners covering colony biology, hive handling, safety, and seasonal management.",
-      description:
-        "A field-led foundation program for farmers, self-help groups, youth entrepreneurs, and institutional trainees. Participants learn bee biology, apiary layout, hive inspection, protective practices, harvesting hygiene, and responsible colony care.",
-      duration: "5 days",
-      level: ProgramLevel.FOUNDATION,
-      fee: "As notified by the center",
-      capacity: 30,
-      batchStartsAt: new Date("2026-07-15T09:00:00.000Z"),
-      enrollmentClosed: false,
-      popupEnabled: true,
-    },
-  });
-
-  await prisma.program.upsert({
-    where: { slug: "queen-rearing-and-colony-multiplication" },
-    update: {},
-    create: {
-      title: "Queen Rearing & Colony Multiplication",
-      slug: "queen-rearing-and-colony-multiplication",
-      summary:
-        "Advanced instruction on queen cell preparation, selection, nucleus colonies, and sustainable multiplication.",
-      description:
-        "Designed for trained beekeepers and extension teams, this module focuses on genetic selection, grafting discipline, mating yard preparation, nucleus management, and record-led colony multiplication.",
-      duration: "7 days",
-      level: ProgramLevel.ADVANCED,
-      fee: "As notified by the center",
-      capacity: 20,
-      batchStartsAt: new Date("2026-08-05T09:00:00.000Z"),
-      enrollmentClosed: false,
-      popupEnabled: true,
-    },
-  });
+  for (const program of trainingProgramCatalog) {
+    await prisma.program.upsert({
+      where: { slug: program.slug },
+      update: {
+        title: program.title,
+        summary: program.summary,
+        description: program.description,
+        duration: program.duration,
+        level: ProgramLevel[program.level],
+        fee: program.fee,
+        capacity: program.capacity,
+        batchStartsAt: new Date(program.batchStartsAt),
+        enrollmentClosed: program.enrollmentClosed,
+        popupEnabled: program.popupEnabled,
+        published: program.published,
+      },
+      create: {
+        title: program.title,
+        slug: program.slug,
+        summary: program.summary,
+        description: program.description,
+        duration: program.duration,
+        level: ProgramLevel[program.level],
+        fee: program.fee,
+        capacity: program.capacity,
+        batchStartsAt: new Date(program.batchStartsAt),
+        enrollmentClosed: program.enrollmentClosed,
+        popupEnabled: program.popupEnabled,
+        published: program.published,
+      },
+    });
+  }
 
   await prisma.event.upsert({
     where: { slug: "apiculture-technology-orientation" },

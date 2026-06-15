@@ -103,8 +103,12 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
     });
   }, [applications, approvalFilter, crossCheckFilter, dateFilter, fromDate, latestSubmissionTime, paymentFilter, query, serviceFilter, sortBy, toDate]);
 
+  const activeSelectedApplicationId =
+    selectedApplicationId && applications.some((application) => application.id === selectedApplicationId)
+      ? selectedApplicationId
+      : applications[0]?.id ?? "";
   const selectedApplication =
-    filteredApplications.find((application) => application.id === selectedApplicationId) ?? filteredApplications[0] ?? null;
+    filteredApplications.find((application) => application.id === activeSelectedApplicationId) ?? filteredApplications[0] ?? null;
   const applicationsByBatch = useMemo(() => {
     const grouped = new Map<string, TrainingApplicationRecord[]>();
 

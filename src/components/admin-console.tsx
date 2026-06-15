@@ -13,6 +13,7 @@ import {
   History,
   Images,
   LogOut,
+  Mail,
   Menu,
   Power,
   Plus,
@@ -24,8 +25,10 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { ApplicationAdminPanel } from "@/components/application-admin-panel";
+import { ContactInboxPanel } from "@/components/contact-inbox-panel";
 import { GalleryWorkspace, type GalleryAdminItem, type GalleryDraftInput } from "@/components/gallery-workspace";
 import { getPresignedUploadUrlAction } from "@/app/actions/storage";
+import type { ContactInboxRecord } from "@/lib/contact-inbox";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
 
 type Program = {
@@ -82,13 +85,14 @@ type ArticleItem = {
 type Props = {
   databaseConfigured: boolean;
   initialApplications: TrainingApplicationRecord[];
+  initialContactMessages: ContactInboxRecord[];
   initialPrograms: Program[];
   initialArticles: ArticleItem[];
   initialEvents: EventItem[];
   initialGalleryImages: GalleryAdminItem[];
 };
 
-type DashboardView = "programs" | "events" | "applications" | "articles" | "gallery";
+type DashboardView = "programs" | "events" | "applications" | "contacts" | "articles" | "gallery";
 type HistorySection = "overview" | DashboardView;
 
 type HistoryEntry = {
@@ -191,11 +195,14 @@ function readStoredNotifications() {
 export function AdminConsole({
   databaseConfigured,
   initialApplications,
+  initialContactMessages,
   initialPrograms,
   initialArticles,
   initialEvents,
   initialGalleryImages,
 }: Props) {
+  const [applications, setApplications] = useState<TrainingApplicationRecord[]>(initialApplications);
+  const [contactMessages, setContactMessages] = useState<ContactInboxRecord[]>(initialContactMessages);
   const [programs, setPrograms] = useState<Program[]>(initialPrograms);
   const [events, setEvents] = useState<EventItem[]>(initialEvents);
   const [programDraft, setProgramDraft] = useState(emptyProgram);
@@ -219,7 +226,7 @@ export function AdminConsole({
   const notificationPanelRef = useRef<HTMLDivElement | null>(null);
 
   const applicationSummary = useMemo(() => {
-    const ready = initialApplications.filter(
+    const ready = applications.filter(
       (application) =>
         application.payload.crossCheckStatus === "VERIFIED" &&
         application.payload.paymentStatus === "PAID" &&
@@ -227,19 +234,20 @@ export function AdminConsole({
     ).length;
 
     return {
-      total: initialApplications.length,
-      pendingReview: initialApplications.length - initialApplications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
-      approved: initialApplications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
+      total: applications.length,
+      pendingReview: applications.length - applications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
+      approved: applications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
       ready,
     };
-  }, [initialApplications]);
+  }, [applications]);
   const [activeSummaryCard, setActiveSummaryCard] = useState<"pending" | "ready" | "approved" | null>(null);
   const applicationSummaryLists = useMemo(
     () => ({
-      pending: initialApplications
+      pending: applications
         .filter((application) => application.payload.approvalStatus !== "APPROVED")
         .map((application) => ({
           id: application.id,
+          application,
           name: application.payload.candidateName,
           service: application.payload.serviceName,
           status:
@@ -255,7 +263,7 @@ export function AdminConsole({
                 ? ("success" as const)
                 : ("pending" as const),
         })),
-      ready: initialApplications
+      ready: applications
         .filter(
           (application) =>
             application.payload.crossCheckStatus === "VERIFIED" &&
@@ -264,22 +272,24 @@ export function AdminConsole({
         )
         .map((application) => ({
           id: application.id,
+          application,
           name: application.payload.candidateName,
           service: application.payload.serviceName,
           status: "Ready",
           tone: "success" as const,
         })),
-      approved: initialApplications
+      approved: applications
         .filter((application) => application.payload.approvalStatus === "APPROVED")
         .map((application) => ({
           id: application.id,
+          application,
           name: application.payload.candidateName,
           service: application.payload.serviceName,
           status: "Approved",
           tone: "success" as const,
         })),
     }),
-    [initialApplications],
+    [applications],
   );
 
   useEffect(() => {
@@ -346,6 +356,7 @@ export function AdminConsole({
 
   const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
+    { id: "contacts", label: "Contact", description: "Student inbox", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
     { id: "gallery", label: "Gallery", description: "Media showcase", icon: <Images className="h-4 w-4" aria-hidden="true" /> },
     { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
@@ -451,7 +462,7 @@ export function AdminConsole({
           accumulator[schedule.section].push(schedule);
           return accumulator;
         },
-        { overview: [], programs: [], events: [], applications: [], articles: [], gallery: [] },
+        { overview: [], programs: [], events: [], applications: [], contacts: [], articles: [], gallery: [] },
       ),
     [schedules],
   );
@@ -465,22 +476,26 @@ export function AdminConsole({
     setLoading(true);
     setNotice("");
     try {
-      const [programResponse, eventResponse, articleResponse, galleryResponse] = await Promise.all([
+      const [programResponse, eventResponse, articleResponse, galleryResponse, applicationResponse, contactResponse] = await Promise.all([
         fetch("/api/admin/programs"),
         fetch("/api/admin/events"),
         fetch("/api/admin/articles"),
         fetch("/api/admin/gallery"),
+        fetch("/api/admin/applications"),
+        fetch("/api/admin/contact-messages"),
       ]);
       if (
         programResponse.status === 401 ||
         eventResponse.status === 401 ||
         articleResponse.status === 401 ||
-        galleryResponse.status === 401
+        galleryResponse.status === 401 ||
+        applicationResponse.status === 401 ||
+        contactResponse.status === 401
       ) {
         window.location.assign("/admin/login");
         return;
       }
-      if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok || !galleryResponse.ok) {
+      if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok || !galleryResponse.ok || !applicationResponse.ok || !contactResponse.ok) {
         setNotice("Unable to refresh the dashboard right now.");
         return;
       }
@@ -488,11 +503,13 @@ export function AdminConsole({
       setEvents(await eventResponse.json());
       setArticles(await articleResponse.json());
       setGalleryImages(await galleryResponse.json());
+      setApplications(await applicationResponse.json());
+      setContactMessages(await contactResponse.json());
       appendHistory("overview", "Refresh", "Dashboard data refreshed");
       pushNotification({
         section: "overview",
         title: "Dashboard refreshed",
-        message: "Programs, events, articles, and gallery images were refreshed successfully.",
+        message: "Programs, applications, contact inbox, events, articles, and gallery images were refreshed successfully.",
         variant: "success",
       });
       setNotice("Dashboard refreshed.");
@@ -531,6 +548,34 @@ export function AdminConsole({
     } finally {
       setLoading(false);
     }
+  }
+
+  function updateApplicationReview(application: TrainingApplicationRecord, approvalStatus: "APPROVED" | "REJECTED") {
+    void (async () => {
+      const ok = await mutate(`/api/admin/applications/${application.id}`, "PATCH", {
+        attemptStatus: application.payload.attemptStatus,
+        paymentStatus: application.payload.paymentStatus,
+        approvalStatus,
+        crossCheckStatus: application.payload.crossCheckStatus,
+        adminNotes: application.payload.adminNotes,
+        paymentReference: application.payload.paymentReference,
+      });
+      if (!ok) return;
+
+      const isApproved = approvalStatus === "APPROVED";
+      appendHistory(
+        "applications",
+        isApproved ? "Approve student" : "Reject student",
+        application.payload.candidateName,
+        `${application.payload.serviceName} status changed to ${isApproved ? "approved" : "denied"}.`,
+      );
+      pushNotification({
+        section: "applications",
+        title: isApproved ? "Student approved" : "Student denied",
+        message: `${application.payload.candidateName} was ${isApproved ? "approved" : "denied"} successfully.`,
+        variant: isApproved ? "success" : "warning",
+      });
+    })();
   }
 
   function saveArticleDraft() {
@@ -862,6 +907,9 @@ export function AdminConsole({
                 expanded={activeSummaryCard === "pending"}
                 onToggle={() => setActiveSummaryCard((current) => (current === "pending" ? null : "pending"))}
                 items={applicationSummaryLists.pending}
+                loading={loading}
+                onApprove={(application) => updateApplicationReview(application, "APPROVED")}
+                onDeny={(application) => updateApplicationReview(application, "REJECTED")}
               />
               <TopStatusChip
                 label="Ready to approve"
@@ -871,6 +919,9 @@ export function AdminConsole({
                 expanded={activeSummaryCard === "ready"}
                 onToggle={() => setActiveSummaryCard((current) => (current === "ready" ? null : "ready"))}
                 items={applicationSummaryLists.ready}
+                loading={loading}
+                onApprove={(application) => updateApplicationReview(application, "APPROVED")}
+                onDeny={(application) => updateApplicationReview(application, "REJECTED")}
               />
               <TopStatusChip
                 label="Approved learners"
@@ -1028,8 +1079,18 @@ export function AdminConsole({
         >
           <ApplicationAdminPanel
             databaseConfigured={databaseConfigured}
-            initialApplications={initialApplications}
+            initialApplications={applications}
           />
+        </DashboardSection>
+      ) : null}
+
+      {view === "contacts" ? (
+        <DashboardSection
+          eyebrow="Contact desk"
+          title=""
+          className="mt-8"
+        >
+          <ContactInboxPanel messages={contactMessages} loading={loading} />
         </DashboardSection>
       ) : null}
 
@@ -1086,11 +1147,8 @@ export function AdminConsole({
           <div className="w-full max-w-md rounded-[1.9rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-6 shadow-[0_28px_60px_rgba(16,33,27,0.24)]">
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Logout confirmation</p>
             <h3 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">Leave the command deck?</h3>
-            <p className="mt-3 text-sm leading-7 text-[#607366]">
-              This extra step helps avoid accidental logout clicks while you are working in the admin dashboard.
-            </p>
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={() => setLogoutDialogOpen(false)}
                 className="inline-flex flex-1 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f7f4ed] px-4 py-3 text-sm font-black text-[#173f33]"
@@ -1407,7 +1465,6 @@ function ArticlesWorkspace({
               article={selectedArticle}
               schedules={schedules}
               onSchedule={onSchedule}
-              onOpenHistory={onOpenHistory}
               onSave={onArticleSave}
               onDelete={onArticleDelete}
             />
@@ -1417,7 +1474,6 @@ function ArticlesWorkspace({
                 <div>
                   <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">New article</p>
                   <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create article</h3>
-                  <p className="mt-2 text-sm leading-7 text-[#607366]">Draft a new article from here. Once saved, it will move into the article index on the left.</p>
                 </div>
                 <button
                   type="button"
@@ -1577,7 +1633,6 @@ function ProgramsWorkspace({
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">New training</p>
                 <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create training service</h3>
-                <p className="mt-2 text-sm leading-7 text-[#607366]">Write the training exactly as the applicant should understand it.</p>
               </div>
               <div className="flex items-center gap-2">
                 {!databaseConfigured ? (
@@ -1679,11 +1734,7 @@ function ArticleMediaUploader<T extends Omit<ArticleItem, "id">>({
   return (
     <div className="rounded-[1.4rem] border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] p-4">
       <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#718477]">Article media</p>
-      <p className="mt-2 text-sm leading-6 text-[#607366]">
-        Upload the main article image or video directly to R2 from here. This replaces the separate media desk workflow.
-      </p>
-
-      <div className="mt-4 grid gap-3">
+      <div className="mt-3 grid gap-3">
         <input
           type="file"
           accept="image/*,video/*"
@@ -1853,14 +1904,9 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
             className="flex w-full items-center justify-between gap-4 text-left"
             aria-pressed={value.popupEnabled}
           >
-            <span>
-              <span className="block text-sm font-semibold text-[#173f33]">Show in upcoming training banner</span>
-              <span className="mt-1 block text-xs font-semibold text-[#718477]">
-                {value.popupEnabled
-                  ? "Banner is on. This training can appear in the homepage batch update popup."
-                  : "Banner is off. This training will stay hidden from the homepage batch update popup."}
+              <span>
+                <span className="block text-sm font-semibold text-[#173f33]">Show in upcoming training banner</span>
               </span>
-            </span>
             <span
               className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full p-1 transition ${
                 value.popupEnabled ? "bg-[#34c759]" : "bg-[#d3d9d4]"
@@ -2033,14 +2079,12 @@ function ArticleEditorCard({
   article,
   schedules,
   onSchedule,
-  onOpenHistory,
   onSave,
   onDelete,
 }: {
   article: ArticleItem;
   schedules: PublishSchedule[];
   onSchedule: (label: string, publishAt: string) => void;
-  onOpenHistory: () => void;
   onSave: (id: string, next: ArticleItem) => void;
   onDelete: (id: string) => void;
 }) {
@@ -2057,14 +2101,6 @@ function ArticleEditorCard({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onOpenHistory}
-            className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
-          >
-            <History className="h-4 w-4" aria-hidden="true" />
-            History
-          </button>
           <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
             {draft.published ? "Published" : "Draft"}
           </span>
@@ -2181,11 +2217,10 @@ function HistoryDrawer({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">{section}</p>
-            <h3 className="font-display mt-2 text-3xl font-semibold text-[#173f33]">30-day history</h3>
-            <p className="mt-2 text-sm leading-7 text-[#607366]">Recent edits, scheduling actions, and admin activity for this section.</p>
-          </div>
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">{section}</p>
+          <h3 className="font-display mt-2 text-3xl font-semibold text-[#173f33]">30-day history</h3>
+        </div>
           <button
             onClick={onClose}
             className="rounded-full border border-[rgba(27,59,43,0.12)] p-2 text-[#173f33]"
@@ -2252,6 +2287,9 @@ function TopStatusChip({
   expanded,
   onToggle,
   items,
+  loading = false,
+  onApprove,
+  onDeny,
 }: {
   label: string;
   value: number;
@@ -2261,11 +2299,15 @@ function TopStatusChip({
   onToggle: () => void;
   items: Array<{
     id: string;
+    application: TrainingApplicationRecord;
     name: string;
     service: string;
     status: string;
     tone: "success" | "pending" | "danger";
   }>;
+  loading?: boolean;
+  onApprove?: (application: TrainingApplicationRecord) => void;
+  onDeny?: (application: TrainingApplicationRecord) => void;
 }) {
   const toneClass = {
     warm: "bg-[#fff5ea] border-[rgba(153,70,45,0.12)] text-[#92462d]",
@@ -2293,8 +2335,8 @@ function TopStatusChip({
       </button>
       {expanded ? (
         <div className="border-t border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.55)] px-3 py-3">
-          <div className="max-h-56 overflow-y-auto pr-1">
-            <div className="grid gap-2">
+          <div className="max-h-72 overflow-y-auto pr-1">
+            <div className="grid gap-2.5">
               {items.length ? (
                 items.map((item) => (
                   <div key={item.id} className="rounded-[1rem] bg-[#fffdf8] px-3 py-3 shadow-[0_8px_18px_rgba(64,44,8,0.05)]">
@@ -2307,6 +2349,30 @@ function TopStatusChip({
                         {item.status}
                       </span>
                     </div>
+                    {onApprove || onDeny ? (
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {onApprove ? (
+                          <button
+                            type="button"
+                            disabled={loading || item.application.payload.approvalStatus === "APPROVED"}
+                            onClick={() => onApprove(item.application)}
+                            className="inline-flex items-center justify-center rounded-full bg-[#2fa65f] px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[0_10px_20px_rgba(47,166,95,0.2)] transition hover:bg-[#25874d] disabled:cursor-not-allowed disabled:bg-[#b8d9c5] disabled:text-[#f5fff8] disabled:shadow-none"
+                          >
+                            Approve
+                          </button>
+                        ) : null}
+                        {onDeny ? (
+                          <button
+                            type="button"
+                            disabled={loading || item.application.payload.approvalStatus === "REJECTED"}
+                            onClick={() => onDeny(item.application)}
+                            className="inline-flex items-center justify-center rounded-full bg-[#d65445] px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[0_10px_20px_rgba(214,84,69,0.18)] transition hover:bg-[#b13d31] disabled:cursor-not-allowed disabled:bg-[#ebc0b8] disabled:text-[#fff8f5] disabled:shadow-none"
+                          >
+                            Deny
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </div>
                 ))
               ) : (

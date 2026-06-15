@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { fallbackArticles, fallbackEvents, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
+import { trainingProgramCatalog, trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
 export type ProgramItem = {
   id: string;
@@ -69,15 +70,62 @@ export type GalleryImageItem = {
   updatedAt: Date;
 };
 
-function normalizeProgram<T extends { slug: string; title: string }>(program: T): T {
-  if (program.slug !== "scientific-beekeeping-foundation") {
+function buildCatalogProgram(program: (typeof trainingProgramCatalog)[number]): ProgramItem {
+  return {
+    id: program.id,
+    title: program.title,
+    slug: program.slug,
+    summary: program.summary,
+    description: program.description,
+    duration: program.duration,
+    level: program.level,
+    fee: program.fee,
+    capacity: program.capacity,
+    batchStartsAt: new Date(program.batchStartsAt),
+    enrollmentClosed: program.enrollmentClosed,
+    popupEnabled: program.popupEnabled,
+    published: program.published,
+    createdAt: new Date("2026-01-01"),
+    updatedAt: new Date("2026-01-01"),
+  };
+}
+
+function mergeProgramWithCatalog(program: ProgramItem): ProgramItem {
+  const catalog = trainingProgramCatalogBySlug[program.slug];
+
+  if (!catalog) {
     return program;
   }
 
   return {
     ...program,
-    title: "Beekeeping",
+    title: catalog.title,
+    summary: catalog.summary,
+    description: catalog.description,
+    duration: catalog.duration,
+    level: catalog.level,
+    fee: program.fee ?? catalog.fee,
+    capacity: catalog.capacity,
+    slug: catalog.slug,
   };
+}
+
+function orderPrograms(programs: ProgramItem[]) {
+  const order = new Map(trainingProgramCatalog.map((program, index) => [program.slug, index]));
+
+  return [...programs].sort((left, right) => {
+    const leftOrder = order.get(left.slug);
+    const rightOrder = order.get(right.slug);
+
+    if (leftOrder != null && rightOrder != null) {
+      return leftOrder - rightOrder;
+    }
+
+    if (leftOrder != null) return -1;
+    if (rightOrder != null) return 1;
+
+    return left.title.localeCompare(right.title);
+  });
 }
 
 export async function getPrograms(): Promise<ProgramItem[]> {
@@ -87,7 +135,19 @@ export async function getPrograms(): Promise<ProgramItem[]> {
       where: { published: true },
       orderBy: [{ level: "asc" }, { title: "asc" }],
     });
-    return programs.map(normalizeProgram);
+
+    const mergedPrograms = new Map<string, ProgramItem>();
+
+    for (const catalogProgram of trainingProgramCatalog) {
+      mergedPrograms.set(catalogProgram.slug, buildCatalogProgram(catalogProgram));
+    }
+
+    for (const program of programs) {
+      const normalizedProgram = mergeProgramWithCatalog(program);
+      mergedPrograms.set(normalizedProgram.slug, normalizedProgram);
+    }
+
+    return orderPrograms(Array.from(mergedPrograms.values()));
   } catch {
     return fallbackPrograms;
   }
@@ -112,6 +172,28 @@ export function getAnnouncementPrograms(programs: ProgramItem[], now = new Date(
     });
 }
 
+export async function getPopupAnnouncementPrograms(now = new Date()): Promise<ProgramItem[]> {
+  if (!process.env.DATABASE_URL) {
+    return getAnnouncementPrograms(fallbackPrograms, now);
+  }
+
+  try {
+    const programs = await prisma.program.findMany({
+      where: {
+        published: true,
+        popupEnabled: true,
+        enrollmentClosed: false,
+        OR: [{ batchStartsAt: null }, { batchStartsAt: { gt: now } }],
+      },
+      orderBy: [{ batchStartsAt: "asc" }, { title: "asc" }],
+    });
+
+    return programs.map(mergeProgramWithCatalog);
+  } catch {
+    return getAnnouncementPrograms(fallbackPrograms, now);
+  }
+}
+
 export async function getProgram(slug: string): Promise<ProgramItem | null> {
   if (!process.env.DATABASE_URL) {
     return fallbackPrograms.find((item) => item.slug === slug) ?? null;
@@ -120,7 +202,12 @@ export async function getProgram(slug: string): Promise<ProgramItem | null> {
     const program = await prisma.program.findFirst({
       where: { slug, published: true },
     });
-    return program ? normalizeProgram(program) : fallbackPrograms.find((item) => item.slug === slug) ?? null;
+    if (program) {
+      return mergeProgramWithCatalog(program);
+    }
+
+    const catalogProgram = trainingProgramCatalogBySlug[slug];
+    return catalogProgram ? buildCatalogProgram(catalogProgram) : fallbackPrograms.find((item) => item.slug === slug) ?? null;
   } catch {
     return fallbackPrograms.find((item) => item.slug === slug) ?? null;
   }

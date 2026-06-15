@@ -43,10 +43,10 @@ export function SiteHeader({
         <Link href="/" className="flex flex-1 items-center gap-2.5 pr-2 sm:gap-3" aria-label="API CULTURE home">
           <span className="relative h-12 w-14 shrink-0 sm:h-14 sm:w-16">
             <Image
-              src="/api-culture-logo.png"
+              src="/api-culture-logo-clean.png"
               alt="API CULTURE honeycomb logo"
               fill
-              className="object-contain"
+              className="object-contain drop-shadow-[0_8px_18px_rgba(179,107,0,0.18)]"
               sizes="64px"
               priority
             />

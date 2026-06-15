@@ -1,3 +1,5 @@
+import { trainingProgramCatalog } from "@/lib/training-programs";
+
 export const institute = {
   name: "API CULTURE",
   legalName: "API Culture Technology Center (Bee Keeping)",
@@ -10,46 +12,23 @@ export const institute = {
   website: "https://www.apiculture.in",
 };
 
-export const fallbackPrograms = [
-  {
-    id: "program-foundation",
-    title: "Beekeeping",
-    slug: "scientific-beekeeping-foundation",
-    summary:
-      "Practical training covering colony biology, hive handling, safety, seasonal care, and honey hygiene.",
-    description:
-      "A field-led foundation program for farmers, self-help groups, youth entrepreneurs, and institutional trainees. Participants learn bee biology, apiary layout, hive inspection, protective practices, harvesting hygiene, and responsible colony care.",
-    duration: "5 days",
-    level: "FOUNDATION",
-    fee: "As notified by the center",
-    capacity: 30,
-    batchStartsAt: new Date("2026-07-15T09:00:00.000Z"),
-    enrollmentClosed: false,
-    popupEnabled: true,
-    published: true,
-    createdAt: new Date("2026-01-01"),
-    updatedAt: new Date("2026-01-01"),
-  },
-  {
-    id: "program-queen",
-    title: "Queen Rearing & Colony Multiplication",
-    slug: "queen-rearing-and-colony-multiplication",
-    summary:
-      "Advanced instruction on selection, grafting, nucleus colonies, and sustainable apiary expansion.",
-    description:
-      "Designed for trained beekeepers and extension teams, this module focuses on genetic selection, grafting discipline, mating yard preparation, nucleus management, and record-led colony multiplication.",
-    duration: "7 days",
-    level: "ADVANCED",
-    fee: "As notified by the center",
-    capacity: 20,
-    batchStartsAt: new Date("2026-08-05T09:00:00.000Z"),
-    enrollmentClosed: false,
-    popupEnabled: true,
-    published: true,
-    createdAt: new Date("2026-01-01"),
-    updatedAt: new Date("2026-01-01"),
-  },
-];
+export const fallbackPrograms = trainingProgramCatalog.map((program) => ({
+  id: program.id,
+  title: program.title,
+  slug: program.slug,
+  summary: program.summary,
+  description: program.description,
+  duration: program.duration,
+  level: program.level,
+  fee: program.fee,
+  capacity: program.capacity,
+  batchStartsAt: new Date(program.batchStartsAt),
+  enrollmentClosed: program.enrollmentClosed,
+  popupEnabled: program.popupEnabled,
+  published: program.published,
+  createdAt: new Date("2026-01-01"),
+  updatedAt: new Date("2026-01-01"),
+}));
 
 export const fallbackEvents = [
   {

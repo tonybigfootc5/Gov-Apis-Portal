@@ -15,7 +15,6 @@ import {
   Search,
   SlidersHorizontal,
   Trash2,
-  UploadCloud,
 } from "lucide-react";
 import { getPresignedUploadUrlAction } from "@/app/actions/storage";
 import { galleryCategoryOptions, getGalleryCategoryLabel } from "@/lib/gallery";
@@ -277,7 +276,6 @@ export function GalleryWorkspace({
                 <>
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Photo library</p>
-                    <p className="mt-2 text-sm leading-6 text-[#607366]">Search, filter, and reopen any saved gallery frame fast.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-[#173f33] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#fff9ec]">
@@ -417,7 +415,6 @@ export function GalleryWorkspace({
                     <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_top,rgba(235,180,40,0.22),transparent_18rem),linear-gradient(180deg,rgba(244,236,220,0.95),rgba(231,239,233,0.95))]">
                       <div className="px-8 text-center text-[#607366]">
                         <ImagePlus className="mx-auto h-12 w-12 text-[#b36b00]" aria-hidden="true" />
-                        <p className="mt-4 text-sm leading-6">Upload a photo and it will appear here instantly for review.</p>
                       </div>
                     </div>
                   )}
@@ -428,7 +425,6 @@ export function GalleryWorkspace({
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-black text-[#173f33]">Upload photos</p>
-                    <p className="mt-1 text-sm text-[#607366]">Add one or many photos, then save them with the right metadata.</p>
                   </div>
                   <span className="rounded-full bg-[#eef8f1] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#21533f]">
                     {uploadedCount ? `${uploadedCount} ready` : "No queue"}
@@ -459,17 +455,6 @@ export function GalleryWorkspace({
                 {uploadNotice ? <p className="mt-4 text-sm font-semibold text-[#21533f]">{uploadNotice}</p> : null}
                 {isUploading ? <p className="mt-2 text-sm font-semibold text-[#9c6a18]">Uploading to Cloudflare R2...</p> : null}
 
-                <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                  <MiniInfo icon={<UploadCloud className="h-4 w-4" aria-hidden="true" />} label="Direct upload">
-                    Straight to R2
-                  </MiniInfo>
-                  <MiniInfo icon={<Images className="h-4 w-4" aria-hidden="true" />} label="Multi-select">
-                    Add several photos
-                  </MiniInfo>
-                  <MiniInfo icon={<Eye className="h-4 w-4" aria-hidden="true" />} label="Review">
-                    Check before publish
-                  </MiniInfo>
-                </div>
               </div>
             </div>
 
@@ -479,9 +464,6 @@ export function GalleryWorkspace({
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">
                       {selectedImage ? "Edit photo" : "Photo details"}
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-[#607366]">
-                      Keep the metadata short, clear, and easy to scan on the live gallery.
                     </p>
                   </div>
                   <span className="rounded-full bg-[#f6efe4] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">

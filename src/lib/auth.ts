@@ -67,13 +67,9 @@ export async function adminUnauthorized() {
 }
 
 export function isValidPassword(password: string) {
-  if (password === "123456") {
-    return true;
-  }
-
   const expected = process.env.ADMIN_PASSWORD;
   if (!expected || expected.length < 12) {
-    return process.env.NODE_ENV !== "production" && (password === "admin-development-pass" || password === "123456");
+    return process.env.NODE_ENV !== "production" && password === "admin-development-pass";
   }
 
   const providedBuffer = Buffer.from(password);

@@ -136,17 +136,14 @@ export function HomeContactSection({ language }: { language: SiteLanguage }) {
             <a href={`tel:${institute.phone[0]}`} className="paper-panel rounded-[1.5rem] p-4 text-sm text-[#516253] transition hover:border-[#b36b00]/40">
               <Phone className="h-5 w-5 text-[#b36b00]" aria-hidden="true" />
               <p className="mt-3 font-semibold text-[#1b3b2b]">Call</p>
-              <p className="mt-2">Speak with the center office directly.</p>
             </a>
             <a href={`mailto:${institute.email}`} className="paper-panel rounded-[1.5rem] p-4 text-sm text-[#516253] transition hover:border-[#b36b00]/40">
               <Mail className="h-5 w-5 text-[#b36b00]" aria-hidden="true" />
               <p className="mt-3 font-semibold text-[#1b3b2b]">Email</p>
-              <p className="mt-2">Send program or partnership questions.</p>
             </a>
             <a href={institute.website} target="_blank" rel="noreferrer" className="paper-panel rounded-[1.5rem] p-4 text-sm text-[#516253] transition hover:border-[#b36b00]/40">
               <ExternalLink className="h-5 w-5 text-[#b36b00]" aria-hidden="true" />
               <p className="mt-3 font-semibold text-[#1b3b2b]">Website</p>
-              <p className="mt-2">Open the official public domain.</p>
             </a>
           </div>
         </div>

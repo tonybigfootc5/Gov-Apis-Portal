@@ -4,17 +4,29 @@ const publicMediaBaseUrl = process.env.R2_PUBLIC_BASE_URL || process.env.NEXT_PU
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  images: publicMediaBaseUrl
-    ? {
-        remotePatterns: [
-          {
-            protocol: new URL(publicMediaBaseUrl).protocol.replace(":", "") as "http" | "https",
-            hostname: new URL(publicMediaBaseUrl).hostname,
-            pathname: "/**",
-          },
-        ],
-      }
-    : undefined,
+  images: {
+    remotePatterns: [
+      ...(publicMediaBaseUrl
+        ? [
+            {
+              protocol: new URL(publicMediaBaseUrl).protocol.replace(":", "") as "http" | "https",
+              hostname: new URL(publicMediaBaseUrl).hostname,
+              pathname: "/**",
+            },
+          ]
+        : []),
+      {
+        protocol: "https",
+        hostname: "commons.wikimedia.org",
+        pathname: "/wiki/**",
+      },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+        pathname: "/**",
+      },
+    ],
+  },
   async headers() {
     return [
       {

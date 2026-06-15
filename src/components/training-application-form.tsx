@@ -1,18 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   BriefcaseBusiness,
-  CalendarDays,
   Camera,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   MapPinned,
-  Phone,
-  ShieldCheck,
-  Upload,
   UserRound,
 } from "lucide-react";
 import { getApplicationPhotoUploadUrlAction } from "@/app/actions/storage";
@@ -190,16 +186,6 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
   const progress = ((step + 1) / STEPS.length) * 100;
   const canAdvance = requiredStepFields(step, form);
 
-  const summaryItems = useMemo(
-    () => [
-      { label: "Selected service", value: form.serviceName || DEFAULT_SERVICE_NAME, icon: ShieldCheck },
-      { label: "Candidate", value: form.candidateName || "Not filled yet", icon: UserRound },
-      { label: "Mobile", value: form.phone || "Not filled yet", icon: Phone },
-      { label: "Training dates", value: "08 Jun 2026 to 12 Jun 2026", icon: CalendarDays },
-    ],
-    [form.candidateName, form.phone, form.serviceName],
-  );
-
   function updateField<Key extends keyof FormState>(key: Key, value: FormState[Key]) {
     setForm((current) => ({ ...current, [key]: value }));
   }
@@ -287,8 +273,8 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
   }
 
   return (
-    <div className="grid gap-5 2xl:grid-cols-[minmax(0,1fr)_20rem]">
-      <div className="overflow-hidden rounded-[2rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] shadow-[0_28px_70px_rgba(64,44,8,0.08)]">
+    <div className="mx-auto max-w-5xl">
+      <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] shadow-[0_20px_50px_rgba(64,44,8,0.08)]">
         <div className="border-b border-[rgba(27,59,43,0.08)] bg-[linear-gradient(135deg,#fff4d1_0%,#f3d487_45%,#c98618_100%)] px-5 py-5 sm:px-7 sm:py-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-2xl">
@@ -296,13 +282,10 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               <h2 className="font-display mt-3 text-3xl font-semibold leading-tight text-[#1b3b2b] sm:text-4xl">
                 Easy step-by-step form for every applicant
               </h2>
-              <p className="mt-3 max-w-xl text-sm leading-7 text-[#3f4b42] sm:text-base">
-                Large fields, simple wording, bilingual hints, and photo auto-sizing so anyone can complete the form without confusion.
-              </p>
             </div>
-            <div className="min-w-[13rem] rounded-[1.5rem] bg-[rgba(255,253,248,0.72)] px-4 py-3 text-sm font-semibold text-[#1b3b2b] shadow-[0_16px_40px_rgba(122,74,0,0.12)] backdrop-blur-sm">
-              <p>Training dates</p>
-              <p className="mt-1 text-[#7a4a00]">08 Jun 2026 to 12 Jun 2026</p>
+            <div className="min-w-[13rem] rounded-[1.25rem] bg-[rgba(255,253,248,0.72)] px-4 py-3 text-sm font-semibold text-[#1b3b2b] shadow-[0_16px_40px_rgba(122,74,0,0.12)] backdrop-blur-sm">
+              <p>Application steps</p>
+              <p className="mt-1 text-[#7a4a00]">{STEPS.length} guided sections</p>
             </div>
           </div>
           <div className="mt-6 h-2 overflow-hidden rounded-full bg-[rgba(27,59,43,0.12)]">
@@ -342,21 +325,9 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
           {step === 0 ? (
             <div className="grid gap-4">
-              {lockedService ? (
-                <div className="rounded-[1.6rem] border border-[rgba(27,59,43,0.12)] bg-[#f6efe4] p-4">
-                  <p className="text-xs font-black uppercase tracking-[0.18em] text-[#b36b00]">Selected training</p>
-                  <p className="mt-2 text-xl font-semibold text-[#1b3b2b]">{lockedService.title}</p>
-                  <p className="mt-2 text-sm leading-7 text-[#516253]">
-                    {lockedService.duration} | {lockedService.level}
-                  </p>
-                  <p className="mt-2 text-sm leading-7 text-[#516253]">
-                    This form is now linked to the selected training, so the applicant does not need to choose again.
-                  </p>
-                </div>
-              ) : (
+              {lockedService ? null : (
                 <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                   Select service
-                  <span className="text-xs font-normal text-[#7a867b]">Choose the training service the applicant wants to join</span>
                   <select value={form.serviceName} onChange={(event) => updateField("serviceName", event.target.value)} className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2">
                     {normalizedServiceOptions.map((service) => (
                       <option key={service.title} value={service.title}>
@@ -418,13 +389,11 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
             <div className="grid gap-4">
               <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                 Mobile number
-                <span className="text-xs font-normal text-[#7a867b]">10-digit phone for calls and messages</span>
                 <input value={form.phone} onChange={(event) => updateField("phone", event.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="9395507766" inputMode="numeric" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
               </label>
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                   Email
-                  <span className="text-xs font-normal text-[#7a867b]">Optional if the applicant does not use email</span>
                   <input type="email" value={form.email} onChange={(event) => updateField("email", event.target.value)} placeholder="name@example.com" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-[#516253]">
@@ -435,7 +404,6 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               </div>
               <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                 Address
-                <span className="text-xs font-normal text-[#7a867b]">House number, street, village</span>
                 <textarea value={form.addressLine} onChange={(event) => updateField("addressLine", event.target.value)} rows={4} placeholder="H. No, street, village" className="min-w-0 rounded-[1.5rem] border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
               </label>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -466,26 +434,17 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               <div className="grid gap-4 sm:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                   Education qualification
-                  <span className="text-xs font-normal text-[#7a867b]">Leave blank if not applicable</span>
                   <input value={form.educationQualification} onChange={(event) => updateField("educationQualification", event.target.value)} placeholder="Example: 10th class / Degree" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                   Occupation
-                  <span className="text-xs font-normal text-[#7a867b]">Farmer, student, homemaker, worker...</span>
                   <input value={form.occupation} onChange={(event) => updateField("occupation", event.target.value)} placeholder="Example: Farmer" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
                 </label>
               </div>
               <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                 Sponsoring organization
-                <span className="text-xs font-normal text-[#7a867b]">Optional for SHGs, institutions, or departments</span>
                 <input value={form.sponsoringOrganization} onChange={(event) => updateField("sponsoringOrganization", event.target.value)} placeholder="Example: Self Help Group / NGO / Department" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
               </label>
-              <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] p-5 text-sm leading-7 text-[#516253]">
-                <p className="font-black uppercase tracking-[0.18em] text-[#b36b00]">Helpful note</p>
-                <p className="mt-3">
-                  These background fields are optional. If the applicant does not know an answer, you can leave it blank and continue to the final step.
-                </p>
-              </div>
             </div>
           ) : null}
 
@@ -493,7 +452,6 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
             <div className="grid gap-5">
               <label className="grid gap-3 text-sm font-semibold text-[#516253]">
                 Upload applicant photo
-                <span className="text-xs font-normal text-[#7a867b]">ఒక ఫోటో అప్లోడ్ చేయండి. We optimize the file automatically.</span>
                 <div className="rounded-[1.75rem] border border-dashed border-[rgba(27,59,43,0.18)] bg-[#fffaf0] p-5">
                   <input
                     type="file"
@@ -574,53 +532,6 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
           ) : null}
         </div>
       </div>
-
-      <aside className="grid content-start gap-4 2xl:sticky 2xl:top-28">
-        <div className="glass-panel rounded-[2rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-[#b36b00]">At a glance</p>
-          <div className="mt-4 grid gap-3">
-            {summaryItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.label} className="rounded-[1.4rem] bg-[rgba(255,253,248,0.72)] p-4">
-                  <div className="flex items-center gap-3">
-                    <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#fff4d1] text-[#b36b00]">
-                      <Icon className="h-5 w-5" aria-hidden="true" />
-                    </span>
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#7a867b]">{item.label}</p>
-                      <p className="mt-1 text-sm font-semibold text-[#1b3b2b]">{item.value}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="paper-panel rounded-[2rem] p-5">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-[#b36b00]">Need help while filling?</p>
-          <div className="mt-4 grid gap-3 text-sm leading-7 text-[#516253]">
-            <p className="rounded-[1.4rem] bg-[#fffdf8] px-4 py-3">Call: `+91 93955 07766` / `040-24017766`</p>
-            <p className="rounded-[1.4rem] bg-[#fffdf8] px-4 py-3">Email: `apiculturetechcenter@gmail.com`</p>
-            <p className="rounded-[1.4rem] bg-[#fffdf8] px-4 py-3">
-              Tip: If the applicant has no email or residence phone, those fields can be left blank.
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-[2rem] bg-[linear-gradient(135deg,#1b3b2b_0%,#2d312e_100%)] p-5 text-[#faf8f2] shadow-[0_28px_70px_rgba(27,59,43,0.18)]">
-          <div className="flex items-center gap-3">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[rgba(244,203,97,0.16)] text-[#f4cb61]">
-              <Upload className="h-6 w-6" aria-hidden="true" />
-            </span>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f4cb61]">Simple upload</p>
-              <p className="mt-1 text-sm leading-6 text-[#e4e6df]">Photo is auto-resized to help slower connections and easier submission.</p>
-            </div>
-          </div>
-        </div>
-      </aside>
     </div>
   );
 }

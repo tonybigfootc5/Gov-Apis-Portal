@@ -85,6 +85,72 @@ html {
     radial-gradient(circle at top right, rgba(235, 180, 40, 0.22), transparent 18rem);
 }
 
+.hero-hex-cluster {
+  position: relative;
+  width: 168px;
+  height: 148px;
+}
+
+.hero-hex-cluster-tight {
+  width: 120px;
+  height: 92px;
+}
+
+.hero-hex {
+  position: absolute;
+  display: block;
+  border: 1px solid rgba(244, 203, 97, 0.32);
+  background:
+    linear-gradient(180deg, rgba(244, 203, 97, 0.12), rgba(244, 203, 97, 0.02)),
+    rgba(255, 248, 234, 0.02);
+  clip-path: polygon(25% 6.7%, 75% 6.7%, 100% 50%, 75% 93.3%, 25% 93.3%, 0% 50%);
+  box-shadow: inset 0 0 0 1px rgba(255, 248, 234, 0.02);
+  backdrop-filter: blur(4px);
+}
+
+.hero-hex-lg {
+  top: 0;
+  right: 0;
+  width: 94px;
+  height: 82px;
+}
+
+.hero-hex-md {
+  top: 42px;
+  left: 22px;
+  width: 70px;
+  height: 62px;
+}
+
+.hero-hex-sm {
+  top: 18px;
+  left: 0;
+  width: 50px;
+  height: 44px;
+}
+
+.hero-hex-xs {
+  right: 18px;
+  bottom: 0;
+  width: 32px;
+  height: 28px;
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.marquee-track {
+  width: max-content;
+  animation: marquee-left 34s linear infinite;
+  will-change: transform;
+}
+
 @keyframes float-gentle {
   0%,
   100% {
@@ -98,4 +164,11 @@ html {
 .float-gentle {
   animation: float-gentle 2.8s ease-in-out infinite;
   will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .float-gentle {
+    animation: none;
+  }
 }

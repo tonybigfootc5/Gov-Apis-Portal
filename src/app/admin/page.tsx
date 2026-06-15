@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminConsole } from "@/components/admin-console";
 import { requireAdmin } from "@/lib/auth";
+import { getContactMessageCutoffDate, mapContactInboxRecord, type ContactInboxRecord } from "@/lib/contact-inbox";
 import { fallbackApplications, fallbackArticles, fallbackEvents, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { mapTrainingApplicationRecord, TRAINING_APPLICATION_SUBJECT_PREFIX } from "@/lib/training-application";
@@ -101,10 +102,24 @@ export default async function AdminPage() {
     place: image.place ?? null,
   }));
   let applications: NonNullable<ReturnType<typeof mapTrainingApplicationRecord>>[] = fallbackApplications;
+  let contactMessages: ContactInboxRecord[] = [];
 
   if (hasDatabaseUrl) {
     try {
-      const [dbPrograms, dbEvents, dbArticles, dbGalleryImages, applicationMessages] = await Promise.all([
+      const cutoffDate = getContactMessageCutoffDate();
+
+      await prisma.contactMessage.deleteMany({
+        where: {
+          createdAt: { lt: cutoffDate },
+          NOT: {
+            subject: {
+              startsWith: TRAINING_APPLICATION_SUBJECT_PREFIX,
+            },
+          },
+        },
+      });
+
+      const [dbPrograms, dbEvents, dbArticles, dbGalleryImages, applicationMessages, contactInboxMessages] = await Promise.all([
         prisma.program.findMany({ orderBy: { updatedAt: "desc" } }),
         prisma.event.findMany({ orderBy: { startsAt: "desc" } }),
         prisma.article.findMany({ orderBy: { publishedAt: "desc" } }),
@@ -113,6 +128,17 @@ export default async function AdminPage() {
           where: {
             subject: {
               startsWith: TRAINING_APPLICATION_SUBJECT_PREFIX,
+            },
+          },
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.contactMessage.findMany({
+          where: {
+            createdAt: { gte: cutoffDate },
+            NOT: {
+              subject: {
+                startsWith: TRAINING_APPLICATION_SUBJECT_PREFIX,
+              },
             },
           },
           orderBy: { createdAt: "desc" },
@@ -145,8 +171,10 @@ export default async function AdminPage() {
       applications = applicationMessages
         .map(mapTrainingApplicationRecord)
         .filter((value): value is NonNullable<typeof value> => Boolean(value));
+      contactMessages = contactInboxMessages.map(mapContactInboxRecord);
     } catch {
       applications = [];
+      contactMessages = [];
     }
   }
 
@@ -154,6 +182,7 @@ export default async function AdminPage() {
     <AdminConsole
       databaseConfigured={hasDatabaseUrl}
       initialApplications={applications}
+      initialContactMessages={contactMessages}
       initialPrograms={programs.map((program: (typeof programs)[number]) => ({
         ...program,
         batchStartsAt: program.batchStartsAt?.toISOString() ?? null,

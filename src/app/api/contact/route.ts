@@ -2,8 +2,10 @@ import { createHash } from "crypto";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { badRequest, serviceUnavailable, tooManyRequests } from "@/lib/api-response";
+import { getContactMessageCutoffDate } from "@/lib/contact-inbox";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
+import { TRAINING_APPLICATION_SUBJECT_PREFIX } from "@/lib/training-application";
 import { contactSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
@@ -25,6 +27,17 @@ export async function POST(request: Request) {
   }
 
   try {
+    await prisma.contactMessage.deleteMany({
+      where: {
+        createdAt: { lt: getContactMessageCutoffDate() },
+        NOT: {
+          subject: {
+            startsWith: TRAINING_APPLICATION_SUBJECT_PREFIX,
+          },
+        },
+      },
+    });
+
     await prisma.contactMessage.create({
       data: {
         ...parsed.data,
