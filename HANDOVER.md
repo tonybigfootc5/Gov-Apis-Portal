@@ -41,6 +41,7 @@
   - origin-side verification of `Cf-Access-Jwt-Assertion`
   - Cloudflare Access logout flow at `/cdn-cgi/access/logout`
   - no app-owned password, TOTP, backup codes, or admin session cookies
+- Sandbox can temporarily use a secret-based bypass when `APP_ENV=sandbox` and `SANDBOX_ADMIN_BYPASS_SECRET` is configured.
 - Vercel production env vars now need:
   - `CLOUDFLARE_ACCESS_AUD`
   - `CLOUDFLARE_ACCESS_TEAM_DOMAIN`
@@ -119,6 +120,9 @@ npm run build
   - `DATABASE_URL`
   - `CLOUDFLARE_ACCESS_AUD`
   - `CLOUDFLARE_ACCESS_TEAM_DOMAIN`
+- Required for sandbox-only fallback login:
+  - `APP_ENV=sandbox`
+  - `SANDBOX_ADMIN_BYPASS_SECRET`
 - If `DATABASE_URL` is missing:
   - public site still works with fallback data
   - admin content remains read-only locally
