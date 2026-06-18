@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Check } from "lucide-react";
+import { ArrowLeft, Check, Clock3, GraduationCap, Users2 } from "lucide-react";
 import { TrainingApplicationForm } from "@/components/training-application-form";
 import { getProgram } from "@/lib/data";
 import { getTranslatedProgramContent, t } from "@/lib/i18n";
@@ -38,37 +38,31 @@ export default async function ProgramDetailPage({ params }: Props) {
     duration: translatedProgram.duration,
     level: translatedProgram.level,
   };
-  const sectionLinks = [
-    { href: "#about-training", label: "About", active: true },
-    { href: "#training-outcomes", label: "Outcomes", active: false },
-    { href: "#training-skills", label: "Skills", active: false },
-    { href: "#training-application-form", label: "Apply", active: false },
-  ] as const;
 
   return (
-    <article className="bg-[#f5f7fb]">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-        <div className="relative overflow-hidden rounded-[2rem] border border-[#dbe4f0] bg-[linear-gradient(135deg,#eef4ff_0%,#f7f9fc_55%,#edf2fa_100%)] shadow-[0_18px_45px_rgba(31,55,92,0.08)]">
-          <div className="grid gap-0 lg:grid-cols-[minmax(0,1.2fr)_26rem]">
+    <article className="px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+      <div className="mx-auto max-w-7xl">
+        <div className="neo-shell rounded-[2.4rem] overflow-hidden">
+          <div className="relative z-10 grid gap-0 lg:grid-cols-[minmax(0,1.08fr)_26rem]">
             <div className="p-6 sm:p-8 lg:p-10">
-              <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-semibold text-[#295fa8]">
+              <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-semibold text-[#8ec5ff]">
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 {t(language, "programs.back")}
               </Link>
 
-              <p className="mt-6 text-xs font-black uppercase tracking-[0.24em] text-[#295fa8]">
+              <p className="mt-6 text-[11px] font-black uppercase tracking-[0.24em] text-[#f2b544]">
                 {presentation?.detailBadge ?? translatedProgram.level}
               </p>
-              <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-tight text-[#101828] sm:text-5xl">
+              <h1 className="font-display mt-4 max-w-4xl text-5xl leading-[0.94] text-bright sm:text-6xl">
                 {translatedProgram.title}
               </h1>
-              <p className="mt-4 max-w-3xl text-base leading-8 text-[#475467] sm:text-lg">
+              <p className="mt-5 max-w-3xl text-base leading-8 text-dim sm:text-lg">
                 {translatedProgram.summary}
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
+              <div className="mt-7 flex flex-wrap gap-2">
                 {(presentation?.skills ?? []).map((skill) => (
-                  <span key={skill} className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#295fa8] shadow-[0_2px_8px_rgba(16,24,40,0.05)]">
+                  <span key={skill} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[#dce5f2]">
                     {skill}
                   </span>
                 ))}
@@ -76,13 +70,13 @@ export default async function ProgramDetailPage({ params }: Props) {
 
               <a
                 href="#training-application-form"
-                className="mt-8 inline-flex items-center justify-center rounded-xl bg-[#0b63ce] px-6 py-4 text-base font-semibold text-white shadow-[0_14px_30px_rgba(11,99,206,0.24)]"
+                className="mt-8 inline-flex items-center justify-center rounded-full bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#0a0d12]"
               >
-                Apply for this training
+                Apply now
               </a>
             </div>
 
-            <div className="relative min-h-[20rem] border-t border-[#dbe4f0] lg:min-h-full lg:border-l lg:border-t-0">
+            <div className="relative min-h-[22rem] border-t border-white/10 lg:min-h-full lg:border-l lg:border-t-0">
               {presentation ? (
                 <Image
                   src={presentation.imageSrc}
@@ -93,83 +87,92 @@ export default async function ProgramDetailPage({ params }: Props) {
                   className="object-cover"
                 />
               ) : null}
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,24,40,0.06)_0%,rgba(16,24,40,0.28)_100%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,13,20,0.06)_0%,rgba(10,13,20,0.56)_100%)]" />
             </div>
           </div>
         </div>
 
-        <div className="relative -mt-6 z-10 rounded-[1.5rem] border border-[#dbe4f0] bg-white shadow-[0_20px_50px_rgba(16,24,40,0.08)]">
-          <div className="grid divide-y divide-[#e8eef6] sm:grid-cols-2 sm:divide-x sm:divide-y-0 xl:grid-cols-4">
-            <StatCard label="Duration" value={translatedProgram.duration} detail="Planned training period" />
-            <StatCard label="Level" value={translatedProgram.level} detail="Recommended entry stage" />
-            <StatCard label="Capacity" value={`${translatedProgram.capacity} participants`} detail="Batch size for guided learning" />
-            <StatCard label="Format" value="Field and practical" detail="Hands-on learning with trainer support" />
-          </div>
-        </div>
+        <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+          <div className="grid gap-6">
+            <section className="section-frame rounded-[1.8rem] p-5 sm:p-6">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <MiniInfo icon={Clock3} label="Duration" value={translatedProgram.duration} />
+                <MiniInfo icon={GraduationCap} label="Level" value={translatedProgram.level} />
+                <MiniInfo icon={Users2} label="Capacity" value={`${translatedProgram.capacity} participants`} />
+              </div>
+            </section>
 
-        <div className="mt-8 flex flex-wrap gap-3 border-b border-[#dbe4f0] pb-4">
-          {sectionLinks.map((section) => (
-            <a
-              key={section.label}
-              href={section.href}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition hover:text-[#0b63ce] ${
-                section.active ? "bg-[#e8f0ff] text-[#295fa8]" : "text-[#344054]"
-              }`}
-            >
-              {section.label}
-            </a>
-          ))}
-        </div>
+            <section className="section-frame rounded-[1.8rem] p-5 sm:p-6">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">Program overview</p>
+              <h2 className="font-display mt-4 text-4xl text-bright">What this training covers</h2>
+              <p className="mt-5 text-base leading-8 text-dim">{translatedProgram.description}</p>
+            </section>
 
-        <div className="mt-8 grid gap-6">
-          <section id="about-training" className="rounded-[1.5rem] border border-[#dbe4f0] bg-white p-5 shadow-[0_10px_28px_rgba(16,24,40,0.06)] sm:p-6">
-            <h2 className="text-2xl font-semibold text-[#101828]">About this training</h2>
-            <p className="mt-4 text-base leading-8 text-[#475467]">{translatedProgram.description}</p>
-          </section>
+            <section className="section-frame rounded-[1.8rem] p-5 sm:p-6">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">Outcomes</p>
+              <h2 className="font-display mt-4 text-4xl text-bright">What participants walk away with</h2>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {(presentation?.outcomes ?? []).map((outcome) => (
+                  <p key={outcome} className="inline-flex gap-3 rounded-[1.2rem] border border-white/10 bg-white/4 p-4 text-sm leading-7 text-dim">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#f2b544]" aria-hidden="true" />
+                    {outcome}
+                  </p>
+                ))}
+              </div>
+            </section>
 
-          <section id="training-outcomes" className="rounded-[1.5rem] border border-[#dbe4f0] bg-white p-5 shadow-[0_10px_28px_rgba(16,24,40,0.06)] sm:p-6">
-            <h2 className="text-2xl font-semibold text-[#101828]">What you&apos;ll learn</h2>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {(presentation?.outcomes ?? []).map((outcome) => (
-                <p key={outcome} className="inline-flex gap-3 text-sm leading-7 text-[#475467]">
-                  <Check className="mt-1 h-4 w-4 shrink-0 text-[#295fa8]" aria-hidden="true" />
-                  {outcome}
+            <section id="training-application-form" className="section-frame rounded-[1.8rem] p-5 sm:p-6">
+              <div className="mb-6 rounded-[1.5rem] border border-white/10 bg-white/4 p-5">
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">Application</p>
+                <h2 className="font-display mt-3 text-4xl text-bright">Apply for {translatedProgram.title}</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-dim">
+                  Finish the enrollment details here and you will be taken directly to the payment gateway after submission.
                 </p>
-              ))}
-            </div>
-          </section>
+              </div>
 
-          <section id="training-skills" className="rounded-[1.5rem] border border-[#dbe4f0] bg-white p-5 shadow-[0_10px_28px_rgba(16,24,40,0.06)] sm:p-6">
-            <h2 className="text-2xl font-semibold text-[#101828]">Skills you&apos;ll gain</h2>
-            <div className="mt-5 flex flex-wrap gap-3">
-              {(presentation?.skills ?? []).map((skill) => (
-                <span key={skill} className="rounded-full bg-[#edf3ff] px-4 py-2 text-sm font-semibold text-[#295fa8]">
-                  {skill}
-                </span>
-              ))}
-            </div>
-          </section>
+              <TrainingApplicationForm serviceOptions={[selectedService]} selectedServiceTitle={selectedService.title} />
+            </section>
+          </div>
 
-          <section id="training-application-form" className="rounded-[1.5rem] border border-[#dbe4f0] bg-white p-5 shadow-[0_10px_28px_rgba(16,24,40,0.06)] sm:p-6">
-            <div className="mb-6 rounded-[1.25rem] border border-[#e5ecf6] bg-[#fafcff] p-5">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#295fa8]">Application</p>
-              <h2 className="mt-3 text-2xl font-semibold text-[#101828]">Apply for {translatedProgram.title}</h2>
-            </div>
+          <aside className="section-frame h-fit rounded-[1.8rem] p-5 sm:p-6">
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">Best suited for</p>
+            <p className="mt-4 text-sm leading-7 text-dim">
+              {presentation?.targetAudience ?? "Eligible applicants interested in beekeeping training."}
+            </p>
 
-            <TrainingApplicationForm serviceOptions={[selectedService]} selectedServiceTitle={selectedService.title} />
-          </section>
+            <div className="mt-6 rounded-[1.4rem] border border-white/10 bg-white/4 p-4">
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">Skills covered</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {(presentation?.skills ?? []).map((skill) => (
+                  <span key={skill} className="rounded-full border border-white/10 px-3 py-2 text-xs font-semibold text-[#dce5f2]">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
     </article>
   );
 }
 
-function StatCard({ label, value, detail }: { label: string; value: string; detail: string }) {
+function MiniInfo({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Clock3;
+  label: string;
+  value: string;
+}) {
   return (
-    <div className="p-5 sm:p-6">
-      <p className="text-sm font-semibold text-[#101828]">{value}</p>
-      <p className="mt-1 text-xs font-black uppercase tracking-[0.14em] text-[#667085]">{label}</p>
-      <p className="mt-2 text-sm leading-6 text-[#475467]">{detail}</p>
+    <div className="rounded-[1.2rem] border border-white/10 bg-white/4 p-4">
+      <div className="flex items-center gap-2 text-[#8ec5ff]">
+        <Icon className="h-4 w-4" aria-hidden="true" />
+        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#9ca8bc]">{label}</p>
+      </div>
+      <p className="mt-2 text-sm font-semibold text-bright">{value}</p>
     </div>
   );
 }

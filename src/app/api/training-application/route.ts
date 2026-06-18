@@ -2,13 +2,15 @@ import { createHash } from "crypto";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { badRequest, serviceUnavailable, tooManyRequests } from "@/lib/api-response";
-import { createPhonePePayment, getTrainingApplicationAmountPaise, isPhonePeConfigured } from "@/lib/phonepe";
+import { createPhonePePayment, isPhonePeConfigured } from "@/lib/phonepe";
+import {
+  buildPhonePeRedirectUrl,
+  getCurrentPaymentEnvironment,
+  getTrainingApplicationAmountPaise,
+} from "@/lib/phonepe-config";
 import { prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
-import {
-  buildMerchantOrderId,
-  getCurrentPaymentEnvironment,
-} from "@/lib/training-application";
+import { buildMerchantOrderId } from "@/lib/training-application";
 import { trainingApplicationSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
@@ -39,6 +41,7 @@ export async function POST(request: Request) {
 
   try {
     const amountPaise = getTrainingApplicationAmountPaise();
+
     const application = await prisma.trainingApplication.create({
       data: {
         serviceName: parsed.data.serviceName,
@@ -66,27 +69,36 @@ export async function POST(request: Request) {
     });
 
     const merchantOrderId = buildMerchantOrderId(application.id);
-    const redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/payments/return?merchantOrderId=${encodeURIComponent(merchantOrderId)}`;
-
-    const checkout = await createPhonePePayment({
-      merchantOrderId,
-      amountPaise,
-      redirectUrl,
-      message: `${parsed.data.serviceName} application payment`,
-    });
+    const redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);
+    const checkoutUrl = (
+      await createPhonePePayment({
+        merchantOrderId,
+        amountPaise,
+        redirectUrl,
+        message: `${parsed.data.serviceName} application payment`,
+        disablePaymentRetry: true,
+        phoneNumber: parsed.data.phone,
+        metadata: {
+          applicationId: application.id,
+          serviceName: parsed.data.serviceName,
+          candidateName: parsed.data.candidateName,
+        },
+      })
+    ).checkoutUrl;
 
     await prisma.paymentOrder.create({
       data: {
         trainingApplicationId: application.id,
         environment: getCurrentPaymentEnvironment(),
         merchantOrderId,
-        checkoutUrl: checkout.checkoutUrl,
+        checkoutUrl,
         redirectUrl,
         status: "PENDING",
         amountPaise,
         meta: {
           ipHash,
           serviceName: parsed.data.serviceName,
+          mode: "phonepe",
         },
         latestEventName: "checkout.created",
       },
@@ -97,7 +109,7 @@ export async function POST(request: Request) {
         ok: true,
         applicationId: application.id,
         merchantOrderId,
-        redirectUrl: checkout.checkoutUrl,
+        redirectUrl: checkoutUrl,
       },
       { status: 201 },
     );

@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
-import { createPhonePePayment, getTrainingApplicationAmountPaise } from "@/lib/phonepe";
-import { prisma } from "@/lib/prisma";
+import { createPhonePePayment } from "@/lib/phonepe";
 import {
-  buildMerchantOrderId,
+  buildPhonePeRedirectUrl,
   getCurrentPaymentEnvironment,
-} from "@/lib/training-application";
+  getTrainingApplicationAmountPaise,
+} from "@/lib/phonepe-config";
+import { prisma } from "@/lib/prisma";
+import { buildMerchantOrderId } from "@/lib/training-application";
 import { getTrainingApplicationEntityById } from "@/lib/training-application-store";
 
 type Props = {
@@ -21,20 +23,29 @@ export async function POST(_request: Request, { params }: Props) {
 
   const amountPaise = getTrainingApplicationAmountPaise();
   const merchantOrderId = buildMerchantOrderId(application.id);
-  const redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/payments/return?merchantOrderId=${encodeURIComponent(merchantOrderId)}`;
-  const checkout = await createPhonePePayment({
-    merchantOrderId,
-    amountPaise,
-    redirectUrl,
-    message: `${application.serviceName} application retry payment`,
-  });
+  const redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);
+  const checkoutUrl = (
+    await createPhonePePayment({
+      merchantOrderId,
+      amountPaise,
+      redirectUrl,
+      message: `${application.serviceName} application retry payment`,
+      disablePaymentRetry: true,
+      phoneNumber: application.phone,
+      metadata: {
+        applicationId: application.id,
+        serviceName: application.serviceName,
+        candidateName: application.candidateName,
+      },
+    })
+  ).checkoutUrl;
 
   await prisma.paymentOrder.create({
     data: {
       trainingApplicationId: application.id,
       environment: getCurrentPaymentEnvironment(),
       merchantOrderId,
-      checkoutUrl: checkout.checkoutUrl,
+      checkoutUrl,
       redirectUrl,
       status: "PENDING",
       amountPaise,
@@ -46,6 +57,6 @@ export async function POST(_request: Request, { params }: Props) {
     ok: true,
     applicationId: application.id,
     merchantOrderId,
-    redirectUrl: checkout.checkoutUrl,
+    redirectUrl: checkoutUrl,
   });
 }

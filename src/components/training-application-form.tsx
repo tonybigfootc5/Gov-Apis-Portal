@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MapPinned,
+  ShieldCheck,
   UserRound,
 } from "lucide-react";
 import { getApplicationPhotoUploadUrlAction } from "@/app/actions/storage";
@@ -77,10 +78,10 @@ const INITIAL_FORM: FormState = {
 };
 
 const STEPS = [
-  { id: "person", title: "Person details", subtitle: "Basic identity and family details", icon: UserRound },
-  { id: "contact", title: "Contact and address", subtitle: "Where we can reach the applicant", icon: MapPinned },
-  { id: "background", title: "Education and work", subtitle: "Simple background details", icon: BriefcaseBusiness },
-  { id: "photo", title: "Photo and finish", subtitle: "Upload photo and submit", icon: Camera },
+  { id: "person", title: "Identity", subtitle: "Applicant basics", icon: UserRound },
+  { id: "contact", title: "Reach", subtitle: "Contact and address", icon: MapPinned },
+  { id: "background", title: "Profile", subtitle: "Education and work", icon: BriefcaseBusiness },
+  { id: "photo", title: "Finish", subtitle: "Photo and final check", icon: Camera },
 ] as const;
 
 function dataUrlFromBlob(blob: Blob) {
@@ -137,7 +138,7 @@ async function optimizePhoto(file: File) {
     previewUrl: dataUrl,
     blob,
     photoType: "image/jpeg",
-    photoName: file.name.replace(/\.[^.]+$/, "") + ".jpg",
+    photoName: `${file.name.replace(/\.[^.]+$/, "")}.jpg`,
   };
 }
 
@@ -183,7 +184,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
   const [photoUploadState, setPhotoUploadState] = useState<PhotoUploadState>("idle");
   const [message, setMessage] = useState("");
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
-  const [photoStatus, setPhotoStatus] = useState("Add a clear face photo. We shrink it automatically to make upload easier.");
+  const [photoStatus, setPhotoStatus] = useState("Upload one clear face photo. We compress it automatically before sending.");
   const hasUploadedPhoto = Boolean(form.photoUrl && form.photoObjectKey && form.photoName);
 
   const progress = ((step + 1) / STEPS.length) * 100;
@@ -201,14 +202,15 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
       updateField("photoName", "");
       updateField("photoType", "");
       setPhotoPreviewUrl("");
-      setPhotoStatus("Add a clear face photo. We shrink it automatically to make upload easier.");
+      setPhotoStatus("Upload one clear face photo. We compress it automatically before sending.");
       return;
     }
 
     setSubmitState("compressing");
     setPhotoUploadState("uploading");
     setMessage("");
-    setPhotoStatus(`Preparing ${file.name} for upload...`);
+    setPhotoStatus(`Preparing ${file.name}...`);
+
     try {
       const optimized = await optimizePhoto(file);
       setPhotoStatus(`Uploading ${optimized.photoName}...`);
@@ -237,7 +239,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
         photoObjectKey: objectKey,
       }));
       setPhotoPreviewUrl(optimized.previewUrl);
-      setPhotoStatus(`Photo uploaded successfully: ${optimized.photoName}`);
+      setPhotoStatus("Photo uploaded and ready.");
       setPhotoUploadState("uploaded");
       setSubmitState("idle");
     } catch (error) {
@@ -250,19 +252,20 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
   async function handleSubmit() {
     if (photoUploadState === "uploading" || submitState === "compressing") {
-      setMessage("Please wait for the applicant photo to finish uploading before submitting.");
+      setMessage("Wait for the photo upload to finish before submitting.");
       setSubmitState("error");
       return;
     }
 
     if (!requiredStepFields(3, form)) {
-      setMessage("Please upload the applicant photo completely before submitting.");
+      setMessage("Upload the applicant photo before submitting.");
       setSubmitState("error");
       return;
     }
 
     setSubmitState("submitting");
     setMessage("");
+
     try {
       const response = await fetch("/api/training-application", {
         method: "POST",
@@ -277,7 +280,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
       const body = await response.json();
       setSubmitState("success");
-      setMessage("Application saved. Redirecting you to PhonePe checkout...");
+      setMessage("Application saved. Redirecting to secure payment...");
       window.location.assign(body.redirectUrl);
     } catch (error) {
       setSubmitState("error");
@@ -285,276 +288,384 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
     }
   }
 
+  const currentStep = STEPS[step];
+
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="overflow-hidden rounded-[1.75rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] shadow-[0_20px_50px_rgba(64,44,8,0.08)]">
-        <div className="border-b border-[rgba(27,59,43,0.08)] bg-[linear-gradient(135deg,#fff4d1_0%,#f3d487_45%,#c98618_100%)] px-5 py-5 sm:px-7 sm:py-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="max-w-2xl">
-              <p className="text-xs font-black uppercase tracking-[0.28em] text-[#7a4a00]">Application for training services</p>
-              <h2 className="font-display mt-3 text-3xl font-semibold leading-tight text-[#1b3b2b] sm:text-4xl">
-                Easy step-by-step form for every applicant
-              </h2>
+    <div className="mx-auto max-w-6xl">
+      <div className="neo-shell rounded-[2rem] p-5 sm:p-7 lg:p-8">
+        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,16rem)_1fr]">
+          <aside className="section-frame rounded-[1.7rem] p-5">
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">Enrollment flow</p>
+            <h2 className="font-display mt-4 text-3xl text-bright">Apply in four clean steps.</h2>
+            <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/8">
+              <div className="h-full rounded-full bg-[linear-gradient(90deg,#f2b544,#8ec5ff)] transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
-            <div className="min-w-[13rem] rounded-[1.25rem] bg-[rgba(255,253,248,0.72)] px-4 py-3 text-sm font-semibold text-[#1b3b2b] shadow-[0_16px_40px_rgba(122,74,0,0.12)] backdrop-blur-sm">
-              <p>Application steps</p>
-              <p className="mt-1 text-[#7a4a00]">{STEPS.length} guided sections</p>
-            </div>
-          </div>
-          <div className="mt-6 h-2 overflow-hidden rounded-full bg-[rgba(27,59,43,0.12)]">
-            <div className="h-full rounded-full bg-[#1b3b2b] transition-all duration-300" style={{ width: `${progress}%` }} />
-          </div>
-          <div className="mt-4 flex flex-wrap gap-3">
-            {STEPS.map((item, index) => {
-              const Icon = item.icon;
-              const active = index === step;
-              const passed = index < step;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setStep(index)}
-                  className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-left text-xs font-black uppercase tracking-[0.14em] transition ${
-                    active
-                      ? "bg-[#1b3b2b] text-[#faf8f2]"
-                      : passed
-                        ? "bg-[rgba(27,59,43,0.12)] text-[#1b3b2b]"
-                        : "bg-[rgba(255,253,248,0.66)] text-[#516253]"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" aria-hidden="true" />
-                  {item.title}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+            <div className="mt-6 grid gap-3">
+              {STEPS.map((item, index) => {
+                const Icon = item.icon;
+                const active = index === step;
+                const passed = index < step;
 
-        <div className="grid gap-6 px-5 py-6 sm:px-7 sm:py-7">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#b36b00]">{STEPS[step].title}</p>
-            <h3 className="font-display mt-2 text-2xl font-semibold text-[#1b3b2b]">{STEPS[step].subtitle}</h3>
-          </div>
-
-          {step === 0 ? (
-            <div className="grid gap-4">
-              {lockedService ? null : (
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Select service
-                  <select value={form.serviceName} onChange={(event) => updateField("serviceName", event.target.value)} className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2">
-                    {normalizedServiceOptions.map((service) => (
-                      <option key={service.title} value={service.title}>
-                        {service.title} - {service.duration} - {service.level}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Date of application
-                  <span className="text-xs font-normal text-[#7a867b]">ఈ రోజు తేది</span>
-                  <input type="date" value={form.applicationDate} onChange={(event) => updateField("applicationDate", event.target.value)} className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Date of birth
-                  <span className="text-xs font-normal text-[#7a867b]">పుట్టిన తేది</span>
-                  <input type="date" value={form.dateOfBirth} onChange={(event) => updateField("dateOfBirth", event.target.value)} className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-              </div>
-              <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                Name of the candidate
-                <span className="text-xs font-normal text-[#7a867b]">అభ్యర్థి పేరు</span>
-                <input value={form.candidateName} onChange={(event) => updateField("candidateName", event.target.value)} placeholder="Example: Lakshmi Devi" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                Father / Husband / Guardian name
-                <span className="text-xs font-normal text-[#7a867b]">తండ్రి / భర్త / సంరక్షకుని పేరు</span>
-                <input value={form.guardianName} onChange={(event) => updateField("guardianName", event.target.value)} placeholder="Example: Ramesh" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-              </label>
-              <div className="grid gap-2 text-sm font-semibold text-[#516253]">
-                Gender
-                <span className="text-xs font-normal text-[#7a867b]">లింగం</span>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {[
-                    { value: "male", label: "Male / పురుషుడు" },
-                    { value: "female", label: "Female / మహిళ" },
-                  ].map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => updateField("gender", option.value as "male" | "female")}
-                      className={`rounded-[1.4rem] border px-4 py-4 text-left text-base font-bold transition ${
-                        form.gender === option.value
-                          ? "border-[#b36b00] bg-[#fff0c8] text-[#1b3b2b]"
-                          : "border-[rgba(27,59,43,0.14)] bg-[#fffdf8] text-[#516253]"
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {step === 1 ? (
-            <div className="grid gap-4">
-              <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                Mobile number
-                <input value={form.phone} onChange={(event) => updateField("phone", event.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="9395507766" inputMode="numeric" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-              </label>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Email
-                  <input type="email" value={form.email} onChange={(event) => updateField("email", event.target.value)} placeholder="name@example.com" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Residence phone
-                  <span className="text-xs font-normal text-[#7a867b]">Optional / ఇంటి ఫోన్</span>
-                  <input value={form.residencePhone} onChange={(event) => updateField("residencePhone", event.target.value)} placeholder="If available" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-              </div>
-              <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                Address
-                <textarea value={form.addressLine} onChange={(event) => updateField("addressLine", event.target.value)} rows={4} placeholder="H. No, street, village" className="min-w-0 rounded-[1.5rem] border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-              </label>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Mandal / Block
-                  <input value={form.mandal} onChange={(event) => updateField("mandal", event.target.value)} placeholder="Example: Rajendranagar" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  District
-                  <input value={form.district} onChange={(event) => updateField("district", event.target.value)} placeholder="Example: Hyderabad" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  State
-                  <input value={form.state} onChange={(event) => updateField("state", event.target.value)} className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Pin code
-                  <input value={form.pinCode} onChange={(event) => updateField("pinCode", event.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" placeholder="500030" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-              </div>
-            </div>
-          ) : null}
-
-          {step === 2 ? (
-            <div className="grid gap-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Education qualification
-                  <input value={form.educationQualification} onChange={(event) => updateField("educationQualification", event.target.value)} placeholder="Example: 10th class / Degree" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                  Occupation
-                  <input value={form.occupation} onChange={(event) => updateField("occupation", event.target.value)} placeholder="Example: Farmer" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-                </label>
-              </div>
-              <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                Sponsoring organization
-                <input value={form.sponsoringOrganization} onChange={(event) => updateField("sponsoringOrganization", event.target.value)} placeholder="Example: Self Help Group / NGO / Department" className="min-w-0 rounded-2xl border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-lg text-[#1b3b2b] outline-none ring-[#ebb428] focus:ring-2" />
-              </label>
-            </div>
-          ) : null}
-
-          {step === 3 ? (
-            <div className="grid gap-5">
-              <label className="grid gap-3 text-sm font-semibold text-[#516253]">
-                Upload applicant photo
-                <div className="rounded-[1.75rem] border border-dashed border-[rgba(27,59,43,0.18)] bg-[#fffaf0] p-5">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => void onPhotoChange(event.target.files?.[0] ?? null)}
-                    className="block w-full text-sm text-[#516253] file:mr-4 file:rounded-full file:border-0 file:bg-[#1b3b2b] file:px-4 file:py-2 file:text-sm file:font-black file:uppercase file:tracking-[0.12em] file:text-[#faf8f2]"
-                  />
-                  <p className="mt-3 text-sm text-[#516253]">{photoStatus}</p>
-                  {hasUploadedPhoto ? (
-                    <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-[#1b3b2b]">
-                      Uploaded and ready to submit
-                    </p>
-                  ) : null}
-                  {photoPreviewUrl ? (
-                    <div className="mt-4 overflow-hidden rounded-[1.5rem] border border-[rgba(27,59,43,0.12)] bg-white p-3">
-                      <div className="relative h-48 w-full overflow-hidden rounded-[1rem]">
-                        <Image src={photoPreviewUrl} alt="Applicant preview" fill unoptimized className="object-cover" />
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setStep(index)}
+                    className={`rounded-[1.2rem] border px-4 py-4 text-left transition ${
+                      active
+                        ? "border-[#f2b544]/40 bg-[#f2b544]/10"
+                        : passed
+                          ? "border-white/10 bg-white/6"
+                          : "border-white/8 bg-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`flex h-10 w-10 items-center justify-center rounded-full ${active ? "bg-[#f2b544] text-[#0a0d12]" : "bg-white/8 text-[#f4efe4]"}`}>
+                        <Icon className="h-4 w-4" aria-hidden="true" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-bright">{item.title}</p>
+                        <p className="text-xs text-dim">{item.subtitle}</p>
                       </div>
                     </div>
-                  ) : null}
-                </div>
-              </label>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-6 rounded-[1.3rem] border border-white/10 bg-white/5 p-4 text-sm leading-7 text-dim">
+              Review the program, fill the details, upload the photo, and finish payment in one flow.
+            </div>
+          </aside>
 
-              <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] p-5">
-                <p className="text-xs font-black uppercase tracking-[0.2em] text-[#b36b00]">Final review</p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-[#fffdf8] p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-[#7a867b]">Applicant</p>
-                    <p className="mt-2 text-base font-semibold text-[#1b3b2b]">{form.candidateName || "Not filled yet"}</p>
-                  </div>
-                  <div className="rounded-2xl bg-[#fffdf8] p-4">
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-[#7a867b]">Phone</p>
-                    <p className="mt-2 text-base font-semibold text-[#1b3b2b]">{form.phone || "Not filled yet"}</p>
-                  </div>
-                  <div className="rounded-2xl bg-[#fffdf8] p-4 sm:col-span-2">
-                    <p className="text-xs font-black uppercase tracking-[0.16em] text-[#7a867b]">Address</p>
-                    <p className="mt-2 text-base font-semibold text-[#1b3b2b]">{form.addressLine || "Not filled yet"}</p>
-                  </div>
+          <section className="section-frame rounded-[1.7rem] p-5 sm:p-6">
+            <div className="border-b border-white/10 pb-5">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{currentStep.title}</p>
+                  <h3 className="font-display mt-3 text-3xl text-bright sm:text-4xl">{currentStep.subtitle}</h3>
+                </div>
+                <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-dim">
+                  <p className="font-semibold text-bright">{form.serviceName}</p>
+                  <p className="mt-1">Selected training</p>
                 </div>
               </div>
             </div>
-          ) : null}
 
-          <div className="flex flex-col gap-3 border-t border-[rgba(27,59,43,0.08)] pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <button
-              type="button"
-              disabled={step === 0}
-              onClick={() => setStep((current) => Math.max(0, current - 1))}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(27,59,43,0.16)] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#1b3b2b] disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-              Previous
-            </button>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              {step < STEPS.length - 1 ? (
+            <div className="mt-6 grid gap-5">
+              {step === 0 ? (
+                <div className="grid gap-5">
+                  {lockedService ? null : (
+                    <label className="grid gap-2 text-sm font-semibold text-[#d9dfeb]">
+                      Select training
+                      <select
+                        value={form.serviceName}
+                        onChange={(event) => updateField("serviceName", event.target.value)}
+                        className="min-w-0 rounded-[1.2rem] border border-white/10 bg-[#0f141d] px-4 py-3 text-base text-bright outline-none ring-[#f2b544] focus:ring-2"
+                      >
+                        {normalizedServiceOptions.map((service) => (
+                          <option key={service.title} value={service.title}>
+                            {service.title} - {service.duration} - {service.level}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label="Application date">
+                      <input
+                        type="date"
+                        value={form.applicationDate}
+                        onChange={(event) => updateField("applicationDate", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                    <Field label="Date of birth">
+                      <input
+                        type="date"
+                        value={form.dateOfBirth}
+                        onChange={(event) => updateField("dateOfBirth", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
+
+                  <Field label="Applicant name">
+                    <input
+                      value={form.candidateName}
+                      onChange={(event) => updateField("candidateName", event.target.value)}
+                      placeholder="Full name as per records"
+                      className={inputClassName}
+                    />
+                  </Field>
+
+                  <Field label="Guardian name">
+                    <input
+                      value={form.guardianName}
+                      onChange={(event) => updateField("guardianName", event.target.value)}
+                      placeholder="Parent / spouse / guardian"
+                      className={inputClassName}
+                    />
+                  </Field>
+
+                  <div className="grid gap-2 text-sm font-semibold text-[#d9dfeb]">
+                    Gender
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {[
+                        { value: "male", label: "Male" },
+                        { value: "female", label: "Female" },
+                      ].map((option) => (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => updateField("gender", option.value as "male" | "female")}
+                          className={`rounded-[1.2rem] border px-4 py-4 text-left text-base font-semibold transition ${
+                            form.gender === option.value
+                              ? "border-[#f2b544]/40 bg-[#f2b544]/12 text-bright"
+                              : "border-white/10 bg-[#0f141d] text-dim"
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 1 ? (
+                <div className="grid gap-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label="Mobile number">
+                      <input
+                        value={form.phone}
+                        onChange={(event) => updateField("phone", event.target.value.replace(/\D/g, "").slice(0, 10))}
+                        placeholder="10-digit number"
+                        inputMode="numeric"
+                        className={inputClassName}
+                      />
+                    </Field>
+                    <Field label="Email address">
+                      <input
+                        type="email"
+                        value={form.email}
+                        onChange={(event) => updateField("email", event.target.value)}
+                        placeholder="Optional"
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
+
+                  <Field label="Residence phone">
+                    <input
+                      value={form.residencePhone}
+                      onChange={(event) => updateField("residencePhone", event.target.value)}
+                      placeholder="Optional"
+                      className={inputClassName}
+                    />
+                  </Field>
+
+                  <Field label="Address">
+                    <textarea
+                      value={form.addressLine}
+                      onChange={(event) => updateField("addressLine", event.target.value)}
+                      rows={4}
+                      placeholder="House, street, village or locality"
+                      className={textareaClassName}
+                    />
+                  </Field>
+
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label="Mandal / block">
+                      <input
+                        value={form.mandal}
+                        onChange={(event) => updateField("mandal", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                    <Field label="District">
+                      <input
+                        value={form.district}
+                        onChange={(event) => updateField("district", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
+
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label="State">
+                      <input
+                        value={form.state}
+                        onChange={(event) => updateField("state", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                    <Field label="Pin code">
+                      <input
+                        value={form.pinCode}
+                        onChange={(event) => updateField("pinCode", event.target.value.replace(/\D/g, "").slice(0, 6))}
+                        inputMode="numeric"
+                        placeholder="6 digits"
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 2 ? (
+                <div className="grid gap-5">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label="Education qualification">
+                      <input
+                        value={form.educationQualification}
+                        onChange={(event) => updateField("educationQualification", event.target.value)}
+                        placeholder="Optional"
+                        className={inputClassName}
+                      />
+                    </Field>
+                    <Field label="Occupation">
+                      <input
+                        value={form.occupation}
+                        onChange={(event) => updateField("occupation", event.target.value)}
+                        placeholder="Optional"
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
+
+                  <Field label="Sponsoring organization">
+                    <input
+                      value={form.sponsoringOrganization}
+                      onChange={(event) => updateField("sponsoringOrganization", event.target.value)}
+                      placeholder="Optional"
+                      className={inputClassName}
+                    />
+                  </Field>
+
+                  <div className="section-frame rounded-[1.4rem] p-4">
+                    <div className="flex items-start gap-3">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#8ec5ff]/12 text-[#8ec5ff]">
+                        <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+                      </span>
+                      <div className="text-sm leading-7 text-dim">
+                        <p className="font-semibold text-bright">Keep it exact.</p>
+                        <p>These details are used to identify the applicant during payment review and admission follow-up.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {step === 3 ? (
+                <div className="grid gap-5">
+                  <Field label="Applicant photo">
+                    <div className="rounded-[1.5rem] border border-dashed border-white/16 bg-[#0f141d] p-5">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => void onPhotoChange(event.target.files?.[0] ?? null)}
+                        className="block w-full text-sm text-dim file:mr-4 file:rounded-full file:border-0 file:bg-[#f2b544] file:px-4 file:py-2 file:text-sm file:font-black file:uppercase file:tracking-[0.12em] file:text-[#0a0d12]"
+                      />
+                      <p className="mt-3 text-sm text-dim">{photoStatus}</p>
+                      {hasUploadedPhoto ? (
+                        <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[#b5f8cf]">
+                          Uploaded and ready
+                        </p>
+                      ) : null}
+                      {photoPreviewUrl ? (
+                        <div className="mt-4 overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/20 p-3">
+                          <div className="relative h-56 w-full overflow-hidden rounded-[1rem]">
+                            <Image src={photoPreviewUrl} alt="Applicant preview" fill unoptimized className="object-cover" />
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  </Field>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <SummaryCard label="Applicant" value={form.candidateName || "Pending"} />
+                    <SummaryCard label="Phone" value={form.phone || "Pending"} />
+                    <SummaryCard label="Program" value={form.serviceName || "Pending"} />
+                    <SummaryCard label="District" value={form.district || "Pending"} />
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="flex flex-col gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
-                  disabled={!canAdvance}
-                  onClick={() => setStep((current) => Math.min(STEPS.length - 1, current + 1))}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#1b3b2b] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#faf8f2] disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={step === 0}
+                  onClick={() => setStep((current) => Math.max(0, current - 1))}
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/4 px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-bright disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  Next
-                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                  Previous
                 </button>
-              ) : (
-                <button
-                  type="button"
-                  disabled={
-                    submitState === "submitting" ||
-                    submitState === "compressing" ||
-                    photoUploadState === "uploading" ||
-                    !hasUploadedPhoto
-                  }
-                  onClick={() => void handleSubmit()}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ebb428] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#1b3b2b] shadow-[0_18px_40px_rgba(179,107,0,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {submitState === "submitting" ? "Submitting" : "Submit application"}
-                  <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                </button>
-              )}
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  {step < STEPS.length - 1 ? (
+                    <button
+                      type="button"
+                      disabled={!canAdvance}
+                      onClick={() => setStep((current) => Math.min(STEPS.length - 1, current + 1))}
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f2b544] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={
+                        submitState === "submitting" ||
+                        submitState === "compressing" ||
+                        photoUploadState === "uploading" ||
+                        !hasUploadedPhoto
+                      }
+                      onClick={() => void handleSubmit()}
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] shadow-[0_16px_40px_rgba(242,181,68,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {submitState === "submitting" ? "Submitting" : "Submit application"}
+                      <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {message ? (
+                <p className={submitState === "success" ? "text-sm font-semibold text-[#b5f8cf]" : "text-sm font-semibold text-[#ffc3b8]"}>
+                  {message}
+                </p>
+              ) : null}
             </div>
-          </div>
-
-          {message ? (
-            <p className={submitState === "success" ? "text-sm font-semibold text-[#b36b00]" : "text-sm font-semibold text-[#9d3d21]"}>
-              {message}
-            </p>
-          ) : null}
+          </section>
         </div>
       </div>
     </div>
   );
 }
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="grid gap-2 text-sm font-semibold text-[#d9dfeb]">
+      {label}
+      {children}
+    </label>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="section-frame rounded-[1.4rem] p-4">
+      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{label}</p>
+      <p className="mt-3 text-base font-semibold text-bright">{value}</p>
+    </div>
+  );
+}
+
+const inputClassName =
+  "min-w-0 rounded-[1.2rem] border border-white/10 bg-[#0f141d] px-4 py-3 text-base text-bright outline-none ring-[#f2b544] placeholder:text-[#62708a] focus:ring-2";
+
+const textareaClassName =
+  "min-w-0 rounded-[1.2rem] border border-white/10 bg-[#0f141d] px-4 py-3 text-base text-bright outline-none ring-[#f2b544] placeholder:text-[#62708a] focus:ring-2";
