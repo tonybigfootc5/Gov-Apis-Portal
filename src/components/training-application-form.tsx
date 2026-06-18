@@ -38,6 +38,7 @@ type FormState = {
 };
 
 type SubmitState = "idle" | "compressing" | "submitting" | "success" | "error";
+type PhotoUploadState = "idle" | "uploading" | "uploaded" | "error";
 type ServiceOption = {
   title: string;
   duration: string;
@@ -166,7 +167,7 @@ function requiredStepFields(stepIndex: number, data: FormState) {
     return true;
   }
 
-  return Boolean(data.photoUrl);
+  return Boolean(data.photoUrl && data.photoObjectKey && data.photoName);
 }
 
 export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }: Props) {
@@ -179,9 +180,11 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
   const [form, setForm] = useState<FormState>({ ...INITIAL_FORM, serviceName: initialServiceName });
   const [step, setStep] = useState(0);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
+  const [photoUploadState, setPhotoUploadState] = useState<PhotoUploadState>("idle");
   const [message, setMessage] = useState("");
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [photoStatus, setPhotoStatus] = useState("Add a clear face photo. We shrink it automatically to make upload easier.");
+  const hasUploadedPhoto = Boolean(form.photoUrl && form.photoObjectKey && form.photoName);
 
   const progress = ((step + 1) / STEPS.length) * 100;
   const canAdvance = requiredStepFields(step, form);
@@ -192,6 +195,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
   async function onPhotoChange(file: File | null) {
     if (!file) {
+      setPhotoUploadState("idle");
       updateField("photoUrl", "");
       updateField("photoObjectKey", "");
       updateField("photoName", "");
@@ -202,9 +206,12 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
     }
 
     setSubmitState("compressing");
+    setPhotoUploadState("uploading");
     setMessage("");
+    setPhotoStatus(`Preparing ${file.name} for upload...`);
     try {
       const optimized = await optimizePhoto(file);
+      setPhotoStatus(`Uploading ${optimized.photoName}...`);
       const { uploadUrl, publicUrl, objectKey } = await getApplicationPhotoUploadUrlAction(
         optimized.photoName,
         optimized.photoType,
@@ -231,16 +238,25 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
       }));
       setPhotoPreviewUrl(optimized.previewUrl);
       setPhotoStatus(`Photo uploaded successfully: ${optimized.photoName}`);
+      setPhotoUploadState("uploaded");
       setSubmitState("idle");
     } catch (error) {
+      setPhotoUploadState("error");
       setSubmitState("error");
       setMessage(error instanceof Error ? error.message : "Photo upload failed.");
+      setPhotoStatus("Photo upload failed. Please choose the image again.");
     }
   }
 
   async function handleSubmit() {
+    if (photoUploadState === "uploading" || submitState === "compressing") {
+      setMessage("Please wait for the applicant photo to finish uploading before submitting.");
+      setSubmitState("error");
+      return;
+    }
+
     if (!requiredStepFields(3, form)) {
-      setMessage("Please add the applicant photo before submitting.");
+      setMessage("Please upload the applicant photo completely before submitting.");
       setSubmitState("error");
       return;
     }
@@ -457,6 +473,11 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                     className="block w-full text-sm text-[#516253] file:mr-4 file:rounded-full file:border-0 file:bg-[#1b3b2b] file:px-4 file:py-2 file:text-sm file:font-black file:uppercase file:tracking-[0.12em] file:text-[#faf8f2]"
                   />
                   <p className="mt-3 text-sm text-[#516253]">{photoStatus}</p>
+                  {hasUploadedPhoto ? (
+                    <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-[#1b3b2b]">
+                      Uploaded and ready to submit
+                    </p>
+                  ) : null}
                   {photoPreviewUrl ? (
                     <div className="mt-4 overflow-hidden rounded-[1.5rem] border border-[rgba(27,59,43,0.12)] bg-white p-3">
                       <div className="relative h-48 w-full overflow-hidden rounded-[1rem]">
@@ -511,7 +532,12 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               ) : (
                 <button
                   type="button"
-                  disabled={submitState === "submitting" || submitState === "compressing"}
+                  disabled={
+                    submitState === "submitting" ||
+                    submitState === "compressing" ||
+                    photoUploadState === "uploading" ||
+                    !hasUploadedPhoto
+                  }
                   onClick={() => void handleSubmit()}
                   className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ebb428] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#1b3b2b] shadow-[0_18px_40px_rgba(179,107,0,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
