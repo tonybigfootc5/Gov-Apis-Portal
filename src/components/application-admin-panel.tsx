@@ -146,7 +146,7 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
     try {
       const response = await fetch("/api/admin/applications");
       if (response.status === 401) {
-        window.location.href = "/admin/login";
+        window.location.href = "/admin";
         return;
       }
       if (!response.ok) {

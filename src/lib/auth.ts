@@ -1,302 +1,130 @@
 import "server-only";
 
-import { createHash, createHmac, timingSafeEqual, randomBytes } from "crypto";
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import { unauthorized } from "@/lib/api-response";
-import { hasDatabaseUrl, prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
+import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
+import { serviceUnavailable, unauthorized } from "@/lib/api-response";
 
-const COOKIE_NAME = "api_culture_admin";
-const PREAUTH_COOKIE_NAME = "api_culture_admin_preauth";
-const ONE_DAY = 60 * 60 * 24;
-const PREAUTH_MAX_AGE = 10 * 60;
-const TOTP_TIME_STEP_SECONDS = 30;
-const TOTP_ALLOWED_WINDOW = 1;
-const TOTP_DIGITS = 6;
-const BACKUP_CODE_ENV_NAME = "ADMIN_BACKUP_CODES_HASHES";
+const CF_ACCESS_JWT_HEADER = "cf-access-jwt-assertion";
+const CF_ACCESS_LOGOUT_PATH = "/cdn-cgi/access/logout";
 
-export type AdminLoginStage = "password" | "verify";
-
-type AdminAuthConfig = {
-  password: string;
-  sessionSecret: string;
-  totpSecret: string;
-  backupCodeHashes: Set<string>;
+export type AdminIdentity = {
+  subject: string;
+  email: string | null;
+  name: string | null;
+  issuer: string;
+  audience: string[];
+  userUuid: string | null;
+  rawClaims: JWTPayload;
 };
 
-type AdminAuthReadiness = {
-  ready: boolean;
-  message: string | null;
-  stage: AdminLoginStage;
+type CloudflareAccessConfig = {
+  audience: string;
+  teamDomain: string;
 };
 
-function secret() {
-  return process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || "development-secret-change-me";
+const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
+
+function normalizeTeamDomain(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  return withProtocol.replace(/\/+$/, "");
 }
 
-function sign(value: string) {
-  return createHmac("sha256", secret()).update(value).digest("hex");
-}
-
-function hashValue(value: string) {
-  return createHash("sha256").update(value).digest("hex");
-}
-
-function createSignedToken(prefix: string, expiresInSeconds: number) {
-  const expires = Math.floor(Date.now() / 1000) + expiresInSeconds;
-  const nonce = randomBytes(12).toString("hex");
-  const payload = `${prefix}.${expires}.${nonce}`;
-  return `${payload}.${sign(payload)}`;
-}
-
-function verifySignedToken(token: string | undefined, prefix: string) {
-  if (!token) return false;
-  const parts = token.split(".");
-  if (parts.length !== 4) return false;
-
-  const [role, expires, nonce, signature] = parts;
-  if (role !== prefix) return false;
-
-  const payload = `${role}.${expires}.${nonce}`;
-  const expected = sign(payload);
-  const providedBuffer = Buffer.from(signature);
-  const expectedBuffer = Buffer.from(expected);
-  if (providedBuffer.length !== expectedBuffer.length) return false;
-  if (!timingSafeEqual(providedBuffer, expectedBuffer)) return false;
-
-  return Number(expires) > Math.floor(Date.now() / 1000);
-}
-
-function normalizeBase32(value: string) {
-  return value.replace(/[\s-]+/g, "").toUpperCase();
-}
-
-function decodeBase32(value: string) {
-  const normalized = normalizeBase32(value);
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-  let bits = 0;
-  let current = 0;
-  const bytes: number[] = [];
-
-  for (const character of normalized) {
-    const index = alphabet.indexOf(character);
-    if (index === -1) {
-      throw new Error("Invalid base32 secret.");
-    }
-
-    current = (current << 5) | index;
-    bits += 5;
-
-    if (bits >= 8) {
-      bytes.push((current >>> (bits - 8)) & 255);
-      bits -= 8;
-    }
-  }
-
-  return Buffer.from(bytes);
-}
-
-function generateTotp(secretValue: string, stepOffset = 0) {
-  const counter = Math.floor(Date.now() / 1000 / TOTP_TIME_STEP_SECONDS) + stepOffset;
-  const counterBuffer = Buffer.alloc(8);
-  counterBuffer.writeBigUInt64BE(BigInt(counter));
-
-  const digest = createHmac("sha1", decodeBase32(secretValue)).update(counterBuffer).digest();
-  const offset = digest[digest.length - 1] & 0x0f;
-  const binary =
-    ((digest[offset] & 0x7f) << 24) |
-    (digest[offset + 1] << 16) |
-    (digest[offset + 2] << 8) |
-    digest[offset + 3];
-
-  return String(binary % 10 ** TOTP_DIGITS).padStart(TOTP_DIGITS, "0");
-}
-
-function normalizeBackupCode(value: string) {
-  return value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-}
-
-function parseBackupCodeHashes(value: string | undefined) {
-  return (value ?? "")
-    .split(/[\s,]+/)
-    .map((entry) => entry.trim().toLowerCase())
-    .filter(Boolean);
-}
-
-function getAdminAuthConfig(): AdminAuthConfig {
+function getCloudflareAccessConfig(): CloudflareAccessConfig {
   return {
-    password: process.env.ADMIN_PASSWORD ?? "",
-    sessionSecret: process.env.ADMIN_SESSION_SECRET ?? "",
-    totpSecret: normalizeBase32(process.env.ADMIN_TOTP_SECRET ?? ""),
-    backupCodeHashes: new Set(parseBackupCodeHashes(process.env[BACKUP_CODE_ENV_NAME])),
+    audience: process.env.CLOUDFLARE_ACCESS_AUD?.trim() ?? "",
+    teamDomain: normalizeTeamDomain(process.env.CLOUDFLARE_ACCESS_TEAM_DOMAIN ?? ""),
   };
 }
 
-export function getAdminAuthSetupMessage() {
-  const config = getAdminAuthConfig();
+function getCloudflareAccessJwks(teamDomain: string) {
+  const existing = jwksCache.get(teamDomain);
+  if (existing) return existing;
+
+  const next = createRemoteJWKSet(new URL(`${teamDomain}/cdn-cgi/access/certs`));
+  jwksCache.set(teamDomain, next);
+  return next;
+}
+
+function mapAdminIdentity(payload: JWTPayload): AdminIdentity {
+  const audClaim = payload.aud;
+  const audience = Array.isArray(audClaim)
+    ? audClaim.filter((value): value is string => typeof value === "string")
+    : typeof audClaim === "string"
+      ? [audClaim]
+      : [];
+
+  return {
+    subject: typeof payload.sub === "string" ? payload.sub : "unknown",
+    email: typeof payload.email === "string" ? payload.email : null,
+    name: typeof payload.name === "string" ? payload.name : null,
+    issuer: typeof payload.iss === "string" ? payload.iss : "",
+    audience,
+    userUuid: typeof payload.common_name === "string" ? payload.common_name : null,
+    rawClaims: payload,
+  };
+}
+
+export function getCloudflareAccessSetupMessage() {
+  const { audience, teamDomain } = getCloudflareAccessConfig();
   const problems: string[] = [];
 
-  if (!hasDatabaseUrl) {
-    problems.push("DATABASE_URL is required so backup-code usage can be tracked safely.");
+  if (!audience) {
+    problems.push("CLOUDFLARE_ACCESS_AUD must be configured with the Access application AUD.");
   }
 
-  if (config.password.length !== 24) {
-    problems.push("ADMIN_PASSWORD must be set to a 24-character admin secret.");
-  }
-
-  if (!config.sessionSecret) {
-    problems.push("ADMIN_SESSION_SECRET must be configured.");
-  }
-
-  if (!config.totpSecret) {
-    problems.push("ADMIN_TOTP_SECRET must be configured with the Google Authenticator secret.");
-  }
-
-  if (config.backupCodeHashes.size === 0) {
-    problems.push(`${BACKUP_CODE_ENV_NAME} must contain the backup-code hashes.`);
+  if (!teamDomain) {
+    problems.push("CLOUDFLARE_ACCESS_TEAM_DOMAIN must be configured with the Cloudflare Access team domain.");
   }
 
   return problems.length ? problems.join(" ") : null;
 }
 
-export async function getAdminLoginReadiness(): Promise<AdminAuthReadiness> {
-  const store = await cookies();
-  const stage = verifySignedToken(store.get(PREAUTH_COOKIE_NAME)?.value, "mfa")
-    ? "verify"
-    : "password";
-
-  return {
-    ready: !getAdminAuthSetupMessage(),
-    message: getAdminAuthSetupMessage(),
-    stage,
-  };
+export function getCloudflareAccessLogoutPath() {
+  return CF_ACCESS_LOGOUT_PATH;
 }
 
-export function createSessionToken() {
-  return createSignedToken("admin", ONE_DAY);
+export function getCloudflareAccessTeamDomain() {
+  return getCloudflareAccessConfig().teamDomain || null;
 }
 
-export async function setAdminCookie(response: NextResponse) {
-  response.cookies.set(COOKIE_NAME, createSessionToken(), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: ONE_DAY,
-    path: "/",
+export async function verifyCloudflareAccessToken(token: string) {
+  const setupMessage = getCloudflareAccessSetupMessage();
+  if (setupMessage) {
+    throw new Error(setupMessage);
+  }
+
+  const { audience, teamDomain } = getCloudflareAccessConfig();
+  const { payload } = await jwtVerify(token, getCloudflareAccessJwks(teamDomain), {
+    issuer: teamDomain,
+    audience,
   });
+
+  return mapAdminIdentity(payload);
 }
 
-export async function clearAdminCookie(response: NextResponse) {
-  response.cookies.set(COOKIE_NAME, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    path: "/",
-  });
-}
+export async function getAdminIdentity() {
+  const token = (await headers()).get(CF_ACCESS_JWT_HEADER);
+  if (!token) return null;
 
-export async function setAdminPreAuthCookie(response: NextResponse) {
-  response.cookies.set(PREAUTH_COOKIE_NAME, createSignedToken("mfa", PREAUTH_MAX_AGE), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: PREAUTH_MAX_AGE,
-    path: "/admin",
-  });
-}
-
-export async function clearAdminPreAuthCookie(response: NextResponse) {
-  response.cookies.set(PREAUTH_COOKIE_NAME, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    path: "/admin",
-  });
-}
-
-export function verifyAdminToken(token?: string) {
-  return verifySignedToken(token, "admin");
+  try {
+    return await verifyCloudflareAccessToken(token);
+  } catch {
+    return null;
+  }
 }
 
 export async function requireAdmin() {
-  const store = await cookies();
-  return verifyAdminToken(store.get(COOKIE_NAME)?.value);
+  return getAdminIdentity();
 }
 
-export async function requireAdminPreAuth() {
-  const store = await cookies();
-  return verifySignedToken(store.get(PREAUTH_COOKIE_NAME)?.value, "mfa");
-}
-
-export async function adminUnauthorized() {
-  return unauthorized();
-}
-
-export function isValidPassword(password: string) {
-  const expected = getAdminAuthConfig().password;
-  if (expected.length !== 24) {
-    return false;
+export async function adminUnauthorized(message = "Cloudflare Access token missing or invalid.") {
+  const setupMessage = getCloudflareAccessSetupMessage();
+  if (setupMessage) {
+    return serviceUnavailable(setupMessage);
   }
 
-  const providedBuffer = Buffer.from(password);
-  const expectedBuffer = Buffer.from(expected);
-  return (
-    providedBuffer.length === expectedBuffer.length &&
-    timingSafeEqual(providedBuffer, expectedBuffer)
-  );
-}
-
-export function isValidTotpCode(code: string) {
-  const normalizedCode = code.replace(/\D/g, "");
-  if (normalizedCode.length !== TOTP_DIGITS) {
-    return false;
-  }
-
-  const { totpSecret } = getAdminAuthConfig();
-  if (!totpSecret) {
-    return false;
-  }
-
-  const providedBuffer = Buffer.from(normalizedCode);
-
-  try {
-    for (let offset = -TOTP_ALLOWED_WINDOW; offset <= TOTP_ALLOWED_WINDOW; offset += 1) {
-      const expectedCode = generateTotp(totpSecret, offset);
-      const expectedBuffer = Buffer.from(expectedCode);
-      if (
-        providedBuffer.length === expectedBuffer.length &&
-        timingSafeEqual(providedBuffer, expectedBuffer)
-      ) {
-        return true;
-      }
-    }
-  } catch {
-    return false;
-  }
-
-  return false;
-}
-
-export async function consumeBackupCode(code: string) {
-  const normalizedCode = normalizeBackupCode(code);
-  if (!normalizedCode) {
-    return false;
-  }
-
-  const codeHash = hashValue(normalizedCode);
-  const { backupCodeHashes } = getAdminAuthConfig();
-  if (!backupCodeHashes.has(codeHash)) {
-    return false;
-  }
-
-  try {
-    await prisma.adminBackupCodeUse.create({
-      data: { codeHash },
-    });
-    return true;
-  } catch {
-    return false;
-  }
+  return unauthorized(message);
 }

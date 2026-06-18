@@ -1,27 +1,18 @@
 import type { Metadata } from "next";
 import { AdminLoginForm } from "@/components/admin-login-form";
-import { getAdminLoginReadiness } from "@/lib/auth";
+import { getCloudflareAccessSetupMessage, getCloudflareAccessTeamDomain } from "@/lib/auth";
 
 export const metadata: Metadata = {
-  title: "Admin Login",
+  title: "Admin Access",
   robots: { index: false, follow: false },
 };
 
-export default async function AdminLoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string | string[] }>;
-}) {
-  const [{ error }, readiness] = await Promise.all([searchParams, getAdminLoginReadiness()]);
-  const errorCode = Array.isArray(error) ? error[0] : error;
-
+export default async function AdminLoginPage() {
   return (
     <section className="mx-auto flex min-h-[70svh] max-w-md items-center px-4 py-16">
       <AdminLoginForm
-        authReady={readiness.ready}
-        configMessage={readiness.message}
-        errorCode={errorCode}
-        initialStage={readiness.stage}
+        configMessage={getCloudflareAccessSetupMessage()}
+        teamDomain={getCloudflareAccessTeamDomain()}
       />
     </section>
   );

@@ -149,12 +149,6 @@ model ContactMessage {
   createdAt DateTime @default(now())
 }
 
-model AdminBackupCodeUse {
-  id       String   @id @default(cuid())
-  codeHash String   @unique
-  usedAt   DateTime @default(now())
-}
-
 model TrainingApplication {
   id                     String                         @id @default(cuid())
   legacyMessageId        String?                        @unique

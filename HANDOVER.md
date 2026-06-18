@@ -35,28 +35,21 @@
 - Admin sections now switch the right-side workspace so only the selected section shows.
 - Admin content routes exist for applications, events, programs, gallery, contact messages, and articles.
 - Public article routes exist at `/articles` and `/articles/[slug]`.
-- Admin login is now a two-step MFA flow:
-  - step 1: shared 24-character admin password
-  - step 2: Google Authenticator compatible TOTP or one-time backup code
+- Admin access now uses Cloudflare Zero Trust Access instead of app-managed MFA.
 - Admin auth now includes:
-  - signed HTTP-only admin session cookie
-  - short-lived signed pre-auth cookie for password-passed state
-  - independent rate limits for password attempts and MFA attempts
-  - Prisma-backed one-time backup-code usage tracking
-  - explicit setup-required blocking when secure config is incomplete
-- Old development password hint/bypass was removed.
-- Vercel production env vars were added for:
-  - `ADMIN_PASSWORD`
-  - `ADMIN_SESSION_SECRET`
-  - `ADMIN_TOTP_SECRET`
-  - `ADMIN_BACKUP_CODES_HASHES`
+  - Cloudflare Access protection for `/admin` and `/api/admin/*`
+  - origin-side verification of `Cf-Access-Jwt-Assertion`
+  - Cloudflare Access logout flow at `/cdn-cgi/access/logout`
+  - no app-owned password, TOTP, backup codes, or admin session cookies
+- Vercel production env vars now need:
+  - `CLOUDFLARE_ACCESS_AUD`
+  - `CLOUDFLARE_ACCESS_TEAM_DOMAIN`
 
 ## Important Current Limitation
 
-- Admin login is intentionally disabled unless `DATABASE_URL` is configured.
-- This is required so backup-code usage can be persisted and cannot be reused.
-- The app currently blocks admin login with a setup message instead of silently falling back to weaker auth.
-- Production still needs the real database connection and migration before admin access can be used live.
+- Admin access now depends on Cloudflare Zero Trust being configured in front of the deployed admin hostnames.
+- If `CLOUDFLARE_ACCESS_AUD` or `CLOUDFLARE_ACCESS_TEAM_DOMAIN` is missing, the app shows setup guidance and admin APIs return a setup error.
+- Local development does not automatically simulate Cloudflare Access unless requests include a valid Access JWT.
 
 ## Important Files
 
@@ -96,6 +89,7 @@
 - Prisma:
   - `prisma/schema.prisma`
   - `prisma/migrations/20260616000000_admin_mfa_login/migration.sql`
+  - `prisma/migrations/20260618010000_remove_admin_mfa_for_cloudflare_access/migration.sql`
 
 ## Local Development
 
@@ -121,27 +115,23 @@ npm run build
 
 ## Environment Notes
 
-- Required for secure admin login:
+- Required for Cloudflare-protected admin access:
   - `DATABASE_URL`
-  - `ADMIN_PASSWORD`
-  - `ADMIN_SESSION_SECRET`
-  - `ADMIN_TOTP_SECRET`
-  - `ADMIN_BACKUP_CODES_HASHES`
+  - `CLOUDFLARE_ACCESS_AUD`
+  - `CLOUDFLARE_ACCESS_TEAM_DOMAIN`
 - If `DATABASE_URL` is missing:
   - public site still works with fallback data
-  - admin login remains unavailable by design
+  - admin content remains read-only locally
 - Useful env files already present locally:
   - `.env.local`
   - `.env.production.local`
-- Raw backup codes and admin MFA setup details are stored locally in:
-  - `ADMIN_MFA_SECRETS.local.md`
 
 ## Verification Completed
 
 - `npm run prisma:generate`
 - `npm run lint`
 - `npm run build`
-- Mobile visual check of `/admin/login` in local dev
+- Local visual check of `/admin/login` guidance page
 - Production route smoke check with HTTP 200 on:
   - `/`
   - `/programs`
@@ -150,17 +140,15 @@ npm run build
 
 ## Remaining Work
 
-- Add the real `DATABASE_URL` in Vercel production.
+- Add the real `DATABASE_URL` in Vercel production if not already present.
 - Apply Prisma migration to the real production database.
-- Add local `DATABASE_URL` if local admin login needs to work.
-- Scan `ADMIN_TOTP_SECRET` into the admin device in Google Authenticator.
-- Test full admin login end to end:
-  - correct password + correct TOTP
-  - wrong password rejected
-  - wrong TOTP rejected
-  - valid backup code succeeds once
-  - reused backup code rejected
-- Store the raw admin password and backup codes in the real secure vault/password manager.
+- Configure Cloudflare Access applications for sandbox and production admin hostnames.
+- Add `CLOUDFLARE_ACCESS_AUD` and `CLOUDFLARE_ACCESS_TEAM_DOMAIN` in Vercel for each environment.
+- Verify end to end with a real Cloudflare Access session:
+  - `/admin` challenge appears for unauthenticated users
+  - authenticated users can load admin UI
+  - admin API calls succeed with valid Access JWT
+  - `/cdn-cgi/access/logout` ends admin access
 
 ## Notes For Codex
 

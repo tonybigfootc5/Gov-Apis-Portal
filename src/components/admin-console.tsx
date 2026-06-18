@@ -501,7 +501,7 @@ export function AdminConsole({
         paymentResponse.status === 401 ||
         contactResponse.status === 401
       ) {
-        window.location.assign("/admin/login");
+        window.location.assign("/admin");
         return;
       }
       if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok || !galleryResponse.ok || !applicationResponse.ok || !paymentResponse.ok || !contactResponse.ok) {
