@@ -1,16 +1,11 @@
 import "server-only";
 
-import { createHmac, randomBytes, timingSafeEqual } from "crypto";
-import { cookies, headers } from "next/headers";
-import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
-import { isSandboxEnvironment } from "@/lib/app-env";
 import { serviceUnavailable, unauthorized } from "@/lib/api-response";
 
 const CF_ACCESS_JWT_HEADER = "cf-access-jwt-assertion";
 const CF_ACCESS_LOGOUT_PATH = "/cdn-cgi/access/logout";
-const SANDBOX_COOKIE_NAME = "api_culture_sandbox_admin";
-const SANDBOX_SECRET_MAX_AGE = 60 * 60 * 12;
 
 export type AdminIdentity = {
   subject: string;
@@ -23,7 +18,7 @@ export type AdminIdentity = {
 };
 
 type CloudflareAccessConfig = {
-  audience: string;
+  audiences: string[];
   teamDomain: string;
 };
 
@@ -37,15 +32,18 @@ function normalizeTeamDomain(value: string) {
   return withProtocol.replace(/\/+$/, "");
 }
 
-function getCloudflareAccessConfig(): CloudflareAccessConfig {
-  return {
-    audience: process.env.CLOUDFLARE_ACCESS_AUD?.trim() ?? "",
-    teamDomain: normalizeTeamDomain(process.env.CLOUDFLARE_ACCESS_TEAM_DOMAIN ?? ""),
-  };
+function normalizeAudiences(value: string) {
+  return value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }
 
-function getSandboxAdminSecret() {
-  return process.env.SANDBOX_ADMIN_BYPASS_SECRET?.trim() ?? "";
+function getCloudflareAccessConfig(): CloudflareAccessConfig {
+  return {
+    audiences: normalizeAudiences(process.env.CLOUDFLARE_ACCESS_AUD ?? ""),
+    teamDomain: normalizeTeamDomain(process.env.CLOUDFLARE_ACCESS_TEAM_DOMAIN ?? ""),
+  };
 }
 
 function getCloudflareAccessJwks(teamDomain: string) {
@@ -55,37 +53,6 @@ function getCloudflareAccessJwks(teamDomain: string) {
   const next = createRemoteJWKSet(new URL(`${teamDomain}/cdn-cgi/access/certs`));
   jwksCache.set(teamDomain, next);
   return next;
-}
-
-function sandboxCookieSignature(payload: string) {
-  return createHmac("sha256", getSandboxAdminSecret()).update(payload).digest("hex");
-}
-
-function createSandboxCookieValue() {
-  const expires = Math.floor(Date.now() / 1000) + SANDBOX_SECRET_MAX_AGE;
-  const nonce = randomBytes(12).toString("hex");
-  const payload = `sandbox.${expires}.${nonce}`;
-  return `${payload}.${sandboxCookieSignature(payload)}`;
-}
-
-function verifySandboxCookieValue(value: string | undefined) {
-  if (!value) return false;
-  if (!getSandboxAdminSecret()) return false;
-
-  const parts = value.split(".");
-  if (parts.length !== 4) return false;
-
-  const [scope, expires, nonce, signature] = parts;
-  if (scope !== "sandbox") return false;
-
-  const payload = `${scope}.${expires}.${nonce}`;
-  const expected = sandboxCookieSignature(payload);
-  const providedBuffer = Buffer.from(signature);
-  const expectedBuffer = Buffer.from(expected);
-  if (providedBuffer.length !== expectedBuffer.length) return false;
-  if (!timingSafeEqual(providedBuffer, expectedBuffer)) return false;
-
-  return Number(expires) > Math.floor(Date.now() / 1000);
 }
 
 function mapAdminIdentity(payload: JWTPayload): AdminIdentity {
@@ -107,18 +74,12 @@ function mapAdminIdentity(payload: JWTPayload): AdminIdentity {
   };
 }
 
-function getSandboxAdminSetupMessage() {
-  return getSandboxAdminSecret()
-    ? null
-    : "SANDBOX_ADMIN_BYPASS_SECRET must be configured to enable sandbox admin testing.";
-}
-
 export function getCloudflareAccessSetupMessage() {
-  const { audience, teamDomain } = getCloudflareAccessConfig();
+  const { audiences, teamDomain } = getCloudflareAccessConfig();
   const problems: string[] = [];
 
-  if (!audience) {
-    problems.push("CLOUDFLARE_ACCESS_AUD must be configured with the Access application AUD.");
+  if (audiences.length === 0) {
+    problems.push("CLOUDFLARE_ACCESS_AUD must be configured with one or more Access application AUD values.");
   }
 
   if (!teamDomain) {
@@ -129,7 +90,7 @@ export function getCloudflareAccessSetupMessage() {
 }
 
 export function getAdminAccessSetupMessage() {
-  return isSandboxEnvironment() ? getSandboxAdminSetupMessage() : getCloudflareAccessSetupMessage();
+  return getCloudflareAccessSetupMessage();
 }
 
 export function getCloudflareAccessLogoutPath() {
@@ -146,66 +107,16 @@ export async function verifyCloudflareAccessToken(token: string) {
     throw new Error(setupMessage);
   }
 
-  const { audience, teamDomain } = getCloudflareAccessConfig();
+  const { audiences, teamDomain } = getCloudflareAccessConfig();
   const { payload } = await jwtVerify(token, getCloudflareAccessJwks(teamDomain), {
     issuer: teamDomain,
-    audience,
+    audience: audiences,
   });
 
   return mapAdminIdentity(payload);
 }
 
-export async function setSandboxAdminCookie(response: NextResponse) {
-  response.cookies.set(SANDBOX_COOKIE_NAME, createSandboxCookieValue(), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: SANDBOX_SECRET_MAX_AGE,
-    path: "/",
-  });
-}
-
-export async function clearSandboxAdminCookie(response: NextResponse) {
-  response.cookies.set(SANDBOX_COOKIE_NAME, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    path: "/",
-  });
-}
-
-export function isValidSandboxAdminSecret(value: string) {
-  const expected = getSandboxAdminSecret();
-  const provided = value.trim();
-  if (!expected || !provided) return false;
-
-  const providedBuffer = Buffer.from(provided);
-  const expectedBuffer = Buffer.from(expected);
-  return providedBuffer.length === expectedBuffer.length && timingSafeEqual(providedBuffer, expectedBuffer);
-}
-
-async function getSandboxAdminIdentity() {
-  const cookieStore = await cookies();
-  const cookieValue = cookieStore.get(SANDBOX_COOKIE_NAME)?.value;
-  if (!verifySandboxCookieValue(cookieValue)) return null;
-
-  return {
-    subject: "sandbox-admin",
-    email: null,
-    name: "Sandbox Admin",
-    issuer: "sandbox-bypass",
-    audience: ["sandbox"],
-    userUuid: null,
-    rawClaims: null,
-  } satisfies AdminIdentity;
-}
-
 export async function getAdminIdentity() {
-  if (isSandboxEnvironment()) {
-    return getSandboxAdminIdentity();
-  }
-
   const token = (await headers()).get(CF_ACCESS_JWT_HEADER);
   if (!token) return null;
 
@@ -226,10 +137,5 @@ export async function adminUnauthorized(message?: string) {
     return serviceUnavailable(setupMessage);
   }
 
-  return unauthorized(
-    message ??
-      (isSandboxEnvironment()
-        ? "Sandbox admin session missing or invalid."
-        : "Cloudflare Access token missing or invalid."),
-  );
+  return unauthorized(message ?? "Cloudflare Access token missing or invalid.");
 }
