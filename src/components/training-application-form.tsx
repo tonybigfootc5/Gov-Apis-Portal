@@ -261,11 +261,8 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
       const body = await response.json();
       setSubmitState("success");
-      setMessage(`Application submitted successfully. Reference: ${body.reference}`);
-      setForm({ ...INITIAL_FORM, serviceName: initialServiceName });
-      setStep(0);
-      setPhotoPreviewUrl("");
-      setPhotoStatus("Add a clear face photo. We shrink it automatically to make upload easier.");
+      setMessage("Application saved. Redirecting you to PhonePe checkout...");
+      window.location.assign(body.redirectUrl);
     } catch (error) {
       setSubmitState("error");
       setMessage(error instanceof Error ? error.message : "Application submission failed.");

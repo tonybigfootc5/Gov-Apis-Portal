@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  CreditCard,
   FolderKanban,
   History,
   Images,
@@ -27,9 +28,11 @@ import Image from "next/image";
 import { ApplicationAdminPanel } from "@/components/application-admin-panel";
 import { ContactInboxPanel } from "@/components/contact-inbox-panel";
 import { GalleryWorkspace, type GalleryAdminItem, type GalleryDraftInput } from "@/components/gallery-workspace";
+import { PaymentAdminPanel } from "@/components/payment-admin-panel";
 import { getPresignedUploadUrlAction } from "@/app/actions/storage";
 import type { ContactInboxRecord } from "@/lib/contact-inbox";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
+import type { PaymentAdminRecord } from "@/lib/training-application-store";
 
 type Program = {
   id: string;
@@ -85,6 +88,7 @@ type ArticleItem = {
 type Props = {
   databaseConfigured: boolean;
   initialApplications: TrainingApplicationRecord[];
+  initialPayments: PaymentAdminRecord[];
   initialContactMessages: ContactInboxRecord[];
   initialPrograms: Program[];
   initialArticles: ArticleItem[];
@@ -92,7 +96,7 @@ type Props = {
   initialGalleryImages: GalleryAdminItem[];
 };
 
-type DashboardView = "programs" | "events" | "applications" | "contacts" | "articles" | "gallery";
+type DashboardView = "programs" | "events" | "applications" | "payments" | "contacts" | "articles" | "gallery";
 type HistorySection = "overview" | DashboardView;
 
 type HistoryEntry = {
@@ -195,6 +199,7 @@ function readStoredNotifications() {
 export function AdminConsole({
   databaseConfigured,
   initialApplications,
+  initialPayments,
   initialContactMessages,
   initialPrograms,
   initialArticles,
@@ -202,6 +207,7 @@ export function AdminConsole({
   initialGalleryImages,
 }: Props) {
   const [applications, setApplications] = useState<TrainingApplicationRecord[]>(initialApplications);
+  const [payments, setPayments] = useState<PaymentAdminRecord[]>(initialPayments);
   const [contactMessages, setContactMessages] = useState<ContactInboxRecord[]>(initialContactMessages);
   const [programs, setPrograms] = useState<Program[]>(initialPrograms);
   const [events, setEvents] = useState<EventItem[]>(initialEvents);
@@ -356,6 +362,7 @@ export function AdminConsole({
 
   const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
+    { id: "payments", label: "Payments", description: "Gateway control", icon: <CreditCard className="h-4 w-4" aria-hidden="true" /> },
     { id: "contacts", label: "Contact", description: "Student inbox", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
     { id: "gallery", label: "Gallery", description: "Media showcase", icon: <Images className="h-4 w-4" aria-hidden="true" /> },
@@ -462,7 +469,7 @@ export function AdminConsole({
           accumulator[schedule.section].push(schedule);
           return accumulator;
         },
-        { overview: [], programs: [], events: [], applications: [], contacts: [], articles: [], gallery: [] },
+        { overview: [], programs: [], events: [], applications: [], payments: [], contacts: [], articles: [], gallery: [] },
       ),
     [schedules],
   );
@@ -476,12 +483,13 @@ export function AdminConsole({
     setLoading(true);
     setNotice("");
     try {
-      const [programResponse, eventResponse, articleResponse, galleryResponse, applicationResponse, contactResponse] = await Promise.all([
+      const [programResponse, eventResponse, articleResponse, galleryResponse, applicationResponse, paymentResponse, contactResponse] = await Promise.all([
         fetch("/api/admin/programs"),
         fetch("/api/admin/events"),
         fetch("/api/admin/articles"),
         fetch("/api/admin/gallery"),
         fetch("/api/admin/applications"),
+        fetch("/api/admin/payments"),
         fetch("/api/admin/contact-messages"),
       ]);
       if (
@@ -490,12 +498,13 @@ export function AdminConsole({
         articleResponse.status === 401 ||
         galleryResponse.status === 401 ||
         applicationResponse.status === 401 ||
+        paymentResponse.status === 401 ||
         contactResponse.status === 401
       ) {
         window.location.assign("/admin/login");
         return;
       }
-      if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok || !galleryResponse.ok || !applicationResponse.ok || !contactResponse.ok) {
+      if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok || !galleryResponse.ok || !applicationResponse.ok || !paymentResponse.ok || !contactResponse.ok) {
         setNotice("Unable to refresh the dashboard right now.");
         return;
       }
@@ -504,12 +513,13 @@ export function AdminConsole({
       setArticles(await articleResponse.json());
       setGalleryImages(await galleryResponse.json());
       setApplications(await applicationResponse.json());
+      setPayments(await paymentResponse.json());
       setContactMessages(await contactResponse.json());
       appendHistory("overview", "Refresh", "Dashboard data refreshed");
       pushNotification({
         section: "overview",
         title: "Dashboard refreshed",
-        message: "Programs, applications, contact inbox, events, articles, and gallery images were refreshed successfully.",
+        message: "Programs, applications, payments, contact inbox, events, articles, and gallery images were refreshed successfully.",
         variant: "success",
       });
       setNotice("Dashboard refreshed.");
@@ -1080,6 +1090,19 @@ export function AdminConsole({
           <ApplicationAdminPanel
             databaseConfigured={databaseConfigured}
             initialApplications={applications}
+          />
+        </DashboardSection>
+      ) : null}
+
+      {view === "payments" ? (
+        <DashboardSection
+          eyebrow="Payment control"
+          title=""
+          className="mt-8 bg-[linear-gradient(180deg,rgba(236,244,255,0.98),rgba(232,241,234,0.96))]"
+        >
+          <PaymentAdminPanel
+            databaseConfigured={databaseConfigured}
+            initialPayments={payments}
           />
         </DashboardSection>
       ) : null}

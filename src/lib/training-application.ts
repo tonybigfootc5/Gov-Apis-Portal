@@ -1,4 +1,7 @@
-import type { ContactMessage } from "@/generated/prisma/client";
+import { randomUUID } from "crypto";
+import type { ContactMessage, PaymentOrderState, Prisma } from "@/generated/prisma/client";
+import { PaymentEnvironment as PrismaPaymentEnvironment } from "@/generated/prisma/client";
+import { getAppEnvironment } from "@/lib/app-env";
 
 export const TRAINING_APPLICATION_SUBJECT_PREFIX = "TRAINING_APPLICATION::";
 
@@ -57,7 +60,33 @@ export type TrainingApplicationRecord = {
   email: string;
   phone: string | null;
   payload: TrainingApplicationPayload;
+  latestPayment?: PaymentOrderSummary | null;
 };
+
+export type PaymentOrderSummary = {
+  id: string;
+  merchantOrderId: string;
+  status: PaymentOrderState;
+  amountPaise: number;
+  checkoutUrl: string | null;
+  paymentReference: string | null;
+  environment: "SANDBOX" | "PRODUCTION";
+  paidAt: string | null;
+  expiresAt: string | null;
+  refundEligible: boolean;
+  latestEventName: string | null;
+};
+
+export const trainingApplicationAdminInclude = {
+  paymentOrders: {
+    orderBy: { createdAt: "desc" as const },
+    take: 1,
+  },
+} satisfies Prisma.TrainingApplicationInclude;
+
+export type TrainingApplicationAdminEntity = Prisma.TrainingApplicationGetPayload<{
+  include: typeof trainingApplicationAdminInclude;
+}>;
 
 export function buildTrainingApplicationPayload(
   input: Omit<
@@ -132,5 +161,132 @@ export function mapTrainingApplicationRecord(message: ContactMessage): TrainingA
     email: message.email,
     phone: message.phone,
     payload,
+    latestPayment: null,
   };
+}
+
+export function mapPaymentOrderStateToApplicationPaymentStatus(
+  state?: PaymentOrderState | null,
+): ApplicationPaymentStatus {
+  switch (state) {
+    case "PAID":
+    case "REFUND_PENDING":
+    case "REFUNDED":
+    case "REFUND_FAILED":
+      return "PAID";
+    case "FAILED":
+    case "EXPIRED":
+      return "FAILED";
+    case "CREATED":
+      return "NOT_STARTED";
+    case "PENDING":
+      return "PENDING";
+    default:
+      return "NOT_STARTED";
+  }
+}
+
+export function deriveAttemptStatus(
+  paymentStatus: ApplicationPaymentStatus,
+  hasPaymentOrder: boolean,
+): ApplicationAttemptStatus {
+  if (paymentStatus === "PAID") return "PAYMENT_COMPLETED";
+  if (paymentStatus === "FAILED") return "PAYMENT_FAILED";
+  if (paymentStatus === "PENDING") return "PAYMENT_INITIATED";
+  return hasPaymentOrder ? "SUBMITTED" : "ATTEMPTED";
+}
+
+export function mapTrainingApplicationEntity(
+  application: TrainingApplicationAdminEntity,
+): TrainingApplicationRecord {
+  const latestPayment = application.paymentOrders[0] ?? null;
+  const paymentStatus = mapPaymentOrderStateToApplicationPaymentStatus(latestPayment?.status);
+  const submittedAt = application.createdAt.toISOString();
+
+  return {
+    id: application.id,
+    createdAt: application.createdAt.toISOString(),
+    updatedAt: application.updatedAt.toISOString(),
+    name: application.candidateName,
+    email: application.email,
+    phone: application.phone,
+    latestPayment: latestPayment
+      ? {
+          id: latestPayment.id,
+          merchantOrderId: latestPayment.merchantOrderId,
+          status: latestPayment.status,
+          amountPaise: latestPayment.amountPaise,
+          checkoutUrl: latestPayment.checkoutUrl ?? null,
+          paymentReference: latestPayment.paymentReference ?? null,
+          environment: latestPayment.environment,
+          paidAt: latestPayment.paidAt?.toISOString() ?? null,
+          expiresAt: latestPayment.expiresAt?.toISOString() ?? null,
+          refundEligible: latestPayment.refundEligible,
+          latestEventName: latestPayment.latestEventName ?? null,
+        }
+      : null,
+    payload: {
+      version: 2,
+      serviceName: application.serviceName,
+      applicationDate: application.applicationDate,
+      candidateName: application.candidateName,
+      guardianName: application.guardianName,
+      email: application.email,
+      gender: application.gender as "male" | "female",
+      dateOfBirth: application.dateOfBirth,
+      addressLine: application.addressLine,
+      mandal: application.mandal,
+      district: application.district,
+      state: application.state,
+      pinCode: application.pinCode,
+      phone: application.phone,
+      residencePhone: application.residencePhone,
+      educationQualification: application.educationQualification,
+      occupation: application.occupation,
+      sponsoringOrganization: application.sponsoringOrganization,
+      photoName: application.photoName,
+      photoType: application.photoType,
+      photoUrl: application.photoUrl ?? undefined,
+      photoObjectKey: application.photoObjectKey ?? undefined,
+      photoDataUrl: application.photoDataUrl ?? undefined,
+      attemptStatus: deriveAttemptStatus(paymentStatus, Boolean(latestPayment)),
+      paymentStatus,
+      approvalStatus: application.approvalStatus,
+      crossCheckStatus: application.crossCheckStatus,
+      attemptedAt: submittedAt,
+      submittedAt,
+      approvedAt: application.approvedAt?.toISOString() ?? null,
+      approvedBy: application.approvedBy,
+      adminNotes: application.adminNotes,
+      paymentReference: latestPayment?.paymentReference ?? "",
+    },
+  };
+}
+
+export function mapLegacyPaymentStatus(
+  status: ApplicationPaymentStatus,
+): PaymentOrderState {
+  switch (status) {
+    case "PAID":
+      return "PAID";
+    case "FAILED":
+      return "FAILED";
+    case "PENDING":
+      return "PENDING";
+    case "NOT_STARTED":
+    default:
+      return "CREATED";
+  }
+}
+
+export function buildLegacyMerchantOrderId(messageId: string) {
+  return `legacy-${messageId}`;
+}
+
+export function getCurrentPaymentEnvironment(): PrismaPaymentEnvironment {
+  return getAppEnvironment() === "sandbox" ? "SANDBOX" : "PRODUCTION";
+}
+
+export function buildMerchantOrderId(applicationId: string) {
+  return `app-${applicationId}-${randomUUID().slice(0, 8)}`;
 }

@@ -4,7 +4,8 @@ import { requireAdmin } from "@/lib/auth";
 import { getContactMessageCutoffDate, mapContactInboxRecord, type ContactInboxRecord } from "@/lib/contact-inbox";
 import { fallbackApplications, fallbackArticles, fallbackEvents, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
-import { mapTrainingApplicationRecord, TRAINING_APPLICATION_SUBJECT_PREFIX } from "@/lib/training-application";
+import { getAdminPaymentOrders, getAdminTrainingApplications, type PaymentAdminRecord } from "@/lib/training-application-store";
+import { TRAINING_APPLICATION_SUBJECT_PREFIX, type TrainingApplicationRecord } from "@/lib/training-application";
 
 export const dynamic = "force-dynamic";
 
@@ -101,7 +102,8 @@ export default async function AdminPage() {
     ...image,
     place: image.place ?? null,
   }));
-  let applications: NonNullable<ReturnType<typeof mapTrainingApplicationRecord>>[] = fallbackApplications;
+  let applications: TrainingApplicationRecord[] = fallbackApplications;
+  let payments: PaymentAdminRecord[] = [];
   let contactMessages: ContactInboxRecord[] = [];
 
   if (hasDatabaseUrl) {
@@ -119,19 +121,13 @@ export default async function AdminPage() {
         },
       });
 
-      const [dbPrograms, dbEvents, dbArticles, dbGalleryImages, applicationMessages, contactInboxMessages] = await Promise.all([
+      const [dbPrograms, dbEvents, dbArticles, dbGalleryImages, dbApplications, dbPayments, contactInboxMessages] = await Promise.all([
         prisma.program.findMany({ orderBy: { updatedAt: "desc" } }),
         prisma.event.findMany({ orderBy: { startsAt: "desc" } }),
         prisma.article.findMany({ orderBy: { publishedAt: "desc" } }),
         prisma.galleryImage.findMany({ orderBy: [{ date: "desc" }, { createdAt: "desc" }] }),
-        prisma.contactMessage.findMany({
-          where: {
-            subject: {
-              startsWith: TRAINING_APPLICATION_SUBJECT_PREFIX,
-            },
-          },
-          orderBy: { createdAt: "desc" },
-        }),
+        getAdminTrainingApplications(),
+        getAdminPaymentOrders(),
         prisma.contactMessage.findMany({
           where: {
             createdAt: { gte: cutoffDate },
@@ -168,12 +164,12 @@ export default async function AdminPage() {
             place: image.place ?? null,
           }))
         : galleryImages;
-      applications = applicationMessages
-        .map(mapTrainingApplicationRecord)
-        .filter((value): value is NonNullable<typeof value> => Boolean(value));
+      applications = dbApplications;
+      payments = dbPayments;
       contactMessages = contactInboxMessages.map(mapContactInboxRecord);
     } catch {
       applications = [];
+      payments = [];
       contactMessages = [];
     }
   }
@@ -182,6 +178,7 @@ export default async function AdminPage() {
     <AdminConsole
       databaseConfigured={hasDatabaseUrl}
       initialApplications={applications}
+      initialPayments={payments}
       initialContactMessages={contactMessages}
       initialPrograms={programs.map((program: (typeof programs)[number]) => ({
         ...program,

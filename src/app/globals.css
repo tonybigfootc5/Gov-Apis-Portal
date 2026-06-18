@@ -34,6 +34,15 @@ body {
     linear-gradient(180deg, rgba(250, 248, 242, 0.98), rgba(244, 238, 228, 0.98));
 }
 
+body.sandbox-shell {
+  --primary: #d65445;
+  --primary-strong: #9b3f2b;
+  --secondary: #c67a2f;
+  background-image:
+    radial-gradient(circle at top left, rgba(214, 84, 69, 0.16), transparent 24rem),
+    linear-gradient(180deg, rgba(255, 249, 242, 0.98), rgba(247, 239, 230, 0.98));
+}
+
 img,
 svg,
 video,

@@ -572,11 +572,11 @@ function ApplicationCard({
   ) => void;
 }) {
   const [attemptStatus, setAttemptStatus] = useState<ApplicationAttemptStatus>(application.payload.attemptStatus);
-  const [paymentStatus, setPaymentStatus] = useState<ApplicationPaymentStatus>(application.payload.paymentStatus);
+  const [paymentStatus] = useState<ApplicationPaymentStatus>(application.payload.paymentStatus);
   const [approvalStatus, setApprovalStatus] = useState<ApplicationApprovalStatus>(application.payload.approvalStatus);
   const [crossCheckStatus, setCrossCheckStatus] = useState<ApplicationCrossCheckStatus>(application.payload.crossCheckStatus);
   const [adminNotes, setAdminNotes] = useState(application.payload.adminNotes);
-  const [paymentReference, setPaymentReference] = useState(application.payload.paymentReference);
+  const [paymentReference] = useState(application.payload.paymentReference);
   const readyToApprove = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "PENDING";
   const joinReady = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "APPROVED";
   const photoSrc = application.payload.photoUrl || application.payload.photoDataUrl;
@@ -726,9 +726,13 @@ function ApplicationCard({
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f5c65e]">Verification and payment</p>
             <div className="mt-4 grid gap-3">
               <SelectField theme="dark" label="Submission attempt" value={attemptStatus} onChange={(value) => setAttemptStatus(value as ApplicationAttemptStatus)} options={attemptOptions} />
-              <SelectField theme="dark" label="Payment status" value={paymentStatus} onChange={(value) => setPaymentStatus(value as ApplicationPaymentStatus)} options={paymentOptions} />
               <SelectField theme="dark" label="Cross check status" value={crossCheckStatus} onChange={(value) => setCrossCheckStatus(value as ApplicationCrossCheckStatus)} options={crossCheckOptions} />
-              <TextField label="Payment reference" value={paymentReference} onChange={setPaymentReference} placeholder="Transaction ID / receipt no." />
+              <div className="rounded-[1.5rem] border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.08)] px-4 py-3 text-sm leading-7 text-[#fff9ec]">
+                <p className="text-xs font-black uppercase tracking-[0.12em] text-[#d4e1d8]">Gateway payment</p>
+                <p className="mt-2">Status: {paymentStatus.replaceAll("_", " ")}</p>
+                <p>Reference: {paymentReference || "Waiting for PhonePe confirmation"}</p>
+                <p className="text-[#d4e1d8]">Payment truth now comes from the PhonePe order history in the Payments section.</p>
+              </div>
             </div>
           </div>
 
@@ -831,25 +835,6 @@ function SelectField({
           </option>
         ))}
       </select>
-    </label>
-  );
-}
-
-function TextField({
-  label,
-  value,
-  onChange,
-  placeholder,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-}) {
-  return (
-    <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-[#d4e1d8]">
-      {label}
-      <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="rounded-2xl border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.08)] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#fff9ec] outline-none ring-[#f5c65e] placeholder:text-[#c6d1ca] focus:ring-2" />
     </label>
   );
 }

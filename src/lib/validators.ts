@@ -106,3 +106,7 @@ export const trainingApplicationAdminSchema = z.object({
   adminNotes: z.string().trim().max(1000).optional().or(z.literal("")),
   paymentReference: z.string().trim().max(160).optional().or(z.literal("")),
 });
+
+export const refundRequestSchema = z.object({
+  reason: z.string().trim().min(3).max(240),
+});

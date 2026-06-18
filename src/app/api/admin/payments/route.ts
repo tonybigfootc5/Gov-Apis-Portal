@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { adminUnauthorized, requireAdmin } from "@/lib/auth";
-import { getAdminTrainingApplications } from "@/lib/training-application-store";
+import { getAdminPaymentOrders } from "@/lib/training-application-store";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   if (!(await requireAdmin())) return adminUnauthorized();
 
-  const applications = await getAdminTrainingApplications();
-  return NextResponse.json(applications);
+  const payments = await getAdminPaymentOrders();
+  return NextResponse.json(payments);
 }

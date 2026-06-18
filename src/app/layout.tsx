@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Newsreader, Work_Sans } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { isSandboxEnvironment } from "@/lib/app-env";
 import { supportedLanguages, t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import "./globals.css";
@@ -36,8 +37,8 @@ export const metadata: Metadata = {
     type: "website",
   },
   robots: {
-    index: true,
-    follow: true,
+    index: !isSandboxEnvironment(),
+    follow: !isSandboxEnvironment(),
   },
 };
 
@@ -47,6 +48,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const language = await getRequestLanguage();
+  const sandboxMode = isSandboxEnvironment();
   const languageOptions = supportedLanguages.map((value) => ({
     value,
     label: t(language, `lang.${value}`),
@@ -66,7 +68,7 @@ export default async function RootLayout({
       lang={language}
       className={`${workSans.variable} ${newsreader.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className={`flex min-h-full flex-col bg-background text-foreground${sandboxMode ? " sandbox-shell" : ""}`}>
         <SiteHeader
           currentLanguage={language}
           languageLabel={t(language, "lang.label")}
@@ -74,6 +76,7 @@ export default async function RootLayout({
           navItems={navItems}
           adminLabel={t(language, "nav.admin")}
           techCenterLabel={t(language, "header.techCenter")}
+          sandboxMode={sandboxMode}
         />
         <main className="flex-1">{children}</main>
         <SiteFooter

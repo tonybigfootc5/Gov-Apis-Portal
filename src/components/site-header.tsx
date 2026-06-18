@@ -19,6 +19,7 @@ type SiteHeaderProps = {
   navItems: NavItem[];
   adminLabel: string;
   techCenterLabel: string;
+  sandboxMode: boolean;
 };
 
 export function SiteHeader({
@@ -28,6 +29,7 @@ export function SiteHeader({
   navItems,
   adminLabel,
   techCenterLabel,
+  sandboxMode,
 }: SiteHeaderProps) {
   const pathname = usePathname();
 
@@ -39,6 +41,11 @@ export function SiteHeader({
   return (
     <header className="sticky top-0 z-50 border-b border-[rgba(27,59,43,0.08)] bg-[linear-gradient(180deg,rgba(250,248,242,0.82),rgba(250,248,242,0.68))] shadow-[0_16px_40px_rgba(64,44,8,0.08)] backdrop-blur-2xl">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+        {sandboxMode ? (
+          <div className="rounded-[1.2rem] border border-[rgba(187,77,43,0.18)] bg-[linear-gradient(90deg,#fff1d6,#ffe7da)] px-4 py-3 text-center text-xs font-black uppercase tracking-[0.18em] text-[#9b3f2b] shadow-[0_10px_24px_rgba(187,77,43,0.10)]">
+            Sandbox environment: test payments only. Nothing on this site should be treated as a live production transaction.
+          </div>
+        ) : null}
         <div className="flex items-center justify-between gap-3 md:rounded-full md:border md:border-white/55 md:bg-[linear-gradient(180deg,rgba(255,255,255,0.62),rgba(255,253,248,0.34))] md:px-4 md:py-2 md:shadow-[inset_0_1px_0_rgba(255,255,255,0.82),0_18px_40px_rgba(64,44,8,0.10)] md:backdrop-blur-2xl">
         <Link href="/" className="flex flex-1 items-center gap-2.5 pr-2 sm:gap-3" aria-label="API CULTURE home">
           <span className="relative h-12 w-14 shrink-0 sm:h-14 sm:w-16">
@@ -58,6 +65,11 @@ export function SiteHeader({
             <span className="block whitespace-nowrap text-[8px] font-bold uppercase tracking-[0.12em] text-[#516253] sm:text-[10px] sm:tracking-[0.2em]">
               {techCenterLabel}
             </span>
+            {sandboxMode ? (
+              <span className="mt-1 inline-flex rounded-full bg-[#b64c3a] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#fff7ef]">
+                Sandbox
+              </span>
+            ) : null}
           </span>
         </Link>
 

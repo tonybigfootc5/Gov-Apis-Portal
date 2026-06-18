@@ -25,6 +25,51 @@ enum MediaAssetType {
   ARTICLE_ASSET
 }
 
+enum ApplicationAttemptStatus {
+  ATTEMPTED
+  SUBMITTED
+  PAYMENT_INITIATED
+  PAYMENT_FAILED
+  PAYMENT_COMPLETED
+}
+
+enum ApplicationApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ApplicationCrossCheckStatus {
+  PENDING
+  VERIFIED
+}
+
+enum PaymentProvider {
+  PHONEPE
+}
+
+enum PaymentEnvironment {
+  SANDBOX
+  PRODUCTION
+}
+
+enum PaymentOrderState {
+  CREATED
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+  REFUND_PENDING
+  REFUNDED
+  REFUND_FAILED
+}
+
+enum RefundState {
+  REQUESTED
+  COMPLETED
+  FAILED
+}
+
 model Program {
   id               String       @id @default(cuid())
   title            String
@@ -108,4 +153,107 @@ model AdminBackupCodeUse {
   id       String   @id @default(cuid())
   codeHash String   @unique
   usedAt   DateTime @default(now())
+}
+
+model TrainingApplication {
+  id                     String                         @id @default(cuid())
+  legacyMessageId        String?                        @unique
+  serviceName            String
+  applicationDate        String
+  candidateName          String
+  guardianName           String
+  email                  String
+  gender                 String
+  dateOfBirth            String
+  addressLine            String
+  mandal                 String
+  district               String
+  state                  String
+  pinCode                String
+  phone                  String
+  residencePhone         String
+  educationQualification String
+  occupation             String
+  sponsoringOrganization String
+  photoName              String
+  photoType              String
+  photoUrl               String?
+  photoObjectKey         String?
+  photoDataUrl           String?
+  attemptStatus          ApplicationAttemptStatus      @default(SUBMITTED)
+  approvalStatus         ApplicationApprovalStatus     @default(PENDING)
+  crossCheckStatus       ApplicationCrossCheckStatus   @default(PENDING)
+  adminNotes             String                         @default("")
+  approvedAt             DateTime?
+  approvedBy             String?
+  createdAt              DateTime                       @default(now())
+  updatedAt              DateTime                       @updatedAt
+  paymentOrders          PaymentOrder[]
+}
+
+model PaymentOrder {
+  id                    String             @id @default(cuid())
+  trainingApplicationId String
+  trainingApplication   TrainingApplication @relation(fields: [trainingApplicationId], references: [id], onDelete: Cascade)
+  provider              PaymentProvider    @default(PHONEPE)
+  environment           PaymentEnvironment
+  merchantOrderId       String             @unique
+  phonePeOrderId        String?
+  checkoutUrl           String?
+  redirectUrl           String
+  status                PaymentOrderState  @default(CREATED)
+  amountPaise           Int
+  currency              String             @default("INR")
+  paymentReference      String?
+  paidAt                DateTime?
+  failedAt              DateTime?
+  expiresAt             DateTime?
+  refundEligible        Boolean            @default(false)
+  latestErrorCode       String?
+  latestErrorMessage    String?
+  latestEventName       String?
+  meta                  Json?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  paymentEvents         PaymentEvent[]
+  refundRequests        RefundRequest[]
+
+  @@index([trainingApplicationId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model PaymentEvent {
+  id                  String       @id @default(cuid())
+  paymentOrderId      String
+  paymentOrder        PaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Cascade)
+  dedupeKey           String       @unique
+  eventName           String
+  source              String
+  state               String?
+  authorizationHeader String?
+  payload             Json
+  receivedAt          DateTime     @default(now())
+
+  @@index([paymentOrderId, receivedAt(sort: Desc)])
+}
+
+model RefundRequest {
+  id                    String       @id @default(cuid())
+  paymentOrderId        String
+  paymentOrder          PaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Cascade)
+  merchantRefundId      String       @unique
+  phonePeRefundId       String?
+  amountPaise           Int
+  reason                String
+  requestedBy           String?
+  status                RefundState  @default(REQUESTED)
+  completedAt           DateTime?
+  failedAt              DateTime?
+  failureCode           String?
+  failureMessage        String?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  @@index([paymentOrderId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
 }
