@@ -18,7 +18,7 @@ export default async function AdminLoginPage({
   const step = stepParam === "verify" ? "verify" : "password";
 
   return (
-    <section className="mx-auto flex min-h-[70svh] max-w-md items-center px-4 py-16">
+    <section className="mx-auto flex min-h-[76svh] max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <AdminLoginForm configMessage={getAdminAccessSetupMessage()} step={step} errorCode={errorParam} />
     </section>
   );
