@@ -1,11 +1,26 @@
 import "server-only";
 
-import { headers } from "next/headers";
-import { createRemoteJWKSet, jwtVerify, type JWTPayload } from "jose";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "crypto";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 import { serviceUnavailable, unauthorized } from "@/lib/api-response";
 
-const CF_ACCESS_JWT_HEADER = "cf-access-jwt-assertion";
-const CF_ACCESS_LOGOUT_PATH = "/cdn-cgi/access/logout";
+const ADMIN_SESSION_COOKIE = "api_culture_admin_session";
+const ADMIN_PENDING_COOKIE = "api_culture_admin_pending";
+const ADMIN_SESSION_MAX_AGE = 60 * 60 * 12;
+const ADMIN_PENDING_MAX_AGE = 60 * 10;
+const TOTP_WINDOW = 1;
+const TOTP_DIGITS = 6;
+const TOTP_PERIOD_SECONDS = 30;
+
+type SessionScope = "admin-session" | "admin-pending";
+
+type SessionPayload = {
+  scope: SessionScope;
+  subject: string;
+  expiresAt: number;
+  nonce: string;
+};
 
 export type AdminIdentity = {
   subject: string;
@@ -14,117 +29,225 @@ export type AdminIdentity = {
   issuer: string;
   audience: string[];
   userUuid: string | null;
-  rawClaims: JWTPayload | null;
+  rawClaims: null;
 };
 
-type CloudflareAccessConfig = {
-  audiences: string[];
-  teamDomain: string;
-};
-
-const jwksCache = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
-
-function normalizeTeamDomain(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-
-  const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
-  return withProtocol.replace(/\/+$/, "");
+function getAdminPassword() {
+  return process.env.ADMIN_PASSWORD?.trim() ?? "";
 }
 
-function normalizeAudiences(value: string) {
-  return value
+function getAdminSessionSecret() {
+  return process.env.ADMIN_SESSION_SECRET?.trim() ?? "";
+}
+
+function getAdminTotpSecret() {
+  return process.env.ADMIN_TOTP_SECRET?.trim() ?? "";
+}
+
+function getAdminBackupCodeHashes() {
+  return (process.env.ADMIN_BACKUP_CODES_HASHES ?? "")
     .split(",")
-    .map((entry) => entry.trim())
+    .map((value) => value.trim().toLowerCase())
     .filter(Boolean);
 }
 
-function getCloudflareAccessConfig(): CloudflareAccessConfig {
-  return {
-    audiences: normalizeAudiences(process.env.CLOUDFLARE_ACCESS_AUD ?? ""),
-    teamDomain: normalizeTeamDomain(process.env.CLOUDFLARE_ACCESS_TEAM_DOMAIN ?? ""),
+function createSessionSignature(payloadBase64: string) {
+  return createHmac("sha256", getAdminSessionSecret()).update(payloadBase64).digest("base64url");
+}
+
+function encodeSession(scope: SessionScope, maxAgeSeconds: number) {
+  const payload: SessionPayload = {
+    scope,
+    subject: "admin",
+    expiresAt: Math.floor(Date.now() / 1000) + maxAgeSeconds,
+    nonce: randomBytes(12).toString("hex"),
   };
+  const payloadBase64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const signature = createSessionSignature(payloadBase64);
+  return `${payloadBase64}.${signature}`;
 }
 
-function getCloudflareAccessJwks(teamDomain: string) {
-  const existing = jwksCache.get(teamDomain);
-  if (existing) return existing;
+function decodeSession(value: string | undefined, expectedScope: SessionScope) {
+  if (!value || !getAdminSessionSecret()) return null;
 
-  const next = createRemoteJWKSet(new URL(`${teamDomain}/cdn-cgi/access/certs`));
-  jwksCache.set(teamDomain, next);
-  return next;
+  const [payloadBase64, providedSignature] = value.split(".");
+  if (!payloadBase64 || !providedSignature) return null;
+
+  const expectedSignature = createSessionSignature(payloadBase64);
+  const providedBuffer = Buffer.from(providedSignature);
+  const expectedBuffer = Buffer.from(expectedSignature);
+
+  if (providedBuffer.length !== expectedBuffer.length) return null;
+  if (!timingSafeEqual(providedBuffer, expectedBuffer)) return null;
+
+  try {
+    const payload = JSON.parse(Buffer.from(payloadBase64, "base64url").toString("utf8")) as SessionPayload;
+    if (payload.scope !== expectedScope) return null;
+    if (payload.subject !== "admin") return null;
+    if (payload.expiresAt <= Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch {
+    return null;
+  }
 }
 
-function mapAdminIdentity(payload: JWTPayload): AdminIdentity {
-  const audClaim = payload.aud;
-  const audience = Array.isArray(audClaim)
-    ? audClaim.filter((value): value is string => typeof value === "string")
-    : typeof audClaim === "string"
-      ? [audClaim]
-      : [];
-
-  return {
-    subject: typeof payload.sub === "string" ? payload.sub : "unknown",
-    email: typeof payload.email === "string" ? payload.email : null,
-    name: typeof payload.name === "string" ? payload.name : null,
-    issuer: typeof payload.iss === "string" ? payload.iss : "",
-    audience,
-    userUuid: typeof payload.common_name === "string" ? payload.common_name : null,
-    rawClaims: payload,
-  };
+function normalizeBackupCode(value: string) {
+  return value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
 }
 
-export function getCloudflareAccessSetupMessage() {
-  const { audiences, teamDomain } = getCloudflareAccessConfig();
-  const problems: string[] = [];
+function hashBackupCode(value: string) {
+  return createHash("sha256").update(normalizeBackupCode(value)).digest("hex");
+}
 
-  if (audiences.length === 0) {
-    problems.push("CLOUDFLARE_ACCESS_AUD must be configured with one or more Access application AUD values.");
+function decodeBase32(value: string) {
+  const sanitized = value.replace(/=+$/g, "").replace(/[^A-Z2-7]/gi, "").toUpperCase();
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0;
+  let buffer = 0;
+  const bytes: number[] = [];
+
+  for (const character of sanitized) {
+    const index = alphabet.indexOf(character);
+    if (index === -1) continue;
+
+    buffer = (buffer << 5) | index;
+    bits += 5;
+
+    if (bits >= 8) {
+      bytes.push((buffer >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
   }
 
-  if (!teamDomain) {
-    problems.push("CLOUDFLARE_ACCESS_TEAM_DOMAIN must be configured with the Cloudflare Access team domain.");
+  return Buffer.from(bytes);
+}
+
+function generateTotp(counter: number) {
+  const secret = decodeBase32(getAdminTotpSecret());
+  if (secret.length === 0) return null;
+
+  const counterBuffer = Buffer.alloc(8);
+  counterBuffer.writeUInt32BE(Math.floor(counter / 0x100000000), 0);
+  counterBuffer.writeUInt32BE(counter >>> 0, 4);
+
+  const hmac = createHmac("sha1", secret).update(counterBuffer).digest();
+  const offset = hmac[hmac.length - 1] & 0x0f;
+  const binaryCode =
+    ((hmac[offset] & 0x7f) << 24) |
+    ((hmac[offset + 1] & 0xff) << 16) |
+    ((hmac[offset + 2] & 0xff) << 8) |
+    (hmac[offset + 3] & 0xff);
+
+  return String(binaryCode % 10 ** TOTP_DIGITS).padStart(TOTP_DIGITS, "0");
+}
+
+export function isValidAdminPassword(value: string) {
+  const expected = getAdminPassword();
+  const provided = value.trim();
+  if (!expected || !provided) return false;
+
+  const providedBuffer = Buffer.from(provided);
+  const expectedBuffer = Buffer.from(expected);
+  return providedBuffer.length === expectedBuffer.length && timingSafeEqual(providedBuffer, expectedBuffer);
+}
+
+export function isValidAdminTotp(value: string) {
+  const normalized = value.replace(/\s+/g, "");
+  if (!/^\d{6}$/.test(normalized)) return false;
+
+  const nowCounter = Math.floor(Date.now() / 1000 / TOTP_PERIOD_SECONDS);
+  for (let offset = -TOTP_WINDOW; offset <= TOTP_WINDOW; offset += 1) {
+    if (generateTotp(nowCounter + offset) === normalized) return true;
+  }
+
+  return false;
+}
+
+export function isValidAdminBackupCode(value: string) {
+  const normalized = normalizeBackupCode(value);
+  if (normalized.length < 8) return false;
+
+  const codeHash = hashBackupCode(value);
+  return getAdminBackupCodeHashes().includes(codeHash);
+}
+
+export function getAdminAccessSetupMessage() {
+  const problems: string[] = [];
+
+  if (!getAdminPassword()) {
+    problems.push("ADMIN_PASSWORD must be configured.");
+  }
+
+  if (!getAdminSessionSecret()) {
+    problems.push("ADMIN_SESSION_SECRET must be configured.");
+  }
+
+  if (!getAdminTotpSecret()) {
+    problems.push("ADMIN_TOTP_SECRET must be configured.");
   }
 
   return problems.length ? problems.join(" ") : null;
 }
 
-export function getAdminAccessSetupMessage() {
-  return getCloudflareAccessSetupMessage();
-}
-
-export function getCloudflareAccessLogoutPath() {
-  return CF_ACCESS_LOGOUT_PATH;
-}
-
-export function getCloudflareAccessTeamDomain() {
-  return getCloudflareAccessConfig().teamDomain || null;
-}
-
-export async function verifyCloudflareAccessToken(token: string) {
-  const setupMessage = getCloudflareAccessSetupMessage();
-  if (setupMessage) {
-    throw new Error(setupMessage);
-  }
-
-  const { audiences, teamDomain } = getCloudflareAccessConfig();
-  const { payload } = await jwtVerify(token, getCloudflareAccessJwks(teamDomain), {
-    issuer: teamDomain,
-    audience: audiences,
+export async function setPendingAdminCookie(response: NextResponse) {
+  response.cookies.set(ADMIN_PENDING_COOKIE, encodeSession("admin-pending", ADMIN_PENDING_MAX_AGE), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: ADMIN_PENDING_MAX_AGE,
+    path: "/",
   });
+}
 
-  return mapAdminIdentity(payload);
+export async function clearPendingAdminCookie(response: NextResponse) {
+  response.cookies.set(ADMIN_PENDING_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+    path: "/",
+  });
+}
+
+export async function setAdminSessionCookie(response: NextResponse) {
+  response.cookies.set(ADMIN_SESSION_COOKIE, encodeSession("admin-session", ADMIN_SESSION_MAX_AGE), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: ADMIN_SESSION_MAX_AGE,
+    path: "/",
+  });
+}
+
+export async function clearAdminSessionCookie(response: NextResponse) {
+  response.cookies.set(ADMIN_SESSION_COOKIE, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+    path: "/",
+  });
+}
+
+export async function hasPendingAdminChallenge() {
+  const cookieStore = await cookies();
+  return Boolean(decodeSession(cookieStore.get(ADMIN_PENDING_COOKIE)?.value, "admin-pending"));
 }
 
 export async function getAdminIdentity() {
-  const token = (await headers()).get(CF_ACCESS_JWT_HEADER);
-  if (!token) return null;
+  const cookieStore = await cookies();
+  const session = decodeSession(cookieStore.get(ADMIN_SESSION_COOKIE)?.value, "admin-session");
+  if (!session) return null;
 
-  try {
-    return await verifyCloudflareAccessToken(token);
-  } catch {
-    return null;
-  }
+  return {
+    subject: session.subject,
+    email: null,
+    name: "Admin",
+    issuer: "app-mfa",
+    audience: ["admin"],
+    userUuid: null,
+    rawClaims: null,
+  } satisfies AdminIdentity;
 }
 
 export async function requireAdmin() {
@@ -137,5 +260,5 @@ export async function adminUnauthorized(message?: string) {
     return serviceUnavailable(setupMessage);
   }
 
-  return unauthorized(message ?? "Cloudflare Access token missing or invalid.");
+  return unauthorized(message ?? "Admin session missing or invalid.");
 }

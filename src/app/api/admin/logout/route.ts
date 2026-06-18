@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { getCloudflareAccessLogoutPath } from "@/lib/auth";
+import { clearAdminSessionCookie, clearPendingAdminCookie } from "@/lib/auth";
 
 export async function POST(request: Request) {
-  return NextResponse.redirect(new URL(getCloudflareAccessLogoutPath(), request.url), { status: 303 });
+  const response = NextResponse.redirect(new URL("/admin/login", request.url), { status: 303 });
+  await clearPendingAdminCookie(response);
+  await clearAdminSessionCookie(response);
+  return response;
 }

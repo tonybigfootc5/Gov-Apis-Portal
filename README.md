@@ -27,8 +27,10 @@ npm install
 ```bash
 DATABASE_URL="postgresql://..."
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
-CLOUDFLARE_ACCESS_AUD="your-cloudflare-access-application-aud"
-CLOUDFLARE_ACCESS_TEAM_DOMAIN="https://your-team.cloudflareaccess.com"
+ADMIN_PASSWORD="use-an-exact-24-character-password"
+ADMIN_SESSION_SECRET="use-a-separate-long-random-secret"
+ADMIN_TOTP_SECRET="use-your-google-authenticator-base32-secret"
+ADMIN_BACKUP_CODES_HASHES="comma-separated-sha256-hashes-of-backup-codes"
 ```
 
 3. Generate Prisma and migrate PostgreSQL:
@@ -52,7 +54,7 @@ Admin URL: `/admin`
 - Frontend: Next.js App Router, TypeScript, Tailwind CSS, `next/image`, `lucide-react`.
 - Backend: Next.js route handlers under `src/app/api`.
 - Database: PostgreSQL with Prisma ORM.
-- Security: Cloudflare Access protected admin routes with origin-side JWT verification, input validation with Zod, no secrets in client code, security headers in `next.config.ts`.
+- Security: admin-only password plus MFA, signed HTTP-only admin session cookie, input validation with Zod, no secrets in client code, security headers in `next.config.ts`.
 - SEO: Metadata API, Open Graph, sitemap, robots rules.
 - Resilience: public pages fall back to bundled institutional data if the database is unavailable during early deployment.
 
@@ -84,8 +86,10 @@ Update Honey House gallery assets
 5. Add environment variables in Vercel Project Settings:
    - `DATABASE_URL`
    - `NEXT_PUBLIC_SITE_URL`
-   - `CLOUDFLARE_ACCESS_AUD`
-   - `CLOUDFLARE_ACCESS_TEAM_DOMAIN`
+   - `ADMIN_PASSWORD`
+   - `ADMIN_SESSION_SECRET`
+   - `ADMIN_TOTP_SECRET`
+   - `ADMIN_BACKUP_CODES_HASHES`
 6. Use a managed PostgreSQL provider such as Vercel Postgres, Neon, Supabase, or Railway.
 7. Run production migrations:
 
@@ -104,15 +108,42 @@ npm run build
 
 ## Admin Access Setup
 
-Admin access is protected by Cloudflare Access, and MFA should be enforced in Cloudflare Zero Trust rather than inside the application.
+Admin access is protected inside the application with a shared admin password plus a second factor.
 
-1. In Cloudflare Zero Trust, create or update Access protection for the production admin hostname.
-2. Enforce MFA in the Access policy or through your identity provider's MFA requirement.
-3. Copy the Access application AUD value into `CLOUDFLARE_ACCESS_AUD`.
-4. Copy your Zero Trust team domain into `CLOUDFLARE_ACCESS_TEAM_DOMAIN`.
-5. Keep `/admin` and `/api/admin/*` behind the same Cloudflare Access policy in production.
+1. Generate a 24-character password.
+2. Generate a Google Authenticator compatible TOTP secret.
+3. Generate backup codes and hash them before storing them in `ADMIN_BACKUP_CODES_HASHES`.
+4. Add the admin password, session secret, TOTP secret, and backup-code hashes to both local env and Vercel production env.
+5. Add the TOTP secret to your authenticator app using manual key entry.
+6. Keep the raw backup codes outside the repo in a secure vault.
 
-Local development will not simulate Cloudflare login by itself. To test local admin flows against Access, use a real Access-protected hostname or a Cloudflare-authenticated request flow.
+Helpful commands:
+
+```bash
+node -e "const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';const crypto=require('crypto');let out='';while(out.length<24){out+=c[crypto.randomBytes(1)[0]%c.length]}console.log(out)"
+```
+
+```bash
+node -e "const crypto=require('crypto');const a='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';let bits=0,v=0,o='';for(const b of crypto.randomBytes(20)){v=(v<<8)|b;bits+=8;while(bits>=5){o+=a[(v>>>(bits-5))&31];bits-=5}}if(bits>0)o+=a[(v<<(5-bits))&31];console.log(o)"
+```
+
+```bash
+node - <<'EOF'
+const crypto = require('crypto');
+const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const normalize = (value) => value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+const code = () => {
+  let raw = '';
+  while (raw.length < 10) raw += alphabet[crypto.randomBytes(1)[0] % alphabet.length];
+  return `${raw.slice(0, 5)}-${raw.slice(5)}`;
+};
+const codes = Array.from({ length: 8 }, code);
+const hashes = codes.map((value) => crypto.createHash('sha256').update(normalize(value)).digest('hex'));
+console.log('Backup codes:');
+console.log(codes.join('\n'));
+console.log('\nADMIN_BACKUP_CODES_HASHES=' + hashes.join(','));
+EOF
+```
 
 
 ## GoDaddy Domain to Vercel
