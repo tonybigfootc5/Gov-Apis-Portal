@@ -113,6 +113,7 @@ Admin access is protected inside the application with two available sign-in path
 - authenticator TOTP or backup code
 
 Either successful path creates the admin session.
+The login screen now uses one shared card with a top switch so admins can toggle between `MFA` and `Password` instead of managing two side-by-side panels.
 
 1. Generate a 24-character password.
 2. Generate a Google Authenticator compatible TOTP secret.

@@ -22,7 +22,9 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const password = String(formData.get("password") ?? "");
   if (!isValidAdminPassword(password)) {
-    const response = NextResponse.redirect(new URL("/admin/login?error=invalid-password", request.url), { status: 303 });
+    const response = NextResponse.redirect(new URL("/admin/login?error=invalid-password&step=password", request.url), {
+      status: 303,
+    });
     await clearAdminSessionCookie(response);
     return response;
   }

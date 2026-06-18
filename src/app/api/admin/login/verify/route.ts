@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   const valid = isValidAdminTotp(code) || isValidAdminBackupCode(code);
 
   if (!valid) {
-    return NextResponse.redirect(new URL("/admin/login?error=invalid-code", request.url), { status: 303 });
+    return NextResponse.redirect(new URL("/admin/login?error=invalid-code&step=verify", request.url), { status: 303 });
   }
 
   const response = NextResponse.redirect(new URL("/admin", request.url), { status: 303 });

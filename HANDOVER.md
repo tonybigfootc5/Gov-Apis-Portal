@@ -149,6 +149,7 @@ npm run build
   - `/admin` redirects to `/admin/login` when unauthenticated
   - valid password opens the admin UI
   - valid TOTP opens the admin UI
+  - the login page switch cleanly toggles between MFA and password in a single shared panel
   - admin API calls succeed with a valid session cookie
   - logout clears admin access
 
