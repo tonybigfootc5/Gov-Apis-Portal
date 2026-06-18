@@ -14,12 +14,10 @@ export default async function AdminLoginPage({
 }) {
   const resolved = await searchParams;
   const errorParam = Array.isArray(resolved.error) ? resolved.error[0] : resolved.error;
-  const stepParam = Array.isArray(resolved.step) ? resolved.step[0] : resolved.step;
-  const step = stepParam === "verify" ? "verify" : "password";
 
   return (
     <section className="mx-auto flex min-h-[76svh] max-w-6xl items-center px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-      <AdminLoginForm configMessage={getAdminAccessSetupMessage()} step={step} errorCode={errorParam} />
+      <AdminLoginForm configMessage={getAdminAccessSetupMessage()} step="verify" errorCode={errorParam} />
     </section>
   );
 }

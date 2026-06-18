@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import {
-  clearAdminSessionCookie,
-  clearPendingAdminCookie,
   getAdminAccessSetupMessage,
-  hasPendingAdminChallenge,
   isValidAdminBackupCode,
   isValidAdminTotp,
   setAdminSessionCookie,
@@ -22,16 +19,9 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL("/admin/login?error=setup", request.url), { status: 303 });
   }
 
-  if (!(await hasPendingAdminChallenge())) {
-    const response = NextResponse.redirect(new URL("/admin/login?error=session-expired", request.url), { status: 303 });
-    await clearPendingAdminCookie(response);
-    await clearAdminSessionCookie(response);
-    return response;
-  }
-
   const limit = rateLimit("admin-login-mfa", getRequestKey(request), 8, 15 * 60 * 1000);
   if (!limit.allowed) {
-    return NextResponse.redirect(new URL("/admin/login?step=verify&error=rate-limit", request.url), { status: 303 });
+    return NextResponse.redirect(new URL("/admin/login?error=rate-limit", request.url), { status: 303 });
   }
 
   const formData = await request.formData();
@@ -39,11 +29,10 @@ export async function POST(request: Request) {
   const valid = isValidAdminTotp(code) || isValidAdminBackupCode(code);
 
   if (!valid) {
-    return NextResponse.redirect(new URL("/admin/login?step=verify&error=invalid-code", request.url), { status: 303 });
+    return NextResponse.redirect(new URL("/admin/login?error=invalid-code", request.url), { status: 303 });
   }
 
   const response = NextResponse.redirect(new URL("/admin", request.url), { status: 303 });
-  await clearPendingAdminCookie(response);
   await setAdminSessionCookie(response);
   return response;
 }

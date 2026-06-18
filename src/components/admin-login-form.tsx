@@ -32,7 +32,7 @@ export function AdminLoginForm({ configMessage, step, errorCode }: Props) {
                 ? "bg-[rgba(33,113,72,0.14)] text-[#1d5d3f]"
                 : "bg-[rgba(179,107,0,0.12)] text-[#8a5700]"
             }`}>
-              {mfaActive ? "MFA ready" : "Awaiting password unlock"}
+              {mfaActive ? "MFA active" : "Ready now"}
             </span>
           </div>
 
@@ -40,8 +40,8 @@ export function AdminLoginForm({ configMessage, step, errorCode }: Props) {
             MFA comes first.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-8 text-[#4e5d52] lg:text-lg">
-            The admin workspace is opened by an authenticator check first in the visual flow, with the password handled as
-            the secondary gate beside it. Backup codes still work here whenever your authenticator is unavailable.
+            Use whichever confirmation is most convenient right now. The authenticator panel is still the primary action in
+            the layout, while the password panel remains available as an alternate way in.
           </p>
 
           {errorMessage ? (
@@ -62,56 +62,37 @@ export function AdminLoginForm({ configMessage, step, errorCode }: Props) {
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-[#f1c45b]">Authenticator checkpoint</p>
                 <p className="mt-2 text-sm leading-7 text-[#d8d6cf]">
-                  Enter the 6-digit authenticator code or a backup code.
+                  Enter the 6-digit authenticator code or a backup code to sign in directly.
                 </p>
               </div>
               <div className="hidden rounded-[1.2rem] border border-[rgba(241,196,91,0.24)] bg-[rgba(255,255,255,0.04)] px-4 py-3 text-right lg:block">
                 <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#f1c45b]">Status</p>
-                <p className="mt-1 text-sm font-semibold text-[#fff3d0]">{mfaActive ? "Live step" : "Locked"}</p>
+                <p className="mt-1 text-sm font-semibold text-[#fff3d0]">{mfaActive ? "Live step" : "Available"}</p>
               </div>
             </div>
 
-            {mfaActive ? (
-              <div className="mt-5 grid gap-4">
-                <form action="/api/admin/login/verify" method="post" className="grid gap-4">
-                  <label className="grid gap-2 text-sm font-bold text-[#f3e4c8]">
-                    Authenticator or backup code
-                    <input
-                      type="text"
-                      name="code"
-                      required
-                      autoComplete="one-time-code"
-                      inputMode="numeric"
-                      className="rounded-[1rem] border border-[rgba(241,196,91,0.22)] bg-[rgba(250,248,242,0.08)] px-4 py-3 text-[#fff8ea] outline-none ring-[#f1c45b] placeholder:text-[#bcae94] focus:ring-2"
-                      placeholder="123456 or ABCDE-FGHIJ"
-                    />
-                  </label>
-                  <button
-                    className="inline-flex w-full items-center justify-center rounded-full bg-[linear-gradient(180deg,#f4c44f,#dda126)] px-4 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#2f1c00] shadow-[0_16px_32px_rgba(221,161,38,0.24)] transition hover:brightness-105"
-                    type="submit"
-                  >
-                    Verify MFA
-                  </button>
-                </form>
-
-                <form action="/api/admin/login/reset" method="post">
-                  <button
-                    className="inline-flex w-full items-center justify-center rounded-full border border-[rgba(241,196,91,0.18)] px-4 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#efe2c3]"
-                    type="submit"
-                  >
-                    Reset login flow
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <div className="mt-5 rounded-[1.2rem] border border-dashed border-[rgba(241,196,91,0.2)] bg-[rgba(255,255,255,0.03)] px-4 py-4">
-                <p className="text-sm font-semibold text-[#fff3d0]">MFA panel unlocked after password confirmation.</p>
-                <p className="mt-2 text-sm leading-7 text-[#cabda2]">
-                  Use the secondary panel to confirm the admin password, then this primary MFA panel becomes active
-                  immediately.
-                </p>
-              </div>
-            )}
+            <div className="mt-5 grid gap-4">
+              <form action="/api/admin/login/verify" method="post" className="grid gap-4">
+                <label className="grid gap-2 text-sm font-bold text-[#f3e4c8]">
+                  Authenticator or backup code
+                  <input
+                    type="text"
+                    name="code"
+                    required
+                    autoComplete="one-time-code"
+                    inputMode="numeric"
+                    className="rounded-[1rem] border border-[rgba(241,196,91,0.22)] bg-[rgba(250,248,242,0.08)] px-4 py-3 text-[#fff8ea] outline-none ring-[#f1c45b] placeholder:text-[#bcae94] focus:ring-2"
+                    placeholder="123456 or ABCDE-FGHIJ"
+                  />
+                </label>
+                <button
+                  className="inline-flex w-full items-center justify-center rounded-full bg-[linear-gradient(180deg,#f4c44f,#dda126)] px-4 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#2f1c00] shadow-[0_16px_32px_rgba(221,161,38,0.24)] transition hover:brightness-105"
+                  type="submit"
+                >
+                  Sign in with MFA
+                </button>
+              </form>
+            </div>
           </div>
         </section>
 
@@ -126,44 +107,35 @@ export function AdminLoginForm({ configMessage, step, errorCode }: Props) {
 
             <h2 className="font-display mt-4 text-3xl font-semibold text-[#274534]">Unlock the MFA stage</h2>
             <p className="mt-3 text-sm leading-7 text-[#5f6e63]">
-              This secondary step proves password possession first. Once accepted, the MFA panel on the left becomes the
-              active checkpoint.
+              Prefer the shared password instead? Use it here as an alternate sign-in path. Either this or the MFA panel
+              can open the admin workspace.
             </p>
 
-            {mfaActive ? (
-              <div className="mt-6 rounded-[1.25rem] border border-[rgba(33,113,72,0.16)] bg-[linear-gradient(180deg,rgba(232,244,236,0.98),rgba(246,252,248,0.94))] px-4 py-4">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-[#1d5d3f]">Password accepted</p>
-                <p className="mt-2 text-sm leading-7 text-[#466452]">
-                  Continue with the primary MFA panel to finish opening the admin workspace.
-                </p>
-              </div>
-            ) : (
-              <form action="/api/admin/login" method="post" className="mt-6 grid gap-4">
-                <label className="grid gap-2 text-sm font-bold text-[#32473b]">
-                  Admin password
-                  <input
-                    type="password"
-                    name="password"
-                    required
-                    autoComplete="current-password"
-                    className="rounded-[1rem] border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-[#173929] outline-none ring-[#c98618] placeholder:text-[#9aa698] focus:ring-2"
-                    placeholder="Enter shared admin password"
-                  />
-                </label>
-                <button
-                  className="inline-flex w-full items-center justify-center rounded-full bg-[linear-gradient(180deg,#214939,#173929)] px-4 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#faf6ea] shadow-[0_14px_28px_rgba(23,57,41,0.18)] transition hover:brightness-105"
-                  type="submit"
-                >
-                  Continue
-                </button>
-              </form>
-            )}
+            <form action="/api/admin/login" method="post" className="mt-6 grid gap-4">
+              <label className="grid gap-2 text-sm font-bold text-[#32473b]">
+                Admin password
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  autoComplete="current-password"
+                  className="rounded-[1rem] border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-3 text-[#173929] outline-none ring-[#c98618] placeholder:text-[#9aa698] focus:ring-2"
+                  placeholder="Enter shared admin password"
+                />
+              </label>
+              <button
+                className="inline-flex w-full items-center justify-center rounded-full bg-[linear-gradient(180deg,#214939,#173929)] px-4 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#faf6ea] shadow-[0_14px_28px_rgba(23,57,41,0.18)] transition hover:brightness-105"
+                type="submit"
+              >
+                Sign in with password
+              </button>
+            </form>
 
             <div className="mt-6 rounded-[1.2rem] bg-[rgba(243,236,223,0.8)] px-4 py-4">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8a5700]">Security note</p>
               <p className="mt-2 text-sm leading-7 text-[#6f6044]">
-                Public pages remain open. Only the admin console is protected, and every new admin session still requires
-                both password and MFA before access is granted.
+                Public pages remain open. Only the admin console is protected, and a successful password or MFA
+                confirmation creates the admin session.
               </p>
             </div>
           </div>

@@ -6,14 +6,12 @@ import { NextResponse } from "next/server";
 import { serviceUnavailable, unauthorized } from "@/lib/api-response";
 
 const ADMIN_SESSION_COOKIE = "api_culture_admin_session";
-const ADMIN_PENDING_COOKIE = "api_culture_admin_pending";
 const ADMIN_SESSION_MAX_AGE = 60 * 60 * 12;
-const ADMIN_PENDING_MAX_AGE = 60 * 10;
 const TOTP_WINDOW = 1;
 const TOTP_DIGITS = 6;
 const TOTP_PERIOD_SECONDS = 30;
 
-type SessionScope = "admin-session" | "admin-pending";
+type SessionScope = "admin-session";
 
 type SessionPayload = {
   scope: SessionScope;
@@ -189,26 +187,6 @@ export function getAdminAccessSetupMessage() {
   return problems.length ? problems.join(" ") : null;
 }
 
-export async function setPendingAdminCookie(response: NextResponse) {
-  response.cookies.set(ADMIN_PENDING_COOKIE, encodeSession("admin-pending", ADMIN_PENDING_MAX_AGE), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: ADMIN_PENDING_MAX_AGE,
-    path: "/",
-  });
-}
-
-export async function clearPendingAdminCookie(response: NextResponse) {
-  response.cookies.set(ADMIN_PENDING_COOKIE, "", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 0,
-    path: "/",
-  });
-}
-
 export async function setAdminSessionCookie(response: NextResponse) {
   response.cookies.set(ADMIN_SESSION_COOKIE, encodeSession("admin-session", ADMIN_SESSION_MAX_AGE), {
     httpOnly: true,
@@ -227,11 +205,6 @@ export async function clearAdminSessionCookie(response: NextResponse) {
     maxAge: 0,
     path: "/",
   });
-}
-
-export async function hasPendingAdminChallenge() {
-  const cookieStore = await cookies();
-  return Boolean(decodeSession(cookieStore.get(ADMIN_PENDING_COOKIE)?.value, "admin-pending"));
 }
 
 export async function getAdminIdentity() {

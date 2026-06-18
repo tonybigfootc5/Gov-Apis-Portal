@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminAccessSetupMessage, isValidAdminPassword, clearAdminSessionCookie, clearPendingAdminCookie, setPendingAdminCookie } from "@/lib/auth";
+import { getAdminAccessSetupMessage, isValidAdminPassword, clearAdminSessionCookie, setAdminSessionCookie } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
 
 function getRequestKey(request: Request) {
@@ -23,13 +23,11 @@ export async function POST(request: Request) {
   const password = String(formData.get("password") ?? "");
   if (!isValidAdminPassword(password)) {
     const response = NextResponse.redirect(new URL("/admin/login?error=invalid-password", request.url), { status: 303 });
-    await clearPendingAdminCookie(response);
     await clearAdminSessionCookie(response);
     return response;
   }
 
-  const response = NextResponse.redirect(new URL("/admin/login?step=verify", request.url), { status: 303 });
-  await clearAdminSessionCookie(response);
-  await setPendingAdminCookie(response);
+  const response = NextResponse.redirect(new URL("/admin", request.url), { status: 303 });
+  await setAdminSessionCookie(response);
   return response;
 }
