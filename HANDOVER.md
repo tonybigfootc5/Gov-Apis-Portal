@@ -39,6 +39,7 @@
   - app-owned admin password plus MFA for `/admin`
   - signed HTTP-only admin session cookies
   - TOTP verification and backup-code support on the admin login flow
+  - either password-only or MFA-only sign-in can open the admin session
 - Vercel production env vars now need:
   - `ADMIN_PASSWORD`
   - `ADMIN_SESSION_SECRET`
@@ -132,7 +133,7 @@ npm run build
 - `npm run prisma:generate`
 - `npm run lint`
 - `npm run build`
-- Local visual check of `/admin/login` MFA page
+- Local visual check of the simplified `/admin/login` page
 - Production route smoke check with HTTP 200 on:
   - `/`
   - `/programs`
@@ -146,7 +147,7 @@ npm run build
 - Add `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `ADMIN_TOTP_SECRET`, and `ADMIN_BACKUP_CODES_HASHES` in Vercel for production.
 - Verify end to end with a real admin session:
   - `/admin` redirects to `/admin/login` when unauthenticated
-  - password step advances to MFA step
+  - valid password opens the admin UI
   - valid TOTP opens the admin UI
   - admin API calls succeed with a valid session cookie
   - logout clears admin access

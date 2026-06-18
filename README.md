@@ -108,13 +108,17 @@ npm run build
 
 ## Admin Access Setup
 
-Admin access is protected inside the application with a shared admin password plus a second factor.
+Admin access is protected inside the application with two available sign-in paths:
+- shared admin password
+- authenticator TOTP or backup code
+
+Either successful path creates the admin session.
 
 1. Generate a 24-character password.
 2. Generate a Google Authenticator compatible TOTP secret.
 3. Generate backup codes and hash them before storing them in `ADMIN_BACKUP_CODES_HASHES`.
 4. Add the admin password, session secret, TOTP secret, and backup-code hashes to both local env and Vercel production env.
-5. Add the TOTP secret to your authenticator app using manual key entry.
+5. Add the TOTP secret to your authenticator app using manual key entry or a compatible QR flow.
 6. Keep the raw backup codes outside the repo in a secure vault.
 
 Helpful commands:
