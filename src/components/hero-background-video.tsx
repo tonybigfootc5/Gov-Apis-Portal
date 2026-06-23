@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-const FADE_OUT_SECONDS = 0.85;
-const FADE_IN_MS = 700;
+const FADE_OUT_SECONDS = 2.5;
+const FADE_IN_MS = 1500;
 const BASE_OVERLAY_OPACITY = 0.08;
 const MAX_OVERLAY_OPACITY = 0.34;
 
@@ -49,7 +49,7 @@ export function HeroBackgroundVideo() {
     const restartLoop = async () => {
       hasTriggeredLoopRef.current = true;
       clearFadeTimeout();
-      setOverlayOpacity(0.55);
+      setOverlayOpacity(1);
 
       video.currentTime = 0;
       try {
@@ -61,7 +61,7 @@ export function HeroBackgroundVideo() {
       fadeInTimeoutRef.current = window.setTimeout(() => {
         setOverlayOpacity(0);
         hasTriggeredLoopRef.current = false;
-      }, 60);
+      }, 40);
     };
 
     const handleEnded = () => {
