@@ -3,25 +3,26 @@
 import { useEffect, useRef } from "react";
 
 const FADE_OUT_SECONDS = 2.5;
+const FADE_OUT_MS = FADE_OUT_SECONDS * 1000;
 const FADE_IN_MS = 1500;
 const BASE_OVERLAY_OPACITY = 0.08;
-const MAX_OVERLAY_OPACITY = 0.34;
+const BLACKOUT_OVERLAY_OPACITY = 1;
 
 export function HeroBackgroundVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<number | null>(null);
   const fadeInTimeoutRef = useRef<number | null>(null);
-  const hasTriggeredLoopRef = useRef(false);
+  const isFadingOutRef = useRef(false);
+  const isRestartingRef = useRef(false);
 
   useEffect(() => {
     const video = videoRef.current;
     const overlay = overlayRef.current;
     if (!video || !overlay) return;
 
-    const setOverlayOpacity = (value: number) => {
-      const nextOpacity = BASE_OVERLAY_OPACITY + value * (MAX_OVERLAY_OPACITY - BASE_OVERLAY_OPACITY);
-      overlay.style.opacity = String(Math.min(MAX_OVERLAY_OPACITY, Math.max(BASE_OVERLAY_OPACITY, nextOpacity)));
+    const setOverlay = (opacity: number, durationMs: number) => {
+      overlay.style.transition = `opacity ${durationMs}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+      overlay.style.opacity = String(opacity);
     };
 
     const clearFadeTimeout = () => {
@@ -31,36 +32,34 @@ export function HeroBackgroundVideo() {
       }
     };
 
-    const step = () => {
+    const handleTimeUpdate = () => {
       const duration = video.duration || 0;
       const currentTime = video.currentTime || 0;
       const remaining = Math.max(0, duration - currentTime);
 
-      if (duration > 0 && remaining <= FADE_OUT_SECONDS) {
-        const progress = 1 - remaining / FADE_OUT_SECONDS;
-        setOverlayOpacity(Math.min(1, progress));
-      } else if (!hasTriggeredLoopRef.current) {
-        setOverlayOpacity(0);
+      if (!isRestartingRef.current && duration > 0 && remaining <= FADE_OUT_SECONDS && !isFadingOutRef.current) {
+        isFadingOutRef.current = true;
+        setOverlay(BLACKOUT_OVERLAY_OPACITY, FADE_OUT_MS);
       }
-
-      frameRef.current = window.requestAnimationFrame(step);
     };
 
     const restartLoop = async () => {
-      hasTriggeredLoopRef.current = true;
+      isRestartingRef.current = true;
       clearFadeTimeout();
-      setOverlayOpacity(1);
+      setOverlay(BLACKOUT_OVERLAY_OPACITY, 0);
 
       video.currentTime = 0;
       try {
         await video.play();
       } catch {
+        isRestartingRef.current = false;
         return;
       }
 
       fadeInTimeoutRef.current = window.setTimeout(() => {
-        setOverlayOpacity(0);
-        hasTriggeredLoopRef.current = false;
+        setOverlay(BASE_OVERLAY_OPACITY, FADE_IN_MS);
+        isFadingOutRef.current = false;
+        isRestartingRef.current = false;
       }, 40);
     };
 
@@ -68,16 +67,23 @@ export function HeroBackgroundVideo() {
       void restartLoop();
     };
 
+    const handlePlaying = () => {
+      if (!isFadingOutRef.current && !isRestartingRef.current) {
+        setOverlay(BASE_OVERLAY_OPACITY, 0);
+      }
+    };
+
     video.loop = false;
+    setOverlay(BASE_OVERLAY_OPACITY, 0);
+    video.addEventListener("timeupdate", handleTimeUpdate);
     video.addEventListener("ended", handleEnded);
-    frameRef.current = window.requestAnimationFrame(step);
+    video.addEventListener("playing", handlePlaying);
 
     return () => {
+      video.removeEventListener("timeupdate", handleTimeUpdate);
       video.removeEventListener("ended", handleEnded);
+      video.removeEventListener("playing", handlePlaying);
       clearFadeTimeout();
-      if (frameRef.current !== null) {
-        window.cancelAnimationFrame(frameRef.current);
-      }
     };
   }, []);
 
