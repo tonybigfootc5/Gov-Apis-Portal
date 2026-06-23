@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowRight, ArrowUpRight, BellRing, MessageCircle, X } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, BellRing, X } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 
 type AnnouncementProgram = {
@@ -94,8 +95,15 @@ export function TrainingAnnouncementPopup({
       className="pointer-events-auto flex items-center gap-0 rounded-full border border-[rgba(24,128,56,0.18)] bg-[#f7fff9] p-2 text-left shadow-[0_18px_42px_rgba(15,82,33,0.16)] sm:gap-3 sm:px-4 sm:py-3"
       aria-label="Send a WhatsApp enquiry to 9395507766"
     >
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#2ac769,#128c37)] text-white shadow-[0_10px_24px_rgba(18,140,55,0.22)]">
-        <MessageCircle className="h-4 w-4" aria-hidden="true" />
+      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_10px_24px_rgba(18,140,55,0.18)]">
+        <Image
+          src="/whatsapp-logo.png"
+          alt=""
+          fill
+          sizes="44px"
+          className="object-cover"
+          aria-hidden="true"
+        />
       </span>
       <span className="hidden sm:block">
         <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#128c37]">WhatsApp enquiry</span>
