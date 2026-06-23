@@ -39,25 +39,25 @@ export default async function Home() {
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0">
           <HeroBackgroundVideo />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,10,0.45)_0%,rgba(4,6,10,0.72)_55%,rgba(4,6,10,0.95)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,138,42,0.16),transparent_24rem),radial-gradient(circle_at_top_right,rgba(142,197,255,0.14),transparent_28rem)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(4,6,10,0.22)_0%,rgba(4,6,10,0.46)_54%,rgba(4,6,10,0.78)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,138,42,0.2),transparent_24rem),radial-gradient(circle_at_top_right,rgba(142,197,255,0.18),transparent_28rem)]" />
         </div>
 
         <div className="relative mx-auto flex min-h-[calc(100vh-5.5rem)] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
           <div className="neo-shell max-w-5xl rounded-[2.6rem] p-6 sm:p-8 lg:p-10">
             <div className="relative z-10">
-              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-white/12 bg-white/6 px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">
+              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-white/16 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#ffd37c] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
                 <BadgeCheck className="h-4 w-4" aria-hidden="true" />
                 {institute.parent.split(",")[0]}
               </p>
 
-              <h1 className="font-display mt-6 max-w-5xl text-[clamp(3.6rem,9vw,7.3rem)] leading-[0.88] text-bright">
+              <h1 className="font-display mt-6 max-w-5xl text-[clamp(3.6rem,9vw,7.3rem)] leading-[0.88] text-bright [text-shadow:0_10px_34px_rgba(0,0,0,0.34)]">
                 Apiculture training
                 <br />
                 rebuilt for launch.
               </h1>
 
-              <p className="mt-6 max-w-3xl text-base leading-8 text-dim sm:text-lg">
+              <p className="mt-6 max-w-3xl text-base leading-8 text-[#dbe5f2] sm:text-lg">
                 {t(language, "home.hero.description")} Enrollment now points straight into the real payment flow with a cleaner, faster public experience.
               </p>
 
@@ -71,7 +71,7 @@ export default async function Home() {
                 </Link>
                 <Link
                   href="/about"
-                  className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/5 px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#f4efe4]"
+                  className="inline-flex items-center justify-center rounded-full border border-white/16 bg-white/8 px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#f4efe4]"
                 >
                   About the center
                 </Link>

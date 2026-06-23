@@ -2,9 +2,10 @@
 
 import { useEffect, useRef } from "react";
 
-const FADE_OUT_SECONDS = 1.15;
-const FADE_IN_MS = 950;
-const BASE_OVERLAY_OPACITY = 0.16;
+const FADE_OUT_SECONDS = 0.85;
+const FADE_IN_MS = 700;
+const BASE_OVERLAY_OPACITY = 0.08;
+const MAX_OVERLAY_OPACITY = 0.34;
 
 export function HeroBackgroundVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -19,8 +20,8 @@ export function HeroBackgroundVideo() {
     if (!video || !overlay) return;
 
     const setOverlayOpacity = (value: number) => {
-      const nextOpacity = BASE_OVERLAY_OPACITY + value * (1 - BASE_OVERLAY_OPACITY);
-      overlay.style.opacity = String(Math.min(1, Math.max(BASE_OVERLAY_OPACITY, nextOpacity)));
+      const nextOpacity = BASE_OVERLAY_OPACITY + value * (MAX_OVERLAY_OPACITY - BASE_OVERLAY_OPACITY);
+      overlay.style.opacity = String(Math.min(MAX_OVERLAY_OPACITY, Math.max(BASE_OVERLAY_OPACITY, nextOpacity)));
     };
 
     const clearFadeTimeout = () => {
@@ -48,7 +49,7 @@ export function HeroBackgroundVideo() {
     const restartLoop = async () => {
       hasTriggeredLoopRef.current = true;
       clearFadeTimeout();
-      setOverlayOpacity(1);
+      setOverlayOpacity(0.55);
 
       video.currentTime = 0;
       try {
@@ -90,7 +91,7 @@ export function HeroBackgroundVideo() {
         preload="auto"
         disablePictureInPicture
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-78 [filter:brightness(0.68)_contrast(0.96)] sm:object-[center_42%]"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-92 [filter:brightness(0.82)_contrast(1.04)_saturate(1.05)] sm:object-[center_42%]"
       >
         <source src="/hero-background-original.mp4" type="video/mp4" />
         Your browser does not support the video tag.

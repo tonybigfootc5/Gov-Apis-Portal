@@ -23,21 +23,24 @@ export function TrainingAnnouncementPopup({
   const [compactVisible, setCompactVisible] = useState(false);
   const enterTimerRef = useRef<number | null>(null);
   const collapseTimerRef = useRef<number | null>(null);
-  const compactTimerRef = useRef<number | null>(null);
 
   const clearTimers = useCallback(() => {
     if (enterTimerRef.current) window.clearTimeout(enterTimerRef.current);
     if (collapseTimerRef.current) window.clearTimeout(collapseTimerRef.current);
-    if (compactTimerRef.current) window.clearTimeout(compactTimerRef.current);
   }, []);
+
+  const showCompactCard = useCallback(() => {
+    clearTimers();
+    setExpandedVisible(false);
+    setCompactVisible(true);
+  }, [clearTimers]);
 
   const showExpandedCard = useCallback(() => {
     clearTimers();
     setCompactVisible(false);
     enterTimerRef.current = window.setTimeout(() => setExpandedVisible(true), 160);
-    collapseTimerRef.current = window.setTimeout(() => setExpandedVisible(false), 5000);
-    compactTimerRef.current = window.setTimeout(() => setCompactVisible(true), 5900);
-  }, [clearTimers]);
+    collapseTimerRef.current = window.setTimeout(() => showCompactCard(), 5000);
+  }, [clearTimers, showCompactCard]);
 
   useEffect(() => {
     if (!programs.length) return;
@@ -109,11 +112,7 @@ export function TrainingAnnouncementPopup({
           </div>
           <button
             type="button"
-            onClick={() => {
-              clearTimers();
-              setExpandedVisible(false);
-              window.setTimeout(() => setCompactVisible(true), 700);
-            }}
+            onClick={showCompactCard}
             className="rounded-full border border-[rgba(27,59,43,0.1)] p-2 text-[#516253] transition hover:border-[#b36b00]/40 hover:text-[#1b3b2b]"
             aria-label="Close training update"
           >
