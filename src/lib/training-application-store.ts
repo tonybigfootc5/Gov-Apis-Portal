@@ -13,10 +13,9 @@ import type {
   RefundState,
 } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { buildPhonePeRedirectUrl } from "@/lib/phonepe";
+import { buildPhonePeRedirectUrl, getCurrentPaymentEnvironment } from "@/lib/phonepe-config";
 import {
   buildLegacyMerchantOrderId,
-  getCurrentPaymentEnvironment,
   mapLegacyPaymentStatus,
   mapTrainingApplicationEntity,
   parseTrainingApplicationMessage,

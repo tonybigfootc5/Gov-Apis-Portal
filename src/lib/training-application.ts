@@ -1,7 +1,5 @@
 import { randomUUID } from "crypto";
 import type { ContactMessage, PaymentOrderState, Prisma } from "@/generated/prisma/client";
-import { PaymentEnvironment as PrismaPaymentEnvironment } from "@/generated/prisma/client";
-import { getAppEnvironment } from "@/lib/app-env";
 
 export const TRAINING_APPLICATION_SUBJECT_PREFIX = "TRAINING_APPLICATION::";
 
@@ -281,10 +279,6 @@ export function mapLegacyPaymentStatus(
 
 export function buildLegacyMerchantOrderId(messageId: string) {
   return `legacy-${messageId}`;
-}
-
-export function getCurrentPaymentEnvironment(): PrismaPaymentEnvironment {
-  return getAppEnvironment() === "sandbox" ? "SANDBOX" : "PRODUCTION";
 }
 
 export function buildMerchantOrderId(applicationId: string) {

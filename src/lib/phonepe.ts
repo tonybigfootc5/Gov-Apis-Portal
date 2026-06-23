@@ -2,6 +2,8 @@ import "server-only";
 
 import {
   Env,
+  MetaInfo,
+  PrefillUserLoginDetails,
   RefundRequest,
   StandardCheckoutClient,
   StandardCheckoutPayRequest,
@@ -12,9 +14,7 @@ import type {
   RefundResponse,
   RefundStatusResponse,
 } from "@phonepe-pg/pg-sdk-node/dist/common";
-import { getAppEnvironment } from "@/lib/app-env";
-
-type PhonePeEnv = "SANDBOX" | "PRODUCTION";
+import { getPhonePeEnvironment } from "@/lib/phonepe-config";
 
 type CreatePaymentInput = {
   merchantOrderId: string;
@@ -22,13 +22,16 @@ type CreatePaymentInput = {
   redirectUrl: string;
   message?: string;
   expireAfter?: number;
+  disablePaymentRetry?: boolean;
+  phoneNumber?: string;
+  metadata?: {
+    applicationId?: string;
+    serviceName?: string;
+    candidateName?: string;
+  };
 };
 
 let phonePeClient: StandardCheckoutClient | null = null;
-
-function getPhonePeEnvironment(): PhonePeEnv {
-  return process.env.PHONEPE_ENV === "PRODUCTION" ? "PRODUCTION" : "SANDBOX";
-}
 
 function getPhonePeCredentials() {
   return {
@@ -51,19 +54,6 @@ export function getPhonePeWebhookCredentials() {
   };
 }
 
-export function getTrainingApplicationAmountPaise() {
-  const configured = Number(process.env.TRAINING_APPLICATION_FEE_PAISE ?? "");
-  if (Number.isFinite(configured) && configured >= 100) {
-    return configured;
-  }
-
-  if (getAppEnvironment() === "sandbox") {
-    return 100;
-  }
-
-  throw new Error("TRAINING_APPLICATION_FEE_PAISE must be configured for production.");
-}
-
 function getPhonePeClient() {
   if (phonePeClient) return phonePeClient;
 
@@ -82,20 +72,33 @@ function getPhonePeClient() {
   return phonePeClient;
 }
 
-export function buildPhonePeRedirectUrl(merchantOrderId: string) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  return `${siteUrl}/payments/return?merchantOrderId=${encodeURIComponent(merchantOrderId)}`;
-}
-
 export async function createPhonePePayment(input: CreatePaymentInput) {
   const client = getPhonePeClient();
-  const request = StandardCheckoutPayRequest.builder()
+  const requestBuilder = StandardCheckoutPayRequest.builder()
     .merchantOrderId(input.merchantOrderId)
     .amount(input.amountPaise)
     .redirectUrl(input.redirectUrl)
     .message(input.message ?? "Training application payment")
     .expireAfter(input.expireAfter ?? 15 * 60)
-    .build();
+    .disablePaymentRetry(input.disablePaymentRetry ?? true);
+
+  if (input.phoneNumber) {
+    requestBuilder.prefillUserLoginDetails(
+      PrefillUserLoginDetails.builder().phoneNumber(input.phoneNumber).build(),
+    );
+  }
+
+  if (input.metadata) {
+    requestBuilder.metaInfo(
+      MetaInfo.builder()
+        .udf1(input.metadata.applicationId ?? "")
+        .udf2(input.metadata.serviceName ?? "")
+        .udf3(input.metadata.candidateName ?? "")
+        .build(),
+    );
+  }
+
+  const request = requestBuilder.build();
 
   const response = await client.pay(request);
 
@@ -105,7 +108,7 @@ export async function createPhonePePayment(input: CreatePaymentInput) {
 }
 
 export async function getPhonePeOrderStatus(merchantOrderId: string): Promise<OrderStatusResponse> {
-  return getPhonePeClient().getOrderStatus(merchantOrderId, true);
+  return getPhonePeClient().getOrderStatus(merchantOrderId, false);
 }
 
 export async function initiatePhonePeRefund(
