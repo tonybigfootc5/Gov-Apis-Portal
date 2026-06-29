@@ -101,12 +101,34 @@ export function SiteFooter({ language, languageLabel, languageOptions }: SiteFoo
       </div>
 
       <div className="border-t border-white/8 px-4 py-5 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-7xl justify-center text-center text-xs text-dim">
-          <p className="rounded-full border border-white/8 bg-white/4 px-4 py-2 text-[11px] leading-6 text-[#d6deea]">
-            <span className="font-black uppercase tracking-[0.14em] text-[#f2b544]">Designed by</span>{" "}
-            <span className="font-semibold text-[#f4efe4]">Solution Architect:</span> Rahul (+91) 99087 909008 &amp;
-            {" "}Gowtham (+91) 630 946 5575
-          </p>
+        <div className="mx-auto flex max-w-7xl justify-center">
+          <div className="w-full max-w-3xl rounded-[1.4rem] border border-white/8 bg-white/4 px-5 py-4 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#f2b544]">
+              Designed &amp; Developed by
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-[1rem] border border-white/8 bg-black/18 px-4 py-3">
+                <p className="text-sm font-semibold text-[#f4efe4]">Rahul</p>
+                <a
+                  href="tel:+9199087909008"
+                  className="mt-1 inline-flex items-center justify-center gap-2 text-sm text-[#d6deea] transition hover:text-white"
+                >
+                  <Phone className="h-4 w-4 text-[#f2b544]" aria-hidden="true" />
+                  (+91) 99087909008
+                </a>
+              </div>
+              <div className="rounded-[1rem] border border-white/8 bg-black/18 px-4 py-3">
+                <p className="text-sm font-semibold text-[#f4efe4]">Gowtham</p>
+                <a
+                  href="tel:+916309465575"
+                  className="mt-1 inline-flex items-center justify-center gap-2 text-sm text-[#d6deea] transition hover:text-white"
+                >
+                  <Phone className="h-4 w-4 text-[#f2b544]" aria-hidden="true" />
+                  (+91) 630 946 5575
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
