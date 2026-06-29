@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -17,8 +18,21 @@ export function SiteFooter({ language, languageLabel, languageOptions }: SiteFoo
     <footer className="border-t border-white/8 bg-[#06090f] text-[#f4efe4]">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.3fr_1fr_0.9fr_0.9fr] lg:px-8">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#f2b544]">API CULTURE</p>
-          <h2 className="font-display mt-4 text-3xl text-bright">{institute.legalName}</h2>
+          <div className="flex items-center gap-4">
+            <span className="relative h-16 w-18 shrink-0 sm:h-20 sm:w-24">
+              <Image
+                src="/api-culture-logo-clean.png"
+                alt="API CULTURE honeycomb logo"
+                fill
+                sizes="96px"
+                className="object-contain drop-shadow-[0_10px_24px_rgba(242,181,68,0.16)]"
+              />
+            </span>
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#f2b544]">API CULTURE</p>
+              <h2 className="font-display mt-3 text-3xl text-bright">{institute.legalName}</h2>
+            </div>
+          </div>
           <p className="mt-4 max-w-xl text-sm leading-7 text-dim">{institute.parent}</p>
         </div>
 
@@ -86,8 +100,15 @@ export function SiteFooter({ language, languageLabel, languageOptions }: SiteFoo
         </div>
       </div>
 
-      <div className="border-t border-white/8 px-4 py-4 text-center text-xs text-dim sm:px-6 lg:px-8">
-        Public enrollment, program information, and institutional contact portal.
+      <div className="border-t border-white/8 px-4 py-5 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-xs text-dim md:flex-row md:text-left">
+          <p>Public enrollment, program information, and institutional contact portal.</p>
+          <p className="rounded-full border border-white/8 bg-white/4 px-4 py-2 text-[11px] leading-6 text-[#d6deea]">
+            <span className="font-black uppercase tracking-[0.14em] text-[#f2b544]">Designed by</span>{" "}
+            <span className="font-semibold text-[#f4efe4]">Solution Architect:</span> Rahul (+91) 99087 909008 &amp;
+            {" "}Gowtham (+91) 630 946 5575
+          </p>
+        </div>
       </div>
     </footer>
   );
