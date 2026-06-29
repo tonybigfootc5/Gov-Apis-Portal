@@ -6,7 +6,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [programs, events, articles] = await Promise.all([getPrograms(), getEvents(), getArticles()]);
 
   return [
-    "", "/about", "/programs", "/articles", "/events", "/gallery", "/contact",
+    "",
+    "/about",
+    "/programs",
+    "/articles",
+    "/events",
+    "/gallery",
+    "/contact",
+    "/policies",
+    "/terms-and-conditions",
+    "/privacy-policy",
+    "/refund-policy",
+    "/return-policy",
+    "/shipping-policy",
     ...programs.map((program) => `/programs/${program.slug}`),
     ...articles.map((article) => `/articles/${article.slug}`),
     ...events.map((event) => `/events/${event.slug}`),
