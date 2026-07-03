@@ -131,10 +131,10 @@ export function TrainingAnnouncementPopup({
       href="https://wa.me/919395507766"
       target="_blank"
       rel="noreferrer"
-      className="pointer-events-auto flex items-center rounded-full border border-[rgba(24,128,56,0.18)] bg-[#f7fff9] p-2 shadow-[0_18px_42px_rgba(15,82,33,0.16)]"
+      className="pointer-events-auto block"
       aria-label="Send a WhatsApp enquiry to 9395507766"
     >
-      <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_10px_24px_rgba(18,140,55,0.18)]">
+      <span className="relative block h-11 w-11 overflow-hidden rounded-full">
         <Image
           src="/whatsapp-logo.png"
           alt=""
