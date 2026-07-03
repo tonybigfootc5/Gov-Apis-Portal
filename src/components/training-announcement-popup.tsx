@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowRight, ArrowUpRight, BellRing, X } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, BellRing, CalendarDays, X } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 
 type AnnouncementProgram = {
@@ -23,6 +23,9 @@ export function TrainingAnnouncementPopup({
   const [expandedVisible, setExpandedVisible] = useState(false);
   const [compactVisible, setCompactVisible] = useState(false);
   const [hasOverflowBelow, setHasOverflowBelow] = useState(false);
+  const [closeProgress, setCloseProgress] = useState(0);
+  const [referenceNow] = useState(() => Date.now());
+  const [autoCloseEnabled, setAutoCloseEnabled] = useState(false);
   const enterTimerRef = useRef<number | null>(null);
   const collapseTimerRef = useRef<number | null>(null);
   const scrollPanelRef = useRef<HTMLDivElement | null>(null);
@@ -37,19 +40,25 @@ export function TrainingAnnouncementPopup({
     setHasOverflowBelow(false);
     setExpandedVisible(false);
     setCompactVisible(true);
+    setCloseProgress(0);
+    setAutoCloseEnabled(false);
   }, [clearTimers]);
 
-  const showExpandedCard = useCallback(() => {
+  const showExpandedCard = useCallback((autoClose: boolean) => {
     clearTimers();
     setHasOverflowBelow(false);
     setCompactVisible(false);
+    setAutoCloseEnabled(autoClose);
+    setCloseProgress(autoClose ? 100 : 0);
     enterTimerRef.current = window.setTimeout(() => setExpandedVisible(true), 160);
-    collapseTimerRef.current = window.setTimeout(() => showCompactCard(), 5000);
+    if (autoClose) {
+      collapseTimerRef.current = window.setTimeout(() => showCompactCard(), 5000);
+    }
   }, [clearTimers, showCompactCard]);
 
   useEffect(() => {
     if (!programs.length) return;
-    const bootTimer = window.setTimeout(() => showExpandedCard(), 0);
+    const bootTimer = window.setTimeout(() => showExpandedCard(true), 0);
 
     return () => {
       window.clearTimeout(bootTimer);
@@ -82,17 +91,47 @@ export function TrainingAnnouncementPopup({
     };
   }, [expandedVisible, programs]);
 
+  useEffect(() => {
+    if (!expandedVisible || !autoCloseEnabled) return;
+
+    const startedAt = performance.now();
+    const duration = 5000;
+    let frameId = 0;
+
+    const updateProgress = (now: number) => {
+      const elapsed = now - startedAt;
+      const remaining = Math.max(0, duration - elapsed);
+      setCloseProgress((remaining / duration) * 100);
+
+      if (remaining > 0) {
+        frameId = window.requestAnimationFrame(updateProgress);
+      }
+    };
+
+    frameId = window.requestAnimationFrame(updateProgress);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [autoCloseEnabled, expandedVisible]);
+
   if (!programs.length) return null;
 
-  const spotlightPrograms = programs.slice(0, 2);
-  const overflowPrograms = programs.slice(2);
+  const currentPrograms = programs.filter((program) => {
+    if (!program.batchStartsAt) return true;
+    return new Date(program.batchStartsAt).getTime() <= referenceNow;
+  });
+  const upcomingPrograms = programs.filter((program) => {
+    if (!program.batchStartsAt) return false;
+    return new Date(program.batchStartsAt).getTime() > referenceNow;
+  });
 
   const whatsappCta = (
     <a
       href="https://wa.me/919395507766"
       target="_blank"
       rel="noreferrer"
-      className="pointer-events-auto flex items-center gap-0 rounded-full border border-[rgba(24,128,56,0.18)] bg-[#f7fff9] p-2 text-left shadow-[0_18px_42px_rgba(15,82,33,0.16)] sm:gap-3 sm:px-4 sm:py-3"
+      className="pointer-events-auto flex items-center rounded-full border border-[rgba(24,128,56,0.18)] bg-[#f7fff9] p-2 shadow-[0_18px_42px_rgba(15,82,33,0.16)]"
       aria-label="Send a WhatsApp enquiry to 9395507766"
     >
       <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_10px_24px_rgba(18,140,55,0.18)]">
@@ -105,10 +144,6 @@ export function TrainingAnnouncementPopup({
           aria-hidden="true"
         />
       </span>
-      <span className="hidden sm:block">
-        <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#128c37]">WhatsApp enquiry</span>
-        <span className="mt-0.5 block text-sm font-semibold text-[#17432a]">Chat with 9395507766</span>
-      </span>
     </a>
   );
 
@@ -118,17 +153,17 @@ export function TrainingAnnouncementPopup({
         <div className="pointer-events-auto transition-all duration-700 ease-out translate-y-0 opacity-100">
           <button
             type="button"
-            onClick={showExpandedCard}
-            className="float-gentle flex items-center gap-3 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-3 text-left shadow-[0_18px_42px_rgba(64,44,8,0.14)]"
+            onClick={() => showExpandedCard(false)}
+            className="float-gentle flex items-center gap-3 rounded-[1.2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(248,242,232,0.94))] px-4 py-3 text-left shadow-[0_18px_42px_rgba(64,44,8,0.12)]"
             aria-label="Open new batch announcement"
           >
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_10px_24px_rgba(64,44,8,0.16)]">
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </span>
             <span>
-              <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">New batch upcoming</span>
+              <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">Upcoming batch</span>
               <span className="mt-0.5 block text-sm font-semibold text-[#1b3b2b]">
-                {programs.length > 1 ? `${programs.length} active training batches` : programs[0]?.title}
+                {programs.length > 1 ? `${programs.length} listed batches` : programs[0]?.title}
               </span>
             </span>
           </button>
@@ -136,26 +171,40 @@ export function TrainingAnnouncementPopup({
       ) : null}
 
       {expandedVisible ? (
-        <aside className="pointer-events-auto relative flex max-h-[min(78dvh,42rem)] w-[min(22rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[1.8rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] shadow-[0_24px_60px_rgba(64,44,8,0.16)] transition-all duration-700 ease-out sm:w-[min(22rem,calc(100vw-1.5rem))] xl:w-[24vw] xl:max-w-[24rem]">
-          <div className="shrink-0 border-b border-[rgba(27,59,43,0.08)] px-4 pb-3 pt-4">
+        <aside className="pointer-events-auto relative flex max-h-[min(78dvh,42rem)] w-[min(23rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[1.8rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,#fffdf8_0%,#fbf6ee_100%)] shadow-[0_24px_60px_rgba(64,44,8,0.14)] transition-all duration-700 ease-out sm:w-[min(24rem,calc(100vw-1.5rem))] xl:w-[25vw] xl:max-w-[25rem]">
+          <div className="shrink-0 border-b border-[rgba(27,59,43,0.08)] px-4 pb-4 pt-4">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_12px_30px_rgba(64,44,8,0.18)]">
+                <div className="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#ebb428,#b36b00)] text-[#fff8ea] shadow-[0_12px_30px_rgba(64,44,8,0.16)]">
                   <BellRing className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">Upcoming training</p>
-                  <h2 className="mt-1 font-display text-2xl font-semibold text-[#1b3b2b]">New batch update</h2>
+                  <h2 className="mt-1 font-display text-[1.65rem] leading-none font-semibold text-[#1b3b2b]">
+                    Batch status
+                  </h2>
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={showCompactCard}
-                className="rounded-full border border-[rgba(27,59,43,0.1)] p-2 text-[#516253] transition hover:border-[#b36b00]/40 hover:text-[#1b3b2b]"
-                aria-label="Close training update"
+              <div
+                className="grid h-11 w-11 place-items-center rounded-full p-[2px] shadow-[0_10px_24px_rgba(64,44,8,0.08)]"
+                style={
+                  autoCloseEnabled
+                    ? {
+                        background: `conic-gradient(#ebb428 ${closeProgress * 3.6}deg, rgba(27,59,43,0.08) 0deg)`,
+                      }
+                    : { background: "rgba(27,59,43,0.08)" }
+                }
+                aria-hidden="true"
               >
-                <X className="h-4 w-4" aria-hidden="true" />
-              </button>
+                <button
+                  type="button"
+                  onClick={showCompactCard}
+                  className="grid h-full w-full place-items-center rounded-full bg-[#fffdf8] text-[#516253] transition hover:bg-[#fff7e8] hover:text-[#1b3b2b]"
+                  aria-label="Close training update"
+                >
+                  <X className="h-4 w-4" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -163,56 +212,20 @@ export function TrainingAnnouncementPopup({
             ref={scrollPanelRef}
             className="relative min-h-0 flex-1 overflow-y-auto px-4 pb-5 pt-4 scroll-smooth"
           >
-            <div className="rounded-[1.4rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(135deg,#fffaf1_0%,#f6efe4_100%)] p-3">
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#b36b00]">
-                {programs.length > 1 ? `${programs.length} batches currently visible` : "1 batch currently visible"}
-              </p>
+            <div className="grid gap-4">
+              <BatchSection
+                title="Current batches"
+                emptyLabel="No current batches listed"
+                programs={currentPrograms}
+                tone="current"
+              />
+              <BatchSection
+                title="Upcoming batches"
+                emptyLabel="No upcoming batches listed"
+                programs={upcomingPrograms}
+                tone="upcoming"
+              />
             </div>
-
-            <div className="mt-4 grid gap-3">
-              {spotlightPrograms.map((program, index) => (
-                <div key={program.id} className="rounded-[1.35rem] border border-[rgba(27,59,43,0.1)] bg-[#f6efe4] p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8a6a1f]">
-                        {index === 0 ? "Primary spotlight" : "Also opening"}
-                      </p>
-                      <p className="mt-1 text-sm font-black uppercase tracking-[0.12em] text-[#1b3b2b]">{program.title}</p>
-                    </div>
-                    <span className="rounded-full border border-[rgba(179,107,0,0.16)] bg-[#fffaf1] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#b36b00]">
-                      {program.duration}
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-[#516253] line-clamp-2">{program.summary}</p>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-[#fffaf1] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#8a6a1f]">
-                      {program.batchStartsAt ? `Starts ${formatDateTime(program.batchStartsAt)}` : "Start date to be announced"}
-                    </span>
-                    <span className="rounded-full bg-[#fffaf1] px-3 py-1 text-[11px] font-semibold text-[#607366]">
-                      Capacity {program.capacity}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {overflowPrograms.length ? (
-              <div className="mt-3 rounded-[1.35rem] border border-[rgba(27,59,43,0.1)] bg-[#fffaf1] p-3">
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">
-                  +{overflowPrograms.length} more active {overflowPrograms.length === 1 ? "batch" : "batches"}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {overflowPrograms.map((program) => (
-                    <span
-                      key={program.id}
-                      className="rounded-full border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-3 py-1.5 text-[11px] font-semibold text-[#435648]"
-                    >
-                      {program.title}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
 
             {hasOverflowBelow ? (
               <div className="pointer-events-none absolute inset-x-0 bottom-0 px-4 pb-2">
@@ -241,5 +254,63 @@ export function TrainingAnnouncementPopup({
 
       <div className="pointer-events-auto">{whatsappCta}</div>
     </div>
+  );
+}
+
+function BatchSection({
+  title,
+  emptyLabel,
+  programs,
+  tone,
+}: {
+  title: string;
+  emptyLabel: string;
+  programs: AnnouncementProgram[];
+  tone: "current" | "upcoming";
+}) {
+  const toneClasses =
+    tone === "current"
+      ? {
+          badge: "text-[#5f7d52] bg-[#f3f8ee]",
+          card: "bg-[rgba(247,250,243,0.9)]",
+          icon: "text-[#5f7d52]",
+        }
+      : {
+          badge: "text-[#a66a08] bg-[#fff5e1]",
+          card: "bg-[rgba(255,249,239,0.92)]",
+          icon: "text-[#a66a08]",
+        };
+
+  return (
+    <section className="rounded-[1.4rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.72)] p-3.5">
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-sm font-black uppercase tracking-[0.16em] text-[#1f352b]">{title}</h3>
+        <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${toneClasses.badge}`}>
+          {programs.length}
+        </span>
+      </div>
+
+      {programs.length ? (
+        <div className="mt-3 grid gap-2.5">
+          {programs.map((program) => (
+            <div key={program.id} className={`rounded-[1rem] px-3 py-3 ${toneClasses.card}`}>
+              <p className="text-sm font-semibold leading-6 text-[#1b3b2b]">{program.title}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#596b62]">
+                <span>{program.duration}</span>
+                <span>{program.capacity} seats</span>
+                {program.batchStartsAt ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <CalendarDays className={`h-3.5 w-3.5 ${toneClasses.icon}`} aria-hidden="true" />
+                    {formatDateTime(program.batchStartsAt)}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-3 text-sm text-[#687870]">{emptyLabel}</p>
+      )}
+    </section>
   );
 }
