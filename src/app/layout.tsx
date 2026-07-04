@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { Newsreader, Work_Sans } from "next/font/google";
-import { SiteBackdrop } from "@/components/site-backdrop";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { isSandboxEnvironment } from "@/lib/app-env";
 import { supportedLanguages, t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
-import { getSiteCopy } from "@/lib/site-copy";
 import "./globals.css";
 
 const workSans = Work_Sans({
@@ -23,9 +21,6 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.apiculture.in"),
   title: {
-    default: "API CULTURE Technology Center",
-    template: "%s | API CULTURE",
-  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -33,6 +28,9 @@ export const metadata: Metadata = {
     ],
     shortcut: "/favicon.ico",
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+    default: "API CULTURE Technology Center",
+    template: "%s | API CULTURE",
   },
   description:
     "Government-grade apiculture training, technology, events, and institutional support from API CULTURE Technology Center, Hyderabad.",
@@ -59,7 +57,6 @@ export default async function RootLayout({
 }>) {
   const language = await getRequestLanguage();
   const sandboxMode = isSandboxEnvironment();
-  const copy = getSiteCopy(language);
   const languageOptions = supportedLanguages.map((value) => ({
     value,
     label: t(language, `lang.${value}`),
@@ -68,7 +65,7 @@ export default async function RootLayout({
     { label: t(language, "nav.home"), href: "/" },
     { label: t(language, "nav.about"), href: "/about" },
     { label: t(language, "nav.training"), href: "/programs" },
-    { label: copy.layout.articlesLabel, href: "/articles" },
+    { label: "Articles", href: "/articles" },
     { label: t(language, "nav.events"), href: "/events" },
     { label: t(language, "nav.gallery"), href: "/gallery" },
     { label: t(language, "nav.contact"), href: "/contact" },
@@ -80,12 +77,12 @@ export default async function RootLayout({
       className={`${workSans.variable} ${newsreader.variable} h-full antialiased`}
     >
       <body className={`flex min-h-full flex-col bg-background text-foreground${sandboxMode ? " sandbox-shell" : ""}`}>
-        <SiteBackdrop />
         <SiteHeader
           currentLanguage={language}
           languageLabel={t(language, "lang.label")}
           languageOptions={languageOptions}
           navItems={navItems}
+          adminLabel={t(language, "nav.admin")}
           techCenterLabel={t(language, "header.techCenter")}
           sandboxMode={sandboxMode}
         />
