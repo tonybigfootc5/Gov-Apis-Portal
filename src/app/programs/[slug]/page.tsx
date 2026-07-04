@@ -45,7 +45,7 @@ export default async function ProgramDetailPage({ params }: Props) {
         <div className="neo-shell rounded-[2.4rem] overflow-hidden">
           <div className="relative z-10 grid gap-0 lg:grid-cols-[minmax(0,1.08fr)_26rem]">
             <div className="p-6 sm:p-8 lg:p-10">
-              <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-semibold text-[#8ec5ff]">
+              <Link href="/programs" className="inline-flex items-center gap-2 text-sm font-semibold text-[#547ba1]">
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
                 {t(language, "programs.back")}
               </Link>
@@ -62,7 +62,7 @@ export default async function ProgramDetailPage({ params }: Props) {
 
               <div className="mt-7 flex flex-wrap gap-2">
                 {(presentation?.skills ?? []).map((skill) => (
-                  <span key={skill} className="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-[#dce5f2]">
+                  <span key={skill} className="rounded-full border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] px-3 py-2 text-xs font-semibold text-[#1f352b]">
                     {skill}
                   </span>
                 ))}
@@ -76,7 +76,7 @@ export default async function ProgramDetailPage({ params }: Props) {
               </a>
             </div>
 
-            <div className="relative min-h-[22rem] border-t border-white/10 lg:min-h-full lg:border-l lg:border-t-0">
+            <div className="relative min-h-[22rem] border-t border-[rgba(41,56,49,0.1)] lg:min-h-full lg:border-l lg:border-t-0">
               {presentation ? (
                 <Image
                   src={presentation.imageSrc}
@@ -113,7 +113,7 @@ export default async function ProgramDetailPage({ params }: Props) {
               <h2 className="font-display mt-4 text-4xl text-bright">What participants walk away with</h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {(presentation?.outcomes ?? []).map((outcome) => (
-                  <p key={outcome} className="inline-flex gap-3 rounded-[1.2rem] border border-white/10 bg-white/4 p-4 text-sm leading-7 text-dim">
+                  <p key={outcome} className="inline-flex gap-3 rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4 text-sm leading-7 text-dim">
                     <Check className="mt-1 h-4 w-4 shrink-0 text-[#f2b544]" aria-hidden="true" />
                     {outcome}
                   </p>
@@ -122,7 +122,7 @@ export default async function ProgramDetailPage({ params }: Props) {
             </section>
 
             <section id="training-application-form" className="section-frame rounded-[1.8rem] p-5 sm:p-6">
-              <div className="mb-6 rounded-[1.5rem] border border-white/10 bg-white/4 p-5">
+              <div className="mb-6 rounded-[1.5rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-5">
                 <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">Application</p>
                 <h2 className="font-display mt-3 text-4xl text-bright">Apply for {translatedProgram.title}</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-dim">
@@ -140,11 +140,11 @@ export default async function ProgramDetailPage({ params }: Props) {
               {presentation?.targetAudience ?? "Eligible applicants interested in beekeeping training."}
             </p>
 
-            <div className="mt-6 rounded-[1.4rem] border border-white/10 bg-white/4 p-4">
+            <div className="mt-6 rounded-[1.4rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4">
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">Skills covered</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {(presentation?.skills ?? []).map((skill) => (
-                  <span key={skill} className="rounded-full border border-white/10 px-3 py-2 text-xs font-semibold text-[#dce5f2]">
+                  <span key={skill} className="rounded-full border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.76)] px-3 py-2 text-xs font-semibold text-[#1f352b]">
                     {skill}
                   </span>
                 ))}
@@ -167,10 +167,10 @@ function MiniInfo({
   value: string;
 }) {
   return (
-    <div className="rounded-[1.2rem] border border-white/10 bg-white/4 p-4">
+    <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4">
       <div className="flex items-center gap-2 text-[#8ec5ff]">
         <Icon className="h-4 w-4" aria-hidden="true" />
-        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#9ca8bc]">{label}</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#6f8177]">{label}</p>
       </div>
       <p className="mt-2 text-sm font-semibold text-bright">{value}</p>
     </div>

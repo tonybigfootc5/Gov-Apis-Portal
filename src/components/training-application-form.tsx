@@ -280,8 +280,13 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
       const body = await response.json();
       setSubmitState("success");
-      setMessage("Application saved. Redirecting to secure payment...");
-      window.location.assign(body.redirectUrl);
+      if (body.redirectUrl) {
+        setMessage(body.message ?? "Application saved. Redirecting to secure payment...");
+        window.location.assign(body.redirectUrl);
+        return;
+      }
+
+      setMessage(body.message ?? "Application saved successfully.");
     } catch (error) {
       setSubmitState("error");
       setMessage(error instanceof Error ? error.message : "Application submission failed.");
@@ -297,7 +302,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
           <aside className="section-frame rounded-[1.7rem] p-5">
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">Enrollment flow</p>
             <h2 className="font-display mt-4 text-3xl text-bright">Apply in four clean steps.</h2>
-            <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/8">
+            <div className="mt-6 h-2 overflow-hidden rounded-full bg-[rgba(41,56,49,0.08)]">
               <div className="h-full rounded-full bg-[linear-gradient(90deg,#f2b544,#8ec5ff)] transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
             <div className="mt-6 grid gap-3">
@@ -315,12 +320,12 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                       active
                         ? "border-[#f2b544]/40 bg-[#f2b544]/10"
                         : passed
-                          ? "border-white/10 bg-white/6"
-                          : "border-white/8 bg-transparent"
+                          ? "border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.76)]"
+                          : "border-[rgba(41,56,49,0.08)] bg-transparent"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className={`flex h-10 w-10 items-center justify-center rounded-full ${active ? "bg-[#f2b544] text-[#0a0d12]" : "bg-white/8 text-[#f4efe4]"}`}>
+                      <span className={`flex h-10 w-10 items-center justify-center rounded-full ${active ? "bg-[#f2b544] text-[#0a0d12]" : "bg-[rgba(41,56,49,0.08)] text-[#1f352b]"}`}>
                         <Icon className="h-4 w-4" aria-hidden="true" />
                       </span>
                       <div>
@@ -332,19 +337,19 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                 );
               })}
             </div>
-            <div className="mt-6 rounded-[1.3rem] border border-white/10 bg-white/5 p-4 text-sm leading-7 text-dim">
+            <div className="mt-6 rounded-[1.3rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4 text-sm leading-7 text-dim">
               Review the program, fill the details, upload the photo, and finish payment in one flow.
             </div>
           </aside>
 
           <section className="section-frame rounded-[1.7rem] p-5 sm:p-6">
-            <div className="border-b border-white/10 pb-5">
+            <div className="border-b border-[rgba(41,56,49,0.1)] pb-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{currentStep.title}</p>
                   <h3 className="font-display mt-3 text-3xl text-bright sm:text-4xl">{currentStep.subtitle}</h3>
                 </div>
-                <div className="rounded-[1.2rem] border border-white/10 bg-white/5 px-4 py-3 text-sm text-dim">
+                <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] px-4 py-3 text-sm text-dim">
                   <p className="font-semibold text-bright">{form.serviceName}</p>
                   <p className="mt-1">Selected training</p>
                 </div>
@@ -355,12 +360,12 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               {step === 0 ? (
                 <div className="grid gap-5">
                   {lockedService ? null : (
-                    <label className="grid gap-2 text-sm font-semibold text-[#d9dfeb]">
+                    <label className="grid gap-2 text-sm font-semibold text-[#516253]">
                       Select training
                       <select
                         value={form.serviceName}
                         onChange={(event) => updateField("serviceName", event.target.value)}
-                        className="min-w-0 rounded-[1.2rem] border border-white/10 bg-[#0f141d] px-4 py-3 text-base text-bright outline-none ring-[#f2b544] focus:ring-2"
+                        className="min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] focus:ring-2"
                       >
                         {normalizedServiceOptions.map((service) => (
                           <option key={service.title} value={service.title}>
@@ -408,7 +413,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                     />
                   </Field>
 
-                  <div className="grid gap-2 text-sm font-semibold text-[#d9dfeb]">
+                  <div className="grid gap-2 text-sm font-semibold text-[#516253]">
                     Gender
                     <div className="grid gap-3 sm:grid-cols-2">
                       {[
@@ -422,7 +427,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                           className={`rounded-[1.2rem] border px-4 py-4 text-left text-base font-semibold transition ${
                             form.gender === option.value
                               ? "border-[#f2b544]/40 bg-[#f2b544]/12 text-bright"
-                              : "border-white/10 bg-[#0f141d] text-dim"
+                              : "border-[rgba(41,56,49,0.1)] bg-[#fffdf8] text-dim"
                           }`}
                         >
                           {option.label}
@@ -560,7 +565,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               {step === 3 ? (
                 <div className="grid gap-5">
                   <Field label="Applicant photo">
-                    <div className="rounded-[1.5rem] border border-dashed border-white/16 bg-[#0f141d] p-5">
+                    <div className="rounded-[1.5rem] border border-dashed border-[rgba(41,56,49,0.16)] bg-[#fffdf8] p-5">
                       <input
                         type="file"
                         accept="image/*"
@@ -569,12 +574,12 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                       />
                       <p className="mt-3 text-sm text-dim">{photoStatus}</p>
                       {hasUploadedPhoto ? (
-                        <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[#b5f8cf]">
+                        <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[#2a8d5f]">
                           Uploaded and ready
                         </p>
                       ) : null}
                       {photoPreviewUrl ? (
-                        <div className="mt-4 overflow-hidden rounded-[1.4rem] border border-white/10 bg-black/20 p-3">
+                        <div className="mt-4 overflow-hidden rounded-[1.4rem] border border-[rgba(41,56,49,0.1)] bg-[#f6efe4] p-3">
                           <div className="relative h-56 w-full overflow-hidden rounded-[1rem]">
                             <Image src={photoPreviewUrl} alt="Applicant preview" fill unoptimized className="object-cover" />
                           </div>
@@ -592,12 +597,12 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                 </div>
               ) : null}
 
-              <div className="flex flex-col gap-3 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 border-t border-[rgba(41,56,49,0.1)] pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <button
                   type="button"
                   disabled={step === 0}
                   onClick={() => setStep((current) => Math.max(0, current - 1))}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-white/12 bg-white/4 px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-bright disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(41,56,49,0.12)] bg-[rgba(255,255,255,0.76)] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#1f352b] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                   Previous
@@ -634,7 +639,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               </div>
 
               {message ? (
-                <p className={submitState === "success" ? "text-sm font-semibold text-[#b5f8cf]" : "text-sm font-semibold text-[#ffc3b8]"}>
+                <p className={submitState === "success" ? "text-sm font-semibold text-[#2a8d5f]" : "text-sm font-semibold text-[#8e3d2f]"}>
                   {message}
                 </p>
               ) : null}
@@ -648,7 +653,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#d9dfeb]">
+    <label className="grid gap-2 text-sm font-semibold text-[#516253]">
       {label}
       {children}
     </label>
@@ -665,7 +670,7 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 }
 
 const inputClassName =
-  "min-w-0 rounded-[1.2rem] border border-white/10 bg-[#0f141d] px-4 py-3 text-base text-bright outline-none ring-[#f2b544] placeholder:text-[#62708a] focus:ring-2";
+  "min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] placeholder:text-[#7d8b83] focus:ring-2";
 
 const textareaClassName =
-  "min-w-0 rounded-[1.2rem] border border-white/10 bg-[#0f141d] px-4 py-3 text-base text-bright outline-none ring-[#f2b544] placeholder:text-[#62708a] focus:ring-2";
+  "min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] placeholder:text-[#7d8b83] focus:ring-2";

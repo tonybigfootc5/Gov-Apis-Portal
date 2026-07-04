@@ -79,18 +79,18 @@ function StaticReturnShell({
 }) {
   const palette = {
     success: {
-      icon: <CheckCircle2 className="h-8 w-8 text-[#7ef0ad]" aria-hidden="true" />,
-      badge: "bg-[rgba(126,240,173,0.14)] text-[#b5f8cf]",
+      icon: <CheckCircle2 className="h-8 w-8 text-[#2a8d5f]" aria-hidden="true" />,
+      badge: "bg-[rgba(42,141,95,0.12)] text-[#215b42]",
       label: "Confirmed",
     },
     pending: {
       icon: <Clock3 className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />,
-      badge: "bg-[rgba(242,181,68,0.14)] text-[#ffe1a5]",
+      badge: "bg-[rgba(242,181,68,0.14)] text-[#8b5d05]",
       label: "Pending",
     },
     failed: {
-      icon: <XCircle className="h-8 w-8 text-[#ff8d7a]" aria-hidden="true" />,
-      badge: "bg-[rgba(255,141,122,0.14)] text-[#ffc3b8]",
+      icon: <XCircle className="h-8 w-8 text-[#c85d4a]" aria-hidden="true" />,
+      badge: "bg-[rgba(200,93,74,0.12)] text-[#8e3d2f]",
       label: "Needs action",
     },
   }[tone];
@@ -100,7 +100,7 @@ function StaticReturnShell({
       <div className="mx-auto max-w-4xl neo-shell rounded-[2rem] p-6 sm:p-8 lg:p-10">
         <div className="relative z-10">
           <div className="flex flex-wrap items-start gap-4">
-            <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">{palette.icon}</div>
+            <div className="rounded-[1.4rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.76)] p-4">{palette.icon}</div>
             <div>
               <p className={`inline-flex rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] ${palette.badge}`}>
                 {palette.label}
@@ -118,7 +118,7 @@ function StaticReturnShell({
             </Link>
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/4 px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#f4efe4]"
+              className="inline-flex items-center justify-center rounded-full border border-[rgba(41,56,49,0.12)] bg-[rgba(255,255,255,0.76)] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#1f352b]"
             >
               Contact center
             </Link>

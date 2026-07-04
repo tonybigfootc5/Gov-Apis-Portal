@@ -9,7 +9,7 @@ type PolicyPageProps = {
 
 export function PolicyPage({ document }: PolicyPageProps) {
   return (
-    <section className="bg-[#faf8f2]">
+    <section>
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="overflow-hidden rounded-[2.2rem] border border-[rgba(27,59,43,0.12)] bg-[linear-gradient(135deg,#fffdf8_0%,#f6efe4_54%,#f1e2c3_100%)] shadow-[0_24px_60px_rgba(64,44,8,0.08)]">
           <div className="grid gap-6 px-6 py-10 sm:px-10 sm:py-14 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-end">

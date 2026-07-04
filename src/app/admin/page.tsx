@@ -3,6 +3,7 @@ import { AdminConsole } from "@/components/admin-console";
 import { requireAdmin } from "@/lib/auth";
 import { getContactMessageCutoffDate, mapContactInboxRecord, type ContactInboxRecord } from "@/lib/contact-inbox";
 import { fallbackApplications, fallbackArticles, fallbackEvents, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
+import { getLocalTrainingApplications } from "@/lib/local-training-applications";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { getAdminPaymentOrders, getAdminTrainingApplications, type PaymentAdminRecord } from "@/lib/training-application-store";
 import { TRAINING_APPLICATION_SUBJECT_PREFIX, type TrainingApplicationRecord } from "@/lib/training-application";
@@ -172,11 +173,14 @@ export default async function AdminPage() {
       payments = [];
       contactMessages = [];
     }
+  } else {
+    applications = await getLocalTrainingApplications();
   }
 
   return (
     <AdminConsole
       databaseConfigured={hasDatabaseUrl}
+      applicationStorageMode={hasDatabaseUrl ? "database" : "local"}
       initialApplications={applications}
       initialPayments={payments}
       initialContactMessages={contactMessages}

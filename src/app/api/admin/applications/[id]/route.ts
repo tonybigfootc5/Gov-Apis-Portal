@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { adminUnauthorized, requireAdmin } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { updateLocalTrainingApplication } from "@/lib/local-training-applications";
+import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import {
   mapTrainingApplicationEntity,
   trainingApplicationAdminInclude,
@@ -21,6 +22,23 @@ export async function PATCH(request: Request, { params }: Props) {
       { error: parsed.error.issues[0]?.message ?? "Invalid application update" },
       { status: 400 },
     );
+  }
+
+  if (!hasDatabaseUrl) {
+    const updated = await updateLocalTrainingApplication(id, {
+      attemptStatus: parsed.data.attemptStatus,
+      paymentStatus: parsed.data.paymentStatus,
+      approvalStatus: parsed.data.approvalStatus,
+      crossCheckStatus: parsed.data.crossCheckStatus,
+      adminNotes: parsed.data.adminNotes || "",
+      paymentReference: parsed.data.paymentReference || "",
+    });
+
+    if (!updated) {
+      return NextResponse.json({ error: "Application was not found." }, { status: 404 });
+    }
+
+    return NextResponse.json(updated);
   }
 
   const current = await getTrainingApplicationEntityById(id);

@@ -158,33 +158,53 @@ export const trainingProgramCatalogBySlug = Object.fromEntries(
 
 export const trainingProgramGallery = [
   {
-    src: "/scientific-foundation-bg.jpg",
-    alt: "Hive inspection in a practical apiary session",
-    label: "Hive inspection",
+    src: "/training-field-visuals/image1.jpeg",
+    alt: "Field training participants gathered around a live beekeeping practice session.",
+    label: "Field training",
   },
   {
-    src: "/honey-house-signboard.jpg",
-    alt: "Honey extraction from a frame",
-    label: "Honey extraction",
+    src: "/training-field-visuals/image2.jpeg",
+    alt: "Hands-on hive observation during a practical beekeeping demonstration.",
+    label: "Hive observation",
   },
   {
-    src: "/queen-rearing-bg.jpg",
-    alt: "Queen rearing training activity",
-    label: "Queen rearing",
+    src: "/training-field-visuals/image3.jpeg",
+    alt: "Trainees receiving step-by-step guidance near the apiary field setup.",
+    label: "Live guidance",
   },
   {
-    src: "/field-beekeeping.jpg",
-    alt: "Royal jelly visible in opened queen cells",
-    label: "Royal jelly",
+    src: "/training-field-visuals/image4.jpeg",
+    alt: "Practical hive handling and supervised inspection in the field.",
+    label: "Hive handling",
   },
   {
-    src: "/scientific-foundation-bg.jpg",
-    alt: "Close view of bees on honeycomb prepared for inspection",
-    label: "Comb study",
+    src: "/training-field-visuals/image5.jpeg",
+    alt: "Apiary learners engaging with colony management and frame inspection.",
+    label: "Colony care",
   },
   {
-    src: "/honey-house-signboard.jpg",
-    alt: "Equipment used for beeswax and honey handling",
-    label: "Processing tools",
+    src: "/training-field-visuals/image6.jpeg",
+    alt: "Beehive and beekeeper interaction captured during training practice.",
+    label: "Apiary practice",
+  },
+  {
+    src: "/training-field-visuals/image7.jpeg",
+    alt: "Participants following a field-level beekeeping demonstration outdoors.",
+    label: "Outdoor demo",
+  },
+  {
+    src: "/training-field-visuals/image8.jpeg",
+    alt: "Beekeeping training visual showing close supervision and learner participation.",
+    label: "Learner support",
+  },
+  {
+    src: "/training-field-visuals/image9.jpeg",
+    alt: "Hands-on technical training focused on practical beekeeping workflow.",
+    label: "Technical practice",
+  },
+  {
+    src: "/training-field-visuals/image10.jpeg",
+    alt: "Field visuals from the center's beekeeping training environment.",
+    label: "Training environment",
   },
 ];

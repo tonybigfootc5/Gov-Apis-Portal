@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { isSandboxEnvironment } from "@/lib/app-env";
 import { supportedLanguages, t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
+import { trainingProgramCatalog } from "@/lib/training-programs";
 import "./globals.css";
 
 const workSans = Work_Sans({
@@ -65,10 +66,17 @@ export default async function RootLayout({
     { label: t(language, "nav.home"), href: "/" },
     { label: t(language, "nav.about"), href: "/about" },
     { label: t(language, "nav.training"), href: "/programs" },
+    { label: t(language, "nav.contact"), href: "/contact" },
+  ];
+  const trainingItems = trainingProgramCatalog.map((program) => ({
+    label: program.title,
+    href: `/programs/${program.slug}`,
+  }));
+  const exploreItems = [
     { label: "Articles", href: "/articles" },
     { label: t(language, "nav.events"), href: "/events" },
     { label: t(language, "nav.gallery"), href: "/gallery" },
-    { label: t(language, "nav.contact"), href: "/contact" },
+    { label: "Products", href: "/products" },
   ];
 
   return (
@@ -82,6 +90,8 @@ export default async function RootLayout({
           languageLabel={t(language, "lang.label")}
           languageOptions={languageOptions}
           navItems={navItems}
+          trainingItems={trainingItems}
+          exploreItems={exploreItems}
           techCenterLabel={t(language, "header.techCenter")}
           sandboxMode={sandboxMode}
         />

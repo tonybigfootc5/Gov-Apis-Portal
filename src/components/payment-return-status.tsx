@@ -99,7 +99,7 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
         <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
           <div>
             <div className="flex flex-wrap items-start gap-4">
-              <div className="rounded-[1.4rem] border border-white/10 bg-white/5 p-4">{content.icon}</div>
+              <div className="rounded-[1.4rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.76)] p-4">{content.icon}</div>
               <div>
                 <p className={`inline-flex rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-[0.18em] ${content.badge}`}>
                   {content.label}
@@ -122,14 +122,14 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
             </div>
 
             {polling ? (
-              <div className="mt-6 flex items-center gap-3 rounded-[1.4rem] border border-[#f2b544]/20 bg-[#f2b544]/8 px-4 py-4 text-sm font-semibold text-[#ffe1a5]">
+              <div className="mt-6 flex items-center gap-3 rounded-[1.4rem] border border-[#f2b544]/20 bg-[#fff4d8] px-4 py-4 text-sm font-semibold text-[#8b5d05]">
                 <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
                 Checking PhonePe for the latest confirmation...
               </div>
             ) : null}
 
             {pollError ? (
-              <div className="mt-4 rounded-[1.4rem] border border-[#ff8d7a]/20 bg-[#ff8d7a]/10 px-4 py-4 text-sm font-semibold text-[#ffc3b8]">
+              <div className="mt-4 rounded-[1.4rem] border border-[#c85d4a]/20 bg-[#fff1ed] px-4 py-4 text-sm font-semibold text-[#8e3d2f]">
                 {pollError}
               </div>
             ) : null}
@@ -150,7 +150,7 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center rounded-full border border-white/12 bg-white/4 px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#f4efe4]"
+                className="inline-flex items-center justify-center rounded-full border border-[rgba(41,56,49,0.12)] bg-[rgba(255,255,255,0.76)] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#1f352b]"
               >
                 Contact center
               </Link>
@@ -165,8 +165,8 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
 function getContent(payment: PaymentSnapshot) {
   if (payment.status === "PAID") {
     return {
-      icon: <CheckCircle2 className="h-8 w-8 text-[#7ef0ad]" aria-hidden="true" />,
-      badge: "bg-[rgba(126,240,173,0.14)] text-[#b5f8cf]",
+      icon: <CheckCircle2 className="h-8 w-8 text-[#2a8d5f]" aria-hidden="true" />,
+      badge: "bg-[rgba(42,141,95,0.12)] text-[#215b42]",
       label: "Confirmed",
       title: "Payment received",
       message: `Your payment for ${payment.serviceName} has been captured successfully. The training application is now in the confirmed payment state.`,
@@ -175,8 +175,8 @@ function getContent(payment: PaymentSnapshot) {
 
   if (payment.status === "FAILED" || payment.status === "EXPIRED") {
     return {
-      icon: <XCircle className="h-8 w-8 text-[#ff8d7a]" aria-hidden="true" />,
-      badge: "bg-[rgba(255,141,122,0.14)] text-[#ffc3b8]",
+      icon: <XCircle className="h-8 w-8 text-[#c85d4a]" aria-hidden="true" />,
+      badge: "bg-[rgba(200,93,74,0.12)] text-[#8e3d2f]",
       label: "Needs action",
       title: "Payment not completed",
       message: "The gateway did not confirm this transaction. Please retry from the application flow or contact the center if the amount was already debited.",
@@ -185,7 +185,7 @@ function getContent(payment: PaymentSnapshot) {
 
   return {
     icon: <Clock3 className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />,
-    badge: "bg-[rgba(242,181,68,0.14)] text-[#ffe1a5]",
+    badge: "bg-[rgba(242,181,68,0.14)] text-[#8b5d05]",
     label: "Processing",
     title: "Confirmation in progress",
     message: "Your application is saved. We are waiting for the payment gateway to finalize the transaction and this page will keep checking automatically.",

@@ -2,29 +2,23 @@ import { createHash } from "crypto";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { badRequest, serviceUnavailable, tooManyRequests } from "@/lib/api-response";
+import { createLocalTrainingApplication } from "@/lib/local-training-applications";
 import { createPhonePePayment, isPhonePeConfigured } from "@/lib/phonepe";
 import {
   buildPhonePeRedirectUrl,
   getCurrentPaymentEnvironment,
   getTrainingApplicationAmountPaise,
 } from "@/lib/phonepe-config";
-import { prisma } from "@/lib/prisma";
+import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { buildMerchantOrderId } from "@/lib/training-application";
+import { trainingProgramCatalog } from "@/lib/training-programs";
 import { trainingApplicationSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
   const parsed = trainingApplicationSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return badRequest("Please check the application details and try again.");
-  }
-
-  if (!process.env.DATABASE_URL) {
-    return serviceUnavailable("Training applications need DATABASE_URL before live payment collection can start.");
-  }
-
-  if (!isPhonePeConfigured()) {
-    return serviceUnavailable("PhonePe is not configured for this environment yet.");
   }
 
   const headerStore = await headers();
@@ -40,6 +34,29 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (!hasDatabaseUrl) {
+      const application = await createLocalTrainingApplication({
+        ...parsed.data,
+        email: parsed.data.email || "no-email-provided@applicant.local",
+        residencePhone: parsed.data.residencePhone || "",
+        educationQualification: parsed.data.educationQualification || "",
+        occupation: parsed.data.occupation || "",
+        sponsoringOrganization: parsed.data.sponsoringOrganization || "",
+      });
+
+      return NextResponse.json(
+        {
+          ok: true,
+          applicationId: application.id,
+          localMode: true,
+          redirectUrl: null,
+          message:
+            "Application saved locally. Payment handoff is skipped in this development environment, and the record is now available in Admin > Applications.",
+        },
+        { status: 201 },
+      );
+    }
+
     const amountPaise = getTrainingApplicationAmountPaise();
 
     const application = await prisma.trainingApplication.create({
@@ -67,6 +84,24 @@ export async function POST(request: Request) {
         photoObjectKey: parsed.data.photoObjectKey,
       },
     });
+
+    if (!isPhonePeConfigured()) {
+      const fallbackProgram =
+        trainingProgramCatalog.find((program) => program.title.toLowerCase() === parsed.data.serviceName.toLowerCase()) ??
+        null;
+
+      return NextResponse.json(
+        {
+          ok: true,
+          applicationId: application.id,
+          localMode: true,
+          redirectUrl: fallbackProgram ? `/programs/${fallbackProgram.slug}` : "/programs",
+          message:
+            "Application saved successfully. Payment is not configured in this environment yet, so the record has been kept for manual follow-up.",
+        },
+        { status: 201 },
+      );
+    }
 
     const merchantOrderId = buildMerchantOrderId(application.id);
     const redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);

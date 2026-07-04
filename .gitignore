@@ -43,6 +43,7 @@ ADMIN_MFA_SECRETS.local.md
 
 # graphify
 graphify-out/
+.local-data/
 
 # prisma generated client
 src/generated/

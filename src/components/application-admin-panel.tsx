@@ -11,7 +11,7 @@ import type {
 } from "@/lib/training-application";
 
 type Props = {
-  databaseConfigured: boolean;
+  storageMode: "database" | "local";
   initialApplications: TrainingApplicationRecord[];
 };
 
@@ -26,13 +26,13 @@ const attemptOptions: ApplicationAttemptStatus[] = [
 const paymentOptions: ApplicationPaymentStatus[] = ["NOT_STARTED", "PENDING", "PAID", "FAILED"];
 const approvalOptions: ApplicationApprovalStatus[] = ["PENDING", "APPROVED", "REJECTED"];
 const crossCheckOptions: ApplicationCrossCheckStatus[] = ["PENDING", "VERIFIED"];
-export function ApplicationAdminPanel({ databaseConfigured, initialApplications }: Props) {
+export function ApplicationAdminPanel({ storageMode, initialApplications }: Props) {
   const [applications, setApplications] = useState(initialApplications);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [serviceFilter, setServiceFilter] = useState("ALL");
-  const [approvalFilter, setApprovalFilter] = useState("APPROVED");
+  const [approvalFilter, setApprovalFilter] = useState("ALL");
   const [paymentFilter, setPaymentFilter] = useState("ALL");
   const [crossCheckFilter, setCrossCheckFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("ALL");
@@ -44,6 +44,8 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
   const [profileOpen, setProfileOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
+  const canMutate = storageMode === "database" || storageMode === "local";
+  const isLocalMode = storageMode === "local";
 
   const serviceOptions = useMemo(
     () => Array.from(new Set(applications.map((application) => application.payload.serviceName))).sort(),
@@ -137,12 +139,8 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
   }, [filteredApplications]);
 
   async function load() {
-    if (!databaseConfigured) {
-      setNotice("Application admin is in read-only mode locally because DATABASE_URL is not configured.");
-      return;
-    }
     setLoading(true);
-    setNotice("");
+    setNotice(isLocalMode ? "Refreshing locally stored training applications." : "");
     try {
       const response = await fetch("/api/admin/applications");
       if (response.status === 401) {
@@ -172,10 +170,6 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
       paymentReference: string;
     },
   ) {
-    if (!databaseConfigured) {
-      setNotice("Database is not configured locally, so application status changes cannot be saved from this machine yet.");
-      return;
-    }
     setLoading(true);
     setNotice("");
     try {
@@ -189,7 +183,7 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
         setNotice(data?.error ?? "Unable to save application changes.");
         return;
       }
-      setNotice("Application updated successfully.");
+      setNotice(isLocalMode ? "Local training application updated successfully." : "Application updated successfully.");
       await load();
     } catch {
       setNotice("Unable to save application changes.");
@@ -206,7 +200,7 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
   function resetFilters() {
     setQuery("");
     setServiceFilter("ALL");
-    setApprovalFilter("APPROVED");
+    setApprovalFilter("ALL");
     setPaymentFilter("ALL");
     setCrossCheckFilter("ALL");
     setDateFilter("ALL");
@@ -281,7 +275,7 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
                     <SelectField theme="light" label="Service filter" value={serviceFilter} onChange={setServiceFilter} options={["ALL", ...serviceOptions]} />
                     <SelectField theme="light" label="Date range" value={dateFilter} onChange={setDateFilter} options={["ALL", "LAST_7_DAYS", "LAST_30_DAYS"]} />
                     <SelectField theme="light" label="Sort list" value={sortBy} onChange={setSortBy} options={["BATCH", "LATEST", "OLDEST", "SERVICE", "NAME"]} />
-                    <SelectField theme="light" label="Approval filter" value={approvalFilter} onChange={setApprovalFilter} options={["APPROVED", "ALL", ...approvalOptions.filter((option) => option !== "APPROVED")]} />
+                    <SelectField theme="light" label="Approval filter" value={approvalFilter} onChange={setApprovalFilter} options={["ALL", ...approvalOptions]} />
                     <SelectField theme="light" label="Payment filter" value={paymentFilter} onChange={setPaymentFilter} options={["ALL", ...paymentOptions]} />
                     <SelectField theme="light" label="Cross-check filter" value={crossCheckFilter} onChange={setCrossCheckFilter} options={["ALL", ...crossCheckOptions]} />
                   </div>
@@ -292,7 +286,7 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
         </div>
 
         <button
-          disabled={loading || !databaseConfigured}
+          disabled={loading}
           onClick={load}
           className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] shadow-[0_14px_28px_rgba(23,63,51,0.14)] disabled:cursor-not-allowed disabled:opacity-60"
         >
@@ -495,7 +489,7 @@ export function ApplicationAdminPanel({ databaseConfigured, initialApplications 
       {profileOpen && selectedApplication ? (
         <ApplicationProfileOverlay
           application={selectedApplication}
-          disabled={loading || !databaseConfigured}
+          disabled={loading || !canMutate}
           onClose={() => setProfileOpen(false)}
           onSave={updateApplication}
         />

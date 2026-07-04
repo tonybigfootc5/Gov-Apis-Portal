@@ -3,142 +3,210 @@
 import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
-import {
-  ArrowRight,
-  Award,
-  Bug,
-  Calendar,
-  CheckCircle,
-  Flower2,
-  GraduationCap,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  TrendingUp,
-  Users,
-  Zap,
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Award, BriefcaseBusiness, Calendar, Check, CheckCircle2, ChevronDown, GraduationCap, ShieldCheck, Sparkles, Users, Zap } from "lucide-react";
 import { motion, useInView, useScroll, useSpring, useTransform } from "framer-motion";
 
+const storyParagraphs = [
+  "API CULTURE Technology Center was established in the year 2004 at Rural Technology Park in association with NIRDPR and technical support from AP Bee Keepers' Association and Kavuri Bee Hive 'n' Natural Products.",
+  "The center works across training, transfer of technology, pollination awareness, skill development, bee breeding, beekeeping equipment exposure, and consumer education related to hive products.",
+];
+
+const apiCultureFormation = {
+  title: "API CULTURE",
+  logo: "/api-culture-logo-clean.png",
+  body: "API CULTURE Technology Center is the shared identity formed through the combined ecosystem of NIRDPR, AP Bee Keepers' Association, and Kavuri Bee Hive 'n' Natural Products. The center brings these three supporting cultures together under one field-focused apiculture mission.",
+  points: [
+    "Established in 2004 at Rural Technology Park, Rajendranagar.",
+    "Built through institutional association and technical support from the three source-linked supporting cultures.",
+    "Focused on training, technology transfer, pollination awareness, skill development, and bee hive product education.",
+  ],
+};
+
+const supportingCultures = [
+  {
+    title: "Kavuri",
+    logo: "/kavuri-extract-3.png",
+    eyebrow: "Technical support partner",
+    description:
+      "The source profile names Kavuri Bee Hive 'n' Natural Products as one of the supporting cultures behind the formation of API CULTURE.",
+    points: [
+      "Named in the formation profile.",
+      "Linked with bee hive and natural products identity.",
+      "Part of the support ecosystem represented within API CULTURE.",
+    ],
+    details: [
+      {
+        icon: <GraduationCap className="h-4 w-4" />,
+        title: "Scientific training",
+        description: "Hands-on hive handling, colony care, and practical beekeeping instruction for trainees.",
+      },
+      {
+        icon: <Award className="h-4 w-4" />,
+        title: "Queen rearing and hive skills",
+        description: "Supports queen rearing, colony multiplication, and better management practices.",
+      },
+    ],
+    layout: "left",
+  },
+  {
+    title: "Bee Keepers' Association",
+    logo: "/scientific-beekeeping-icon.png",
+    eyebrow: "Field leadership and training support",
+    description:
+      "AP Bee Keepers' Association is documented as the technical support body behind field practice, leadership continuity, and applied beekeeping knowledge.",
+    points: [
+      "Technical support since formation.",
+      "Leadership connection through K. Sambashiva Rao and P. Ravindra Kumar.",
+      "Strong linkage to field training, migration, colony care, and practical beekeeping.",
+    ],
+    details: [
+      {
+        icon: <Users className="h-4 w-4" />,
+        title: "Community-focused outreach",
+        description: "Supports farmers, rural youth, women groups, and aspiring entrepreneurs through field-ready guidance.",
+      },
+      {
+        icon: <Sparkles className="h-4 w-4" />,
+        title: "Transfer of technology",
+        description: "Connects motivation, awareness, bee breeding, equipment exposure, and consumer education.",
+      },
+    ],
+    layout: "right",
+  },
+  {
+    title: "NIRDPR",
+    logo: "/nirdpr-logo.jpeg",
+    eyebrow: "Institutional association",
+    description:
+      "NIRDPR is the institutional anchor named in the source text, linking the center's formation to Rural Technology Park and a broader public-sector development context.",
+    points: [
+      "Association noted at the time of establishment.",
+      "Institutional backing for continuity and mission trust.",
+      "Supports the center's positioning within a rural development ecosystem.",
+    ],
+    details: [
+      {
+        icon: <ShieldCheck className="h-4 w-4" />,
+        title: "Institutional continuity",
+        description: "Provides the clearest documented public-sector anchor in the formation profile.",
+      },
+      {
+        icon: <BriefcaseBusiness className="h-4 w-4" />,
+        title: "Development ecosystem",
+        description: "Strengthens the center's role within Rural Technology Park and rural development outreach.",
+      },
+    ],
+    layout: "bottom",
+  },
+];
+
+const peopleGroups = [
+  {
+    eyebrow: "Directors and committee members",
+    title: "Leadership and committee",
+    members: [
+      {
+        name: "K. Sambashiva Rao",
+        designation: "President, Bee Keepers Association | Faculty Member and Field Expert",
+        role: "Brings around 40 years of beekeeping experience with emphasis on field practice, bee breeding, colony management, and migration support.",
+        highlights: ["40 years experience", "National Bee Board member", "Field expert"],
+      },
+      {
+        name: "P. Ravindra Kumar",
+        designation: "Director, API CULTURE Technology Center | Vice President, Bee Keepers Association",
+        role: "Supports center direction through training leadership across scientific beekeeping, honey processing, queen rearing, migration, and awareness work.",
+        highlights: ["26 years experience", "Director and faculty", "Training lead"],
+      },
+    ],
+  },
+  {
+    eyebrow: "Profile of technical / faculty members",
+    title: "Faculty and technical advisors",
+    members: [
+      {
+        name: "P. Sita Rathnam",
+        designation: "Faculty Member, API CULTURE Technology Center",
+        role: "Supports queen rearing, royal jelly collection, and honey processing and packing technology training through practical sessions.",
+        highlights: ["15 years experience", "MBA", "Practical training support"],
+      },
+      {
+        name: "K. Subba Rao",
+        designation: "Senior Scientist and Technical Adviser | Faculty Member",
+        role: "Contributes long-standing scientific and R&D knowledge across beekeeping subjects with senior technical credibility.",
+        highlights: ["50 years experience", "Retd. scientist", "Technical adviser"],
+      },
+    ],
+  },
+];
+
+const moreCards = [
+  {
+    title: "Mission and focus",
+    body: "Scientific beekeeping, pollination awareness, practical training, technology transfer, and livelihood support remain at the center of the mission.",
+  },
+  {
+    title: "What the center teaches",
+    body: "The profile references honey processing, queen rearing, bee breeding, equipment exposure, and field-ready apiary practice.",
+  },
+  {
+    title: "Who the mission supports",
+    body: "Farmers, rural youth, women groups, trainees, and future beekeeping entrepreneurs are part of the center's outreach focus.",
+  },
+  {
+    title: "Why it matters",
+    body: "The center connects apiculture training with income, crop support, pollination outcomes, and practical rural technology adoption.",
+  },
+];
+
 export default function AboutUsSection() {
+  const [activeCulture, setActiveCulture] = useState("Kavuri");
   const sectionRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.1 });
+  const peopleRef = useRef<HTMLDivElement>(null);
+
+  const isInView = useInView(sectionRef, { once: false, amount: 0.08 });
   const isStatsInView = useInView(statsRef, { once: false, amount: 0.3 });
+  const isPeopleInView = useInView(peopleRef, { once: true, amount: 0.15 });
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
   });
 
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -40]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 42]);
-  const rotate1 = useTransform(scrollYProgress, [0, 1], [0, 16]);
-  const rotate2 = useTransform(scrollYProgress, [0, 1], [0, -16]);
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 34]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.16,
-        delayChildren: 0.2,
+        staggerChildren: 0.12,
+        delayChildren: 0.12,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { opacity: 0, y: 20 },
     visible: {
-      y: 0,
       opacity: 1,
-      transition: { duration: 0.6, ease: "easeOut" as const },
+      y: 0,
+      transition: { duration: 0.55, ease: "easeOut" as const },
     },
   };
-
-  const services = [
-    {
-      icon: <GraduationCap className="h-6 w-6" />,
-      secondaryIcon: <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-[#8aa884]" />,
-      title: "Scientific training",
-      description:
-        "Hands-on beekeeping instruction blends field demonstrations, hive handling, colony care, and practical learning for new and experienced trainees.",
-      position: "left" as const,
-    },
-    {
-      icon: <Bug className="h-6 w-6" />,
-      secondaryIcon: <CheckCircle className="absolute -top-1 -right-1 h-4 w-4 text-[#8aa884]" />,
-      title: "Queen rearing and hive skills",
-      description:
-        "The center covers specialized topics including queen rearing, colony multiplication, bee behavior, and better management practices for productive apiaries.",
-      position: "left" as const,
-    },
-    {
-      icon: <Flower2 className="h-6 w-6" />,
-      secondaryIcon: <Star className="absolute -top-1 -right-1 h-4 w-4 text-[#8aa884]" />,
-      title: "Pollination and rural value",
-      description:
-        "Beekeeping here is taught as both livelihood support and agricultural support, connecting better pollination with stronger rural outcomes.",
-      position: "left" as const,
-    },
-    {
-      icon: <ShieldCheck className="h-6 w-6" />,
-      secondaryIcon: <Sparkles className="absolute -top-1 -right-1 h-4 w-4 text-[#8aa884]" />,
-      title: "Institutional backing",
-      description:
-        "API CULTURE works within a public-sector development ecosystem, giving trainees confidence in the center's mission, discipline, and continuity.",
-      position: "right" as const,
-    },
-    {
-      icon: <Users className="h-6 w-6" />,
-      secondaryIcon: <CheckCircle className="absolute -top-1 -right-1 h-4 w-4 text-[#8aa884]" />,
-      title: "Community-focused outreach",
-      description:
-        "The work supports farmers, women groups, rural youth, and aspiring entrepreneurs through awareness, skill transfer, and field-ready guidance.",
-      position: "right" as const,
-    },
-    {
-      icon: <Award className="h-6 w-6" />,
-      secondaryIcon: <Star className="absolute -top-1 -right-1 h-4 w-4 text-[#8aa884]" />,
-      title: "Field-led execution",
-      description:
-        "From training batches to apiary demonstrations and honey-related practice, the emphasis stays on applied outcomes instead of brochure-level theory.",
-      position: "right" as const,
-    },
-  ];
-
-  const stats = [
-    { icon: <Award />, value: 22, label: "Years active", suffix: "+" },
-    { icon: <Users />, value: 1200, label: "Learners reached", suffix: "+" },
-    { icon: <Calendar />, value: 30, label: "Seats per batch", suffix: "" },
-    { icon: <TrendingUp />, value: 4, label: "Current program tracks", suffix: "" },
-  ];
 
   return (
     <section
       id="about-section"
       ref={sectionRef}
-      className="relative w-full overflow-hidden bg-gradient-to-b from-[#f7f2e8] via-[#fbf7ef] to-[#f4ecde] px-4 py-24 text-[#173f33]"
+      className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(255,251,243,0.96),rgba(248,240,225,0.92)_36%,rgba(241,232,216,0.94)_70%,rgba(236,225,205,0.98)_100%)] px-4 py-24 text-[#173f33]"
     >
-      <motion.div
-        className="absolute top-16 left-10 h-64 w-64 rounded-full bg-[#f2b544]/10 blur-3xl"
-        style={{ y: y1, rotate: rotate1 }}
-      />
-      <motion.div
-        className="absolute right-10 bottom-16 h-80 w-80 rounded-full bg-[#8aa884]/10 blur-3xl"
-        style={{ y: y2, rotate: rotate2 }}
-      />
-      <motion.div
-        className="absolute top-1/3 left-[12%] h-4 w-4 rounded-full bg-[#f2b544]/40"
-        animate={{ y: [0, -14, 0], opacity: [0.45, 1, 0.45] }}
-        transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute right-[18%] bottom-1/4 h-6 w-6 rounded-full bg-[#8aa884]/30"
-        animate={{ y: [0, 16, 0], opacity: [0.45, 1, 0.45] }}
-        transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 1 }}
-      />
+      <motion.div className="absolute left-10 top-20 h-60 w-60 rounded-full bg-[#f0c76d]/10 blur-3xl" style={{ y: y1 }} />
+      <motion.div className="absolute bottom-16 right-12 h-72 w-72 rounded-full bg-[#90a882]/10 blur-3xl" style={{ y: y2 }} />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.34),transparent_22%,transparent_78%,rgba(255,240,206,0.22))]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_1px_1px,#9c7a36_1px,transparent_0)] [background-size:18px_18px]" />
 
       <motion.div
         className="relative z-10 mx-auto max-w-7xl"
@@ -147,147 +215,199 @@ export default function AboutUsSection() {
         variants={containerVariants}
       >
         <motion.div className="mb-6 flex flex-col items-center" variants={itemVariants}>
-          <motion.span
-            className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.24em] text-[#b36b00]"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <span className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.24em] text-[#b97816]">
             <Zap className="h-4 w-4" />
             Discover our story
-          </motion.span>
+          </span>
           <h2 className="font-display text-center text-4xl md:text-5xl">About Us</h2>
-          <motion.div
-            className="mt-4 h-1 bg-[#b36b00]"
-            initial={{ width: 0 }}
-            animate={{ width: 96 }}
-            transition={{ duration: 1, delay: 0.5 }}
-          />
+          <div className="mt-4 h-1 w-24 bg-[#b97816]" />
         </motion.div>
 
-        <motion.p className="mx-auto mb-16 max-w-3xl text-center text-base leading-8 text-[#52635c]" variants={itemVariants}>
-          API CULTURE Technology Center is a field-focused apiculture institution in Hyderabad dedicated to scientific
-          beekeeping, practical training, pollination awareness, and rural livelihood support through disciplined,
-          applied learning.
-        </motion.p>
+        <motion.div className="mx-auto max-w-4xl text-center" variants={itemVariants}>
+          {storyParagraphs.map((paragraph) => (
+            <p key={paragraph} className="mx-auto mb-4 text-base leading-8 text-[#5f6e67] last:mb-0">
+              {paragraph}
+            </p>
+          ))}
+        </motion.div>
 
-        <div className="relative grid grid-cols-1 gap-8 md:grid-cols-3">
-          <div className="space-y-16">
-            {services
-              .filter((service) => service.position === "left")
-              .map((service, index) => (
-                <ServiceItem
-                  key={`left-${service.title}`}
-                  icon={service.icon}
-                  secondaryIcon={service.secondaryIcon}
-                  title={service.title}
-                  description={service.description}
-                  variants={itemVariants}
-                  delay={index * 0.16}
-                  direction="left"
-                />
-              ))}
-          </div>
+        <motion.div className="mx-auto mt-16 max-w-6xl" variants={itemVariants}>
+          <div className="relative overflow-hidden rounded-[2.8rem] border border-white/45 bg-[linear-gradient(145deg,rgba(255,255,255,0.42),rgba(255,249,239,0.2))] p-5 shadow-[0_30px_90px_rgba(82,57,13,0.12)] ring-1 ring-[#d7be90]/28 backdrop-blur-2xl md:p-8">
+            <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.38),transparent_26%,transparent_74%,rgba(242,181,68,0.08))]" />
+            <div className="absolute inset-x-0 top-0 h-32 bg-[linear-gradient(180deg,rgba(255,255,255,0.44),transparent)]" />
+            <HoneycombCluster className="absolute right-8 top-6 hidden lg:flex" />
+            <HoneycombCluster className="absolute bottom-10 left-8 hidden scale-75 lg:flex" />
 
-          <div className="order-first mb-8 flex items-center justify-center md:order-none md:mb-0">
-            <motion.div className="relative w-full max-w-sm" variants={itemVariants}>
-              <motion.div
-                className="overflow-hidden rounded-[1.5rem] shadow-[0_24px_56px_rgba(85,64,25,0.18)]"
-                initial={{ scale: 0.92, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                whileHover={{ scale: 1.02, transition: { duration: 0.3 } }}
-              >
-                <div className="relative aspect-[4/5]">
-                  <Image
-                    src="/field-beekeeping.jpg"
-                    alt="API CULTURE field training"
-                    fill
-                    sizes="(min-width: 768px) 24rem, 100vw"
-                    className="object-cover"
-                  />
-                  <motion.div
-                    className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-[#173f33]/65 via-[#173f33]/10 to-transparent p-4"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.8, delay: 0.8 }}
-                  >
-                    <Link
-                      href="/programs"
-                      className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#173f33]"
-                    >
-                      Explore programs <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </motion.div>
+            <div className="relative z-10 space-y-6">
+              <div className="rounded-[2.2rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(255,250,242,0.46))] px-6 py-7 shadow-[0_28px_80px_rgba(121,89,28,0.1)] ring-1 ring-[#ead8b6]/35 backdrop-blur-xl">
+                <div className="flex flex-col items-center text-center">
+                  <div className="relative h-20 w-24">
+                    <Image src={apiCultureFormation.logo} alt="API CULTURE logo" fill className="object-contain" sizes="96px" />
+                  </div>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-[0.24em] text-[#b97816]">{apiCultureFormation.title}</p>
+                  <h3 className="mt-2 text-3xl font-semibold">API CULTURE formed by three supporting cultures</h3>
+                  <p className="mt-4 text-sm leading-8 text-[#5f6e67]">{apiCultureFormation.body}</p>
+                  <div className="mt-6 grid w-full gap-3 md:grid-cols-3">
+                    {apiCultureFormation.points.map((point) => (
+                      <div
+                        key={point}
+                        className="rounded-[1.25rem] border border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.58),rgba(255,248,236,0.36))] px-4 py-4 text-sm leading-7 text-[#66736d] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] backdrop-blur-lg"
+                      >
+                        {point}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </motion.div>
+              </div>
 
-              <motion.div
-                className="absolute inset-0 -z-10 -m-3 rounded-[1.8rem] border-4 border-[#d7e6cd]"
-                initial={{ opacity: 0, scale: 1.08 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-              />
+              <div className="hidden lg:block px-8">
+                <TreeBranchGraphic />
+              </div>
 
-              <motion.div
-                className="absolute -top-5 -right-8 h-16 w-16 rounded-full bg-[#f2b544]/12"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.9 }}
-                style={{ y: y1 }}
-              />
-              <motion.div
-                className="absolute -bottom-6 -left-10 h-20 w-20 rounded-full bg-[#8aa884]/14"
-                initial={{ opacity: 0, y: -16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 1.1 }}
-                style={{ y: y2 }}
-              />
-            </motion.div>
+              <div className="grid gap-4 lg:grid-cols-3">
+                {supportingCultures.map((culture, index) => (
+                  <TreeLeafButton
+                    key={culture.title}
+                    culture={culture}
+                    accent={index === 0 ? "blue" : index === 1 ? "green" : "gold"}
+                    active={activeCulture === culture.title}
+                    onClick={() => setActiveCulture(culture.title)}
+                  />
+                ))}
+              </div>
+
+              <div className="grid gap-6 xl:grid-cols-[1.25fr_0.95fr] xl:items-start">
+                <div>
+                  {supportingCultures.map((culture, index) => (
+                    <TreeNodeCard
+                      key={culture.title}
+                      culture={culture}
+                      accent={index === 0 ? "blue" : index === 1 ? "green" : "gold"}
+                      open={activeCulture === culture.title}
+                    />
+                  ))}
+                </div>
+
+                <div className="space-y-5">
+                  <div className="relative mx-auto w-full max-w-sm">
+                    <div className="relative overflow-hidden rounded-[2rem] shadow-[0_28px_60px_rgba(85,64,25,0.18)]">
+                      <div className="relative aspect-[4/5]">
+                        <Image
+                          src="/field-beekeeping.jpg"
+                          alt="API CULTURE field training"
+                          fill
+                          sizes="(min-width: 1280px) 22rem, 100vw"
+                          className="object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-[#173f33]/60 via-[#173f33]/10 to-transparent p-5">
+                          <Link
+                            href="/programs"
+                            className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#173f33]"
+                          >
+                            Explore programs <ArrowRight className="h-4 w-4" />
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 -z-10 -m-3 rounded-[2rem] border-2 border-[#d9ddc8]" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div className="space-y-16">
-            {services
-              .filter((service) => service.position === "right")
-              .map((service, index) => (
-                <ServiceItem
-                  key={`right-${service.title}`}
-                  icon={service.icon}
-                  secondaryIcon={service.secondaryIcon}
-                  title={service.title}
-                  description={service.description}
-                  variants={itemVariants}
-                  delay={index * 0.16}
-                  direction="right"
-                />
-              ))}
-          </div>
-        </div>
+        </motion.div>
 
         <motion.div
           ref={statsRef}
-          className="mt-24 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-16 grid gap-4 md:grid-cols-4"
           initial="hidden"
           animate={isStatsInView ? "visible" : "hidden"}
           variants={containerVariants}
         >
-          {stats.map((stat, index) => (
-            <StatCounter
-              key={stat.label}
-              icon={stat.icon}
-              value={stat.value}
-              label={stat.label}
-              suffix={stat.suffix}
-              delay={index * 0.1}
-            />
+          <FactStat icon={<Calendar className="h-5 w-5" />} value={2004} suffix="" label="Established" delay={0} />
+          <FactStat icon={<Users className="h-5 w-5" />} value={3} suffix="" label="Supporting cultures" delay={0.08} />
+          <FactStat icon={<Award className="h-5 w-5" />} value={4} suffix="+" label="Core training themes" delay={0.16} />
+          <FactStat icon={<ShieldCheck className="h-5 w-5" />} value={2} suffix="" label="Leadership profiles shown" delay={0.24} />
+        </motion.div>
+
+        <motion.div
+          ref={peopleRef}
+          className="mt-20 rounded-[2.2rem] border border-white/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.52),rgba(255,249,239,0.3))] p-8 shadow-[0_28px_70px_rgba(99,77,26,0.1)] ring-1 ring-[#e4cc9d]/32 backdrop-blur-2xl"
+          initial="hidden"
+          animate={isPeopleInView ? "visible" : "hidden"}
+          variants={containerVariants}
+        >
+          <motion.div className="max-w-3xl" variants={itemVariants}>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b97816]">People Behind The Mission</p>
+            <h3 className="mt-3 text-3xl font-semibold">Leadership, committee, and technical guidance</h3>
+            <p className="mt-4 text-sm leading-8 text-[#5f6e67]">
+              The older profile information is restored below on the same About page so the center&apos;s directors,
+              committee members, and technical or faculty members remain visible within the current design.
+            </p>
+          </motion.div>
+
+          <div className="mt-10 grid gap-8 xl:grid-cols-2">
+            {peopleGroups.map((group) => (
+              <motion.div
+                key={group.title}
+                className="rounded-[1.8rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.68),rgba(255,250,243,0.42))] p-6 shadow-[0_18px_44px_rgba(99,77,26,0.08)] backdrop-blur-xl"
+                variants={itemVariants}
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b97816]">{group.eyebrow}</p>
+                <h4 className="mt-3 text-2xl font-semibold">{group.title}</h4>
+                <div className="mt-6 space-y-5">
+                  {group.members.map((member) => (
+                    <div
+                      key={member.name}
+                      className="rounded-[1.35rem] border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.74),rgba(255,251,245,0.48))] p-5 shadow-[0_12px_34px_rgba(99,77,26,0.06)] backdrop-blur-lg"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h5 className="text-lg font-semibold text-[#173f33]">{member.name}</h5>
+                          <p className="mt-1 text-sm leading-6 text-[#6a7771]">{member.designation}</p>
+                        </div>
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#f8f1e1] px-3 py-1 text-xs font-semibold text-[#b97816]">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                          Profile
+                        </span>
+                      </div>
+                      <p className="mt-4 text-sm leading-7 text-[#5f6e67]">{member.role}</p>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {member.highlights.map((highlight) => (
+                          <span
+                            key={highlight}
+                            className="rounded-full border border-[#efe3cd] bg-[#fff8ec] px-3 py-1 text-xs font-medium text-[#7a6641]"
+                          >
+                            {highlight}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div className="mt-16 grid gap-4 md:grid-cols-2 xl:grid-cols-4" variants={containerVariants}>
+          {moreCards.map((card) => (
+            <motion.div
+              key={card.title}
+              className="rounded-[1.55rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,249,239,0.36))] p-5 shadow-[0_18px_40px_rgba(99,77,26,0.08)] backdrop-blur-xl"
+              variants={itemVariants}
+            >
+              <p className="text-lg font-semibold text-[#173f33]">{card.title}</p>
+              <p className="mt-3 text-sm leading-7 text-[#5f6e67]">{card.body}</p>
+            </motion.div>
           ))}
         </motion.div>
 
         <motion.div
-          className="mt-20 flex flex-col items-center justify-between gap-6 rounded-[1.8rem] bg-[#173f33] p-8 text-white md:flex-row"
-          initial={{ opacity: 0, y: 30 }}
-          animate={isStatsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          className="mt-20 flex flex-col items-center justify-between gap-6 rounded-[2rem] border border-white/14 bg-[linear-gradient(135deg,rgba(17,59,49,0.9),rgba(24,73,60,0.72))] p-8 text-white shadow-[0_24px_60px_rgba(23,63,51,0.24)] backdrop-blur-xl md:flex-row"
+          initial={{ opacity: 0, y: 24 }}
+          animate={isPeopleInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+          transition={{ duration: 0.6, delay: 0.25 }}
         >
           <div className="flex-1">
             <h3 className="text-2xl font-medium">Ready to learn beekeeping with real field grounding?</h3>
@@ -313,77 +433,218 @@ export default function AboutUsSection() {
   );
 }
 
-interface ServiceItemProps {
-  icon: React.ReactNode;
-  secondaryIcon?: React.ReactNode;
-  title: string;
-  description: string;
-  variants: {
-    hidden: { opacity: number; y?: number };
-    visible: { opacity: number; y?: number; transition: { duration: number; ease: "easeOut" } };
+function TreeNodeCard({
+  culture,
+  accent,
+  open,
+}: {
+  culture: {
+    title: string;
+    logo: string;
+    eyebrow: string;
+    description: string;
+    points: string[];
+    details: { icon: React.ReactNode; title: string; description: string }[];
   };
-  delay: number;
-  direction: "left" | "right";
-}
+  accent: "blue" | "green" | "gold";
+  open: boolean;
+}) {
+  const accentStyles = {
+    blue: {
+      border: "border-[#cfe5f5]",
+      bg: "bg-[linear-gradient(180deg,rgba(233,246,255,0.54),rgba(248,252,255,0.3))]",
+      icon: "bg-[linear-gradient(180deg,rgba(217,236,251,0.92),rgba(235,245,255,0.72))] text-[#386a8e]",
+      chip: "bg-[linear-gradient(180deg,rgba(240,247,255,0.72),rgba(255,255,255,0.42))] text-[#3d6b8f] border-[#d3e7f6]",
+    },
+    green: {
+      border: "border-[#d1e6d4]",
+      bg: "bg-[linear-gradient(180deg,rgba(237,249,238,0.54),rgba(248,252,248,0.3))]",
+      icon: "bg-[linear-gradient(180deg,rgba(223,240,225,0.92),rgba(240,248,241,0.72))] text-[#3f7049]",
+      chip: "bg-[linear-gradient(180deg,rgba(240,248,241,0.72),rgba(255,255,255,0.42))] text-[#446f4d] border-[#d7e9da]",
+    },
+    gold: {
+      border: "border-[#ead4a0]",
+      bg: "bg-[linear-gradient(180deg,rgba(255,246,224,0.54),rgba(255,251,243,0.3))]",
+      icon: "bg-[linear-gradient(180deg,rgba(248,231,188,0.92),rgba(255,246,222,0.72))] text-[#8a6722]",
+      chip: "bg-[linear-gradient(180deg,rgba(255,247,228,0.72),rgba(255,255,255,0.42))] text-[#8a6826] border-[#efdfb4]",
+    },
+  }[accent];
 
-function ServiceItem({ icon, secondaryIcon, title, description, variants, delay, direction }: ServiceItemProps) {
+  if (!open) {
+    return null;
+  }
+
   return (
     <motion.div
-      className="group flex flex-col"
-      variants={variants}
-      transition={{ delay }}
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className={`rounded-[2rem] border p-5 shadow-[0_18px_48px_rgba(99,77,26,0.08)] ring-1 ring-white/35 backdrop-blur-2xl ${accentStyles.border} ${accentStyles.bg}`}
     >
-      <motion.div
-        className="mb-3 flex items-center gap-3"
-        initial={{ x: direction === "left" ? -20 : 20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: delay + 0.2 }}
-      >
-        <motion.div
-          className="relative rounded-lg bg-[#f2b544]/12 p-3 text-[#b36b00] transition-colors duration-300 group-hover:bg-[#f2b544]/20"
-          whileHover={{ rotate: [0, -8, 8, -4, 0], transition: { duration: 0.5 } }}
-        >
-          {icon}
-          {secondaryIcon}
-        </motion.div>
-        <h3 className="text-xl font-medium text-[#173f33] transition-colors duration-300 group-hover:text-[#b36b00]">
-          {title}
-        </h3>
-      </motion.div>
-      <motion.p
-        className="pl-12 text-sm leading-relaxed text-[#52635c]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: delay + 0.4 }}
-      >
-        {description}
-      </motion.p>
-      <div className="mt-3 pl-12 text-xs font-medium text-[#b36b00] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        <span className="inline-flex items-center gap-1">
-          Learn more <ArrowRight className="h-3 w-3" />
-        </span>
+      <div className="flex items-start gap-4">
+        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[1rem] border border-white/70 bg-white/82 p-2 shadow-[0_10px_24px_rgba(99,77,26,0.08)] backdrop-blur-md">
+          <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="64px" />
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b97816]">{culture.eyebrow}</p>
+          <h3 className="mt-2 text-[1.7rem] leading-tight font-semibold text-[#173f33]">{culture.title}</h3>
+        </div>
+      </div>
+      <p className="mt-4 text-sm leading-7 text-[#5f6e67]">{culture.description}</p>
+      <div className="mt-4 grid gap-3">
+        {culture.points.map((point) => (
+          <div
+            key={point}
+            className={`rounded-[1rem] border px-4 py-3 text-sm leading-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] backdrop-blur-lg ${accentStyles.chip}`}
+          >
+            {point}
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 grid gap-3">
+        {culture.details.map((detail) => (
+          <div
+            key={detail.title}
+            className="rounded-[1.1rem] border border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,252,246,0.42))] p-4 shadow-[0_10px_24px_rgba(99,77,26,0.05)] backdrop-blur-lg"
+          >
+            <div className="flex items-center gap-3">
+              <div className={`rounded-xl p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] ${accentStyles.icon}`}>{detail.icon}</div>
+              <h4 className="text-base font-semibold text-[#173f33]">{detail.title}</h4>
+            </div>
+            <p className="mt-3 text-sm leading-7 text-[#62706a]">{detail.description}</p>
+          </div>
+        ))}
       </div>
     </motion.div>
   );
 }
 
-interface StatCounterProps {
-  icon: React.ReactNode;
-  value: number;
-  label: string;
-  suffix: string;
-  delay: number;
+function TreeLeafButton({
+  culture,
+  accent,
+  active,
+  onClick,
+}: {
+  culture: {
+    title: string;
+    logo: string;
+    eyebrow: string;
+  };
+  accent: "blue" | "green" | "gold";
+  active: boolean;
+  onClick: () => void;
+}) {
+  const accentStyles = {
+    blue: {
+      border: active ? "border-[#7fb2db]" : "border-[#cfe2f1]",
+      bg: active
+        ? "bg-[linear-gradient(180deg,rgba(238,247,255,0.82),rgba(255,255,255,0.5))]"
+        : "bg-[linear-gradient(180deg,rgba(255,255,255,0.56),rgba(255,249,239,0.3))]",
+      ring: active ? "shadow-[0_18px_44px_rgba(89,145,188,0.18)] ring-1 ring-[#aed0e9]/45" : "shadow-[0_12px_28px_rgba(99,77,26,0.05)] ring-1 ring-white/35",
+    },
+    green: {
+      border: active ? "border-[#8ac496]" : "border-[#d3e7d6]",
+      bg: active
+        ? "bg-[linear-gradient(180deg,rgba(241,249,242,0.82),rgba(255,255,255,0.5))]"
+        : "bg-[linear-gradient(180deg,rgba(255,255,255,0.56),rgba(255,249,239,0.3))]",
+      ring: active ? "shadow-[0_18px_44px_rgba(98,150,103,0.18)] ring-1 ring-[#bdddbe]/45" : "shadow-[0_12px_28px_rgba(99,77,26,0.05)] ring-1 ring-white/35",
+    },
+    gold: {
+      border: active ? "border-[#d7b056]" : "border-[#eedbb0]",
+      bg: active
+        ? "bg-[linear-gradient(180deg,rgba(255,248,231,0.82),rgba(255,255,255,0.5))]"
+        : "bg-[linear-gradient(180deg,rgba(255,255,255,0.56),rgba(255,249,239,0.3))]",
+      ring: active ? "shadow-[0_18px_44px_rgba(190,145,47,0.18)] ring-1 ring-[#e5cb88]/45" : "shadow-[0_12px_28px_rgba(99,77,26,0.05)] ring-1 ring-white/35",
+    },
+  }[accent];
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full rounded-[1.75rem] border p-4 text-left transition-all duration-200 backdrop-blur-xl ${accentStyles.border} ${accentStyles.bg} ${accentStyles.ring}`}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/70 bg-white/82 p-1.5 shadow-[0_8px_22px_rgba(99,77,26,0.08)] backdrop-blur-md">
+            <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-1.5" sizes="48px" />
+          </div>
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#b97816]">{culture.eyebrow}</p>
+            <h4 className="mt-1 text-lg font-semibold text-[#173f33]">{culture.title}</h4>
+          </div>
+        </div>
+        <ChevronDown className={`h-5 w-5 text-[#8b6c2e] transition-transform ${active ? "rotate-180" : ""}`} />
+      </div>
+      <div className="mt-3 flex items-center gap-2 text-xs font-medium text-[#6c786f]">
+        <Check className="h-3.5 w-3.5 text-[#b97816]" />
+        Click to view this culture&apos;s information
+      </div>
+    </button>
+  );
 }
 
-function StatCounter({ icon, value, label, suffix, delay }: StatCounterProps) {
-  const countRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(countRef, { once: false });
+function TreeBranchGraphic() {
+  return (
+    <svg viewBox="0 0 1200 200" className="h-40 w-full" aria-hidden="true">
+      <defs>
+        <linearGradient id="treeBranchStable" x1="0%" x2="100%" y1="0%" y2="0%">
+          <stop offset="0%" stopColor="#dab170" />
+          <stop offset="50%" stopColor="#b88433" />
+          <stop offset="100%" stopColor="#e0c79a" />
+        </linearGradient>
+      </defs>
+      <path d="M600 10 L600 78" fill="none" stroke="url(#treeBranchStable)" strokeWidth="16" strokeLinecap="round" />
+      <path d="M600 68 C520 84, 420 110, 200 144" fill="none" stroke="url(#treeBranchStable)" strokeWidth="12" strokeLinecap="round" />
+      <path d="M600 68 C600 92, 600 112, 600 136" fill="none" stroke="url(#treeBranchStable)" strokeWidth="12" strokeLinecap="round" />
+      <path d="M600 68 C680 84, 780 110, 1000 144" fill="none" stroke="url(#treeBranchStable)" strokeWidth="12" strokeLinecap="round" />
+      <circle cx="200" cy="144" r="10" fill="#d2a653" />
+      <circle cx="600" cy="136" r="10" fill="#d2a653" />
+      <circle cx="1000" cy="144" r="10" fill="#d2a653" />
+    </svg>
+  );
+}
 
-  const springValue = useSpring(0, {
-    stiffness: 50,
-    damping: 10,
-  });
+function HoneycombCluster({ className }: { className?: string }) {
+  const cells = [
+    "translate-x-0 translate-y-0",
+    "translate-x-9 translate-y-0",
+    "translate-x-[72px] translate-y-0",
+    "translate-x-[18px] translate-y-8",
+    "translate-x-[54px] translate-y-8",
+    "translate-x-[90px] translate-y-8",
+  ];
+
+  return (
+    <div className={className}>
+      <div className="relative h-20 w-36 opacity-75">
+        {cells.map((cell) => (
+          <div
+            key={cell}
+            className={`absolute h-8 w-9 rotate-0 rounded-[0.55rem] border border-[#f3d98c] bg-[linear-gradient(180deg,rgba(255,223,112,0.9),rgba(226,170,47,0.82))] shadow-[0_6px_16px_rgba(193,137,26,0.18)] [clip-path:polygon(25%_0%,75%_0%,100%_50%,75%_100%,25%_100%,0%_50%)] ${cell}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FactStat({
+  icon,
+  value,
+  suffix,
+  label,
+  delay,
+}: {
+  icon: React.ReactNode;
+  value: number;
+  suffix: string;
+  label: string;
+  delay: number;
+}) {
+  const countRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(countRef, { once: false, amount: 0.5 });
+  const springValue = useSpring(0, { stiffness: 55, damping: 14 });
 
   useEffect(() => {
     springValue.set(isInView ? value : 0);
@@ -393,29 +654,22 @@ function StatCounter({ icon, value, label, suffix, delay }: StatCounterProps) {
 
   return (
     <motion.div
-      className="group flex flex-col items-center rounded-[1.4rem] bg-white/70 p-6 text-center shadow-[0_18px_40px_rgba(91,73,35,0.08)] backdrop-blur-sm transition-colors duration-300 hover:bg-white"
+      className="rounded-[1.65rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.58),rgba(255,249,239,0.34))] p-6 text-center shadow-[0_18px_44px_rgba(99,77,26,0.08)] ring-1 ring-[#e4cc9d]/28 backdrop-blur-xl"
       variants={{
         hidden: { opacity: 0, y: 20 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.6, delay },
+          transition: { duration: 0.5, delay },
         },
       }}
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
     >
-      <motion.div
-        className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#173f33]/5 text-[#b36b00] transition-colors duration-300 group-hover:bg-[#f2b544]/12"
-        whileHover={{ rotate: 360, transition: { duration: 0.8 } }}
-      >
-        {icon}
-      </motion.div>
-      <motion.div ref={countRef} className="flex items-center text-3xl font-bold text-[#173f33]">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f8f1e1] text-[#b97816]">{icon}</div>
+      <div ref={countRef} className="mt-4 flex items-center justify-center text-3xl font-bold text-[#173f33]">
         <motion.span>{displayValue}</motion.span>
         <span>{suffix}</span>
-      </motion.div>
-      <p className="mt-1 text-sm text-[#52635c]">{label}</p>
-      <motion.div className="mt-3 h-0.5 w-10 bg-[#b36b00] transition-all duration-300 group-hover:w-16" />
+      </div>
+      <p className="mt-2 text-sm text-[#6a7771]">{label}</p>
     </motion.div>
   );
 }

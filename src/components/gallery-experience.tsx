@@ -71,7 +71,7 @@ export function GalleryExperience({
   const activeItem = normalizedActiveIndex === null ? null : filteredItems[normalizedActiveIndex] ?? null;
 
   return (
-    <section className="min-h-screen bg-[#faf8f2]">
+    <section className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="relative overflow-hidden rounded-[2.5rem] border border-[rgba(27,59,43,0.08)] bg-[linear-gradient(135deg,rgba(255,253,248,0.98),rgba(245,238,223,0.98))] p-6 shadow-[0_26px_70px_rgba(64,44,8,0.08)] sm:p-10 lg:p-14">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(235,180,40,0.18),transparent_24rem),radial-gradient(circle_at_bottom_left,rgba(27,59,43,0.08),transparent_24rem)]" />

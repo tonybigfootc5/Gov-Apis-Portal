@@ -55,23 +55,23 @@ export default async function ProgramsPage() {
           </div>
         </div>
 
-        <div className="mt-8 overflow-hidden rounded-[1.8rem] border border-white/10 bg-[#090d13] p-4 shadow-[0_22px_60px_rgba(0,0,0,0.24)]">
+        <div className="mt-8 overflow-hidden rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(180deg,#fffdf8_0%,#f4ecde_100%)] p-4 shadow-[0_22px_60px_rgba(171,141,92,0.14)]">
           <div className="flex items-center justify-between gap-4 px-2 pb-4">
             <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#8ec5ff]">Field visuals</p>
             <p className="text-xs text-dim">Scroll-free visual context while you compare options.</p>
           </div>
           <div className="relative overflow-hidden rounded-[1.4rem]">
-            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-[linear-gradient(90deg,#090d13_0%,rgba(9,13,19,0)_100%)]" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-[linear-gradient(270deg,#090d13_0%,rgba(9,13,19,0)_100%)]" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,0)_100%)]" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-[linear-gradient(270deg,#fffdf8_0%,rgba(255,253,248,0)_100%)]" />
             <div className="marquee-track flex gap-4 py-1">
               {duplicatedGallery.map((image, index) => (
                 <div
                   key={`${image.label}-${index}`}
-                  className="relative h-40 w-[18rem] shrink-0 overflow-hidden rounded-[1.2rem] border border-white/10 bg-[#111723] sm:h-48 sm:w-[24rem]"
+                  className="relative h-40 w-[18rem] shrink-0 overflow-hidden rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[#f3ecdf] sm:h-48 sm:w-[24rem]"
                 >
                   <Image src={image.src} alt={image.alt} fill sizes="(min-width: 640px) 24rem, 18rem" className="object-cover" />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,10,18,0)_28%,rgba(7,10,18,0.84)_100%)]" />
-                  <p className="absolute bottom-3 left-3 rounded-full border border-white/12 bg-black/35 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(17,27,22,0)_28%,rgba(17,27,22,0.6)_100%)]" />
+                  <p className="absolute bottom-3 left-3 rounded-full border border-[rgba(255,255,255,0.24)] bg-[rgba(17,28,24,0.56)] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#fff9ef] backdrop-blur-sm">
                     {image.label}
                   </p>
                 </div>
@@ -88,11 +88,11 @@ export default async function ProgramsPage() {
               <Link
                 key={program.id}
                 href={`/programs/${program.slug}`}
-                className="group grid gap-0 overflow-hidden rounded-[1.8rem] border border-white/10 bg-[rgba(10,13,20,0.85)] shadow-[0_18px_50px_rgba(0,0,0,0.2)] transition hover:-translate-y-1 hover:border-white/16 lg:grid-cols-[minmax(0,1.12fr)_24rem]"
+                className="group grid gap-0 overflow-hidden rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(180deg,#fffdf8_0%,#f8f1e7_100%)] shadow-[0_18px_50px_rgba(171,141,92,0.12)] transition hover:-translate-y-1 hover:border-[rgba(199,123,34,0.24)] lg:grid-cols-[minmax(0,1.12fr)_24rem]"
               >
                 <div className="p-5 sm:p-6 lg:p-7">
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="rounded-full border border-[#8ec5ff]/22 bg-[#8ec5ff]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#b9dbff]">
+                    <span className="rounded-full border border-[#8ec5ff]/22 bg-[#8ec5ff]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#547ba1]">
                       {presentation?.focusLabel ?? program.level}
                     </span>
                     <span className="text-sm font-semibold text-dim">{program.duration}</span>
@@ -130,14 +130,14 @@ export default async function ProgramsPage() {
                   </div>
                 </div>
 
-                <div className="relative min-h-[18rem] border-t border-white/10 bg-[#111723] lg:min-h-full lg:border-l lg:border-t-0">
+                <div className="relative min-h-[18rem] border-t border-[rgba(41,56,49,0.1)] bg-[#f3ecdf] lg:min-h-full lg:border-l lg:border-t-0">
                   {presentation ? (
                     <Image src={presentation.imageSrc} alt={presentation.imageAlt} fill sizes="(min-width: 1024px) 24rem, 100vw" className="object-cover" />
                   ) : null}
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,13,20,0.08)_0%,rgba(10,13,20,0.7)_100%)]" />
-                  <div className="absolute inset-x-4 bottom-4 rounded-[1.2rem] border border-white/12 bg-black/35 p-4 backdrop-blur-md">
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(17,27,22,0.04)_0%,rgba(17,27,22,0.54)_100%)]" />
+                  <div className="absolute inset-x-4 bottom-4 rounded-[1.2rem] border border-[rgba(255,255,255,0.24)] bg-[rgba(17,28,24,0.56)] p-4 backdrop-blur-md">
                     <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#8ec5ff]">Best suited for</p>
-                    <p className="mt-2 text-sm leading-7 text-[#e7edf7]">
+                    <p className="mt-2 text-sm leading-7 text-[#fff9ef]">
                       {presentation?.targetAudience ?? "Eligible applicants interested in beekeeping training."}
                     </p>
                   </div>
@@ -153,7 +153,7 @@ export default async function ProgramsPage() {
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-[#dce5f2]">
+    <span className="rounded-full border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] px-4 py-2 text-sm font-semibold text-[#1f352b]">
       {children}
     </span>
   );
@@ -161,7 +161,7 @@ function Chip({ children }: { children: React.ReactNode }) {
 
 function QuickStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-[1.2rem] border border-white/10 bg-white/4 p-4">
+    <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4">
       <p className="text-lg font-semibold text-bright">{value}</p>
       <p className="mt-1 text-sm text-dim">{label}</p>
     </div>
@@ -178,10 +178,10 @@ function MiniInfo({
   value: string;
 }) {
   return (
-    <div className="rounded-[1.1rem] border border-white/10 bg-white/4 p-4">
+    <div className="rounded-[1.1rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4">
       <div className="flex items-center gap-2 text-[#8ec5ff]">
         <Icon className="h-4 w-4" aria-hidden="true" />
-        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#9ca8bc]">{label}</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#6f8177]">{label}</p>
       </div>
       <p className="mt-2 text-sm font-semibold text-bright">{value}</p>
     </div>

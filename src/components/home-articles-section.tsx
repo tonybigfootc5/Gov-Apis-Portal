@@ -3,26 +3,30 @@ import Link from "next/link";
 import { ArrowRight, BookOpenText, CalendarDays, Tag } from "lucide-react";
 import type { ArticleItem } from "@/lib/data";
 import { SectionHeading } from "@/components/section-heading";
+import type { SiteLanguage } from "@/lib/i18n";
+import { getSiteCopy } from "@/lib/site-copy";
 
-export function HomeArticlesSection({ articles }: { articles: ArticleItem[] }) {
+export function HomeArticlesSection({ articles, language }: { articles: ArticleItem[]; language: SiteLanguage }) {
+  const copy = getSiteCopy(language);
+
   return (
-    <section className="bg-[#f3ecdf] py-20 text-[#1b3b2b]">
+    <section className="py-20 text-[#1b3b2b]">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 sm:px-6 lg:px-8">
-        <SectionHeading eyebrow="Articles" title="Field notes, training writeups, and center updates">
-          Articles published from the admin dashboard now flow directly into this page, so the public site and admin panel share the same source.
+        <SectionHeading eyebrow={copy.articles.eyebrow} title={copy.articles.title}>
+          {copy.articles.body}
         </SectionHeading>
 
         <div className="grid gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
           <aside className="paper-panel rounded-[1.9rem] p-5">
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#b36b00]">What this connects</p>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#b36b00]">{copy.articles.sidebarEyebrow}</p>
             <div className="mt-5 grid gap-3 text-sm leading-7 text-[#516253]">
               <div className="rounded-[1.3rem] bg-[#fffdf8] p-4">
-                <p className="font-semibold text-[#1b3b2b]">Admin to public site</p>
-                <p className="mt-2">Articles created in admin can now appear here without manual UI-only edits.</p>
+                <p className="font-semibold text-[#1b3b2b]">{copy.articles.sidebarCards[0].title}</p>
+                <p className="mt-2">{copy.articles.sidebarCards[0].text}</p>
               </div>
               <div className="rounded-[1.3rem] bg-[#fffdf8] p-4">
-                <p className="font-semibold text-[#1b3b2b]">Single content source</p>
-                <p className="mt-2">Published entries come from the shared backend path instead of placeholder cards.</p>
+                <p className="font-semibold text-[#1b3b2b]">{copy.articles.sidebarCards[1].title}</p>
+                <p className="mt-2">{copy.articles.sidebarCards[1].text}</p>
               </div>
             </div>
           </aside>
@@ -86,7 +90,7 @@ export function HomeArticlesSection({ articles }: { articles: ArticleItem[] }) {
                     href={`/articles/${article.slug}`}
                     className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.14em] text-[#1b3b2b] transition group-hover:text-[#b36b00]"
                   >
-                    Read article
+                    {copy.articles.readArticle}
                     <ArrowRight className="h-4 w-4" aria-hidden="true" />
                   </Link>
                 </div>
@@ -102,8 +106,8 @@ export function HomeArticlesSection({ articles }: { articles: ArticleItem[] }) {
                 <BookOpenText className="h-5 w-5" aria-hidden="true" />
               </span>
               <div>
-                <p className="font-semibold text-[#1b3b2b]">No articles are published yet</p>
-                <p className="mt-1">Create and publish articles from the admin dashboard to populate this page.</p>
+                <p className="font-semibold text-[#1b3b2b]">{copy.articles.emptyTitle}</p>
+                <p className="mt-1">{copy.articles.emptyBody}</p>
               </div>
             </div>
           </div>

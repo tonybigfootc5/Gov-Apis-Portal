@@ -87,6 +87,7 @@ type ArticleItem = {
 
 type Props = {
   databaseConfigured: boolean;
+  applicationStorageMode: "database" | "local";
   initialApplications: TrainingApplicationRecord[];
   initialPayments: PaymentAdminRecord[];
   initialContactMessages: ContactInboxRecord[];
@@ -198,6 +199,7 @@ function readStoredNotifications() {
 
 export function AdminConsole({
   databaseConfigured,
+  applicationStorageMode,
   initialApplications,
   initialPayments,
   initialContactMessages,
@@ -390,7 +392,10 @@ export function AdminConsole({
         id: "system-local-preview",
         section: "overview",
         title: "System alert: local preview is read-only",
-        message: "DATABASE_URL is not configured locally, so save actions stay disabled until deployment setup is ready.",
+        message:
+          applicationStorageMode === "local"
+            ? "Local preview is running without DATABASE_URL. Training applications are stored locally, while the content manager stays read-only until the database is connected."
+            : "DATABASE_URL is not configured locally, so save actions stay disabled until deployment setup is ready.",
         timestamp: new Date().toISOString(),
         read: readSystemNotificationIds.includes("system-local-preview"),
         variant: "alert",
@@ -398,7 +403,7 @@ export function AdminConsole({
     }
 
     return liveNotifications.filter((notification) => !dismissedSystemNotificationIds.includes(notification.id));
-  }, [applicationSummary.ready, databaseConfigured, dismissedSystemNotificationIds, readSystemNotificationIds]);
+  }, [applicationStorageMode, applicationSummary.ready, databaseConfigured, dismissedSystemNotificationIds, readSystemNotificationIds]);
 
   const allNotifications = useMemo(
     () =>
@@ -1088,7 +1093,7 @@ export function AdminConsole({
           className="mt-8 bg-[linear-gradient(180deg,rgba(244,236,220,0.98),rgba(232,241,234,0.96))]"
         >
           <ApplicationAdminPanel
-            databaseConfigured={databaseConfigured}
+            storageMode={applicationStorageMode}
             initialApplications={applications}
           />
         </DashboardSection>
