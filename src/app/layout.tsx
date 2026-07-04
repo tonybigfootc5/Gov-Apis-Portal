@@ -21,6 +21,9 @@ const newsreader = Newsreader({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.apiculture.in"),
   title: {
+    default: "API CULTURE Technology Center",
+    template: "%s | API CULTURE",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -28,9 +31,6 @@ export const metadata: Metadata = {
     ],
     shortcut: "/favicon.ico",
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
-  },
-    default: "API CULTURE Technology Center",
-    template: "%s | API CULTURE",
   },
   description:
     "Government-grade apiculture training, technology, events, and institutional support from API CULTURE Technology Center, Hyderabad.",
@@ -82,7 +82,6 @@ export default async function RootLayout({
           languageLabel={t(language, "lang.label")}
           languageOptions={languageOptions}
           navItems={navItems}
-          adminLabel={t(language, "nav.admin")}
           techCenterLabel={t(language, "header.techCenter")}
           sandboxMode={sandboxMode}
         />
