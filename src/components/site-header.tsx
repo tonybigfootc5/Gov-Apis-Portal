@@ -19,6 +19,9 @@ type SiteHeaderProps = {
   navItems: NavItem[];
   trainingItems: NavItem[];
   exploreItems: NavItem[];
+  trainingLabel: string;
+  exploreLabel: string;
+  allTrainingLabel: string;
   techCenterLabel: string;
   sandboxMode: boolean;
 };
@@ -30,6 +33,9 @@ export function SiteHeader({
   navItems,
   trainingItems,
   exploreItems,
+  trainingLabel,
+  exploreLabel,
+  allTrainingLabel,
   techCenterLabel,
   sandboxMode,
 }: SiteHeaderProps) {
@@ -64,11 +70,11 @@ export function SiteHeader({
                 priority
               />
             </span>
-            <span className="leading-tight">
-              <span className="block whitespace-nowrap text-[clamp(1rem,4.6vw,1.2rem)] font-black uppercase tracking-[0.18em] text-[#1c382d]">
+            <span className="min-w-0 leading-tight">
+              <span className="block text-[clamp(1rem,4.6vw,1.2rem)] font-black uppercase tracking-[0.18em] text-[#1c382d] sm:whitespace-nowrap">
                 API CULTURE
               </span>
-              <span className="block whitespace-nowrap text-[9px] font-bold uppercase tracking-[0.22em] text-[#64756f] sm:text-[10px]">
+              <span className="block max-w-[12rem] text-[10px] leading-4 font-bold tracking-[0.08em] text-[#64756f] sm:max-w-none sm:whitespace-nowrap sm:text-[10px]">
                 {techCenterLabel}
               </span>
             </span>
@@ -92,7 +98,7 @@ export function SiteHeader({
                 ))}
 
               <DesktopDropdown
-                label="Training"
+                label={trainingLabel}
                 href="/programs"
                 items={trainingItems}
                 active={isActive("/programs")}
@@ -100,7 +106,7 @@ export function SiteHeader({
               />
 
               <DesktopDropdown
-                label="Explore"
+                label={exploreLabel}
                 items={exploreItems}
                 active={exploreItems.some((item) => isActive(item.href))}
                 isItemActive={isActive}
@@ -170,8 +176,15 @@ export function SiteHeader({
                   {aboutItem.label}
                 </Link>
               ) : null}
-              <MobileDropdown key="mobile-training" label="Training" href="/programs" items={trainingItems} isItemActive={isActive} />
-              <MobileDropdown label="Explore" items={exploreItems} isItemActive={isActive} />
+              <MobileDropdown
+                key="mobile-training"
+                label={trainingLabel}
+                href="/programs"
+                allLabel={allTrainingLabel}
+                items={trainingItems}
+                isItemActive={isActive}
+              />
+              <MobileDropdown label={exploreLabel} items={exploreItems} isItemActive={isActive} />
               {contactItem ? (
                 <Link
                   href={contactItem.href}
@@ -242,7 +255,7 @@ function DesktopDropdown({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
+              className={`flex rounded-[1rem] px-4 py-3 text-[13px] leading-snug font-medium transition ${
                 isItemActive(item.href)
                   ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
                   : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
@@ -260,11 +273,13 @@ function DesktopDropdown({
 function MobileDropdown({
   label,
   href,
+  allLabel,
   items,
   isItemActive,
 }: {
   label: string;
   href?: string;
+  allLabel?: string;
   items: NavItem[];
   isItemActive: (href: string) => boolean;
 }) {
@@ -286,20 +301,20 @@ function MobileDropdown({
         {href ? (
           <Link
             href={href}
-            className={`flex rounded-[0.9rem] px-4 py-3 text-sm font-medium transition ${
+            className={`flex rounded-[0.9rem] px-4 py-3 text-[13px] leading-snug font-medium transition ${
               isItemActive(href)
                 ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
                 : "bg-[rgba(255,255,255,0.7)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
             }`}
           >
-            All training programs
+            {allLabel ?? label}
           </Link>
         ) : null}
         {items.map((item) => (
           <Link
             key={item.href}
             href={item.href}
-            className={`flex rounded-[0.9rem] px-4 py-3 text-sm font-medium transition ${
+            className={`flex rounded-[0.9rem] px-4 py-3 text-[13px] leading-snug font-medium transition ${
               isItemActive(item.href)
                 ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
                 : "bg-[rgba(255,255,255,0.7)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"

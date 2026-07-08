@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Check, Clock3, GraduationCap, Users2 } from "lucide-react";
 import { TrainingApplicationForm } from "@/components/training-application-form";
 import { getProgram } from "@/lib/data";
-import { getTranslatedProgramContent, t } from "@/lib/i18n";
+import { getTranslatedProgramContent, t, type SiteLanguage } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
@@ -26,6 +26,60 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProgramDetailPage({ params }: Props) {
   const language = await getRequestLanguage();
+  const copy = {
+    en: {
+      applyNow: "Apply now",
+      duration: "Duration",
+      level: "Level",
+      capacity: "Capacity",
+      participants: "participants",
+      overviewEyebrow: "Program overview",
+      overviewTitle: "What this training covers",
+      outcomesEyebrow: "Outcomes",
+      outcomesTitle: "What participants walk away with",
+      applicationEyebrow: "Application",
+      applicationLead: "Finish the enrollment details here and you will be taken directly to the payment gateway after submission.",
+      bestFor: "Best suited for",
+      bestForFallback: "Eligible applicants interested in beekeeping training.",
+      skillsCovered: "Skills covered",
+      applyFor: "Apply for",
+    },
+    te: {
+      applyNow: "ఇప్పుడే దరఖాస్తు చేయండి",
+      duration: "వ్యవధి",
+      level: "స్థాయి",
+      capacity: "సామర్థ్యం",
+      participants: "పాల్గొనేవారు",
+      overviewEyebrow: "కార్యక్రమ అవలోకనం",
+      overviewTitle: "ఈ శిక్షణలో ఏమి ఉంటుంది",
+      outcomesEyebrow: "ఫలితాలు",
+      outcomesTitle: "పాల్గొనేవారు పొందే ప్రయోజనాలు",
+      applicationEyebrow: "దరఖాస్తు",
+      applicationLead: "ఇక్కడ నమోదు వివరాలు పూర్తి చేయండి. సమర్పించిన వెంటనే నేరుగా చెల్లింపు గేట్‌వేకు తీసుకెళ్తాము.",
+      bestFor: "ఎవరికి అనుకూలం",
+      bestForFallback: "తేనెటీగల పెంపకం శిక్షణలో ఆసక్తి ఉన్న అర్హులైన అభ్యర్థులు.",
+      skillsCovered: "కవర్ అయ్యే నైపుణ్యాలు",
+      applyFor: "దరఖాస్తు చేయండి:",
+    },
+    hi: {
+      applyNow: "अभी आवेदन करें",
+      duration: "अवधि",
+      level: "स्तर",
+      capacity: "क्षमता",
+      participants: "प्रतिभागी",
+      overviewEyebrow: "कार्यक्रम अवलोकन",
+      overviewTitle: "इस प्रशिक्षण में क्या शामिल है",
+      outcomesEyebrow: "परिणाम",
+      outcomesTitle: "प्रतिभागी क्या लेकर जाएंगे",
+      applicationEyebrow: "आवेदन",
+      applicationLead: "यहां नामांकन विवरण पूरा करें। सबमिट करने के बाद आपको सीधे भुगतान गेटवे पर ले जाया जाएगा।",
+      bestFor: "सबसे उपयुक्त",
+      bestForFallback: "मधुमक्खी पालन प्रशिक्षण में रुचि रखने वाले पात्र आवेदक।",
+      skillsCovered: "शामिल कौशल",
+      applyFor: "आवेदन करें:",
+    },
+  } satisfies Record<SiteLanguage, Record<string, string>>;
+  const pageCopy = copy[language];
   const { slug } = await params;
   const program = await getProgram(slug);
 
@@ -72,7 +126,7 @@ export default async function ProgramDetailPage({ params }: Props) {
                 href="#training-application-form"
                 className="mt-8 inline-flex items-center justify-center rounded-full bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#0a0d12]"
               >
-                Apply now
+                {pageCopy.applyNow}
               </a>
             </div>
 
@@ -96,21 +150,21 @@ export default async function ProgramDetailPage({ params }: Props) {
           <div className="grid gap-6">
             <section className="section-frame rounded-[1.8rem] p-5 sm:p-6">
               <div className="grid gap-4 sm:grid-cols-3">
-                <MiniInfo icon={Clock3} label="Duration" value={translatedProgram.duration} />
-                <MiniInfo icon={GraduationCap} label="Level" value={translatedProgram.level} />
-                <MiniInfo icon={Users2} label="Capacity" value={`${translatedProgram.capacity} participants`} />
+                <MiniInfo icon={Clock3} label={pageCopy.duration} value={translatedProgram.duration} />
+                <MiniInfo icon={GraduationCap} label={pageCopy.level} value={translatedProgram.level} />
+                <MiniInfo icon={Users2} label={pageCopy.capacity} value={`${translatedProgram.capacity} ${pageCopy.participants}`} />
               </div>
             </section>
 
             <section className="section-frame rounded-[1.8rem] p-5 sm:p-6">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">Program overview</p>
-              <h2 className="font-display mt-4 text-4xl text-bright">What this training covers</h2>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">{pageCopy.overviewEyebrow}</p>
+              <h2 className="font-display mt-4 text-4xl text-bright">{pageCopy.overviewTitle}</h2>
               <p className="mt-5 text-base leading-8 text-dim">{translatedProgram.description}</p>
             </section>
 
             <section className="section-frame rounded-[1.8rem] p-5 sm:p-6">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">Outcomes</p>
-              <h2 className="font-display mt-4 text-4xl text-bright">What participants walk away with</h2>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">{pageCopy.outcomesEyebrow}</p>
+              <h2 className="font-display mt-4 text-4xl text-bright">{pageCopy.outcomesTitle}</h2>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {(presentation?.outcomes ?? []).map((outcome) => (
                   <p key={outcome} className="inline-flex gap-3 rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4 text-sm leading-7 text-dim">
@@ -123,25 +177,25 @@ export default async function ProgramDetailPage({ params }: Props) {
 
             <section id="training-application-form" className="section-frame rounded-[1.8rem] p-5 sm:p-6">
               <div className="mb-6 rounded-[1.5rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-5">
-                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">Application</p>
-                <h2 className="font-display mt-3 text-4xl text-bright">Apply for {translatedProgram.title}</h2>
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{pageCopy.applicationEyebrow}</p>
+                <h2 className="font-display mt-3 text-4xl text-bright">{pageCopy.applyFor} {translatedProgram.title}</h2>
                 <p className="mt-3 max-w-2xl text-sm leading-7 text-dim">
-                  Finish the enrollment details here and you will be taken directly to the payment gateway after submission.
+                  {pageCopy.applicationLead}
                 </p>
               </div>
 
-              <TrainingApplicationForm serviceOptions={[selectedService]} selectedServiceTitle={selectedService.title} />
+              <TrainingApplicationForm language={language} serviceOptions={[selectedService]} selectedServiceTitle={selectedService.title} />
             </section>
           </div>
 
           <aside className="section-frame h-fit rounded-[1.8rem] p-5 sm:p-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">Best suited for</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{pageCopy.bestFor}</p>
             <p className="mt-4 text-sm leading-7 text-dim">
-              {presentation?.targetAudience ?? "Eligible applicants interested in beekeeping training."}
+              {presentation?.targetAudience ?? pageCopy.bestForFallback}
             </p>
 
             <div className="mt-6 rounded-[1.4rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">Skills covered</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{pageCopy.skillsCovered}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {(presentation?.skills ?? []).map((skill) => (
                   <span key={skill} className="rounded-full border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.76)] px-3 py-2 text-xs font-semibold text-[#1f352b]">

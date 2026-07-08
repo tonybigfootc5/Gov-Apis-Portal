@@ -13,6 +13,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { getApplicationPhotoUploadUrlAction } from "@/app/actions/storage";
+import type { SiteLanguage } from "@/lib/i18n";
 
 type FormState = {
   serviceName: string;
@@ -47,6 +48,7 @@ type ServiceOption = {
 };
 
 type Props = {
+  language: SiteLanguage;
   serviceOptions: ServiceOption[];
   selectedServiceTitle?: string;
 };
@@ -171,7 +173,177 @@ function requiredStepFields(stepIndex: number, data: FormState) {
   return Boolean(data.photoUrl && data.photoObjectKey && data.photoName);
 }
 
-export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }: Props) {
+export function TrainingApplicationForm({ language, serviceOptions, selectedServiceTitle }: Props) {
+  const copy = {
+    en: {
+      steps: [
+        { title: "Identity", subtitle: "Applicant basics" },
+        { title: "Reach", subtitle: "Contact and address" },
+        { title: "Profile", subtitle: "Education and work" },
+        { title: "Finish", subtitle: "Photo and final check" },
+      ],
+      enrollmentFlow: "Enrollment flow",
+      applyLead: "Apply in four clean steps.",
+      sidebarNote: "Review the program, fill the details, upload the photo, and finish payment in one flow.",
+      selectedTraining: "Selected training",
+      selectTraining: "Select training",
+      applicationDate: "Application date",
+      dateOfBirth: "Date of birth",
+      applicantName: "Applicant name",
+      applicantNamePlaceholder: "Full name as per records",
+      guardianName: "Guardian name",
+      guardianPlaceholder: "Parent / spouse / guardian",
+      gender: "Gender",
+      male: "Male",
+      female: "Female",
+      mobileNumber: "Mobile number",
+      mobilePlaceholder: "10-digit number",
+      emailAddress: "Email address",
+      optional: "Optional",
+      residencePhone: "Residence phone",
+      address: "Address",
+      addressPlaceholder: "House, street, village or locality",
+      mandal: "Mandal / block",
+      district: "District",
+      state: "State",
+      pinCode: "Pin code",
+      pinPlaceholder: "6 digits",
+      education: "Education qualification",
+      occupation: "Occupation",
+      sponsor: "Sponsoring organization",
+      keepExactTitle: "Keep it exact.",
+      keepExactBody: "These details are used to identify the applicant during payment review and admission follow-up.",
+      photo: "Applicant photo",
+      photoHelp: "Upload one clear face photo. We compress it automatically before sending.",
+      photoUploaded: "Uploaded and ready",
+      applicant: "Applicant",
+      phone: "Phone",
+      program: "Program",
+      pending: "Pending",
+      previous: "Previous",
+      next: "Next",
+      submitting: "Submitting",
+      submitApplication: "Submit application",
+      waitUpload: "Wait for the photo upload to finish before submitting.",
+      uploadBeforeSubmit: "Upload the applicant photo before submitting.",
+      redirecting: "Application saved. Redirecting to secure payment...",
+      saved: "Application saved successfully.",
+      uploadReady: "Photo uploaded and ready.",
+      uploadFail: "Photo upload failed. Please choose the image again.",
+    },
+    te: {
+      steps: [
+        { title: "గుర్తింపు", subtitle: "దరఖాస్తుదారు వివరాలు" },
+        { title: "సంప్రదింపు", subtitle: "చిరునామా మరియు కనెక్ట్" },
+        { title: "ప్రొఫైల్", subtitle: "విద్య మరియు పని" },
+        { title: "ముగింపు", subtitle: "ఫోటో మరియు చివరి తనిఖీ" },
+      ],
+      enrollmentFlow: "నమోదు ప్రవాహం",
+      applyLead: "నాలుగు స్పష్టమైన దశల్లో దరఖాస్తు పూర్తి చేయండి.",
+      sidebarNote: "కార్యక్రమాన్ని పరిశీలించండి, వివరాలు నమోదు చేయండి, ఫోటో అప్లోడ్ చేయండి, తరువాత ఒకే ప్రవాహంలో చెల్లింపు పూర్తి చేయండి.",
+      selectedTraining: "ఎంచుకున్న శిక్షణ",
+      selectTraining: "శిక్షణను ఎంచుకోండి",
+      applicationDate: "దరఖాస్తు తేదీ",
+      dateOfBirth: "జన్మ తేదీ",
+      applicantName: "దరఖాస్తుదారు పేరు",
+      applicantNamePlaceholder: "రికార్డుల ప్రకారం పూర్తి పేరు",
+      guardianName: "గార్డియన్ పేరు",
+      guardianPlaceholder: "తల్లిదండ్రులు / జీవిత భాగస్వామి / గార్డియన్",
+      gender: "లింగం",
+      male: "పురుషుడు",
+      female: "స్త్రీ",
+      mobileNumber: "మొబైల్ నంబర్",
+      mobilePlaceholder: "10 అంకెల నంబర్",
+      emailAddress: "ఇమెయిల్ చిరునామా",
+      optional: "ఐచ్చికం",
+      residencePhone: "నివాస ఫోన్",
+      address: "చిరునామా",
+      addressPlaceholder: "ఇల్లు, వీధి, గ్రామం లేదా ప్రాంతం",
+      mandal: "మండలం / బ్లాక్",
+      district: "జిల్లా",
+      state: "రాష్ట్రం",
+      pinCode: "పిన్ కోడ్",
+      pinPlaceholder: "6 అంకెలు",
+      education: "విద్యార్హత",
+      occupation: "వృత్తి",
+      sponsor: "ప్రాయోజక సంస్థ",
+      keepExactTitle: "సరిగ్గా నమోదు చేయండి.",
+      keepExactBody: "చెల్లింపు నిర్ధారణ మరియు అడ్మిషన్ ఫాలో-అప్ సమయంలో దరఖాస్తుదారుని గుర్తించడానికి ఈ వివరాలు ఉపయోగిస్తారు.",
+      photo: "దరఖాస్తుదారు ఫోటో",
+      photoHelp: "ఒక స్పష్టమైన ముఖ ఫోటో అప్లోడ్ చేయండి. పంపించే ముందు దాన్ని ఆటోమేటిక్‌గా కుదిస్తాము.",
+      photoUploaded: "అప్లోడ్ అయి సిద్ధంగా ఉంది",
+      applicant: "దరఖాస్తుదారు",
+      phone: "ఫోన్",
+      program: "కార్యక్రమం",
+      pending: "పూర్తి కాలేదు",
+      previous: "మునుపటి",
+      next: "తదుపరి",
+      submitting: "సమర్పిస్తోంది",
+      submitApplication: "దరఖాస్తు సమర్పించండి",
+      waitUpload: "సమర్పించే ముందు ఫోటో అప్లోడ్ పూర్తయ్యే వరకు వేచి ఉండండి.",
+      uploadBeforeSubmit: "సమర్పించే ముందు దరఖాస్తుదారు ఫోటోను అప్లోడ్ చేయండి.",
+      redirecting: "దరఖాస్తు సేవ్ అయింది. సురక్షిత చెల్లింపు గేట్‌వేకు తీసుకెళ్తున్నాం...",
+      saved: "దరఖాస్తు విజయవంతంగా సేవ్ అయింది.",
+      uploadReady: "ఫోటో అప్లోడ్ అయి సిద్ధంగా ఉంది.",
+      uploadFail: "ఫోటో అప్లోడ్ విఫలమైంది. దయచేసి మళ్లీ చిత్రం ఎంచుకోండి.",
+    },
+    hi: {
+      steps: [
+        { title: "पहचान", subtitle: "आवेदक की बुनियादी जानकारी" },
+        { title: "संपर्क", subtitle: "पता और संपर्क" },
+        { title: "प्रोफाइल", subtitle: "शिक्षा और कार्य" },
+        { title: "समाप्ति", subtitle: "फोटो और अंतिम जांच" },
+      ],
+      enrollmentFlow: "नामांकन प्रवाह",
+      applyLead: "चार साफ चरणों में आवेदन पूरा करें।",
+      sidebarNote: "कार्यक्रम देखें, विवरण भरें, फोटो अपलोड करें और एक ही प्रवाह में भुगतान पूरा करें।",
+      selectedTraining: "चयनित प्रशिक्षण",
+      selectTraining: "प्रशिक्षण चुनें",
+      applicationDate: "आवेदन तिथि",
+      dateOfBirth: "जन्म तिथि",
+      applicantName: "आवेदक का नाम",
+      applicantNamePlaceholder: "रिकॉर्ड के अनुसार पूरा नाम",
+      guardianName: "अभिभावक का नाम",
+      guardianPlaceholder: "माता-पिता / जीवनसाथी / अभिभावक",
+      gender: "लिंग",
+      male: "पुरुष",
+      female: "महिला",
+      mobileNumber: "मोबाइल नंबर",
+      mobilePlaceholder: "10 अंकों का नंबर",
+      emailAddress: "ईमेल पता",
+      optional: "वैकल्पिक",
+      residencePhone: "निवास फोन",
+      address: "पता",
+      addressPlaceholder: "घर, गली, गांव या क्षेत्र",
+      mandal: "मंडल / ब्लॉक",
+      district: "जिला",
+      state: "राज्य",
+      pinCode: "पिन कोड",
+      pinPlaceholder: "6 अंक",
+      education: "शैक्षिक योग्यता",
+      occupation: "व्यवसाय",
+      sponsor: "प्रायोजक संस्था",
+      keepExactTitle: "सही जानकारी दें।",
+      keepExactBody: "भुगतान समीक्षा और प्रवेश फॉलो-अप के दौरान आवेदक की पहचान के लिए इन विवरणों का उपयोग किया जाता है।",
+      photo: "आवेदक का फोटो",
+      photoHelp: "एक स्पष्ट चेहरा फोटो अपलोड करें। भेजने से पहले हम इसे अपने आप कंप्रेस करते हैं।",
+      photoUploaded: "अपलोड हो गया और तैयार है",
+      applicant: "आवेदक",
+      phone: "फोन",
+      program: "कार्यक्रम",
+      pending: "शेष",
+      previous: "पिछला",
+      next: "अगला",
+      submitting: "भेजा जा रहा है",
+      submitApplication: "आवेदन जमा करें",
+      waitUpload: "सबमिट करने से पहले फोटो अपलोड पूरा होने तक प्रतीक्षा करें।",
+      uploadBeforeSubmit: "सबमिट करने से पहले आवेदक का फोटो अपलोड करें।",
+      redirecting: "आवेदन सहेजा गया। सुरक्षित भुगतान गेटवे पर ले जाया जा रहा है...",
+      saved: "आवेदन सफलतापूर्वक सहेजा गया।",
+      uploadReady: "फोटो अपलोड होकर तैयार है।",
+      uploadFail: "फोटो अपलोड विफल हुआ। कृपया फिर से छवि चुनें।",
+    },
+  }[language];
   const normalizedServiceOptions = serviceOptions.length
     ? serviceOptions
     : [{ title: DEFAULT_SERVICE_NAME, duration: "As scheduled", level: "FOUNDATION" }];
@@ -184,7 +356,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
   const [photoUploadState, setPhotoUploadState] = useState<PhotoUploadState>("idle");
   const [message, setMessage] = useState("");
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
-  const [photoStatus, setPhotoStatus] = useState("Upload one clear face photo. We compress it automatically before sending.");
+  const [photoStatus, setPhotoStatus] = useState(copy.photoHelp);
   const hasUploadedPhoto = Boolean(form.photoUrl && form.photoObjectKey && form.photoName);
 
   const progress = ((step + 1) / STEPS.length) * 100;
@@ -202,7 +374,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
       updateField("photoName", "");
       updateField("photoType", "");
       setPhotoPreviewUrl("");
-      setPhotoStatus("Upload one clear face photo. We compress it automatically before sending.");
+      setPhotoStatus(copy.photoHelp);
       return;
     }
 
@@ -239,26 +411,26 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
         photoObjectKey: objectKey,
       }));
       setPhotoPreviewUrl(optimized.previewUrl);
-      setPhotoStatus("Photo uploaded and ready.");
+      setPhotoStatus(copy.uploadReady);
       setPhotoUploadState("uploaded");
       setSubmitState("idle");
     } catch (error) {
       setPhotoUploadState("error");
       setSubmitState("error");
       setMessage(error instanceof Error ? error.message : "Photo upload failed.");
-      setPhotoStatus("Photo upload failed. Please choose the image again.");
+      setPhotoStatus(copy.uploadFail);
     }
   }
 
   async function handleSubmit() {
     if (photoUploadState === "uploading" || submitState === "compressing") {
-      setMessage("Wait for the photo upload to finish before submitting.");
+      setMessage(copy.waitUpload);
       setSubmitState("error");
       return;
     }
 
     if (!requiredStepFields(3, form)) {
-      setMessage("Upload the applicant photo before submitting.");
+      setMessage(copy.uploadBeforeSubmit);
       setSubmitState("error");
       return;
     }
@@ -281,27 +453,25 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
       const body = await response.json();
       setSubmitState("success");
       if (body.redirectUrl) {
-        setMessage(body.message ?? "Application saved. Redirecting to secure payment...");
+        setMessage(body.message ?? copy.redirecting);
         window.location.assign(body.redirectUrl);
         return;
       }
 
-      setMessage(body.message ?? "Application saved successfully.");
+      setMessage(body.message ?? copy.saved);
     } catch (error) {
       setSubmitState("error");
       setMessage(error instanceof Error ? error.message : "Application submission failed.");
     }
   }
 
-  const currentStep = STEPS[step];
-
   return (
     <div className="mx-auto max-w-6xl">
       <div className="neo-shell rounded-[2rem] p-5 sm:p-7 lg:p-8">
         <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,16rem)_1fr]">
           <aside className="section-frame rounded-[1.7rem] p-5">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">Enrollment flow</p>
-            <h2 className="font-display mt-4 text-3xl text-bright">Apply in four clean steps.</h2>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">{copy.enrollmentFlow}</p>
+            <h2 className="font-display mt-4 text-3xl text-bright">{copy.applyLead}</h2>
             <div className="mt-6 h-2 overflow-hidden rounded-full bg-[rgba(41,56,49,0.08)]">
               <div className="h-full rounded-full bg-[linear-gradient(90deg,#f2b544,#8ec5ff)] transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
@@ -329,8 +499,8 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                         <Icon className="h-4 w-4" aria-hidden="true" />
                       </span>
                       <div>
-                        <p className="text-sm font-semibold text-bright">{item.title}</p>
-                        <p className="text-xs text-dim">{item.subtitle}</p>
+                        <p className="text-sm font-semibold text-bright">{copy.steps[index].title}</p>
+                        <p className="text-xs text-dim">{copy.steps[index].subtitle}</p>
                       </div>
                     </div>
                   </button>
@@ -338,7 +508,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               })}
             </div>
             <div className="mt-6 rounded-[1.3rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4 text-sm leading-7 text-dim">
-              Review the program, fill the details, upload the photo, and finish payment in one flow.
+              {copy.sidebarNote}
             </div>
           </aside>
 
@@ -346,12 +516,12 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
             <div className="border-b border-[rgba(41,56,49,0.1)] pb-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{currentStep.title}</p>
-                  <h3 className="font-display mt-3 text-3xl text-bright sm:text-4xl">{currentStep.subtitle}</h3>
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{copy.steps[step].title}</p>
+                  <h3 className="font-display mt-3 text-3xl text-bright sm:text-4xl">{copy.steps[step].subtitle}</h3>
                 </div>
                 <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] px-4 py-3 text-sm text-dim">
                   <p className="font-semibold text-bright">{form.serviceName}</p>
-                  <p className="mt-1">Selected training</p>
+                  <p className="mt-1">{copy.selectedTraining}</p>
                 </div>
               </div>
             </div>
@@ -361,7 +531,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                 <div className="grid gap-5">
                   {lockedService ? null : (
                     <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-                      Select training
+                      {copy.selectTraining}
                       <select
                         value={form.serviceName}
                         onChange={(event) => updateField("serviceName", event.target.value)}
@@ -377,7 +547,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                   )}
 
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="Application date">
+                    <Field label={copy.applicationDate}>
                       <input
                         type="date"
                         value={form.applicationDate}
@@ -385,7 +555,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                         className={inputClassName}
                       />
                     </Field>
-                    <Field label="Date of birth">
+                    <Field label={copy.dateOfBirth}>
                       <input
                         type="date"
                         value={form.dateOfBirth}
@@ -395,30 +565,30 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                     </Field>
                   </div>
 
-                  <Field label="Applicant name">
+                  <Field label={copy.applicantName}>
                     <input
                       value={form.candidateName}
                       onChange={(event) => updateField("candidateName", event.target.value)}
-                      placeholder="Full name as per records"
+                      placeholder={copy.applicantNamePlaceholder}
                       className={inputClassName}
                     />
                   </Field>
 
-                  <Field label="Guardian name">
+                  <Field label={copy.guardianName}>
                     <input
                       value={form.guardianName}
                       onChange={(event) => updateField("guardianName", event.target.value)}
-                      placeholder="Parent / spouse / guardian"
+                      placeholder={copy.guardianPlaceholder}
                       className={inputClassName}
                     />
                   </Field>
 
                   <div className="grid gap-2 text-sm font-semibold text-[#516253]">
-                    Gender
+                    {copy.gender}
                     <div className="grid gap-3 sm:grid-cols-2">
                       {[
-                        { value: "male", label: "Male" },
-                        { value: "female", label: "Female" },
+                        { value: "male", label: copy.male },
+                        { value: "female", label: copy.female },
                       ].map((option) => (
                         <button
                           key={option.value}
@@ -441,54 +611,54 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               {step === 1 ? (
                 <div className="grid gap-5">
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="Mobile number">
+                    <Field label={copy.mobileNumber}>
                       <input
                         value={form.phone}
                         onChange={(event) => updateField("phone", event.target.value.replace(/\D/g, "").slice(0, 10))}
-                        placeholder="10-digit number"
+                        placeholder={copy.mobilePlaceholder}
                         inputMode="numeric"
                         className={inputClassName}
                       />
                     </Field>
-                    <Field label="Email address">
+                    <Field label={copy.emailAddress}>
                       <input
                         type="email"
                         value={form.email}
                         onChange={(event) => updateField("email", event.target.value)}
-                        placeholder="Optional"
+                        placeholder={copy.optional}
                         className={inputClassName}
                       />
                     </Field>
                   </div>
 
-                  <Field label="Residence phone">
+                  <Field label={copy.residencePhone}>
                     <input
                       value={form.residencePhone}
                       onChange={(event) => updateField("residencePhone", event.target.value)}
-                      placeholder="Optional"
+                      placeholder={copy.optional}
                       className={inputClassName}
                     />
                   </Field>
 
-                  <Field label="Address">
+                  <Field label={copy.address}>
                     <textarea
                       value={form.addressLine}
                       onChange={(event) => updateField("addressLine", event.target.value)}
                       rows={4}
-                      placeholder="House, street, village or locality"
+                      placeholder={copy.addressPlaceholder}
                       className={textareaClassName}
                     />
                   </Field>
 
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="Mandal / block">
+                    <Field label={copy.mandal}>
                       <input
                         value={form.mandal}
                         onChange={(event) => updateField("mandal", event.target.value)}
                         className={inputClassName}
                       />
                     </Field>
-                    <Field label="District">
+                    <Field label={copy.district}>
                       <input
                         value={form.district}
                         onChange={(event) => updateField("district", event.target.value)}
@@ -498,19 +668,19 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                   </div>
 
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="State">
+                    <Field label={copy.state}>
                       <input
                         value={form.state}
                         onChange={(event) => updateField("state", event.target.value)}
                         className={inputClassName}
                       />
                     </Field>
-                    <Field label="Pin code">
+                    <Field label={copy.pinCode}>
                       <input
                         value={form.pinCode}
                         onChange={(event) => updateField("pinCode", event.target.value.replace(/\D/g, "").slice(0, 6))}
                         inputMode="numeric"
-                        placeholder="6 digits"
+                        placeholder={copy.pinPlaceholder}
                         className={inputClassName}
                       />
                     </Field>
@@ -521,29 +691,29 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
               {step === 2 ? (
                 <div className="grid gap-5">
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="Education qualification">
+                    <Field label={copy.education}>
                       <input
                         value={form.educationQualification}
                         onChange={(event) => updateField("educationQualification", event.target.value)}
-                        placeholder="Optional"
+                        placeholder={copy.optional}
                         className={inputClassName}
                       />
                     </Field>
-                    <Field label="Occupation">
+                    <Field label={copy.occupation}>
                       <input
                         value={form.occupation}
                         onChange={(event) => updateField("occupation", event.target.value)}
-                        placeholder="Optional"
+                        placeholder={copy.optional}
                         className={inputClassName}
                       />
                     </Field>
                   </div>
 
-                  <Field label="Sponsoring organization">
+                  <Field label={copy.sponsor}>
                     <input
                       value={form.sponsoringOrganization}
                       onChange={(event) => updateField("sponsoringOrganization", event.target.value)}
-                      placeholder="Optional"
+                      placeholder={copy.optional}
                       className={inputClassName}
                     />
                   </Field>
@@ -554,8 +724,8 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                         <ShieldCheck className="h-5 w-5" aria-hidden="true" />
                       </span>
                       <div className="text-sm leading-7 text-dim">
-                        <p className="font-semibold text-bright">Keep it exact.</p>
-                        <p>These details are used to identify the applicant during payment review and admission follow-up.</p>
+                        <p className="font-semibold text-bright">{copy.keepExactTitle}</p>
+                        <p>{copy.keepExactBody}</p>
                       </div>
                     </div>
                   </div>
@@ -564,7 +734,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
 
               {step === 3 ? (
                 <div className="grid gap-5">
-                  <Field label="Applicant photo">
+                  <Field label={copy.photo}>
                     <div className="rounded-[1.5rem] border border-dashed border-[rgba(41,56,49,0.16)] bg-[#fffdf8] p-5">
                       <input
                         type="file"
@@ -575,7 +745,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                       <p className="mt-3 text-sm text-dim">{photoStatus}</p>
                       {hasUploadedPhoto ? (
                         <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[#2a8d5f]">
-                          Uploaded and ready
+                          {copy.photoUploaded}
                         </p>
                       ) : null}
                       {photoPreviewUrl ? (
@@ -589,10 +759,10 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                   </Field>
 
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <SummaryCard label="Applicant" value={form.candidateName || "Pending"} />
-                    <SummaryCard label="Phone" value={form.phone || "Pending"} />
-                    <SummaryCard label="Program" value={form.serviceName || "Pending"} />
-                    <SummaryCard label="District" value={form.district || "Pending"} />
+                    <SummaryCard label={copy.applicant} value={form.candidateName || copy.pending} />
+                    <SummaryCard label={copy.phone} value={form.phone || copy.pending} />
+                    <SummaryCard label={copy.program} value={form.serviceName || copy.pending} />
+                    <SummaryCard label={copy.district} value={form.district || copy.pending} />
                   </div>
                 </div>
               ) : null}
@@ -605,7 +775,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                   className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(41,56,49,0.12)] bg-[rgba(255,255,255,0.76)] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#1f352b] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                  Previous
+                  {copy.previous}
                 </button>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
@@ -616,7 +786,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                       onClick={() => setStep((current) => Math.min(STEPS.length - 1, current + 1))}
                       className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f2b544] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      Next
+                      {copy.next}
                       <ChevronRight className="h-4 w-4" aria-hidden="true" />
                     </button>
                   ) : (
@@ -631,7 +801,7 @@ export function TrainingApplicationForm({ serviceOptions, selectedServiceTitle }
                       onClick={() => void handleSubmit()}
                       className="inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] shadow-[0_16px_40px_rgba(242,181,68,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {submitState === "submitting" ? "Submitting" : "Submit application"}
+                      {submitState === "submitting" ? copy.submitting : copy.submitApplication}
                       <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                   )}

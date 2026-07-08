@@ -6,11 +6,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Award, BriefcaseBusiness, Calendar, Check, CheckCircle2, ChevronDown, GraduationCap, ShieldCheck, Sparkles, Users, Zap } from "lucide-react";
 import { motion, useInView, useScroll, useSpring, useTransform } from "framer-motion";
-
-const storyParagraphs = [
-  "API CULTURE Technology Center was established in the year 2004 at Rural Technology Park in association with NIRDPR and technical support from AP Bee Keepers' Association and Kavuri Bee Hive 'n' Natural Products.",
-  "The center works across training, transfer of technology, pollination awareness, skill development, bee breeding, beekeeping equipment exposure, and consumer education related to hive products.",
-];
+import { getSiteCopy } from "@/lib/site-copy";
+import type { SiteLanguage } from "@/lib/i18n";
 
 const apiCultureFormation = {
   title: "API CULTURE",
@@ -101,65 +98,71 @@ const supportingCultures = [
   },
 ];
 
-const peopleGroups = [
-  {
-    eyebrow: "Directors and committee members",
-    title: "Leadership and committee",
-    members: [
-      {
-        name: "K. Sambashiva Rao",
-        designation: "President, Bee Keepers Association | Faculty Member and Field Expert",
-        role: "Brings around 40 years of beekeeping experience with emphasis on field practice, bee breeding, colony management, and migration support.",
-        highlights: ["40 years experience", "National Bee Board member", "Field expert"],
-      },
-      {
-        name: "P. Ravindra Kumar",
-        designation: "Director, API CULTURE Technology Center | Vice President, Bee Keepers Association",
-        role: "Supports center direction through training leadership across scientific beekeeping, honey processing, queen rearing, migration, and awareness work.",
-        highlights: ["26 years experience", "Director and faculty", "Training lead"],
-      },
-    ],
-  },
-  {
-    eyebrow: "Profile of technical / faculty members",
-    title: "Faculty and technical advisors",
-    members: [
-      {
-        name: "P. Sita Rathnam",
-        designation: "Faculty Member, API CULTURE Technology Center",
-        role: "Supports queen rearing, royal jelly collection, and honey processing and packing technology training through practical sessions.",
-        highlights: ["15 years experience", "MBA", "Practical training support"],
-      },
-      {
-        name: "K. Subba Rao",
-        designation: "Senior Scientist and Technical Adviser | Faculty Member",
-        role: "Contributes long-standing scientific and R&D knowledge across beekeeping subjects with senior technical credibility.",
-        highlights: ["50 years experience", "Retd. scientist", "Technical adviser"],
-      },
-    ],
-  },
-];
+export default function AboutUsSection({ language }: { language: SiteLanguage }) {
+  const copy = getSiteCopy(language);
+  const storyParagraphs = copy.about.storyParagraphs;
+  const peopleGroups = copy.about.peopleGroups;
+  const moreCards = copy.about.moreCards;
+  const aboutUi = {
+    en: {
+      eyebrow: "Discover our story",
+      title: "About Us",
+      formationTitle: "API CULTURE formed by three supporting cultures",
+      explorePrograms: "Explore programs",
+      established: "Established",
+      supportingCultures: "Supporting cultures",
+      coreThemes: "Core training themes",
+      leadershipShown: "Leadership profiles shown",
+      missionPeople: "People Behind The Mission",
+      missionLead: "Leadership, committee, and technical guidance",
+      missionBody:
+        "The older profile information is restored below on the same About page so the center's directors, committee members, and technical or faculty members remain visible within the current design.",
+      readyTitle: "Ready to learn beekeeping with real field grounding?",
+      readyBody: "Explore current batches or contact the center for training guidance.",
+      viewPrograms: "View programs",
+      contactUs: "Contact us",
+      clickToView: "Click to view this culture's information",
+    },
+    te: {
+      eyebrow: "మా కథను తెలుసుకోండి",
+      title: "మా గురించి",
+      formationTitle: "మూడు మద్దతు సంస్కృతులతో ఏర్పడిన API CULTURE",
+      explorePrograms: "కార్యక్రమాలు చూడండి",
+      established: "స్థాపన",
+      supportingCultures: "మద్దతు సంస్కృతులు",
+      coreThemes: "ప్రధాన శిక్షణ అంశాలు",
+      leadershipShown: "చూపించిన నాయకత్వ ప్రొఫైళ్లు",
+      missionPeople: "ఈ లక్ష్యానికి వెనుక ఉన్నవారు",
+      missionLead: "నాయకత్వం, కమిటీ మరియు సాంకేతిక మార్గదర్శకం",
+      missionBody:
+        "కేంద్రానికి చెందిన డైరెక్టర్లు, కమిటీ సభ్యులు, సాంకేతిక మరియు ఫ్యాకల్టీ సభ్యులు ప్రస్తుత రూపకల్పనలో కూడా స్పష్టంగా కనిపించేలా ఈ పాత ప్రొఫైల్ సమాచారాన్ని ఇదే About పేజీలో కొనసాగించాము.",
+      readyTitle: "ప్రాక్టికల్ ఫీల్డ్ అనుభవంతో తేనెటీగల పెంపకం నేర్చుకోవడానికి సిద్ధమేనా?",
+      readyBody: "ప్రస్తుత బ్యాచ్‌లను చూడండి లేదా శిక్షణ మార్గదర్శకత్వం కోసం కేంద్రాన్ని సంప్రదించండి.",
+      viewPrograms: "కార్యక్రమాలు చూడండి",
+      contactUs: "సంప్రదించండి",
+      clickToView: "ఈ విభాగం సమాచారాన్ని చూడటానికి క్లిక్ చేయండి",
+    },
+    hi: {
+      eyebrow: "हमारी कहानी जानें",
+      title: "हमारे बारे में",
+      formationTitle: "तीन सहयोगी संस्कृतियों से बना API CULTURE",
+      explorePrograms: "कार्यक्रम देखें",
+      established: "स्थापना",
+      supportingCultures: "सहयोगी संस्कृतियां",
+      coreThemes: "मुख्य प्रशिक्षण विषय",
+      leadershipShown: "दिखाई गई नेतृत्व प्रोफाइल",
+      missionPeople: "मिशन के पीछे के लोग",
+      missionLead: "नेतृत्व, समिति और तकनीकी मार्गदर्शन",
+      missionBody:
+        "केंद्र के निदेशकों, समिति सदस्यों और तकनीकी या फैकल्टी प्रोफाइल्स को वर्तमान डिजाइन में भी स्पष्ट रखने के लिए पुरानी प्रोफाइल जानकारी इसी About पेज में रखी गई है।",
+      readyTitle: "क्या आप वास्तविक फील्ड अनुभव के साथ मधुमक्खी पालन सीखने के लिए तैयार हैं?",
+      readyBody: "वर्तमान बैच देखें या प्रशिक्षण मार्गदर्शन के लिए केंद्र से संपर्क करें।",
+      viewPrograms: "कार्यक्रम देखें",
+      contactUs: "संपर्क करें",
+      clickToView: "इस जानकारी को देखने के लिए क्लिक करें",
+    },
+  }[language];
 
-const moreCards = [
-  {
-    title: "Mission and focus",
-    body: "Scientific beekeeping, pollination awareness, practical training, technology transfer, and livelihood support remain at the center of the mission.",
-  },
-  {
-    title: "What the center teaches",
-    body: "The profile references honey processing, queen rearing, bee breeding, equipment exposure, and field-ready apiary practice.",
-  },
-  {
-    title: "Who the mission supports",
-    body: "Farmers, rural youth, women groups, trainees, and future beekeeping entrepreneurs are part of the center's outreach focus.",
-  },
-  {
-    title: "Why it matters",
-    body: "The center connects apiculture training with income, crop support, pollination outcomes, and practical rural technology adoption.",
-  },
-];
-
-export default function AboutUsSection() {
   const [activeCulture, setActiveCulture] = useState("Kavuri");
   const sectionRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
@@ -217,9 +220,9 @@ export default function AboutUsSection() {
         <motion.div className="mb-6 flex flex-col items-center" variants={itemVariants}>
           <span className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.24em] text-[#b97816]">
             <Zap className="h-4 w-4" />
-            Discover our story
+            {aboutUi.eyebrow}
           </span>
-          <h2 className="font-display text-center text-4xl md:text-5xl">About Us</h2>
+          <h2 className="font-display text-center text-4xl md:text-5xl">{aboutUi.title}</h2>
           <div className="mt-4 h-1 w-24 bg-[#b97816]" />
         </motion.div>
 
@@ -245,7 +248,7 @@ export default function AboutUsSection() {
                     <Image src={apiCultureFormation.logo} alt="API CULTURE logo" fill className="object-contain" sizes="96px" />
                   </div>
                   <p className="mt-3 text-xs font-semibold uppercase tracking-[0.24em] text-[#b97816]">{apiCultureFormation.title}</p>
-                  <h3 className="mt-2 text-3xl font-semibold">API CULTURE formed by three supporting cultures</h3>
+                  <h3 className="mt-2 text-3xl font-semibold">{aboutUi.formationTitle}</h3>
                   <p className="mt-4 text-sm leading-8 text-[#5f6e67]">{apiCultureFormation.body}</p>
                   <div className="mt-6 grid w-full gap-3 md:grid-cols-3">
                     {apiCultureFormation.points.map((point) => (
@@ -272,6 +275,7 @@ export default function AboutUsSection() {
                     accent={index === 0 ? "blue" : index === 1 ? "green" : "gold"}
                     active={activeCulture === culture.title}
                     onClick={() => setActiveCulture(culture.title)}
+                    helperLabel={aboutUi.clickToView}
                   />
                 ))}
               </div>
@@ -304,7 +308,7 @@ export default function AboutUsSection() {
                             href="/programs"
                             className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#173f33]"
                           >
-                            Explore programs <ArrowRight className="h-4 w-4" />
+                            {aboutUi.explorePrograms} <ArrowRight className="h-4 w-4" />
                           </Link>
                         </div>
                       </div>
@@ -324,10 +328,10 @@ export default function AboutUsSection() {
           animate={isStatsInView ? "visible" : "hidden"}
           variants={containerVariants}
         >
-          <FactStat icon={<Calendar className="h-5 w-5" />} value={2004} suffix="" label="Established" delay={0} />
-          <FactStat icon={<Users className="h-5 w-5" />} value={3} suffix="" label="Supporting cultures" delay={0.08} />
-          <FactStat icon={<Award className="h-5 w-5" />} value={4} suffix="+" label="Core training themes" delay={0.16} />
-          <FactStat icon={<ShieldCheck className="h-5 w-5" />} value={2} suffix="" label="Leadership profiles shown" delay={0.24} />
+          <FactStat icon={<Calendar className="h-5 w-5" />} value={2004} suffix="" label={aboutUi.established} delay={0} />
+          <FactStat icon={<Users className="h-5 w-5" />} value={3} suffix="" label={aboutUi.supportingCultures} delay={0.08} />
+          <FactStat icon={<Award className="h-5 w-5" />} value={4} suffix="+" label={aboutUi.coreThemes} delay={0.16} />
+          <FactStat icon={<ShieldCheck className="h-5 w-5" />} value={2} suffix="" label={aboutUi.leadershipShown} delay={0.24} />
         </motion.div>
 
         <motion.div
@@ -338,11 +342,10 @@ export default function AboutUsSection() {
           variants={containerVariants}
         >
           <motion.div className="max-w-3xl" variants={itemVariants}>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b97816]">People Behind The Mission</p>
-            <h3 className="mt-3 text-3xl font-semibold">Leadership, committee, and technical guidance</h3>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b97816]">{aboutUi.missionPeople}</p>
+            <h3 className="mt-3 text-3xl font-semibold">{aboutUi.missionLead}</h3>
             <p className="mt-4 text-sm leading-8 text-[#5f6e67]">
-              The older profile information is restored below on the same About page so the center&apos;s directors,
-              committee members, and technical or faculty members remain visible within the current design.
+              {aboutUi.missionBody}
             </p>
           </motion.div>
 
@@ -410,21 +413,21 @@ export default function AboutUsSection() {
           transition={{ duration: 0.6, delay: 0.25 }}
         >
           <div className="flex-1">
-            <h3 className="text-2xl font-medium">Ready to learn beekeeping with real field grounding?</h3>
-            <p className="mt-2 text-white/80">Explore current batches or contact the center for training guidance.</p>
+            <h3 className="text-2xl font-medium">{aboutUi.readyTitle}</h3>
+            <p className="mt-2 text-white/80">{aboutUi.readyBody}</p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
               href="/programs"
               className="inline-flex items-center gap-2 rounded-lg bg-[#f2b544] px-6 py-3 font-medium text-[#173f33] transition-colors hover:bg-[#f5c15f]"
             >
-              View programs <ArrowRight className="h-4 w-4" />
+              {aboutUi.viewPrograms} <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/contact"
               className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-6 py-3 font-medium text-white transition-colors hover:bg-white/8"
             >
-              Contact us <ArrowRight className="h-4 w-4" />
+              {aboutUi.contactUs} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         </motion.div>
@@ -524,6 +527,7 @@ function TreeLeafButton({
   accent,
   active,
   onClick,
+  helperLabel,
 }: {
   culture: {
     title: string;
@@ -533,6 +537,7 @@ function TreeLeafButton({
   accent: "blue" | "green" | "gold";
   active: boolean;
   onClick: () => void;
+  helperLabel: string;
 }) {
   const accentStyles = {
     blue: {
@@ -578,7 +583,7 @@ function TreeLeafButton({
       </div>
       <div className="mt-3 flex items-center gap-2 text-xs font-medium text-[#6c786f]">
         <Check className="h-3.5 w-3.5 text-[#b97816]" />
-        Click to view this culture&apos;s information
+        {helperLabel}
       </div>
     </button>
   );

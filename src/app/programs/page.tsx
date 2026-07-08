@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Clock3, GraduationCap, Users2 } from "lucide-react";
 import { getPrograms } from "@/lib/data";
-import { getTranslatedProgramContent, t } from "@/lib/i18n";
+import { getTranslatedProgramContent, t, type SiteLanguage } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { trainingProgramCatalogBySlug, trainingProgramGallery } from "@/lib/training-programs";
 
@@ -18,6 +18,78 @@ const duplicatedGallery = [...trainingProgramGallery, ...trainingProgramGallery]
 
 export default async function ProgramsPage() {
   const language = await getRequestLanguage();
+  const copy = {
+    en: {
+      title: "Training that feels practical before the first hive is even opened.",
+      body: "Choose a program, review the outcomes, and apply directly from the detail page. No filler, no dead-end steps.",
+      chip1: "Live batch flow",
+      chip2: "Field-first curriculum",
+      chip3: "Direct application + payment",
+      snapshot: "Snapshot",
+      activePrograms: "Active programs",
+      duration: "Typical duration",
+      mode: "Delivery mode",
+      modeValue: "Field + lab",
+      visuals: "Field visuals",
+      visualsNote: "Scroll-free visual context while you compare options.",
+      durationLabel: "Duration",
+      capacityLabel: "Capacity",
+      levelLabel: "Level",
+      focusLabel: "Focus",
+      focusFallback: "Field learning",
+      outcomes: "Key outcomes",
+      bestFor: "Best suited for",
+      targetFallback: "Eligible applicants interested in beekeeping training.",
+      viewProgram: "View program",
+    },
+    te: {
+      title: "మొదటి హైవ్ తెరవకముందే ప్రాక్టికల్‌గా అనిపించే శిక్షణ.",
+      body: "ఒక కార్యక్రమాన్ని ఎంచుకోండి, ఫలితాలను చూడండి, తరువాత వివరాల పేజీ నుంచే నేరుగా దరఖాస్తు చేయండి. అవసరం లేని దశలు లేవు.",
+      chip1: "ప్రస్తుత బ్యాచ్ ప్రవాహం",
+      chip2: "ఫీల్డ్-ఫస్ట్ పాఠ్యక్రమం",
+      chip3: "నేరుగా దరఖాస్తు + చెల్లింపు",
+      snapshot: "స్నాప్‌షాట్",
+      activePrograms: "క్రియాశీల కార్యక్రమాలు",
+      duration: "సాధారణ వ్యవధి",
+      mode: "బోధనా విధానం",
+      modeValue: "ఫీల్డ్ + ల్యాబ్",
+      visuals: "ఫీల్డ్ దృశ్యాలు",
+      visualsNote: "ఎంపికలను పోల్చేటప్పుడు మధ్యలో స్క్రోల్ అవసరం లేకుండా విజువల్ సందర్భం.",
+      durationLabel: "వ్యవధి",
+      capacityLabel: "సామర్థ్యం",
+      levelLabel: "స్థాయి",
+      focusLabel: "కేంద్రబిందువు",
+      focusFallback: "ఫీల్డ్ అభ్యాసం",
+      outcomes: "ప్రధాన ఫలితాలు",
+      bestFor: "ఎవరికి అనుకూలం",
+      targetFallback: "తేనెటీగల పెంపకం శిక్షణలో ఆసక్తి ఉన్న అర్హులైన అభ్యర్థులు.",
+      viewProgram: "కార్యక్రమం చూడండి",
+    },
+    hi: {
+      title: "ऐसा प्रशिक्षण जो पहली हाइव खुलने से पहले ही व्यावहारिक लगे।",
+      body: "कार्यक्रम चुनें, परिणाम देखें, और विवरण पेज से सीधे आवेदन करें। कोई अनावश्यक चरण नहीं।",
+      chip1: "लाइव बैच फ्लो",
+      chip2: "फील्ड-फर्स्ट पाठ्यक्रम",
+      chip3: "सीधा आवेदन + भुगतान",
+      snapshot: "स्नैपशॉट",
+      activePrograms: "सक्रिय कार्यक्रम",
+      duration: "सामान्य अवधि",
+      mode: "डिलीवरी मोड",
+      modeValue: "फील्ड + लैब",
+      visuals: "फील्ड विजुअल्स",
+      visualsNote: "विकल्पों की तुलना करते समय बिना अतिरिक्त स्क्रॉल के दृश्य संदर्भ।",
+      durationLabel: "अवधि",
+      capacityLabel: "क्षमता",
+      levelLabel: "स्तर",
+      focusLabel: "फोकस",
+      focusFallback: "फील्ड लर्निंग",
+      outcomes: "मुख्य परिणाम",
+      bestFor: "सबसे उपयुक्त",
+      targetFallback: "मधुमक्खी पालन प्रशिक्षण में रुचि रखने वाले पात्र आवेदक।",
+      viewProgram: "कार्यक्रम देखें",
+    },
+  } satisfies Record<SiteLanguage, Record<string, string>>;
+  const pageCopy = copy[language];
   const programs = await getPrograms();
   const translatedPrograms = programs.map((program) => ({
     ...getTranslatedProgramContent(program, language),
@@ -32,24 +104,24 @@ export default async function ProgramsPage() {
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#8ec5ff]">{t(language, "programs.eyebrow")}</p>
               <h1 className="font-display mt-5 max-w-5xl text-5xl leading-[0.92] text-bright sm:text-6xl lg:text-7xl">
-                Training that feels practical before the first hive is even opened.
+                {pageCopy.title}
               </h1>
               <p className="mt-6 max-w-3xl text-base leading-8 text-dim sm:text-lg">
-                Choose a program, review the outcomes, and apply directly from the detail page. No filler, no dead-end steps.
+                {pageCopy.body}
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
-                <Chip>Live batch flow</Chip>
-                <Chip>Field-first curriculum</Chip>
-                <Chip>Direct application + payment</Chip>
+                <Chip>{pageCopy.chip1}</Chip>
+                <Chip>{pageCopy.chip2}</Chip>
+                <Chip>{pageCopy.chip3}</Chip>
               </div>
             </div>
 
             <div className="section-frame rounded-[1.7rem] p-5">
-              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">Snapshot</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{pageCopy.snapshot}</p>
               <div className="mt-5 grid gap-4">
-                <QuickStat value={`${translatedPrograms.length}`} label="Active programs" />
-                <QuickStat value="2-10 days" label="Typical duration" />
-                <QuickStat value="Field + lab" label="Delivery mode" />
+                <QuickStat value={`${translatedPrograms.length}`} label={pageCopy.activePrograms} />
+                <QuickStat value="2-10 days" label={pageCopy.duration} />
+                <QuickStat value={pageCopy.modeValue} label={pageCopy.mode} />
               </div>
             </div>
           </div>
@@ -57,8 +129,8 @@ export default async function ProgramsPage() {
 
         <div className="mt-8 overflow-hidden rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(180deg,#fffdf8_0%,#f4ecde_100%)] p-4 shadow-[0_22px_60px_rgba(171,141,92,0.14)]">
           <div className="flex items-center justify-between gap-4 px-2 pb-4">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#8ec5ff]">Field visuals</p>
-            <p className="text-xs text-dim">Scroll-free visual context while you compare options.</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#8ec5ff]">{pageCopy.visuals}</p>
+            <p className="text-xs text-dim">{pageCopy.visualsNote}</p>
           </div>
           <div className="relative overflow-hidden rounded-[1.4rem]">
             <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,0)_100%)]" />
@@ -106,14 +178,14 @@ export default async function ProgramsPage() {
                   </p>
 
                   <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <MiniInfo icon={Clock3} label="Duration" value={program.duration} />
-                    <MiniInfo icon={Users2} label="Capacity" value={`${program.capacity} ${t(language, "programs.seats")}`} />
-                    <MiniInfo icon={GraduationCap} label="Level" value={program.level} />
-                    <MiniInfo icon={ArrowRight} label="Focus" value={presentation?.highlights?.[0] ?? "Field learning"} />
+                    <MiniInfo icon={Clock3} label={pageCopy.durationLabel} value={program.duration} />
+                    <MiniInfo icon={Users2} label={pageCopy.capacityLabel} value={`${program.capacity} ${t(language, "programs.seats")}`} />
+                    <MiniInfo icon={GraduationCap} label={pageCopy.levelLabel} value={program.level} />
+                    <MiniInfo icon={ArrowRight} label={pageCopy.focusLabel} value={presentation?.highlights?.[0] ?? pageCopy.focusFallback} />
                   </div>
 
                   <div className="mt-6">
-                    <p className="text-sm font-semibold text-bright">Key outcomes</p>
+                    <p className="text-sm font-semibold text-bright">{pageCopy.outcomes}</p>
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                       {(presentation?.outcomes ?? []).slice(0, 4).map((outcome) => (
                         <p key={outcome} className="inline-flex gap-3 text-sm leading-7 text-dim">
@@ -125,7 +197,7 @@ export default async function ProgramsPage() {
                   </div>
 
                   <div className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
-                    View program
+                    {pageCopy.viewProgram}
                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" aria-hidden="true" />
                   </div>
                 </div>
@@ -136,9 +208,9 @@ export default async function ProgramsPage() {
                   ) : null}
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(17,27,22,0.04)_0%,rgba(17,27,22,0.54)_100%)]" />
                   <div className="absolute inset-x-4 bottom-4 rounded-[1.2rem] border border-[rgba(255,255,255,0.24)] bg-[rgba(17,28,24,0.56)] p-4 backdrop-blur-md">
-                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#8ec5ff]">Best suited for</p>
+                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#8ec5ff]">{pageCopy.bestFor}</p>
                     <p className="mt-2 text-sm leading-7 text-[#fff9ef]">
-                      {presentation?.targetAudience ?? "Eligible applicants interested in beekeeping training."}
+                      {presentation?.targetAudience ?? pageCopy.targetFallback}
                     </p>
                   </div>
                 </div>

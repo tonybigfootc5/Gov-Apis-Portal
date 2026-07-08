@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { CalendarDays, ChevronLeft, ChevronRight, MapPin, X } from "lucide-react";
 import { galleryCategoryOptions, getGalleryCategoryLabel } from "@/lib/gallery";
+import type { SiteLanguage } from "@/lib/i18n";
 
 type GalleryExperienceItem = {
   id: string;
@@ -29,12 +30,61 @@ export function GalleryExperience({
   title,
   subtitle,
   items,
+  language = "en",
 }: {
   eyebrow: string;
   title: string;
   subtitle: string;
   items: GalleryExperienceItem[];
+  language?: SiteLanguage;
 }) {
+  const copy = {
+    en: {
+      all: "All",
+      allYears: "All years",
+      campus: "API CULTURE campus",
+      noMatch: "No gallery images match the current filters.",
+      close: "Close lightbox",
+      previous: "Previous image",
+      next: "Next image",
+      imageDetails: "Image details",
+      date: "Date",
+      time: "Time",
+      place: "Place",
+      archiveGroup: "Archive group",
+      centerName: "API CULTURE Technology Center",
+    },
+    te: {
+      all: "అన్ని",
+      allYears: "అన్ని సంవత్సరాలు",
+      campus: "API CULTURE క్యాంపస్",
+      noMatch: "ప్రస్తుత ఫిల్టర్లకు సరిపోయే గ్యాలరీ చిత్రాలు లేవు.",
+      close: "లైట్‌బాక్స్ మూసివేయండి",
+      previous: "మునుపటి చిత్రం",
+      next: "తదుపరి చిత్రం",
+      imageDetails: "చిత్ర వివరాలు",
+      date: "తేదీ",
+      time: "సమయం",
+      place: "స్థలం",
+      archiveGroup: "ఆర్కైవ్ సమూహం",
+      centerName: "API CULTURE Technology Center",
+    },
+    hi: {
+      all: "सभी",
+      allYears: "सभी वर्ष",
+      campus: "API CULTURE परिसर",
+      noMatch: "वर्तमान फ़िल्टर से मेल खाने वाली कोई गैलरी छवि नहीं मिली।",
+      close: "लाइटबॉक्स बंद करें",
+      previous: "पिछली छवि",
+      next: "अगली छवि",
+      imageDetails: "छवि विवरण",
+      date: "तारीख",
+      time: "समय",
+      place: "स्थान",
+      archiveGroup: "आर्काइव समूह",
+      centerName: "API CULTURE Technology Center",
+    },
+  }[language];
   const [category, setCategory] = useState<string>("ALL");
   const [year, setYear] = useState<number | "ALL">("ALL");
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -91,7 +141,7 @@ export function GalleryExperience({
         <div className="mt-8 rounded-[2rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_18px_40px_rgba(64,44,8,0.06)] sm:p-5">
           <div className="flex flex-wrap gap-3">
             <FilterChip active={category === "ALL"} onClick={() => setCategory("ALL")}>
-              All
+              {copy.all}
             </FilterChip>
             {galleryCategoryOptions.map((option) => (
               <FilterChip
@@ -99,14 +149,14 @@ export function GalleryExperience({
                 active={category === option.value}
                 onClick={() => setCategory(option.value)}
               >
-                {option.label}
+                {getGalleryCategoryLabel(option.value, language)}
               </FilterChip>
             ))}
           </div>
 
           <div className="mt-4 flex flex-wrap gap-3 border-t border-[rgba(27,59,43,0.08)] pt-4">
             <FilterChip active={year === "ALL"} onClick={() => setYear("ALL")}>
-              All years
+              {copy.allYears}
             </FilterChip>
             {years.map((option) => (
               <FilterChip key={option} active={year === option} onClick={() => setYear(option)}>
@@ -136,7 +186,7 @@ export function GalleryExperience({
               <div className="space-y-3 p-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-[#f4eddf] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#b36b00]">
-                    {getGalleryCategoryLabel(item.category)}
+                    {getGalleryCategoryLabel(item.category, language)}
                   </span>
                   <span className="rounded-full bg-[#eef4ef] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#21533f]">
                     {item.year}
@@ -150,7 +200,7 @@ export function GalleryExperience({
                   </span>
                   <span className="inline-flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />
-                    {item.place || "API CULTURE campus"}
+                    {item.place || copy.campus}
                   </span>
                 </div>
               </div>
@@ -160,7 +210,7 @@ export function GalleryExperience({
 
         {!filteredItems.length ? (
           <div className="mt-10 rounded-[2rem] border border-dashed border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-6 py-12 text-center text-[#607366]">
-            No gallery images match the current filters.
+            {copy.noMatch}
           </div>
         ) : null}
       </div>
@@ -176,7 +226,7 @@ export function GalleryExperience({
                 type="button"
                 onClick={() => setActiveIndex(null)}
                 className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.08)] text-white"
-                aria-label="Close lightbox"
+                aria-label={copy.close}
               >
                 <X className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -191,7 +241,7 @@ export function GalleryExperience({
                   )
                 }
                 className="hidden h-14 w-14 items-center justify-center rounded-full border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.08)] text-white lg:inline-flex"
-                aria-label="Previous image"
+                aria-label={copy.previous}
               >
                 <ChevronLeft className="h-6 w-6" aria-hidden="true" />
               </button>
@@ -208,23 +258,23 @@ export function GalleryExperience({
               </div>
 
               <aside className="rounded-[2rem] border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.08)] p-6 text-[#f5f1e3] shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-[#f0c65c]">Image details</p>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-[#f0c65c]">{copy.imageDetails}</p>
                 <h2 className="font-display mt-4 text-3xl font-semibold leading-tight">{activeItem.caption}</h2>
                 <dl className="mt-6 grid gap-4 text-sm leading-7 text-[#e2e7e3]">
                   <div>
-                    <dt className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f0c65c]">Date</dt>
+                    <dt className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f0c65c]">{copy.date}</dt>
                     <dd>{formatGalleryDate(activeItem.date)}</dd>
                   </div>
                   <div>
-                    <dt className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f0c65c]">Time</dt>
+                    <dt className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f0c65c]">{copy.time}</dt>
                     <dd>{formatGalleryTime(activeItem.date)}</dd>
                   </div>
                   <div>
-                    <dt className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f0c65c]">Place</dt>
-                    <dd>{activeItem.place || "API CULTURE Technology Center"}</dd>
+                    <dt className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f0c65c]">{copy.place}</dt>
+                    <dd>{activeItem.place || copy.centerName}</dd>
                   </div>
                   <div>
-                    <dt className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f0c65c]">Archive group</dt>
+                    <dt className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f0c65c]">{copy.archiveGroup}</dt>
                     <dd>{getGalleryCategoryLabel(activeItem.category)}</dd>
                   </div>
                 </dl>
@@ -236,7 +286,7 @@ export function GalleryExperience({
                   setActiveIndex((current) => (current === null ? 0 : (current + 1) % filteredItems.length))
                 }
                 className="hidden h-14 w-14 items-center justify-center rounded-full border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.08)] text-white lg:inline-flex"
-                aria-label="Next image"
+                aria-label={copy.next}
               >
                 <ChevronRight className="h-6 w-6" aria-hidden="true" />
               </button>
@@ -247,7 +297,7 @@ export function GalleryExperience({
                 type="button"
                 onClick={() => setActiveIndex((current) => (current === null ? 0 : (current - 1 + filteredItems.length) % filteredItems.length))}
                 className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.08)] text-white"
-                aria-label="Previous image"
+                aria-label={copy.previous}
               >
                 <ChevronLeft className="h-5 w-5" aria-hidden="true" />
               </button>
@@ -255,7 +305,7 @@ export function GalleryExperience({
                 type="button"
                 onClick={() => setActiveIndex((current) => (current === null ? 0 : (current + 1) % filteredItems.length))}
                 className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(255,255,255,0.14)] bg-[rgba(255,255,255,0.08)] text-white"
-                aria-label="Next image"
+                aria-label={copy.next}
               >
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </button>

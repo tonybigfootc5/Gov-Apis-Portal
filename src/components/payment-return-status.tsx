@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Clock3, RefreshCw, XCircle } from "lucide-react";
+import type { SiteLanguage } from "@/lib/i18n";
 
 type PaymentStatus =
   | "CREATED"
@@ -21,6 +22,7 @@ type PaymentSnapshot = {
 };
 
 type Props = {
+  language: SiteLanguage;
   initialPayment: PaymentSnapshot;
 };
 
@@ -34,7 +36,66 @@ const FINAL_STATUSES = new Set<PaymentStatus>([
   "REFUND_FAILED",
 ]);
 
-export function PaymentReturnStatus({ initialPayment }: Props) {
+export function PaymentReturnStatus({ initialPayment, language }: Props) {
+  const copy = {
+    en: {
+      program: "Program",
+      orderReference: "Order reference",
+      checking: "Checking PhonePe for the latest confirmation...",
+      next: "Next",
+      nextLine1: "Your application stays recorded even while the gateway confirms the charge.",
+      nextLine2: "If the status remains pending for too long, use your application details when contacting the center.",
+      back: "Back to programs",
+      contact: "Contact center",
+      confirmed: "Confirmed",
+      needsAction: "Needs action",
+      processing: "Processing",
+      received: "Payment received",
+      notCompleted: "Payment not completed",
+      progress: "Confirmation in progress",
+      receivedMessage: (name: string) => `Your payment for ${name} has been captured successfully. The training application is now in the confirmed payment state.`,
+      notCompletedMessage: "The gateway did not confirm this transaction. Please retry from the application flow or contact the center if the amount was already debited.",
+      progressMessage: "Your application is saved. We are waiting for the payment gateway to finalize the transaction and this page will keep checking automatically.",
+    },
+    te: {
+      program: "కార్యక్రమం",
+      orderReference: "ఆర్డర్ సూచన",
+      checking: "తాజా నిర్ధారణ కోసం PhonePe స్థితిని చెక్ చేస్తున్నాం...",
+      next: "తదుపరి",
+      nextLine1: "గేట్‌వే చార్జ్‌ను నిర్ధారిస్తున్నప్పటికీ మీ దరఖాస్తు రికార్డులో ఉంటుంది.",
+      nextLine2: "స్థితి ఎక్కువసేపు పెండింగ్‌లో ఉంటే, కేంద్రాన్ని సంప్రదించే సమయంలో మీ దరఖాస్తు వివరాలను ఉపయోగించండి.",
+      back: "కార్యక్రమాల వద్దకు వెళ్లండి",
+      contact: "కేంద్రాన్ని సంప్రదించండి",
+      confirmed: "నిర్ధారించబడింది",
+      needsAction: "చర్య అవసరం",
+      processing: "ప్రాసెస్‌లో ఉంది",
+      received: "చెల్లింపు అందింది",
+      notCompleted: "చెల్లింపు పూర్తికాలేదు",
+      progress: "నిర్ధారణ కొనసాగుతోంది",
+      receivedMessage: (name: string) => `${name} కోసం మీ చెల్లింపు విజయవంతంగా నమోదు అయింది. శిక్షణ దరఖాస్తు ఇప్పుడు నిర్ధారిత చెల్లింపు స్థితిలో ఉంది.`,
+      notCompletedMessage: "ఈ లావాదేవీని గేట్‌వే నిర్ధారించలేదు. దయచేసి దరఖాస్తు ప్రవాహం నుంచి మళ్లీ ప్రయత్నించండి లేదా మొత్తం డెబిట్ అయితే కేంద్రాన్ని సంప్రదించండి.",
+      progressMessage: "మీ దరఖాస్తు సేవ్ అయింది. చెల్లింపు గేట్‌వే లావాదేవీని పూర్తి చేయడానికి మేము వేచి ఉన్నాము మరియు ఈ పేజీ ఆటోమేటిక్‌గా చెక్ చేస్తూనే ఉంటుంది.",
+    },
+    hi: {
+      program: "कार्यक्रम",
+      orderReference: "ऑर्डर संदर्भ",
+      checking: "नवीनतम पुष्टि के लिए PhonePe स्थिति जांची जा रही है...",
+      next: "अगला",
+      nextLine1: "गेटवे शुल्क की पुष्टि कर रहा हो तब भी आपका आवेदन सुरक्षित रूप से रिकॉर्ड रहता है।",
+      nextLine2: "यदि स्थिति लंबे समय तक लंबित रहे, तो केंद्र से संपर्क करते समय अपने आवेदन विवरण का उपयोग करें।",
+      back: "कार्यक्रमों पर लौटें",
+      contact: "केंद्र से संपर्क करें",
+      confirmed: "पुष्टि हुई",
+      needsAction: "कार्रवाई आवश्यक",
+      processing: "प्रक्रिया में",
+      received: "भुगतान प्राप्त हुआ",
+      notCompleted: "भुगतान पूरा नहीं हुआ",
+      progress: "पुष्टि जारी है",
+      receivedMessage: (name: string) => `${name} के लिए आपका भुगतान सफलतापूर्वक प्राप्त हो गया है। प्रशिक्षण आवेदन अब पुष्टि किए गए भुगतान की स्थिति में है।`,
+      notCompletedMessage: "गेटवे ने इस लेनदेन की पुष्टि नहीं की। कृपया आवेदन प्रवाह से पुनः प्रयास करें या राशि डेबिट होने पर केंद्र से संपर्क करें।",
+      progressMessage: "आपका आवेदन सुरक्षित है। हम भुगतान गेटवे द्वारा लेनदेन अंतिम करने की प्रतीक्षा कर रहे हैं और यह पेज स्वतः जांच करता रहेगा।",
+    },
+  }[language];
   const [payment, setPayment] = useState(initialPayment);
   const [pollError, setPollError] = useState("");
   const polling = POLLABLE_STATUSES.has(payment.status);
@@ -91,7 +152,7 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
     };
   }, [payment.merchantOrderId, payment.serviceName, polling]);
 
-  const content = getContent(payment);
+  const content = getContent(payment, copy);
 
   return (
     <main className="px-4 py-16 sm:px-6 lg:px-8">
@@ -112,11 +173,11 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               <div className="section-frame rounded-[1.4rem] p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">Program</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{copy.program}</p>
                 <p className="mt-3 text-lg font-semibold text-bright">{payment.serviceName}</p>
               </div>
               <div className="section-frame rounded-[1.4rem] p-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">Order reference</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{copy.orderReference}</p>
                 <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.merchantOrderId}</p>
               </div>
             </div>
@@ -124,7 +185,7 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
             {polling ? (
               <div className="mt-6 flex items-center gap-3 rounded-[1.4rem] border border-[#f2b544]/20 bg-[#fff4d8] px-4 py-4 text-sm font-semibold text-[#8b5d05]">
                 <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
-                Checking PhonePe for the latest confirmation...
+                {copy.checking}
               </div>
             ) : null}
 
@@ -136,23 +197,23 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
           </div>
 
           <aside className="section-frame rounded-[1.6rem] p-5">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">Next</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{copy.next}</p>
             <div className="mt-4 grid gap-3 text-sm leading-7 text-dim">
-              <p>Your application stays recorded even while the gateway confirms the charge.</p>
-              <p>If the status remains pending for too long, use your application details when contacting the center.</p>
+              <p>{copy.nextLine1}</p>
+              <p>{copy.nextLine2}</p>
             </div>
             <div className="mt-6 grid gap-3">
               <Link
                 href="/programs"
                 className="inline-flex items-center justify-center rounded-full bg-[#f2b544] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#0a0d12]"
               >
-                Back to programs
+                {copy.back}
               </Link>
               <Link
                 href="/contact"
                 className="inline-flex items-center justify-center rounded-full border border-[rgba(41,56,49,0.12)] bg-[rgba(255,255,255,0.76)] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#1f352b]"
               >
-                Contact center
+                {copy.contact}
               </Link>
             </div>
           </aside>
@@ -162,14 +223,27 @@ export function PaymentReturnStatus({ initialPayment }: Props) {
   );
 }
 
-function getContent(payment: PaymentSnapshot) {
+function getContent(
+  payment: PaymentSnapshot,
+  copy: {
+    confirmed: string;
+    needsAction: string;
+    processing: string;
+    received: string;
+    notCompleted: string;
+    progress: string;
+    receivedMessage: (name: string) => string;
+    notCompletedMessage: string;
+    progressMessage: string;
+  },
+) {
   if (payment.status === "PAID") {
     return {
       icon: <CheckCircle2 className="h-8 w-8 text-[#2a8d5f]" aria-hidden="true" />,
       badge: "bg-[rgba(42,141,95,0.12)] text-[#215b42]",
-      label: "Confirmed",
-      title: "Payment received",
-      message: `Your payment for ${payment.serviceName} has been captured successfully. The training application is now in the confirmed payment state.`,
+      label: copy.confirmed,
+      title: copy.received,
+      message: copy.receivedMessage(payment.serviceName),
     };
   }
 
@@ -177,17 +251,17 @@ function getContent(payment: PaymentSnapshot) {
     return {
       icon: <XCircle className="h-8 w-8 text-[#c85d4a]" aria-hidden="true" />,
       badge: "bg-[rgba(200,93,74,0.12)] text-[#8e3d2f]",
-      label: "Needs action",
-      title: "Payment not completed",
-      message: "The gateway did not confirm this transaction. Please retry from the application flow or contact the center if the amount was already debited.",
+      label: copy.needsAction,
+      title: copy.notCompleted,
+      message: copy.notCompletedMessage,
     };
   }
 
   return {
     icon: <Clock3 className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />,
     badge: "bg-[rgba(242,181,68,0.14)] text-[#8b5d05]",
-    label: "Processing",
-    title: "Confirmation in progress",
-    message: "Your application is saved. We are waiting for the payment gateway to finalize the transaction and this page will keep checking automatically.",
+    label: copy.processing,
+    title: copy.progress,
+    message: copy.progressMessage,
   };
 }

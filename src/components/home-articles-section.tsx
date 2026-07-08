@@ -4,6 +4,7 @@ import { ArrowRight, BookOpenText, CalendarDays, Tag } from "lucide-react";
 import type { ArticleItem } from "@/lib/data";
 import { SectionHeading } from "@/components/section-heading";
 import type { SiteLanguage } from "@/lib/i18n";
+import { getLocalizedArticle } from "@/lib/public-content";
 import { getSiteCopy } from "@/lib/site-copy";
 
 export function HomeArticlesSection({ articles, language }: { articles: ArticleItem[]; language: SiteLanguage }) {
@@ -32,7 +33,10 @@ export function HomeArticlesSection({ articles, language }: { articles: ArticleI
           </aside>
 
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {articles.map((article) => (
+            {articles.map((entry) => {
+              const article = getLocalizedArticle(entry, language);
+
+              return (
               <article
                 key={article.id}
                 className="group flex h-full flex-col rounded-[1.9rem] border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] p-6 shadow-[0_20px_48px_rgba(64,44,8,0.08)] transition hover:-translate-y-1 hover:border-[#b36b00]/34"
@@ -95,7 +99,8 @@ export function HomeArticlesSection({ articles, language }: { articles: ArticleI
                   </Link>
                 </div>
               </article>
-            ))}
+            );
+            })}
           </div>
         </div>
 

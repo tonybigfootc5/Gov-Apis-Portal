@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { GalleryExperience } from "@/components/gallery-experience";
 import { getGalleryImages } from "@/lib/data";
+import { getLocalizedGalleryItem } from "@/lib/public-content";
 import { t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 
@@ -18,15 +19,19 @@ export default async function GalleryPage() {
       eyebrow={t(language, "gallery.eyebrow")}
       title={t(language, "gallery.title")}
       subtitle={t(language, "gallery.body")}
-      items={images.map((image) => ({
-        id: image.id,
-        url: image.url,
-        caption: image.caption,
-        date: image.date.toISOString(),
-        place: image.place,
-        category: image.category,
-        year: image.year,
-      }))}
+      language={language}
+      items={images.map((image) => {
+        const localizedImage = getLocalizedGalleryItem(image, language);
+        return {
+          id: localizedImage.id,
+          url: localizedImage.url,
+          caption: localizedImage.caption,
+          date: localizedImage.date.toISOString(),
+          place: localizedImage.place,
+          category: localizedImage.category,
+          year: localizedImage.year,
+        };
+      })}
     />
   );
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, MessageSquareText } from "lucide-react";
 import { SectionHeading } from "@/components/section-heading";
 import { getEvents } from "@/lib/data";
-import { getTranslatedEventContent, t } from "@/lib/i18n";
+import { getTranslatedEventContent, t, type SiteLanguage } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { formatDateTime } from "@/lib/utils";
 
@@ -16,6 +16,27 @@ export const metadata: Metadata = {
 
 export default async function EventsPage() {
   const language = await getRequestLanguage();
+  const copy = {
+    en: {
+      help: "How these pages help",
+      dates: "Dates are visible before contact or travel planning.",
+      location: "Location is included for public and institutional visitors.",
+      nextStep: "The next step is clear: see details, then contact the center.",
+    },
+    te: {
+      help: "ఈ పేజీలు ఎలా సహాయపడతాయి",
+      dates: "సంప్రదింపు లేదా ప్రయాణ ప్రణాళికకు ముందే తేదీలు స్పష్టంగా కనిపిస్తాయి.",
+      location: "ప్రజలు మరియు సంస్థాగత సందర్శకుల కోసం ప్రదేశం కూడా చూపబడుతుంది.",
+      nextStep: "తదుపరి చర్య స్పష్టంగా ఉంటుంది: వివరాలు చూడండి, తరువాత కేంద్రాన్ని సంప్రదించండి.",
+    },
+    hi: {
+      help: "ये पेज कैसे मदद करते हैं",
+      dates: "संपर्क या यात्रा योजना से पहले तिथियां साफ दिखाई देती हैं।",
+      location: "सार्वजनिक और संस्थागत आगंतुकों के लिए स्थान भी शामिल है।",
+      nextStep: "अगला कदम स्पष्ट है: विवरण देखें, फिर केंद्र से संपर्क करें।",
+    },
+  } satisfies Record<SiteLanguage, Record<string, string>>;
+  const pageCopy = copy[language];
   const events = await getEvents();
   const translatedEvents = events.map((event) => getTranslatedEventContent(event, language));
 
@@ -26,11 +47,11 @@ export default async function EventsPage() {
           {t(language, "events.page.body")}
         </SectionHeading>
         <div className="paper-panel rounded-[2rem] p-6">
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">How these pages help</p>
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#b36b00]">{pageCopy.help}</p>
           <div className="mt-5 grid gap-4 text-sm leading-7 text-[#516253]">
-            <p className="inline-flex items-center gap-3"><CalendarDays className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Dates are visible before contact or travel planning.</p>
-            <p className="inline-flex items-center gap-3"><MapPin className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />Location is included for public and institutional visitors.</p>
-            <p className="inline-flex items-center gap-3"><MessageSquareText className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />The next step is clear: see details, then contact the center.</p>
+            <p className="inline-flex items-center gap-3"><CalendarDays className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />{pageCopy.dates}</p>
+            <p className="inline-flex items-center gap-3"><MapPin className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />{pageCopy.location}</p>
+            <p className="inline-flex items-center gap-3"><MessageSquareText className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />{pageCopy.nextStep}</p>
           </div>
         </div>
       </div>

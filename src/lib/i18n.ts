@@ -1,5 +1,3 @@
-import { trainingProgramCatalogBySlug } from "@/lib/training-programs";
-
 export const supportedLanguages = ["en", "te", "hi"] as const;
 
 export type SiteLanguage = (typeof supportedLanguages)[number];
@@ -388,26 +386,18 @@ export function getTranslatedProgramContent<
   T extends { slug: string; title: string; summary: string; description: string; level: string }
 >(program: T, language: SiteLanguage) {
   const baseKey = `program.slug.${program.slug}`;
-  const preferCatalogContent = Boolean(trainingProgramCatalogBySlug[program.slug]);
 
   return {
     ...program,
-    title:
-      preferCatalogContent
-        ? program.title
-        : translations[language][`${baseKey}.title`] ?? translations.en[`${baseKey}.title`] ?? program.title,
+    title: translations[language][`${baseKey}.title`] ?? translations.en[`${baseKey}.title`] ?? program.title,
     summary:
-      preferCatalogContent
-        ? program.summary
-        : translations[language][`${baseKey}.summary`] ??
-          translations.en[`${baseKey}.summary`] ??
-          program.summary,
+      translations[language][`${baseKey}.summary`] ??
+      translations.en[`${baseKey}.summary`] ??
+      program.summary,
     description:
-      preferCatalogContent
-        ? program.description
-        : translations[language][`${baseKey}.description`] ??
-          translations.en[`${baseKey}.description`] ??
-          program.description,
+      translations[language][`${baseKey}.description`] ??
+      translations.en[`${baseKey}.description`] ??
+      program.description,
     level: t(language, `program.level.${program.level}`),
   };
 }

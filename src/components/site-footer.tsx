@@ -14,6 +14,7 @@ import {
 import { institute } from "@/lib/fallback-data";
 import type { SiteLanguage } from "@/lib/i18n";
 import { t } from "@/lib/i18n";
+import { getLocalizedLegalName } from "@/lib/public-content";
 import { getSiteCopy } from "@/lib/site-copy";
 
 type SiteFooterProps = {
@@ -24,6 +25,26 @@ type SiteFooterProps = {
 
 export function SiteFooter({ language }: SiteFooterProps) {
   const copy = getSiteCopy(language);
+  const footerCopy = {
+    en: {
+      terms: "Terms and Conditions",
+      privacy: "Privacy Policy",
+      refund: "Refund Policy",
+      legalName: "API Culture Technology Center (Bee Keeping)",
+    },
+    te: {
+      terms: "నిబంధనలు మరియు షరతులు",
+      privacy: "గోప్యతా విధానం",
+      refund: "రిఫండ్ విధానం",
+      legalName: "API Culture Technology Center (Bee Keeping)",
+    },
+    hi: {
+      terms: "नियम और शर्तें",
+      privacy: "गोपनीयता नीति",
+      refund: "रिफंड नीति",
+      legalName: "API Culture Technology Center (Bee Keeping)",
+    },
+  }[language];
 
   const primaryLinks = [
     { href: "/programs", label: t(language, "footer.programs"), icon: GraduationCap },
@@ -33,9 +54,9 @@ export function SiteFooter({ language }: SiteFooterProps) {
   ] as const;
 
   const policyLinks = [
-    { href: "/terms-and-conditions", label: "Terms and Conditions", icon: FileText },
-    { href: "/privacy-policy", label: "Privacy Policy", icon: FileBadge2 },
-    { href: "/refund-policy", label: "Refund Policy", icon: ShieldCheck },
+    { href: "/terms-and-conditions", label: footerCopy.terms, icon: FileText },
+    { href: "/privacy-policy", label: footerCopy.privacy, icon: FileBadge2 },
+    { href: "/refund-policy", label: footerCopy.refund, icon: ShieldCheck },
   ] as const;
 
   const compactLinkClass =
@@ -47,7 +68,7 @@ export function SiteFooter({ language }: SiteFooterProps) {
         <div className="rounded-[1.75rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(248,242,232,0.84))] px-5 py-5 shadow-[0_14px_36px_rgba(137,114,75,0.08)] sm:px-6">
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr_0.72fr] lg:items-start">
             <div>
-              <div className="flex min-w-0 items-center gap-3">
+              <div className="flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:items-center">
               <span className="relative h-12 w-14 shrink-0 sm:h-14 sm:w-16">
                 <Image
                   src="/api-culture-logo-clean.png"
@@ -59,8 +80,8 @@ export function SiteFooter({ language }: SiteFooterProps) {
               </span>
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#c77b22]">API CULTURE</p>
-                <h2 className="font-display mt-1 text-[clamp(1.35rem,2.2vw,2rem)] leading-tight text-[#1b3329]">
-                  API Culture Technology Center (Bee Keeping)
+                <h2 className="font-display mt-1 max-w-[24rem] text-[clamp(1rem,2vw,1.65rem)] leading-snug text-[#1b3329]">
+                  {getLocalizedLegalName(language)}
                 </h2>
               </div>
               </div>

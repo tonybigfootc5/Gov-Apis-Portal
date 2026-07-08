@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { CheckCircle2, Clock3, XCircle } from "lucide-react";
 import { PaymentReturnStatus } from "@/components/payment-return-status";
+import { getRequestLanguage } from "@/lib/request-language";
+import type { SiteLanguage } from "@/lib/i18n";
 import { getPhonePeOrderStatus } from "@/lib/phonepe";
 import { hasDatabaseUrl } from "@/lib/prisma";
 import {
@@ -17,13 +19,36 @@ type Props = {
 export const dynamic = "force-dynamic";
 
 export default async function PaymentReturnPage({ searchParams }: Props) {
+  const language = await getRequestLanguage();
+  const copy = {
+    en: {
+      missingTitle: "Missing payment reference",
+      missingMessage: "This return link does not include a valid order reference. Please start again from the training program you selected.",
+      notFoundTitle: "Payment not found",
+      notFoundMessage: "We could not match this transaction to an application record. If you completed payment, contact the center with your phone number and application details.",
+    },
+    te: {
+      missingTitle: "చెల్లింపు సూచన లేదు",
+      missingMessage: "ఈ రిటర్న్ లింక్‌లో సరైన ఆర్డర్ రిఫరెన్స్ లేదు. దయచేసి మీరు ఎంచుకున్న శిక్షణ కార్యక్రమం నుంచే మళ్లీ ప్రారంభించండి.",
+      notFoundTitle: "చెల్లింపు కనబడలేదు",
+      notFoundMessage: "ఈ లావాదేవీని దరఖాస్తు రికార్డుతో సరిపోల్చలేకపోయాము. మీరు చెల్లింపు పూర్తి చేసి ఉంటే, మీ ఫోన్ నంబర్ మరియు దరఖాస్తు వివరాలతో కేంద్రాన్ని సంప్రదించండి.",
+    },
+    hi: {
+      missingTitle: "भुगतान संदर्भ अनुपस्थित है",
+      missingMessage: "इस रिटर्न लिंक में मान्य ऑर्डर संदर्भ नहीं है। कृपया अपने चुने हुए प्रशिक्षण कार्यक्रम से फिर शुरू करें।",
+      notFoundTitle: "भुगतान नहीं मिला",
+      notFoundMessage: "हम इस लेनदेन को किसी आवेदन रिकॉर्ड से नहीं मिला सके। यदि आपने भुगतान पूरा किया है, तो अपना फोन नंबर और आवेदन विवरण लेकर केंद्र से संपर्क करें।",
+    },
+  } satisfies Record<SiteLanguage, Record<string, string>>;
+  const pageCopy = copy[language];
   const { merchantOrderId } = await searchParams;
 
   if (!merchantOrderId) {
     return (
       <StaticReturnShell
-        title="Missing payment reference"
-        message="This return link does not include a valid order reference. Please start again from the training program you selected."
+        title={pageCopy.missingTitle}
+        message={pageCopy.missingMessage}
+        language={language}
         tone="failed"
       />
     );
@@ -50,8 +75,9 @@ export default async function PaymentReturnPage({ searchParams }: Props) {
   if (!paymentOrder) {
     return (
       <StaticReturnShell
-        title="Payment not found"
-        message="We could not match this transaction to an application record. If you completed payment, contact the center with your phone number and application details."
+        title={pageCopy.notFoundTitle}
+        message={pageCopy.notFoundMessage}
+        language={language}
         tone="failed"
       />
     );
@@ -59,6 +85,7 @@ export default async function PaymentReturnPage({ searchParams }: Props) {
 
   return (
     <PaymentReturnStatus
+      language={language}
       initialPayment={{
         merchantOrderId: paymentOrder.merchantOrderId,
         serviceName: paymentOrder.trainingApplication.serviceName,
@@ -71,27 +98,34 @@ export default async function PaymentReturnPage({ searchParams }: Props) {
 function StaticReturnShell({
   title,
   message,
+  language,
   tone,
 }: {
   title: string;
   message: string;
+  language: SiteLanguage;
   tone: "success" | "pending" | "failed";
 }) {
+  const shellCopy = {
+    en: { success: "Confirmed", pending: "Pending", failed: "Needs action", back: "Back to programs", contact: "Contact center" },
+    te: { success: "నిర్ధారించబడింది", pending: "పెండింగ్", failed: "చర్య అవసరం", back: "కార్యక్రమాల వద్దకు వెళ్లండి", contact: "కేంద్రాన్ని సంప్రదించండి" },
+    hi: { success: "पुष्टि हुई", pending: "लंबित", failed: "कार्रवाई आवश्यक", back: "कार्यक्रमों पर लौटें", contact: "केंद्र से संपर्क करें" },
+  }[language];
   const palette = {
     success: {
       icon: <CheckCircle2 className="h-8 w-8 text-[#2a8d5f]" aria-hidden="true" />,
       badge: "bg-[rgba(42,141,95,0.12)] text-[#215b42]",
-      label: "Confirmed",
+      label: shellCopy.success,
     },
     pending: {
       icon: <Clock3 className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />,
       badge: "bg-[rgba(242,181,68,0.14)] text-[#8b5d05]",
-      label: "Pending",
+      label: shellCopy.pending,
     },
     failed: {
       icon: <XCircle className="h-8 w-8 text-[#c85d4a]" aria-hidden="true" />,
       badge: "bg-[rgba(200,93,74,0.12)] text-[#8e3d2f]",
-      label: "Needs action",
+      label: shellCopy.failed,
     },
   }[tone];
 
@@ -114,13 +148,13 @@ function StaticReturnShell({
               href="/programs"
               className="inline-flex items-center justify-center rounded-full bg-[#f2b544] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#0a0d12]"
             >
-              Back to programs
+              {shellCopy.back}
             </Link>
             <Link
               href="/contact"
               className="inline-flex items-center justify-center rounded-full border border-[rgba(41,56,49,0.12)] bg-[rgba(255,255,255,0.76)] px-5 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#1f352b]"
             >
-              Contact center
+              {shellCopy.contact}
             </Link>
           </div>
         </div>

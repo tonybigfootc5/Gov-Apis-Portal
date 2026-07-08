@@ -15,6 +15,7 @@ import { TrainingAnnouncementPopup } from "@/components/training-announcement-po
 import { getPopupAnnouncementPrograms } from "@/lib/data";
 import { institute } from "@/lib/fallback-data";
 import { getTranslatedProgramContent } from "@/lib/i18n";
+import type { SiteLanguage } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { getSiteCopy } from "@/lib/site-copy";
 import { trainingProgramGallery } from "@/lib/training-programs";
@@ -24,6 +25,39 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const language = await getRequestLanguage();
   const copy = getSiteCopy(language);
+  const pageCopy: Record<
+    SiteLanguage,
+    {
+      technologies: string;
+      technologiesText: string;
+      openTechnologies: string;
+      quoteEyebrow: string;
+      quoteAuthor: string;
+    }
+  > = {
+    en: {
+      technologies: "Technologies",
+      technologiesText: "Explore the beekeeping and bee-product technologies taught at the center.",
+      openTechnologies: "Open technologies",
+      quoteEyebrow: "Honey Bee In Nature",
+      quoteAuthor: "Albert Einstein",
+    },
+    te: {
+      technologies: "టెక్నాలజీలు",
+      technologiesText: "కేంద్రంలో బోధించే తేనెటీగల పెంపకం మరియు తేనెటీగ ఉత్పత్తుల టెక్నాలజీలను తెలుసుకోండి.",
+      openTechnologies: "టెక్నాలజీలు చూడండి",
+      quoteEyebrow: "ప్రకృతిలో తేనెటీగ",
+      quoteAuthor: "ఆల్బర్ట్ ఐన్‌స్టీన్",
+    },
+    hi: {
+      technologies: "टेक्नोलॉजी",
+      technologiesText: "केंद्र में सिखाई जाने वाली मधुमक्खी पालन और बी-प्रोडक्ट टेक्नोलॉजी देखें।",
+      openTechnologies: "टेक्नोलॉजी देखें",
+      quoteEyebrow: "प्रकृति में मधुमक्खी",
+      quoteAuthor: "अल्बर्ट आइंस्टीन",
+    },
+  };
+  const localCopy = pageCopy[language];
   const activeAnnouncementPrograms = (await getPopupAnnouncementPrograms()).map((program) =>
     getTranslatedProgramContent(program, language),
   );
@@ -41,8 +75,8 @@ export default async function Home() {
     },
     {
       icon: Microscope,
-      title: "Technologies",
-      text: "Explore the beekeeping and bee-product technologies taught at the center.",
+      title: localCopy.technologies,
+      text: localCopy.technologiesText,
       href: "/technologies",
     },
     {
@@ -134,7 +168,7 @@ export default async function Home() {
               <p className="mt-3 text-sm leading-7 text-dim">{text}</p>
               {href ? (
                 <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
-                  Open technologies
+                  {localCopy.openTechnologies}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </span>
               ) : null}
@@ -209,7 +243,7 @@ export default async function Home() {
           </div>
 
           <div className="relative z-10 mx-auto max-w-4xl text-center">
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">Honey Bee In Nature</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">{localCopy.quoteEyebrow}</p>
             <div className="mx-auto mt-6 flex h-14 w-14 items-center justify-center rounded-full border border-[#f2b544]/25 bg-white/75 text-[#b36b00] shadow-[0_10px_28px_rgba(100,70,16,0.08)]">
               <Quote className="h-6 w-6" aria-hidden="true" />
             </div>
@@ -217,7 +251,7 @@ export default async function Home() {
               “If the honey bee disappeared from the surface of the globe the man would only have four years of life left.
               No more bees, No more pollination, No more plants, No more animals, No more man.”
             </blockquote>
-            <p className="mt-6 text-sm font-black uppercase tracking-[0.22em] text-[#7d8b74]">Albert Einstein</p>
+            <p className="mt-6 text-sm font-black uppercase tracking-[0.22em] text-[#7d8b74]">{localCopy.quoteAuthor}</p>
           </div>
         </div>
       </section>
