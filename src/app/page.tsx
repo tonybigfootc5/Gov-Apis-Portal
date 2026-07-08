@@ -137,10 +137,11 @@ export default async function Home() {
                 </Link>
               </div>
 
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <HeroStat value="30+" label={copy.home.stats[0]} />
                 <HeroStat value="25000+" label={copy.home.stats[1]} />
                 <HeroStat value="100%" label={copy.home.stats[2]} />
+                <HeroStat value="NIRDPR" label={copy.home.stats[3]} />
               </div>
             </div>
           </div>
@@ -292,9 +293,10 @@ export default async function Home() {
 
 function HeroStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-[1.4rem] border border-[rgba(31,53,43,0.1)] bg-[rgba(255,255,255,0.56)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.82)] backdrop-blur-md">
-      <p className="font-display text-4xl text-[#1f352b]">{value}</p>
-      <p className="mt-2 text-sm text-[#54655d]">{label}</p>
+    <div className="group relative overflow-hidden rounded-[1.5rem] border border-[rgba(31,53,43,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,252,247,0.72))] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_18px_40px_rgba(98,73,28,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_24px_52px_rgba(98,73,28,0.14)]">
+      <div className="absolute inset-x-5 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(242,181,68,0.7),transparent)]" />
+      <p className="font-display text-[clamp(2.35rem,4vw,3.35rem)] leading-none tracking-[-0.04em] text-[#1f352b]">{value}</p>
+      <p className="mt-3 text-sm font-medium tracking-[0.02em] text-[#54655d]">{label}</p>
     </div>
   );
 }
