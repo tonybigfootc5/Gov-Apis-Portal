@@ -8,7 +8,7 @@ export const institute = {
   address:
     "#12 & 13, CIAT-RTP, Rajendranagar, Hyderabad - 500 030, Telangana, India",
   phone: ["040-24017766", "9395507766"],
-  email: "apiculturetechcenter@gmail.com",
+  email: "info@apiculture.in",
   website: "https://www.apiculture.in",
 };
 
