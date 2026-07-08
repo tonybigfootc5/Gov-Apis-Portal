@@ -12,6 +12,7 @@ import {
   CreditCard,
   FolderKanban,
   History,
+  LayoutGrid,
   Images,
   LogOut,
   Mail,
@@ -97,8 +98,8 @@ type Props = {
   initialGalleryImages: GalleryAdminItem[];
 };
 
-type DashboardView = "programs" | "events" | "applications" | "payments" | "contacts" | "articles" | "gallery";
-type HistorySection = "overview" | DashboardView;
+type DashboardView = "overview" | "programs" | "events" | "applications" | "payments" | "contacts" | "articles" | "gallery";
+type HistorySection = DashboardView;
 
 type HistoryEntry = {
   id: string;
@@ -220,7 +221,7 @@ export function AdminConsole({
   const [articleDraft, setArticleDraft] = useState<Omit<ArticleItem, "id">>(emptyArticle);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
-  const [view, setView] = useState<DashboardView>("programs");
+  const [view, setView] = useState<DashboardView>("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [historyEntries, setHistoryEntries] = useState<HistoryEntry[]>(readStoredHistory);
@@ -363,13 +364,19 @@ export function AdminConsole({
   }, []);
 
   const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
+    { id: "overview", label: "Overview", description: "Today at a glance", icon: <LayoutGrid className="h-4 w-4" aria-hidden="true" /> },
     { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
     { id: "payments", label: "Payments", description: "Gateway control", icon: <CreditCard className="h-4 w-4" aria-hidden="true" /> },
-    { id: "contacts", label: "Contact", description: "Student inbox", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
+    { id: "contacts", label: "Contact Inbox", description: "Student inbox", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
     { id: "gallery", label: "Gallery", description: "Media showcase", icon: <Images className="h-4 w-4" aria-hidden="true" /> },
     { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
     { id: "programs", label: "Training", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
+  ];
+  const navGroups: Array<{ title?: string; items: DashboardView[] }> = [
+    { items: ["overview"] },
+    { title: "Operations", items: ["applications", "payments", "contacts"] },
+    { title: "Content", items: ["programs", "events", "articles", "gallery"] },
   ];
 
   const systemNotifications = useMemo(() => {
@@ -414,6 +421,11 @@ export function AdminConsole({
   );
 
   const unreadNotifications = allNotifications.filter((notification) => !notification.read).length;
+  const topBannerMessage = databaseConfigured
+    ? "Live database is connected. Counts, publishing actions, and admin edits are now running against production-backed records."
+    : applicationStorageMode === "local"
+      ? "Local preview is running without a database connection. Counts below reflect sample data, and save actions stay disabled until deployment is configured."
+      : "Database setup is not available locally yet. Layouts can be reviewed, but save actions remain disabled until deployment is configured.";
 
   function pushNotification(input: Omit<NotificationItem, "id" | "timestamp" | "read">) {
     setNotifications((current) => [
@@ -781,7 +793,8 @@ export function AdminConsole({
   }
 
   return (
-    <div className="mx-auto max-w-[96rem] px-4 py-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-[98rem] px-4 py-6 sm:px-6 lg:px-8">
+      <div className="overflow-hidden rounded-[2.4rem] border border-[rgba(255,240,214,0.08)] bg-[radial-gradient(circle_at_top_left,rgba(41,98,73,0.34),transparent_28%),radial-gradient(circle_at_top_right,rgba(186,114,41,0.16),transparent_22%),linear-gradient(180deg,#120d0b_0%,#1a100d_42%,#17100f_100%)] p-4 shadow-[0_28px_80px_rgba(10,5,4,0.38)] sm:p-6 lg:p-8">
       <div className="lg:hidden">
         <button
           onClick={() => setSidebarOpen(true)}
@@ -817,28 +830,42 @@ export function AdminConsole({
               </button>
             </div>
 
-            <nav className="mt-5 grid gap-3">
-              {viewItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setView(item.id);
-                    setSidebarOpen(false);
-                  }}
-                  className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 text-left transition ${
-                    view === item.id
-                      ? "bg-[#fff9ec] text-[#173f33]"
-                      : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec]"
-                  }`}
-                >
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
-                    {item.icon}
-                  </span>
-                  <span>
-                    <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
-                    <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
-                  </span>
-                </button>
+            <nav className="mt-5 grid gap-5">
+              {navGroups.map((group, index) => (
+                <div key={group.title ?? `mobile-group-${index}`} className="grid gap-3">
+                  {group.title ? (
+                    <p className="px-1 text-[10px] font-black uppercase tracking-[0.3em] text-[rgba(245,198,94,0.76)]">
+                      {group.title}
+                    </p>
+                  ) : null}
+                  {group.items.map((viewId) => {
+                    const item = viewItems.find((entry) => entry.id === viewId);
+                    if (!item) return null;
+
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setView(item.id);
+                          setSidebarOpen(false);
+                        }}
+                        className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 text-left transition ${
+                          view === item.id
+                            ? "bg-[#fff9ec] text-[#173f33]"
+                            : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec]"
+                        }`}
+                      >
+                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
+                          {item.icon}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
+                          <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               ))}
             </nav>
           </div>
@@ -884,28 +911,42 @@ export function AdminConsole({
               </div>
             )}
 
-            <nav className="mt-5 grid gap-3">
-              {viewItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setView(item.id)}
-                  className={`flex items-center ${sidebarCollapsed ? "justify-center px-2" : "gap-3 px-4"} rounded-[1.2rem] py-3 text-left transition ${
-                    view === item.id
-                      ? "bg-[#fff9ec] text-[#173f33]"
-                      : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.1)]"
-                  }`}
-                  title={item.label}
-                >
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
-                    {item.icon}
-                  </span>
-                  {!sidebarCollapsed ? (
-                    <span>
-                      <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
-                      <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
-                    </span>
+            <nav className="mt-5 grid gap-5">
+              {navGroups.map((group, index) => (
+                <div key={group.title ?? `desktop-group-${index}`} className="grid gap-3">
+                  {group.title && !sidebarCollapsed ? (
+                    <p className="px-1 text-[10px] font-black uppercase tracking-[0.3em] text-[rgba(245,198,94,0.76)]">
+                      {group.title}
+                    </p>
                   ) : null}
-                </button>
+                  {group.items.map((viewId) => {
+                    const item = viewItems.find((entry) => entry.id === viewId);
+                    if (!item) return null;
+
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setView(item.id)}
+                        className={`flex items-center ${sidebarCollapsed ? "justify-center px-2" : "gap-3 px-4"} rounded-[1.2rem] py-3 text-left transition ${
+                          view === item.id
+                            ? "bg-[#fff9ec] text-[#173f33]"
+                            : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.1)]"
+                        }`}
+                        title={item.label}
+                      >
+                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
+                          {item.icon}
+                        </span>
+                        {!sidebarCollapsed ? (
+                          <span className="min-w-0">
+                            <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
+                            <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
+                          </span>
+                        ) : null}
+                      </button>
+                    );
+                  })}
+                </div>
               ))}
             </nav>
           </div>
@@ -1037,11 +1078,23 @@ export function AdminConsole({
             </div>
           </div>
 
-          {notice ? (
-            <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-5 py-4 text-sm font-semibold text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.06)]">
-              {notice}
-            </div>
-          ) : null}
+          <div className="rounded-[1.7rem] border border-[rgba(255,240,214,0.1)] bg-[linear-gradient(180deg,rgba(255,248,238,0.98),rgba(252,241,225,0.96))] px-5 py-4 text-sm font-semibold text-[#8c5a29] shadow-[0_18px_34px_rgba(0,0,0,0.14)]">
+            {notice || topBannerMessage}
+          </div>
+
+      {view === "overview" ? (
+        <OverviewDashboard
+          applications={applications}
+          payments={payments}
+          contactMessages={contactMessages}
+          programs={programs}
+          events={events}
+          articles={articles}
+          galleryImages={galleryImages}
+          historyEntries={historyEntries}
+          onOpenSection={setView}
+        />
+      ) : null}
 
       {view === "programs" ? (
         <DashboardSection
@@ -1160,6 +1213,7 @@ export function AdminConsole({
       ) : null}
         </div>
       </div>
+      </div>
 
       {activeHistorySection ? (
         <HistoryDrawer
@@ -1201,6 +1255,167 @@ export function AdminConsole({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function OverviewDashboard({
+  applications,
+  payments,
+  contactMessages,
+  programs,
+  events,
+  articles,
+  galleryImages,
+  historyEntries,
+  onOpenSection,
+}: {
+  applications: TrainingApplicationRecord[];
+  payments: PaymentAdminRecord[];
+  contactMessages: ContactInboxRecord[];
+  programs: Program[];
+  events: EventItem[];
+  articles: ArticleItem[];
+  galleryImages: GalleryAdminItem[];
+  historyEntries: HistoryEntry[];
+  onOpenSection: (view: DashboardView) => void;
+}) {
+  const pendingApplications = applications.filter((application) => application.payload.approvalStatus !== "APPROVED").length;
+  const pendingPayments = payments.filter((payment) => !["PAID", "SUCCESS", "CAPTURED"].includes(payment.status)).length;
+  const contactCount = contactMessages.length;
+  const recentActivity = historyEntries.slice(0, 5);
+
+  return (
+    <div className="mt-8 grid gap-6">
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b8842a]">Operations</p>
+        <p className="text-sm font-semibold text-[#7f9487]">Needs a decision today</p>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-3">
+        <OverviewMetricCard
+          label="Applications"
+          value={pendingApplications}
+          description={pendingApplications ? "Awaiting review in admissions desk" : "Nothing waiting on you"}
+          icon={<UsersRound className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => onOpenSection("applications")}
+        />
+        <OverviewMetricCard
+          label="Payments"
+          value={pendingPayments}
+          description={pendingPayments ? "Transactions need verification" : "All caught up"}
+          icon={<CreditCard className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => onOpenSection("payments")}
+        />
+        <OverviewMetricCard
+          label="Contact Inbox"
+          value={contactCount}
+          description={contactCount ? "Student messages are waiting" : "Inbox is empty"}
+          icon={<Mail className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => onOpenSection("contacts")}
+        />
+      </div>
+
+      <div className="flex items-center justify-between gap-4 pt-2">
+        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b8842a]">Content</p>
+        <p className="text-sm font-semibold text-[#7f9487]">Edit at your own pace</p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <OverviewMetricCard
+          compact
+          label="Training"
+          value={programs.length}
+          description={programs.length ? "Training catalog is live" : "No programs added yet"}
+          icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => onOpenSection("programs")}
+        />
+        <OverviewMetricCard
+          compact
+          label="Events"
+          value={events.length}
+          description={events.length ? "Schedule is published" : "No events published yet"}
+          icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => onOpenSection("events")}
+        />
+        <OverviewMetricCard
+          compact
+          label="Articles"
+          value={articles.length}
+          description={articles.length ? "Content library is updated" : "No articles published yet"}
+          icon={<BookOpenText className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => onOpenSection("articles")}
+        />
+        <OverviewMetricCard
+          compact
+          label="Gallery"
+          value={galleryImages.length}
+          description={galleryImages.length ? "Media showcase is ready" : "No gallery media yet"}
+          icon={<Images className="h-5 w-5" aria-hidden="true" />}
+          onClick={() => onOpenSection("gallery")}
+        />
+      </div>
+
+      <section className="rounded-[2rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-6 shadow-[0_28px_64px_rgba(10,5,4,0.18)]">
+        <div className="flex items-center gap-3">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
+            <History className="h-4 w-4" aria-hidden="true" />
+          </span>
+          <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b8842a]">Recent activity</p>
+        </div>
+
+        <div className="mt-5 rounded-[1.5rem] border border-dashed border-[rgba(23,63,51,0.12)] bg-[rgba(255,255,255,0.45)] p-4 sm:p-5">
+          {recentActivity.length ? (
+            <div className="grid gap-3">
+              {recentActivity.map((entry) => (
+                <div key={entry.id} className="rounded-[1.1rem] bg-white/80 px-4 py-3 shadow-[0_10px_24px_rgba(64,44,8,0.05)]">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
+                    <p className="text-xs font-semibold text-[#7a8b80]">{timeAgo(entry.timestamp)}</p>
+                  </div>
+                  <p className="mt-1 text-sm font-semibold text-[#395547]">{entry.label}</p>
+                  {entry.details ? <p className="mt-1 text-sm text-[#607366]">{entry.details}</p> : null}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="py-8 text-center text-sm font-semibold text-[#607366]">
+              No activity yet. Actions you take across the dashboard will show up here.
+            </p>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function OverviewMetricCard({
+  label,
+  value,
+  description,
+  icon,
+  onClick,
+  compact = false,
+}: {
+  label: string;
+  value: number;
+  description: string;
+  icon: ReactNode;
+  onClick: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-[1.8rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-5 text-left shadow-[0_24px_54px_rgba(10,5,4,0.16)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_64px_rgba(10,5,4,0.22)] ${compact ? "min-h-[12rem]" : "min-h-[13.5rem]"}`}
+    >
+      <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
+        {icon}
+      </span>
+      <p className={`font-display mt-5 text-[#173f33] ${compact ? "text-5xl" : "text-6xl"}`}>{value}</p>
+      <p className="mt-3 text-[11px] font-black uppercase tracking-[0.2em] text-[#173f33]">{label}</p>
+      <p className="mt-2 text-base text-[#607366]">{description}</p>
+    </button>
   );
 }
 

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronDown, Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { SiteLanguage } from "@/lib/i18n";
 
@@ -40,6 +41,7 @@ export function SiteHeader({
   sandboxMode,
 }: SiteHeaderProps) {
   const pathname = usePathname();
+  const isAdminRoute = pathname.startsWith("/admin");
   const homeItem = navItems.find((item) => item.href === "/");
   const aboutItem = navItems.find((item) => item.href === "/about");
   const contactItem = navItems.find((item) => item.href === "/contact");
@@ -49,16 +51,32 @@ export function SiteHeader({
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  const frameClass = isAdminRoute
+    ? "border-[rgba(255,240,214,0.08)] bg-[linear-gradient(180deg,rgba(10,8,8,0.94),rgba(19,14,12,0.9))]"
+    : "border-[rgba(41,56,49,0.08)] bg-[linear-gradient(180deg,rgba(255,253,248,0.94),rgba(248,241,230,0.88))]";
+  const shellClass = isAdminRoute
+    ? "border-[rgba(255,240,214,0.09)] bg-[linear-gradient(135deg,rgba(31,31,33,0.96),rgba(20,20,22,0.94)_54%,rgba(34,33,31,0.94))] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_24px_56px_rgba(0,0,0,0.3)]"
+    : "border-[rgba(41,56,49,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(248,242,232,0.88)_54%,rgba(240,235,222,0.9))] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_20px_48px_rgba(151,128,88,0.12)]";
+  const navWrapClass = isAdminRoute
+    ? "border-[rgba(255,240,214,0.08)] bg-[rgba(12,13,15,0.9)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+    : "border-[rgba(41,56,49,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.8),rgba(246,239,227,0.78))] shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]";
+
   return (
-    <header className="sticky top-0 z-50 border-b border-[rgba(41,56,49,0.08)] bg-[linear-gradient(180deg,rgba(255,253,248,0.94),rgba(248,241,230,0.88))] backdrop-blur-2xl">
+    <header className={`sticky top-0 z-50 border-b backdrop-blur-2xl ${frameClass}`}>
       <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
         {sandboxMode ? (
-          <div className="mb-3 rounded-[1.2rem] border border-[#d56d55]/18 bg-[#fff0eb] px-4 py-3 text-center text-xs font-black uppercase tracking-[0.16em] text-[#a24936]">
+          <div
+            className={`mb-3 rounded-[1.2rem] border px-4 py-3 text-center text-xs font-black uppercase tracking-[0.16em] ${
+              isAdminRoute
+                ? "border-[rgba(217,126,94,0.18)] bg-[rgba(70,39,33,0.84)] text-[#f3d7cb]"
+                : "border-[#d56d55]/18 bg-[#fff0eb] text-[#a24936]"
+            }`}
+          >
             Sandbox mode is active. Payment behavior here is not for public use.
           </div>
         ) : null}
 
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-[1.6rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(248,242,232,0.88)_54%,rgba(240,235,222,0.9))] px-3 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_20px_48px_rgba(151,128,88,0.12)] md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+        <div className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-[1.6rem] border px-3 py-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] ${shellClass}`}>
           <Link href="/" className="flex min-w-0 items-center gap-3 pr-2" aria-label="API CULTURE home">
             <span className="relative h-12 w-14 shrink-0 sm:h-14 sm:w-16">
               <Image
@@ -71,31 +89,22 @@ export function SiteHeader({
               />
             </span>
             <span className="min-w-0 leading-tight">
-              <span className="block text-[clamp(1rem,4.6vw,1.2rem)] font-black uppercase tracking-[0.18em] text-[#1c382d] sm:whitespace-nowrap">
+              <span className={`block text-[clamp(1rem,4.6vw,1.2rem)] font-black uppercase tracking-[0.18em] sm:whitespace-nowrap ${isAdminRoute ? "text-[#f4efe3]" : "text-[#1c382d]"}`}>
                 API CULTURE
               </span>
-              <span className="block max-w-[12rem] text-[10px] leading-4 font-bold tracking-[0.08em] text-[#64756f] sm:max-w-none sm:whitespace-nowrap sm:text-[10px]">
+              <span className={`block max-w-[12rem] text-[10px] leading-4 font-bold tracking-[0.08em] sm:max-w-none sm:whitespace-nowrap sm:text-[10px] ${isAdminRoute ? "text-[#9ca6a1]" : "text-[#64756f]"}`}>
                 {techCenterLabel}
               </span>
             </span>
           </Link>
 
           <nav className="hidden items-center justify-center px-3 md:flex" aria-label="Main navigation">
-            <div className="flex items-center gap-1 rounded-full border border-[rgba(41,56,49,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.8),rgba(246,239,227,0.78))] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]">
+            <div className={`flex items-center gap-1 rounded-full border p-1 ${navWrapClass}`}>
               {[homeItem, aboutItem].filter(Boolean).map((item) => (
-                  <Link
-                    key={item!.href}
-                    href={item!.href}
-                    className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition ${
-                      isActive(item!.href)
-                        ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-                        : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
-                    }`}
-                    aria-current={isActive(item!.href) ? "page" : undefined}
-                  >
-                    {item!.label}
-                  </Link>
-                ))}
+                <NavLink key={item!.href} href={item!.href} active={isActive(item!.href)} dark={isAdminRoute}>
+                  {item!.label}
+                </NavLink>
+              ))}
 
               <DesktopDropdown
                 label={trainingLabel}
@@ -103,6 +112,7 @@ export function SiteHeader({
                 items={trainingItems}
                 active={isActive("/programs")}
                 isItemActive={isActive}
+                dark={isAdminRoute}
               />
 
               <DesktopDropdown
@@ -110,25 +120,29 @@ export function SiteHeader({
                 items={exploreItems}
                 active={exploreItems.some((item) => isActive(item.href))}
                 isItemActive={isActive}
+                dark={isAdminRoute}
               />
 
               {contactItem ? (
-                <Link
-                  href={contactItem.href}
-                  className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition ${
-                    isActive(contactItem.href)
-                      ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-                      : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
-                  }`}
-                  aria-current={isActive(contactItem.href) ? "page" : undefined}
-                >
+                <NavLink href={contactItem.href} active={isActive(contactItem.href)} dark={isAdminRoute}>
                   {contactItem.label}
-                </Link>
+                </NavLink>
               ) : null}
             </div>
           </nav>
 
-          <div className="hidden items-center justify-end md:flex">
+          <div className="hidden items-center justify-end gap-3 md:flex">
+            <Link
+              href="/admin"
+              className={`inline-flex min-h-11 items-center justify-center rounded-full border px-4 py-2 text-sm font-black uppercase tracking-[0.16em] transition ${
+                isAdminRoute
+                  ? "border-[rgba(255,240,214,0.08)] bg-[rgba(255,255,255,0.08)] text-[#fff7eb]"
+                  : "border-[rgba(41,56,49,0.08)] bg-[rgba(255,255,255,0.75)] text-[#1f352b] hover:bg-white"
+              }`}
+              aria-current={isAdminRoute ? "page" : undefined}
+            >
+              Admin
+            </Link>
             <LanguageSwitcher
               currentLanguage={currentLanguage}
               label={languageLabel}
@@ -138,11 +152,29 @@ export function SiteHeader({
           </div>
 
           <details className="relative shrink-0 md:hidden">
-            <summary className="grid h-10 w-10 cursor-pointer list-none place-items-center rounded-full border border-[rgba(41,56,49,0.12)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,239,227,0.84))] text-[#234235]">
+            <summary
+              className={`grid h-10 w-10 cursor-pointer list-none place-items-center rounded-full border ${
+                isAdminRoute
+                  ? "border-[rgba(255,240,214,0.1)] bg-[rgba(255,255,255,0.08)] text-[#fff7eb]"
+                  : "border-[rgba(41,56,49,0.12)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,239,227,0.84))] text-[#234235]"
+              }`}
+            >
               <Menu className="h-5 w-5" aria-hidden="true" />
             </summary>
-            <nav className="absolute right-0 z-10 mt-3 grid w-[min(16rem,calc(100vw-2rem))] gap-1 rounded-[1.4rem] border border-[rgba(41,56,49,0.12)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(245,238,227,0.96))] p-2 shadow-[0_18px_44px_rgba(151,128,88,0.16)] backdrop-blur-2xl">
-              <div className="rounded-[1rem] border border-[rgba(41,56,49,0.08)] bg-[rgba(255,255,255,0.76)] px-3 py-3">
+            <nav
+              className={`absolute right-0 z-10 mt-3 grid w-[min(16rem,calc(100vw-2rem))] gap-1 rounded-[1.4rem] border p-2 shadow-[0_18px_44px_rgba(151,128,88,0.16)] backdrop-blur-2xl ${
+                isAdminRoute
+                  ? "border-[rgba(255,240,214,0.1)] bg-[linear-gradient(180deg,rgba(23,23,25,0.98),rgba(13,13,15,0.96))]"
+                  : "border-[rgba(41,56,49,0.12)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(245,238,227,0.96))]"
+              }`}
+            >
+              <div
+                className={`rounded-[1rem] border px-3 py-3 ${
+                  isAdminRoute
+                    ? "border-[rgba(255,240,214,0.08)] bg-[rgba(255,255,255,0.05)]"
+                    : "border-[rgba(41,56,49,0.08)] bg-[rgba(255,255,255,0.76)]"
+                }`}
+              >
                 <LanguageSwitcher
                   currentLanguage={currentLanguage}
                   label={languageLabel}
@@ -150,32 +182,19 @@ export function SiteHeader({
                   variant="header"
                 />
               </div>
-              {homeItem ? (
-                <Link
-                  href={homeItem.href}
-                  className={`inline-flex min-h-11 items-center justify-center rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
-                    isActive(homeItem.href)
-                      ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-                      : "bg-[rgba(255,255,255,0.74)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
-                  }`}
-                  aria-current={isActive(homeItem.href) ? "page" : undefined}
-                >
-                  {homeItem.label}
-                </Link>
-              ) : null}
-              {aboutItem ? (
-                <Link
-                  href={aboutItem.href}
-                  className={`inline-flex min-h-11 items-center justify-center rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
-                    isActive(aboutItem.href)
-                      ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-                      : "bg-[rgba(255,255,255,0.74)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
-                  }`}
-                  aria-current={isActive(aboutItem.href) ? "page" : undefined}
-                >
-                  {aboutItem.label}
-                </Link>
-              ) : null}
+              <Link
+                href="/admin"
+                className={`inline-flex min-h-11 items-center justify-center rounded-[1rem] px-4 py-3 text-sm font-black uppercase tracking-[0.14em] transition ${
+                  isAdminRoute
+                    ? "bg-[rgba(255,255,255,0.08)] text-[#fff7eb]"
+                    : "bg-[rgba(255,255,255,0.74)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
+                }`}
+                aria-current={isAdminRoute ? "page" : undefined}
+              >
+                Admin
+              </Link>
+              {homeItem ? <MobileLink href={homeItem.href} active={isActive(homeItem.href)} dark={isAdminRoute}>{homeItem.label}</MobileLink> : null}
+              {aboutItem ? <MobileLink href={aboutItem.href} active={isActive(aboutItem.href)} dark={isAdminRoute}>{aboutItem.label}</MobileLink> : null}
               <MobileDropdown
                 key="mobile-training"
                 label={trainingLabel}
@@ -183,26 +202,43 @@ export function SiteHeader({
                 allLabel={allTrainingLabel}
                 items={trainingItems}
                 isItemActive={isActive}
+                dark={isAdminRoute}
               />
-              <MobileDropdown label={exploreLabel} items={exploreItems} isItemActive={isActive} />
-              {contactItem ? (
-                <Link
-                  href={contactItem.href}
-                  className={`inline-flex min-h-11 items-center justify-center rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
-                    isActive(contactItem.href)
-                      ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-                      : "bg-[rgba(255,255,255,0.74)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
-                  }`}
-                  aria-current={isActive(contactItem.href) ? "page" : undefined}
-                >
-                  {contactItem.label}
-                </Link>
-              ) : null}
+              <MobileDropdown label={exploreLabel} items={exploreItems} isItemActive={isActive} dark={isAdminRoute} />
+              {contactItem ? <MobileLink href={contactItem.href} active={isActive(contactItem.href)} dark={isAdminRoute}>{contactItem.label}</MobileLink> : null}
             </nav>
           </details>
         </div>
       </div>
     </header>
+  );
+}
+
+function NavLink({
+  href,
+  active,
+  dark,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  dark: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 py-2 text-sm font-medium transition ${
+        active
+          ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
+          : dark
+            ? "text-[#d6ddd8] hover:bg-[rgba(255,255,255,0.08)] hover:text-[#fff7eb]"
+            : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
+      }`}
+      aria-current={active ? "page" : undefined}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -212,37 +248,30 @@ function DesktopDropdown({
   items,
   active,
   isItemActive,
+  dark = false,
 }: {
   label: string;
   href?: string;
   items: NavItem[];
   active: boolean;
   isItemActive: (href: string) => boolean;
+  dark?: boolean;
 }) {
+  const buttonClass = active
+    ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
+    : dark
+      ? "text-[#d6ddd8] hover:bg-[rgba(255,255,255,0.08)] hover:text-[#fff7eb]"
+      : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]";
+
   return (
-    <div className="group relative py-2 -my-2">
+    <div className="group relative -my-2 py-2">
       {href ? (
-        <Link
-          href={href}
-          className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
-            active
-              ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-              : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
-          }`}
-          aria-current={active ? "page" : undefined}
-        >
+        <Link href={href} className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${buttonClass}`} aria-current={active ? "page" : undefined}>
           {label}
           <ChevronDown className="h-4 w-4" aria-hidden="true" />
         </Link>
       ) : (
-        <button
-          type="button"
-          className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
-            active
-              ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-              : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
-          }`}
-        >
+        <button type="button" className={`inline-flex min-h-10 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${buttonClass}`}>
           {label}
           <ChevronDown className="h-4 w-4" aria-hidden="true" />
         </button>
@@ -250,7 +279,13 @@ function DesktopDropdown({
 
       <div className="pointer-events-none absolute left-1/2 top-full z-20 w-72 -translate-x-1/2 pt-2 opacity-0 transition duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
         <div className="absolute inset-x-0 bottom-full h-4" aria-hidden="true" />
-        <div className="rounded-[1.3rem] border border-[rgba(41,56,49,0.12)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(245,238,227,0.96))] p-2 shadow-[0_18px_44px_rgba(151,128,88,0.16)] backdrop-blur-2xl">
+        <div
+          className={`rounded-[1.3rem] border p-2 shadow-[0_18px_44px_rgba(151,128,88,0.16)] backdrop-blur-2xl ${
+            dark
+              ? "border-[rgba(255,240,214,0.1)] bg-[linear-gradient(180deg,rgba(23,23,25,0.98),rgba(13,13,15,0.96))]"
+              : "border-[rgba(41,56,49,0.12)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(245,238,227,0.96))]"
+          }`}
+        >
           {items.map((item) => (
             <Link
               key={item.href}
@@ -258,7 +293,9 @@ function DesktopDropdown({
               className={`flex rounded-[1rem] px-4 py-3 text-[13px] leading-snug font-medium transition ${
                 isItemActive(item.href)
                   ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-                  : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
+                  : dark
+                    ? "text-[#d6ddd8] hover:bg-[rgba(255,255,255,0.08)] hover:text-[#fff7eb]"
+                    : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
               }`}
             >
               {item.label}
@@ -270,28 +307,60 @@ function DesktopDropdown({
   );
 }
 
+function MobileLink({
+  href,
+  active,
+  dark,
+  children,
+}: {
+  href: string;
+  active: boolean;
+  dark: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`inline-flex min-h-11 items-center justify-center rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
+        active
+          ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
+          : dark
+            ? "bg-[rgba(255,255,255,0.05)] text-[#d6ddd8] hover:bg-[rgba(255,255,255,0.08)] hover:text-[#fff7eb]"
+            : "bg-[rgba(255,255,255,0.74)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
+      }`}
+      aria-current={active ? "page" : undefined}
+    >
+      {children}
+    </Link>
+  );
+}
+
 function MobileDropdown({
   label,
   href,
   allLabel,
   items,
   isItemActive,
+  dark = false,
 }: {
   label: string;
   href?: string;
   allLabel?: string;
   items: NavItem[];
   isItemActive: (href: string) => boolean;
+  dark?: boolean;
 }) {
   const active = (href ? isItemActive(href) : false) || items.some((item) => isItemActive(item.href));
 
   return (
-    <details className="rounded-[1rem] bg-[rgba(255,255,255,0.74)]">
+    <details className={`rounded-[1rem] ${dark ? "bg-[rgba(255,255,255,0.05)]" : "bg-[rgba(255,255,255,0.74)]"}`}>
       <summary
         className={`flex min-h-11 cursor-pointer list-none items-center justify-between rounded-[1rem] px-4 py-3 text-sm font-medium transition ${
           active
             ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-            : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
+            : dark
+              ? "text-[#d6ddd8] hover:bg-[rgba(255,255,255,0.08)] hover:text-[#fff7eb]"
+              : "text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
         }`}
       >
         <span>{label}</span>
@@ -304,7 +373,9 @@ function MobileDropdown({
             className={`flex rounded-[0.9rem] px-4 py-3 text-[13px] leading-snug font-medium transition ${
               isItemActive(href)
                 ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-                : "bg-[rgba(255,255,255,0.7)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
+                : dark
+                  ? "bg-[rgba(255,255,255,0.04)] text-[#d6ddd8] hover:bg-[rgba(255,255,255,0.08)] hover:text-[#fff7eb]"
+                  : "bg-[rgba(255,255,255,0.7)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
             }`}
           >
             {allLabel ?? label}
@@ -317,7 +388,9 @@ function MobileDropdown({
             className={`flex rounded-[0.9rem] px-4 py-3 text-[13px] leading-snug font-medium transition ${
               isItemActive(item.href)
                 ? "bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] text-[#0a0d12]"
-                : "bg-[rgba(255,255,255,0.7)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
+                : dark
+                  ? "bg-[rgba(255,255,255,0.04)] text-[#d6ddd8] hover:bg-[rgba(255,255,255,0.08)] hover:text-[#fff7eb]"
+                  : "bg-[rgba(255,255,255,0.7)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
             }`}
           >
             {item.label}
