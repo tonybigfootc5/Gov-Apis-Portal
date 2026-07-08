@@ -61,7 +61,6 @@ export default async function Home() {
   const activeAnnouncementPrograms = (await getPopupAnnouncementPrograms()).map((program) =>
     getTranslatedProgramContent(program, language),
   );
-  const experienceYears = new Date().getFullYear() - 2004;
   const cards: ReadonlyArray<{
     icon: typeof GraduationCap;
     title: string;
@@ -139,9 +138,9 @@ export default async function Home() {
               </div>
 
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                <HeroStat value={`${experienceYears}+`} label={copy.home.stats[0]} />
+                <HeroStat value="30+" label={copy.home.stats[0]} />
                 <HeroStat value="25000+" label={copy.home.stats[1]} />
-                <HeroStat value="4" label={copy.home.stats[2]} />
+                <HeroStat value="100%" label={copy.home.stats[2]} />
               </div>
             </div>
           </div>

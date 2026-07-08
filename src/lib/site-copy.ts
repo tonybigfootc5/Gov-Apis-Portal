@@ -116,7 +116,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
         "To the hands that feed the nation, we bring the science of liquid gold! API CULTURE is the dawn of your prosperity.",
       primaryCta: "View programs",
       secondaryCta: "About the center",
-      stats: ["Years active", "Beekeepers", "Current program tracks"],
+      stats: ["Years experience", "Beekeepers", "Hands-on training"],
       locationChip: "Rajendranagar, Hyderabad",
       portalChip: "Public-facing training portal",
       cards: [
@@ -326,7 +326,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
         "API CULTURE శాస్త్రీయ తేనెటీగల పెంపకం శిక్షణ, గ్రామీణ ఉపాధి, వర్క్‌షాప్‌లు మరియు సంస్థాగత సహకారం కోసం రూపొందించిన ప్రాయోగిక అపికల్చర్ టెక్నాలజీ కేంద్రం. నమోదు ప్రక్రియ ఇప్పుడు నిజమైన చెల్లింపు ప్రవాహంతో మరింత స్పష్టంగా, వేగంగా కలుస్తుంది.",
       primaryCta: "కార్యక్రమాలు చూడండి",
       secondaryCta: "కేంద్రం గురించి",
-      stats: ["సంవత్సరాల అనుభవం", "తేనెటీగల పెంపకదారులు", "ప్రస్తుత ప్రోగ్రామ్ ట్రాక్‌లు"],
+      stats: ["సంవత్సరాల అనుభవం", "తేనెటీగల పెంపకదారులు", "ప్రాయోగిక శిక్షణ"],
       locationChip: "రాజేంద్రనగర్, హైదరాబాద్",
       portalChip: "ప్రజలకు అందుబాటులో ఉన్న శిక్షణ పోర్టల్",
       cards: [
@@ -533,7 +533,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
         "API CULTURE वैज्ञानिक मधुमक्खी पालन प्रशिक्षण, ग्रामीण आजीविका, कार्यशालाओं और संस्थागत सहयोग के लिए बनाया गया एक व्यावहारिक एपिकल्चर टेक्नोलॉजी केंद्र है। नामांकन प्रक्रिया अब वास्तविक भुगतान प्रवाह से अधिक स्पष्ट और तेज़ तरीके से जुड़ती है।",
       primaryCta: "कार्यक्रम देखें",
       secondaryCta: "केंद्र के बारे में",
-      stats: ["अनुभव के वर्ष", "मधुमक्खी पालक", "वर्तमान प्रोग्राम ट्रैक"],
+      stats: ["अनुभव के वर्ष", "मधुमक्खी पालक", "व्यावहारिक प्रशिक्षण"],
       locationChip: "राजेंद्रनगर, हैदराबाद",
       portalChip: "सार्वजनिक प्रशिक्षण पोर्टल",
       cards: [
