@@ -386,10 +386,15 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
     try {
       const optimized = await optimizePhoto(file);
       setPhotoStatus(`Uploading ${optimized.photoName}...`);
-      const { uploadUrl, publicUrl, objectKey } = await getApplicationPhotoUploadUrlAction(
+      const upload = await getApplicationPhotoUploadUrlAction(
         optimized.photoName,
         optimized.photoType,
       );
+      if (!upload.ok) {
+        throw new Error(upload.error);
+      }
+
+      const { uploadUrl, publicUrl, objectKey } = upload;
 
       const uploadResponse = await fetch(uploadUrl, {
         method: "PUT",

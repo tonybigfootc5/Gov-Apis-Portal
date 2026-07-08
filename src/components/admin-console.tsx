@@ -1733,7 +1733,12 @@ function ArticleMediaUploader<T extends Omit<ArticleItem, "id">>({
 
     startTransition(async () => {
       try {
-        const { uploadUrl, publicUrl, objectKey } = await getPresignedUploadUrlAction(file.name, file.type);
+        const upload = await getPresignedUploadUrlAction(file.name, file.type);
+        if (!upload.ok) {
+          throw new Error(upload.error);
+        }
+
+        const { uploadUrl, publicUrl, objectKey } = upload;
         const uploadResponse = await fetch(uploadUrl, {
           method: "PUT",
           headers: {

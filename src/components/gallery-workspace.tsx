@@ -159,7 +159,12 @@ export function GalleryWorkspace({
       try {
         const uploaded: UploadAsset[] = [];
         for (const file of incoming) {
-          const { uploadUrl, publicUrl } = await getPresignedUploadUrlAction(file.name, file.type, "gallery");
+          const upload = await getPresignedUploadUrlAction(file.name, file.type, "gallery");
+          if (!upload.ok) {
+            throw new Error(upload.error);
+          }
+
+          const { uploadUrl, publicUrl } = upload;
           const response = await fetch(uploadUrl, {
             method: "PUT",
             headers: { "Content-Type": file.type },

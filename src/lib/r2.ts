@@ -11,12 +11,26 @@ const ALLOWED_CONTENT_TYPES = new Set([
   "video/quicktime",
 ]);
 
+const REQUIRED_R2_ENV_KEYS = [
+  "CLOUDFLARE_R2_ACCOUNT_ID",
+  "R2_ACCESS_KEY_ID",
+  "R2_SECRET_ACCESS_KEY",
+  "R2_BUCKET_NAME",
+  "R2_PUBLIC_BASE_URL",
+] as const;
+
 function required(name: string) {
   const value = process.env[name];
   if (!value) {
     throw new Error(`${name} is not configured.`);
   }
   return value;
+}
+
+export function getR2ConfigurationError() {
+  const missing = REQUIRED_R2_ENV_KEYS.filter((name) => !process.env[name] && !(name === "R2_PUBLIC_BASE_URL" && process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL));
+  if (!missing.length) return null;
+  return `Media uploads are not configured yet. Missing: ${missing.join(", ")}.`;
 }
 
 export function getR2Client() {
