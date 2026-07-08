@@ -97,7 +97,7 @@ export function HeroBackgroundVideo() {
         preload="auto"
         disablePictureInPicture
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-92 [filter:brightness(0.82)_contrast(1.04)_saturate(1.05)] sm:object-[center_42%]"
+        className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center opacity-92 [filter:brightness(0.96)_contrast(1.02)_saturate(1.05)] sm:object-[center_42%]"
       >
         <source src="/hero-background-original.mp4" type="video/mp4" />
         Your browser does not support the video tag.

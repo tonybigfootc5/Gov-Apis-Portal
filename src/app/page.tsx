@@ -98,25 +98,27 @@ export default async function Home() {
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0">
           <HeroBackgroundVideo />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,11,10,0.16)_0%,rgba(10,16,13,0.42)_54%,rgba(10,16,13,0.74)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,179,71,0.24),transparent_24rem),radial-gradient(circle_at_top_right,rgba(124,157,108,0.2),transparent_28rem),radial-gradient(circle_at_bottom_center,rgba(255,227,176,0.12),transparent_30rem)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,251,244,0.12)_0%,rgba(255,247,233,0.28)_54%,rgba(252,239,220,0.52)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,179,71,0.18),transparent_24rem),radial-gradient(circle_at_top_right,rgba(142,197,255,0.16),transparent_28rem),radial-gradient(circle_at_bottom_center,rgba(255,255,255,0.34),transparent_30rem)]" />
         </div>
 
         <div className="relative mx-auto flex min-h-[calc(100vh-5.5rem)] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
-          <div className="max-w-5xl rounded-[2.6rem] border border-white/14 bg-[linear-gradient(180deg,rgba(22,31,26,0.56),rgba(22,31,26,0.38))] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_30px_80px_rgba(0,0,0,0.24)] backdrop-blur-[18px] sm:p-8 lg:p-10">
+          <div className="max-w-5xl rounded-[2.6rem] border border-[rgba(255,255,255,0.62)] bg-[linear-gradient(180deg,rgba(255,253,248,0.84),rgba(255,248,236,0.74))] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_28px_72px_rgba(119,89,36,0.16)] backdrop-blur-[18px] sm:p-8 lg:p-10">
             <div className="relative z-10">
-              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-white/16 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#ffd37c] shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
+              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-[rgba(179,107,0,0.14)] bg-[rgba(255,255,255,0.72)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00] shadow-[0_10px_30px_rgba(119,89,36,0.12)]">
                 <BadgeCheck className="h-4 w-4" aria-hidden="true" />
                 {institute.parent.split(",")[0]}
               </p>
 
-              <h1 className="font-display mt-6 max-w-5xl text-[clamp(3.6rem,9vw,7.3rem)] leading-[0.88] text-[#fff9ef] [text-shadow:0_10px_34px_rgba(0,0,0,0.34)]">
-                {copy.home.heroTitle[0]}
-                <br />
-                {copy.home.heroTitle[1]}
+              <h1 className="font-display mt-6 max-w-5xl text-[clamp(3.6rem,9vw,7.3rem)] leading-[0.9] text-[#1d392e]">
+                {copy.home.heroTitle.filter(Boolean).map((line) => (
+                  <span key={line} className="block">
+                    {line}
+                  </span>
+                ))}
               </h1>
 
-              <p className="mt-6 max-w-3xl text-base leading-8 text-[#eef3fb] sm:text-lg">
+              <p className="mt-6 max-w-3xl text-base leading-8 text-[#42584e] sm:text-lg">
                 {copy.home.heroDescription}
               </p>
 
@@ -130,7 +132,7 @@ export default async function Home() {
                 </Link>
                 <Link
                   href="/about"
-                  className="inline-flex items-center justify-center rounded-full border border-white/18 bg-[rgba(255,255,255,0.12)] px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#fff9ef]"
+                  className="inline-flex items-center justify-center rounded-full border border-[rgba(31,53,43,0.12)] bg-[rgba(255,255,255,0.74)] px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#1f352b]"
                 >
                   {copy.home.secondaryCta}
                 </Link>
@@ -144,12 +146,12 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-[#eef3fb]">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-[rgba(18,25,23,0.34)] px-4 py-2 shadow-[0_10px_24px_rgba(0,0,0,0.12)] backdrop-blur-md">
+          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-[#2f473d]">
+            <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(31,53,43,0.12)] bg-[rgba(255,255,255,0.62)] px-4 py-2 shadow-[0_10px_24px_rgba(119,89,36,0.1)] backdrop-blur-md">
               <MapPin className="h-4 w-4 text-[#8ec5ff]" aria-hidden="true" />
               {copy.home.locationChip}
             </span>
-            <span className="rounded-full border border-white/12 bg-[rgba(18,25,23,0.34)] px-4 py-2 shadow-[0_10px_24px_rgba(0,0,0,0.12)] backdrop-blur-md">
+            <span className="rounded-full border border-[rgba(31,53,43,0.12)] bg-[rgba(255,255,255,0.62)] px-4 py-2 shadow-[0_10px_24px_rgba(119,89,36,0.1)] backdrop-blur-md">
               {copy.home.portalChip}
             </span>
           </div>
@@ -291,16 +293,16 @@ export default async function Home() {
 
 function HeroStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-[1.4rem] border border-white/12 bg-[rgba(18,25,23,0.32)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md">
-      <p className="font-display text-4xl text-[#fff9ef]">{value}</p>
-      <p className="mt-2 text-sm text-[#d9e3ef]">{label}</p>
+    <div className="rounded-[1.4rem] border border-[rgba(31,53,43,0.1)] bg-[rgba(255,255,255,0.56)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.82)] backdrop-blur-md">
+      <p className="font-display text-4xl text-[#1f352b]">{value}</p>
+      <p className="mt-2 text-sm text-[#54655d]">{label}</p>
     </div>
   );
 }
 
 function ValueCard({ title, body }: { title: string; body: string }) {
   return (
-    <div className="rounded-[1.4rem] border border-white/10 bg-white/4 p-5">
+    <div className="rounded-[1.4rem] border border-[rgba(41,56,49,0.08)] bg-[rgba(255,255,255,0.76)] p-5 shadow-[0_16px_40px_rgba(120,95,41,0.08)]">
       <p className="text-lg font-semibold text-bright">{title}</p>
       <p className="mt-3 text-sm leading-7 text-dim">{body}</p>
     </div>

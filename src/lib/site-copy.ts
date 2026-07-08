@@ -111,7 +111,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       articlesLabel: "Articles",
     },
     home: {
-      heroTitle: ["Apiculture training", "rebuilt for launch."],
+      heroTitle: ["The Future of Indian Apiculture.", ""],
       heroDescription:
         "API CULTURE is a field-focused apiculture technology center for scientific beekeeping training, rural enterprise, workshops, and institutional collaboration. Enrollment now points straight into the real payment flow with a cleaner, faster public experience.",
       primaryCta: "View programs",
@@ -321,7 +321,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       articlesLabel: "వ్యాసాలు",
     },
     home: {
-      heroTitle: ["అపికల్చర్ శిక్షణ", "ప్రారంభానికి సిద్ధంగా."],
+      heroTitle: ["భారతీయ అపికల్చర్ యొక్క భవిష్యత్తు.", ""],
       heroDescription:
         "API CULTURE శాస్త్రీయ తేనెటీగల పెంపకం శిక్షణ, గ్రామీణ ఉపాధి, వర్క్‌షాప్‌లు మరియు సంస్థాగత సహకారం కోసం రూపొందించిన ప్రాయోగిక అపికల్చర్ టెక్నాలజీ కేంద్రం. నమోదు ప్రక్రియ ఇప్పుడు నిజమైన చెల్లింపు ప్రవాహంతో మరింత స్పష్టంగా, వేగంగా కలుస్తుంది.",
       primaryCta: "కార్యక్రమాలు చూడండి",
@@ -528,7 +528,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       articlesLabel: "लेख",
     },
     home: {
-      heroTitle: ["एपिकल्चर प्रशिक्षण", "लॉन्च के लिए तैयार।"],
+      heroTitle: ["भारतीय एपिकल्चर का भविष्य।", ""],
       heroDescription:
         "API CULTURE वैज्ञानिक मधुमक्खी पालन प्रशिक्षण, ग्रामीण आजीविका, कार्यशालाओं और संस्थागत सहयोग के लिए बनाया गया एक व्यावहारिक एपिकल्चर टेक्नोलॉजी केंद्र है। नामांकन प्रक्रिया अब वास्तविक भुगतान प्रवाह से अधिक स्पष्ट और तेज़ तरीके से जुड़ती है।",
       primaryCta: "कार्यक्रम देखें",
