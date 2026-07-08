@@ -22,7 +22,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "home.hero.titlePrefix": "Advanced",
     "home.hero.titleHighlight": "API CULTURE",
     "home.hero.description":
-      "API CULTURE is a field-focused apiculture technology center for scientific beekeeping training, rural enterprise, workshops, and institutional collaboration.",
+      "To the hands that feed the nation, we bring the science of liquid gold! API CULTURE is the dawn of your prosperity.",
     "home.hero.cta.training": "Training catalog",
     "home.hero.cta.mission": "Learn mission",
     "home.hero.liveCampus": "Live campus motion",

@@ -113,7 +113,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
     home: {
       heroTitle: ["The Future of Indian Apiculture.", ""],
       heroDescription:
-        "API CULTURE is a field-focused apiculture technology center for scientific beekeeping training, rural enterprise, workshops, and institutional collaboration. Enrollment now points straight into the real payment flow with a cleaner, faster public experience.",
+        "To the hands that feed the nation, we bring the science of liquid gold! API CULTURE is the dawn of your prosperity.",
       primaryCta: "View programs",
       secondaryCta: "About the center",
       stats: ["Years active", "Seats per batch", "Current program tracks"],
