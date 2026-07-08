@@ -98,8 +98,8 @@ export default async function Home() {
       <section className="relative isolate overflow-hidden">
         <div className="absolute inset-0">
           <HeroBackgroundVideo />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,251,244,0.12)_0%,rgba(255,247,233,0.28)_54%,rgba(252,239,220,0.52)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,179,71,0.18),transparent_24rem),radial-gradient(circle_at_top_right,rgba(142,197,255,0.16),transparent_28rem),radial-gradient(circle_at_bottom_center,rgba(255,255,255,0.34),transparent_30rem)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,27,23,0.14)_0%,rgba(38,37,27,0.18)_46%,rgba(74,56,29,0.34)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,179,71,0.12),transparent_24rem),radial-gradient(circle_at_top_right,rgba(142,197,255,0.12),transparent_28rem),radial-gradient(circle_at_bottom_center,rgba(255,224,166,0.12),transparent_30rem)]" />
         </div>
 
         <div className="relative mx-auto flex min-h-[calc(100vh-5.5rem)] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
