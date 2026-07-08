@@ -131,18 +131,7 @@ export function SiteHeader({
             </div>
           </nav>
 
-          <div className="hidden items-center justify-end gap-3 md:flex">
-            <Link
-              href="/admin"
-              className={`inline-flex min-h-11 items-center justify-center rounded-full border px-4 py-2 text-sm font-black uppercase tracking-[0.16em] transition ${
-                isAdminRoute
-                  ? "border-[rgba(255,240,214,0.08)] bg-[rgba(255,255,255,0.08)] text-[#fff7eb]"
-                  : "border-[rgba(41,56,49,0.08)] bg-[rgba(255,255,255,0.75)] text-[#1f352b] hover:bg-white"
-              }`}
-              aria-current={isAdminRoute ? "page" : undefined}
-            >
-              Admin
-            </Link>
+          <div className="hidden items-center justify-end md:flex">
             <LanguageSwitcher
               currentLanguage={currentLanguage}
               label={languageLabel}
@@ -182,17 +171,6 @@ export function SiteHeader({
                   variant="header"
                 />
               </div>
-              <Link
-                href="/admin"
-                className={`inline-flex min-h-11 items-center justify-center rounded-[1rem] px-4 py-3 text-sm font-black uppercase tracking-[0.14em] transition ${
-                  isAdminRoute
-                    ? "bg-[rgba(255,255,255,0.08)] text-[#fff7eb]"
-                    : "bg-[rgba(255,255,255,0.74)] text-[#496056] hover:bg-[#f5efe3] hover:text-[#1f352b]"
-                }`}
-                aria-current={isAdminRoute ? "page" : undefined}
-              >
-                Admin
-              </Link>
               {homeItem ? <MobileLink href={homeItem.href} active={isActive(homeItem.href)} dark={isAdminRoute}>{homeItem.label}</MobileLink> : null}
               {aboutItem ? <MobileLink href={aboutItem.href} active={isActive(aboutItem.href)} dark={isAdminRoute}>{aboutItem.label}</MobileLink> : null}
               <MobileDropdown
