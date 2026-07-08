@@ -7,6 +7,18 @@ const slug = z
   .max(90)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use lowercase letters, numbers, and hyphens.");
 
+const urlOrDataUrl = z.string().trim().refine((value) => {
+  if (!value) return false;
+  if (value.startsWith("data:")) return true;
+
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return false;
+  }
+}, "Provide a valid media URL.");
+
 export const contactSchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(180),
@@ -54,7 +66,7 @@ export const articleSchema = z.object({
   publishedAt: z.coerce.date(),
   authorName: z.string().trim().min(2).max(160),
   authorRole: z.string().trim().min(2).max(160),
-  mediaUrl: z.string().trim().url().max(2000).optional().or(z.literal("")),
+  mediaUrl: urlOrDataUrl.max(5_000_000).optional().or(z.literal("")),
   mediaObjectKey: z.string().trim().max(1000).optional().or(z.literal("")),
   mediaType: z.enum(["IMAGE", "VIDEO", "ARTICLE_ASSET"]).optional().nullable(),
   externalLink: z.string().trim().url().max(400).optional().or(z.literal("")),
@@ -65,7 +77,7 @@ export const articleSchema = z.object({
 });
 
 export const galleryImageSchema = z.object({
-  url: z.string().trim().min(1).max(2000),
+  url: urlOrDataUrl.max(5_000_000),
   caption: z.string().trim().min(3).max(240),
   date: z.coerce.date(),
   place: z.string().trim().max(240).optional().or(z.literal("")),
@@ -94,8 +106,9 @@ export const trainingApplicationSchema = z.object({
   sponsoringOrganization: z.string().trim().max(200).optional().or(z.literal("")),
   photoName: z.string().trim().min(1).max(160),
   photoType: z.string().trim().min(3).max(80),
-  photoUrl: z.string().trim().url("Upload a valid image URL."),
-  photoObjectKey: z.string().trim().min(3).max(1000),
+  photoUrl: urlOrDataUrl.max(5_000_000),
+  photoObjectKey: z.string().trim().max(1000).optional().or(z.literal("")),
+  photoDataUrl: z.string().trim().max(5_000_000).optional().or(z.literal("")),
 });
 
 export const trainingApplicationAdminSchema = z.object({

@@ -37,6 +37,7 @@ type CreateLocalTrainingApplicationInput = {
   photoType: string;
   photoUrl: string;
   photoObjectKey: string;
+  photoDataUrl?: string;
 };
 
 type UpdateLocalTrainingApplicationInput = {

@@ -16,7 +16,7 @@ import {
   SlidersHorizontal,
   Trash2,
 } from "lucide-react";
-import { getPresignedUploadUrlAction } from "@/app/actions/storage";
+import { optimizeImageForInlineStorage } from "@/lib/client-media";
 import { galleryCategoryOptions, getGalleryCategoryLabel } from "@/lib/gallery";
 
 export type GalleryAdminItem = {
@@ -159,25 +159,14 @@ export function GalleryWorkspace({
       try {
         const uploaded: UploadAsset[] = [];
         for (const file of incoming) {
-          const upload = await getPresignedUploadUrlAction(file.name, file.type, "gallery");
-          if (!upload.ok) {
-            throw new Error(upload.error);
+          if (!file.type.startsWith("image/")) {
+            throw new Error("Temporary inline storage supports images only right now.");
           }
-
-          const { uploadUrl, publicUrl } = upload;
-          const response = await fetch(uploadUrl, {
-            method: "PUT",
-            headers: { "Content-Type": file.type },
-            body: file,
-          });
-
-          if (!response.ok) {
-            throw new Error(`Upload failed for ${file.name}.`);
-          }
+          const optimized = await optimizeImageForInlineStorage(file, { maxSide: 1800 });
 
           uploaded.push({
-            name: file.name,
-            url: publicUrl,
+            name: optimized.fileName,
+            url: optimized.dataUrl,
           });
         }
 
@@ -189,8 +178,8 @@ export function GalleryWorkspace({
         }));
         setUploadNotice(
           uploaded.length === 1
-            ? "Photo uploaded and ready for the gallery."
-            : `${uploaded.length} photos uploaded and ready for the gallery.`,
+            ? "Photo prepared and ready for gallery save."
+            : `${uploaded.length} photos prepared and ready for gallery save.`,
         );
       } catch (error) {
         setUploadNotice(error instanceof Error ? error.message : "Gallery upload failed.");
@@ -458,7 +447,7 @@ export function GalleryWorkspace({
                 ) : null}
 
                 {uploadNotice ? <p className="mt-4 text-sm font-semibold text-[#21533f]">{uploadNotice}</p> : null}
-                {isUploading ? <p className="mt-2 text-sm font-semibold text-[#9c6a18]">Uploading to Cloudflare R2...</p> : null}
+                {isUploading ? <p className="mt-2 text-sm font-semibold text-[#9c6a18]">Preparing images for database storage...</p> : null}
 
               </div>
             </div>

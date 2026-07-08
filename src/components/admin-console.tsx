@@ -29,7 +29,7 @@ import { ApplicationAdminPanel } from "@/components/application-admin-panel";
 import { ContactInboxPanel } from "@/components/contact-inbox-panel";
 import { GalleryWorkspace, type GalleryAdminItem, type GalleryDraftInput } from "@/components/gallery-workspace";
 import { PaymentAdminPanel } from "@/components/payment-admin-panel";
-import { getPresignedUploadUrlAction } from "@/app/actions/storage";
+import { optimizeImageForInlineStorage } from "@/lib/client-media";
 import type { ContactInboxRecord } from "@/lib/contact-inbox";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
 import type { PaymentAdminRecord } from "@/lib/training-application-store";
@@ -1733,31 +1733,18 @@ function ArticleMediaUploader<T extends Omit<ArticleItem, "id">>({
 
     startTransition(async () => {
       try {
-        const upload = await getPresignedUploadUrlAction(file.name, file.type);
-        if (!upload.ok) {
-          throw new Error(upload.error);
+        if (!file.type.startsWith("image/")) {
+          throw new Error("Temporary inline storage supports images only right now.");
         }
-
-        const { uploadUrl, publicUrl, objectKey } = upload;
-        const uploadResponse = await fetch(uploadUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": file.type,
-          },
-          body: file,
-        });
-
-        if (!uploadResponse.ok) {
-          throw new Error("Article media upload failed.");
-        }
+        const optimized = await optimizeImageForInlineStorage(file, { maxSide: 1600 });
 
         onChange({
           ...value,
-          mediaUrl: publicUrl,
-          mediaObjectKey: objectKey,
-          mediaType: file.type.startsWith("video/") ? "VIDEO" : "IMAGE",
+          mediaUrl: optimized.dataUrl,
+          mediaObjectKey: "",
+          mediaType: "IMAGE",
         });
-        setNotice("Article media uploaded successfully.");
+        setNotice("Article image prepared and ready to save.");
       } catch (error) {
         setNotice(error instanceof Error ? error.message : "Article media upload failed.");
       }
@@ -1770,10 +1757,11 @@ function ArticleMediaUploader<T extends Omit<ArticleItem, "id">>({
       <div className="mt-3 grid gap-3">
         <input
           type="file"
-          accept="image/*,video/*"
+          accept="image/*"
           onChange={(event) => handleFileChange(event.target.files?.[0] ?? null)}
           className="block w-full rounded-[1rem] border border-dashed border-[rgba(27,59,43,0.18)] bg-white px-3 py-3 text-sm text-[#173f33]"
         />
+        <p className="text-xs font-semibold text-[#607366]">Temporary mode stores article images directly in the database.</p>
 
         {value.mediaUrl ? (
           <div className="overflow-hidden rounded-[1rem] border border-[rgba(27,59,43,0.12)] bg-white">

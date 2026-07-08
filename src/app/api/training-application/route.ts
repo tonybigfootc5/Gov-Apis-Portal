@@ -35,14 +35,16 @@ export async function POST(request: Request) {
 
   try {
     if (!hasDatabaseUrl) {
-      const application = await createLocalTrainingApplication({
-        ...parsed.data,
-        email: parsed.data.email || "no-email-provided@applicant.local",
-        residencePhone: parsed.data.residencePhone || "",
-        educationQualification: parsed.data.educationQualification || "",
-        occupation: parsed.data.occupation || "",
-        sponsoringOrganization: parsed.data.sponsoringOrganization || "",
-      });
+    const application = await createLocalTrainingApplication({
+      ...parsed.data,
+      email: parsed.data.email || "no-email-provided@applicant.local",
+      residencePhone: parsed.data.residencePhone || "",
+      educationQualification: parsed.data.educationQualification || "",
+      occupation: parsed.data.occupation || "",
+      sponsoringOrganization: parsed.data.sponsoringOrganization || "",
+      photoObjectKey: parsed.data.photoObjectKey || "",
+      photoDataUrl: parsed.data.photoDataUrl || "",
+    });
 
       return NextResponse.json(
         {
@@ -80,8 +82,9 @@ export async function POST(request: Request) {
         sponsoringOrganization: parsed.data.sponsoringOrganization || "",
         photoName: parsed.data.photoName,
         photoType: parsed.data.photoType,
-        photoUrl: parsed.data.photoUrl,
-        photoObjectKey: parsed.data.photoObjectKey,
+        photoUrl: parsed.data.photoUrl || null,
+        photoObjectKey: parsed.data.photoObjectKey || null,
+        photoDataUrl: parsed.data.photoDataUrl || null,
       },
     });
 

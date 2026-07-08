@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   UserRound,
 } from "lucide-react";
-import { getApplicationPhotoUploadUrlAction } from "@/app/actions/storage";
+import { optimizeImageForInlineStorage } from "@/lib/client-media";
 import type { SiteLanguage } from "@/lib/i18n";
 
 type FormState = {
@@ -37,6 +37,7 @@ type FormState = {
   photoType: string;
   photoUrl: string;
   photoObjectKey: string;
+  photoDataUrl: string;
 };
 
 type SubmitState = "idle" | "compressing" | "submitting" | "success" | "error";
@@ -77,6 +78,7 @@ const INITIAL_FORM: FormState = {
   photoType: "",
   photoUrl: "",
   photoObjectKey: "",
+  photoDataUrl: "",
 };
 
 const STEPS = [
@@ -85,64 +87,6 @@ const STEPS = [
   { id: "background", title: "Profile", subtitle: "Education and work", icon: BriefcaseBusiness },
   { id: "photo", title: "Finish", subtitle: "Photo and final check", icon: Camera },
 ] as const;
-
-function dataUrlFromBlob(blob: Blob) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error("Unable to read image."));
-    reader.readAsDataURL(blob);
-  });
-}
-
-function loadImage(file: File) {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
-    const objectUrl = URL.createObjectURL(file);
-    const image = new window.Image();
-    image.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      resolve(image);
-    };
-    image.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      reject(new Error("Unable to open image."));
-    };
-    image.src = objectUrl;
-  });
-}
-
-async function optimizePhoto(file: File) {
-  const image = await loadImage(file);
-  const longestSide = 1200;
-  const scale = Math.min(1, longestSide / Math.max(image.width, image.height));
-  const width = Math.max(1, Math.round(image.width * scale));
-  const height = Math.max(1, Math.round(image.height * scale));
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-
-  if (!context) {
-    throw new Error("Unable to process the image.");
-  }
-
-  context.drawImage(image, 0, 0, width, height);
-  const blob = await new Promise<Blob | null>((resolve) => {
-    canvas.toBlob(resolve, "image/jpeg", 0.82);
-  });
-
-  if (!blob) {
-    throw new Error("Unable to optimize the photo.");
-  }
-
-  const dataUrl = await dataUrlFromBlob(blob);
-  return {
-    previewUrl: dataUrl,
-    blob,
-    photoType: "image/jpeg",
-    photoName: `${file.name.replace(/\.[^.]+$/, "")}.jpg`,
-  };
-}
 
 function requiredStepFields(stepIndex: number, data: FormState) {
   if (stepIndex === 0) {
@@ -170,7 +114,7 @@ function requiredStepFields(stepIndex: number, data: FormState) {
     return true;
   }
 
-  return Boolean(data.photoUrl && data.photoObjectKey && data.photoName);
+  return Boolean(data.photoUrl && data.photoName);
 }
 
 export function TrainingApplicationForm({ language, serviceOptions, selectedServiceTitle }: Props) {
@@ -228,7 +172,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       uploadBeforeSubmit: "Upload the applicant photo before submitting.",
       redirecting: "Application saved. Redirecting to secure payment...",
       saved: "Application saved successfully.",
-      uploadReady: "Photo uploaded and ready.",
+      uploadReady: "Photo prepared and ready.",
       uploadFail: "Photo upload failed. Please choose the image again.",
     },
     te: {
@@ -357,7 +301,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const [message, setMessage] = useState("");
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [photoStatus, setPhotoStatus] = useState(copy.photoHelp);
-  const hasUploadedPhoto = Boolean(form.photoUrl && form.photoObjectKey && form.photoName);
+  const hasUploadedPhoto = Boolean(form.photoUrl && form.photoName);
 
   const progress = ((step + 1) / STEPS.length) * 100;
   const canAdvance = requiredStepFields(step, form);
@@ -371,6 +315,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       setPhotoUploadState("idle");
       updateField("photoUrl", "");
       updateField("photoObjectKey", "");
+      updateField("photoDataUrl", "");
       updateField("photoName", "");
       updateField("photoType", "");
       setPhotoPreviewUrl("");
@@ -384,38 +329,18 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
     setPhotoStatus(`Preparing ${file.name}...`);
 
     try {
-      const optimized = await optimizePhoto(file);
-      setPhotoStatus(`Uploading ${optimized.photoName}...`);
-      const upload = await getApplicationPhotoUploadUrlAction(
-        optimized.photoName,
-        optimized.photoType,
-      );
-      if (!upload.ok) {
-        throw new Error(upload.error);
-      }
-
-      const { uploadUrl, publicUrl, objectKey } = upload;
-
-      const uploadResponse = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": optimized.photoType,
-        },
-        body: optimized.blob,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Photo upload failed.");
-      }
+      const optimized = await optimizeImageForInlineStorage(file, { maxSide: 1200 });
+      setPhotoStatus(`Preparing ${optimized.fileName}...`);
 
       setForm((current) => ({
         ...current,
-        photoName: optimized.photoName,
-        photoType: optimized.photoType,
-        photoUrl: publicUrl,
-        photoObjectKey: objectKey,
+        photoName: optimized.fileName,
+        photoType: optimized.mimeType,
+        photoUrl: optimized.dataUrl,
+        photoObjectKey: "",
+        photoDataUrl: optimized.dataUrl,
       }));
-      setPhotoPreviewUrl(optimized.previewUrl);
+      setPhotoPreviewUrl(optimized.dataUrl);
       setPhotoStatus(copy.uploadReady);
       setPhotoUploadState("uploaded");
       setSubmitState("idle");
