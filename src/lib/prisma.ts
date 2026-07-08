@@ -1,3 +1,4 @@
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 
@@ -6,15 +7,25 @@ const globalForPrisma = globalThis as unknown as {
 };
 let prismaClient: PrismaClient | undefined;
 
-export const hasDatabaseUrl = Boolean(process.env.DATABASE_URL);
+function getRuntimeDatabaseUrl() {
+  return process.env.DATABASE_URL ?? process.env.POSTGRES_URL ?? "";
+}
+
+export const hasDatabaseUrl = Boolean(getRuntimeDatabaseUrl());
+
+function isNeonConnectionString(connectionString: string) {
+  return /neon\.tech|aws\.neon\.tech/i.test(connectionString);
+}
 
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
+  const connectionString = getRuntimeDatabaseUrl();
   if (!connectionString) {
     throw new Error("DATABASE_URL is not configured.");
   }
 
-  const adapter = new PrismaPg({ connectionString });
+  const adapter = isNeonConnectionString(connectionString)
+    ? new PrismaNeon({ connectionString })
+    : new PrismaPg({ connectionString });
 
   return new PrismaClient({
     adapter,

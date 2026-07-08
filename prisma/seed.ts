@@ -1,10 +1,22 @@
+import { config as loadEnv } from "dotenv";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { EventStatus, PrismaClient, ProgramLevel } from "../src/generated/prisma/client";
 import { trainingProgramCatalog } from "../src/lib/training-programs";
 
-const connectionString = process.env.DATABASE_URL ?? "postgresql://prisma:prisma@localhost:5432/prisma";
+loadEnv({ path: ".env.local" });
+loadEnv({ path: ".env.production.local" });
+loadEnv();
+
+const connectionString =
+  process.env.DATABASE_URL ??
+  process.env.POSTGRES_URL ??
+  "postgresql://prisma:prisma@localhost:5432/prisma";
+const adapter = /neon\.tech|aws\.neon\.tech/i.test(connectionString)
+  ? new PrismaNeon({ connectionString })
+  : new PrismaPg({ connectionString });
 const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString }),
+  adapter,
 });
 
 async function main() {
