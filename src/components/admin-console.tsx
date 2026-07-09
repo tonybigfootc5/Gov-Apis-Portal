@@ -329,64 +329,8 @@ export function AdminConsole({
         application.payload.approvalStatus === "PENDING",
     ).length;
 
-    return {
-      total: applications.length,
-      pendingReview: applications.length - applications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
-      approved: applications.filter((application) => application.payload.approvalStatus === "APPROVED").length,
-      ready,
-    };
+    return { ready };
   }, [applications]);
-  const [activeSummaryCard, setActiveSummaryCard] = useState<"pending" | "ready" | "approved" | null>(null);
-  const applicationSummaryLists = useMemo(
-    () => ({
-      pending: applications
-        .filter((application) => application.payload.approvalStatus !== "APPROVED")
-        .map((application) => ({
-          id: application.id,
-          application,
-          name: application.payload.candidateName,
-          service: application.payload.serviceName,
-          status:
-            application.payload.approvalStatus === "REJECTED"
-              ? "Denied"
-              : application.payload.crossCheckStatus === "VERIFIED" && application.payload.paymentStatus === "PAID"
-                ? "Ready"
-                : "In review",
-          tone:
-            application.payload.approvalStatus === "REJECTED"
-              ? ("danger" as const)
-              : application.payload.crossCheckStatus === "VERIFIED" && application.payload.paymentStatus === "PAID"
-                ? ("success" as const)
-                : ("pending" as const),
-        })),
-      ready: applications
-        .filter(
-          (application) =>
-            application.payload.crossCheckStatus === "VERIFIED" &&
-            application.payload.paymentStatus === "PAID" &&
-            application.payload.approvalStatus === "PENDING",
-        )
-        .map((application) => ({
-          id: application.id,
-          application,
-          name: application.payload.candidateName,
-          service: application.payload.serviceName,
-          status: "Ready",
-          tone: "success" as const,
-        })),
-      approved: applications
-        .filter((application) => application.payload.approvalStatus === "APPROVED")
-        .map((application) => ({
-          id: application.id,
-          application,
-          name: application.payload.candidateName,
-          service: application.payload.serviceName,
-          status: "Approved",
-          tone: "success" as const,
-        })),
-    }),
-    [applications],
-  );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -660,34 +604,6 @@ export function AdminConsole({
     } finally {
       setLoading(false);
     }
-  }
-
-  function updateApplicationReview(application: TrainingApplicationRecord, approvalStatus: "APPROVED" | "REJECTED") {
-    void (async () => {
-      const ok = await mutate(`/api/admin/applications/${application.id}`, "PATCH", {
-        attemptStatus: application.payload.attemptStatus,
-        paymentStatus: application.payload.paymentStatus,
-        approvalStatus,
-        crossCheckStatus: application.payload.crossCheckStatus,
-        adminNotes: application.payload.adminNotes,
-        paymentReference: application.payload.paymentReference,
-      });
-      if (!ok) return;
-
-      const isApproved = approvalStatus === "APPROVED";
-      appendHistory(
-        "applications",
-        isApproved ? "Approve student" : "Reject student",
-        application.payload.candidateName,
-        `${application.payload.serviceName} status changed to ${isApproved ? "approved" : "denied"}.`,
-      );
-      pushNotification({
-        section: "applications",
-        title: isApproved ? "Student approved" : "Student denied",
-        message: `${application.payload.candidateName} was ${isApproved ? "approved" : "denied"} successfully.`,
-        variant: isApproved ? "success" : "warning",
-      });
-    })();
   }
 
   function saveArticleDraft() {
@@ -1043,41 +959,7 @@ export function AdminConsole({
 
         <div className="grid gap-5">
           <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
-            <div className="grid gap-3 md:grid-cols-3">
-              <TopStatusChip
-                label="Pending review"
-                value={applicationSummary.pendingReview}
-                detail="Applicants in review flow"
-                tone="warm"
-                expanded={activeSummaryCard === "pending"}
-                onToggle={() => setActiveSummaryCard((current) => (current === "pending" ? null : "pending"))}
-                items={applicationSummaryLists.pending}
-                loading={loading}
-                onApprove={(application) => updateApplicationReview(application, "APPROVED")}
-                onDeny={(application) => updateApplicationReview(application, "REJECTED")}
-              />
-              <TopStatusChip
-                label="Ready to approve"
-                value={applicationSummary.ready}
-                detail="Verified and ready"
-                tone="forest"
-                expanded={activeSummaryCard === "ready"}
-                onToggle={() => setActiveSummaryCard((current) => (current === "ready" ? null : "ready"))}
-                items={applicationSummaryLists.ready}
-                loading={loading}
-                onApprove={(application) => updateApplicationReview(application, "APPROVED")}
-                onDeny={(application) => updateApplicationReview(application, "REJECTED")}
-              />
-              <TopStatusChip
-                label="Approved learners"
-                value={applicationSummary.approved}
-                detail="Cleared to join"
-                tone="gold"
-                expanded={activeSummaryCard === "approved"}
-                onToggle={() => setActiveSummaryCard((current) => (current === "approved" ? null : "approved"))}
-                items={applicationSummaryLists.approved}
-              />
-            </div>
+            <CurrentBatchCard applications={applications} programs={programs} theme={activeTheme} />
 
             <div className="grid grid-cols-3 gap-2.5 xl:w-fit">
                 <button
@@ -1513,6 +1395,67 @@ function OverviewDashboard({
   );
 }
 
+function deriveBatchCode(program: Program, index: number) {
+  const initials = program.title
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("")
+    .slice(0, 2) || "BT";
+
+  const date = program.batchStartsAt ? new Date(program.batchStartsAt) : null;
+  if (!date || Number.isNaN(date.getTime())) {
+    return `${initials}-${String(index + 1).padStart(2, "0")}`;
+  }
+
+  const year = String(date.getFullYear()).slice(-2);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${initials}-${year}${month}`;
+}
+
+function getCurrentBatchSnapshot(programs: Program[], applications: TrainingApplicationRecord[]) {
+  const now = Date.now();
+  const sortedPrograms = [...programs].sort((left, right) => {
+    const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
+    const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
+    return leftTime - rightTime;
+  });
+
+  const startedProgram =
+    [...sortedPrograms]
+      .filter((program) => program.batchStartsAt && new Date(program.batchStartsAt).getTime() <= now)
+      .at(-1) ?? null;
+
+  const upcomingProgram =
+    sortedPrograms.find((program) => program.batchStartsAt && new Date(program.batchStartsAt).getTime() > now) ?? null;
+
+  const program = startedProgram ?? upcomingProgram ?? sortedPrograms[0] ?? null;
+  if (!program) return null;
+
+  const programIndex = sortedPrograms.findIndex((entry) => entry.id === program.id);
+  const joinedCount = applications.filter(
+    (application) =>
+      application.payload.serviceName.trim().toLowerCase() === program.title.trim().toLowerCase() &&
+      application.payload.approvalStatus === "APPROVED",
+  ).length;
+
+  const capacity = Math.max(0, program.capacity || 0);
+  const vacancies = Math.max(0, capacity - joinedCount);
+  const startTime = program.batchStartsAt ? new Date(program.batchStartsAt).getTime() : null;
+  const hasStarted = startTime !== null && !Number.isNaN(startTime) && startTime <= now;
+  const statusLabel = hasStarted ? "Already started" : program.enrollmentClosed ? "Enrollment closed" : "Upcoming";
+
+  return {
+    program,
+    batchCode: deriveBatchCode(program, Math.max(programIndex, 0)),
+    joinedCount,
+    vacancies,
+    capacity,
+    statusLabel,
+  };
+}
+
 function OverviewMetricCard({
   label,
   value,
@@ -1551,6 +1494,57 @@ function OverviewMetricCard({
         <p className="mt-1.5 text-[13px] leading-5 text-[#607366]">{description}</p>
       </div>
     </button>
+  );
+}
+
+function CurrentBatchCard({
+  applications,
+  programs,
+  theme,
+}: {
+  applications: TrainingApplicationRecord[];
+  programs: Program[];
+  theme: SectionTheme;
+}) {
+  const snapshot = getCurrentBatchSnapshot(programs, applications);
+
+  if (!snapshot) {
+    return (
+      <section className={`rounded-[1.45rem] border p-4 shadow-[0_18px_38px_rgba(10,5,4,0.11)] ${theme.panelShell}`}>
+        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Current batch</p>
+        <p className="mt-3 text-sm font-semibold text-[#607366]">No batch is configured yet.</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className={`rounded-[1.45rem] border p-4 shadow-[0_18px_38px_rgba(10,5,4,0.11)] ${theme.panelShell}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Current batch</p>
+          <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{snapshot.batchCode}</h3>
+          <p className="mt-1 text-sm font-semibold text-[#607366]">{snapshot.program.title}</p>
+        </div>
+        <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${theme.badge}`}>
+          {snapshot.statusLabel}
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className={`rounded-[1rem] border px-3 py-3 ${theme.panelSurface}`}>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Joined</p>
+          <p className="mt-1 text-2xl font-semibold text-[#173f33]">{snapshot.joinedCount}</p>
+        </div>
+        <div className={`rounded-[1rem] border px-3 py-3 ${theme.panelSurface}`}>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Vacancies</p>
+          <p className="mt-1 text-2xl font-semibold text-[#173f33]">{snapshot.vacancies}</p>
+        </div>
+        <div className={`rounded-[1rem] border px-3 py-3 ${theme.panelSurface}`}>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Capacity</p>
+          <p className="mt-1 text-2xl font-semibold text-[#173f33]">{snapshot.capacity}</p>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -2650,120 +2644,6 @@ function HistoryDrawer({
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function TopStatusChip({
-  label,
-  value,
-  detail,
-  tone,
-  expanded,
-  onToggle,
-  items,
-  loading = false,
-  onApprove,
-  onDeny,
-}: {
-  label: string;
-  value: number;
-  detail: string;
-  tone: "warm" | "forest" | "gold";
-  expanded: boolean;
-  onToggle: () => void;
-  items: Array<{
-    id: string;
-    application: TrainingApplicationRecord;
-    name: string;
-    service: string;
-    status: string;
-    tone: "success" | "pending" | "danger";
-  }>;
-  loading?: boolean;
-  onApprove?: (application: TrainingApplicationRecord) => void;
-  onDeny?: (application: TrainingApplicationRecord) => void;
-}) {
-  const toneClass = {
-    warm: "bg-[#fff5ea] border-[rgba(153,70,45,0.12)] text-[#92462d]",
-    forest: "bg-[#eef8f1] border-[rgba(33,83,63,0.12)] text-[#21533f]",
-    gold: "bg-[#fff8df] border-[rgba(122,90,0,0.12)] text-[#7a5a00]",
-  }[tone];
-  const statusToneClass = {
-    success: "bg-[#eef8f1] text-[#21533f]",
-    pending: "bg-[#fff5ea] text-[#8c4d1e]",
-    danger: "bg-[#fff0ea] text-[#9b3f2b]",
-  } as const;
-
-  return (
-    <div className={`h-full rounded-[1.5rem] border shadow-[0_18px_34px_rgba(64,44,8,0.08)] ${toneClass}`}>
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full px-5 py-4 text-left"
-      >
-        <div className="flex items-start justify-between gap-3">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em]">{label}</p>
-          <span className="rounded-full bg-[rgba(255,255,255,0.55)] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em]">
-            {expanded ? "Open" : "Peek"}
-          </span>
-        </div>
-        <div className="mt-4 flex items-end justify-between gap-3">
-          <p className="font-display text-4xl font-semibold leading-none">{value}</p>
-          <p className="max-w-[11rem] pb-1 text-right text-sm font-semibold opacity-80">{detail}</p>
-        </div>
-      </button>
-      {expanded ? (
-        <div className="border-t border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.55)] px-3 py-3">
-          <div className="max-h-72 overflow-y-auto pr-1">
-            <div className="grid gap-2.5">
-              {items.length ? (
-                items.map((item) => (
-                  <div key={item.id} className="rounded-[1rem] bg-[#fffdf8] px-3 py-3 shadow-[0_8px_18px_rgba(64,44,8,0.05)]">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-black text-[#173f33]">{item.name}</p>
-                        <p className="mt-1 text-xs font-semibold text-[#718477]">{item.service}</p>
-                      </div>
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${statusToneClass[item.tone]}`}>
-                        {item.status}
-                      </span>
-                    </div>
-                    {onApprove || onDeny ? (
-                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        {onApprove ? (
-                          <button
-                            type="button"
-                            disabled={loading || item.application.payload.approvalStatus === "APPROVED"}
-                            onClick={() => onApprove(item.application)}
-                            className="inline-flex items-center justify-center rounded-full bg-[#2fa65f] px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[0_10px_20px_rgba(47,166,95,0.2)] transition hover:bg-[#25874d] disabled:cursor-not-allowed disabled:bg-[#b8d9c5] disabled:text-[#f5fff8] disabled:shadow-none"
-                          >
-                            Approve
-                          </button>
-                        ) : null}
-                        {onDeny ? (
-                          <button
-                            type="button"
-                            disabled={loading || item.application.payload.approvalStatus === "REJECTED"}
-                            onClick={() => onDeny(item.application)}
-                            className="inline-flex items-center justify-center rounded-full bg-[#d65445] px-3 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-white shadow-[0_10px_20px_rgba(214,84,69,0.18)] transition hover:bg-[#b13d31] disabled:cursor-not-allowed disabled:bg-[#ebc0b8] disabled:text-[#fff8f5] disabled:shadow-none"
-                          >
-                            Deny
-                          </button>
-                        ) : null}
-                      </div>
-                    ) : null}
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-[1rem] bg-[#fffdf8] px-3 py-4 text-sm font-semibold text-[#718477]">
-                  No learner names in this list yet.
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
