@@ -119,6 +119,91 @@ type PublishSchedule = {
   publishedAt?: string;
 };
 
+type SectionTheme = {
+  navActive: string;
+  navDescriptionActive: string;
+  navIconActive: string;
+  panelShell: string;
+  panelSurface: string;
+  panelMuted: string;
+  badge: string;
+};
+
+const SECTION_THEMES: Record<DashboardView, SectionTheme> = {
+  overview: {
+    navActive: "border-[rgba(226,186,94,0.16)] bg-[linear-gradient(180deg,#fff8eb_0%,#f4e8c8_100%)] text-[#173f33]",
+    navDescriptionActive: "text-[#607366]",
+    navIconActive: "bg-[rgba(226,186,94,0.24)] text-[#173f33]",
+    panelShell: "border-[rgba(226,186,94,0.18)] bg-[linear-gradient(180deg,rgba(255,250,240,0.98),rgba(247,236,208,0.98))]",
+    panelSurface: "border-[rgba(226,186,94,0.14)] bg-[rgba(255,255,255,0.72)]",
+    panelMuted: "bg-[rgba(244,232,200,0.58)]",
+    badge: "bg-[#173f33] text-[#fff9ec]",
+  },
+  applications: {
+    navActive: "border-[rgba(86,110,78,0.36)] bg-[linear-gradient(180deg,#365d4c_0%,#274d3f_100%)] text-[#fff9ec]",
+    navDescriptionActive: "text-[#d7e7dc]",
+    navIconActive: "bg-[rgba(146,171,110,0.28)] text-[#fff9ec]",
+    panelShell: "border-[rgba(86,110,78,0.28)] bg-[linear-gradient(180deg,rgba(231,239,223,0.98),rgba(214,229,202,0.98))]",
+    panelSurface: "border-[rgba(86,110,78,0.16)] bg-[rgba(255,255,255,0.74)]",
+    panelMuted: "bg-[rgba(186,207,166,0.34)]",
+    badge: "bg-[#355a47] text-[#fff9ec]",
+  },
+  payments: {
+    navActive: "border-[rgba(69,118,148,0.34)] bg-[linear-gradient(180deg,#dff0fb_0%,#c9e2f5_100%)] text-[#11384f]",
+    navDescriptionActive: "text-[#47677b]",
+    navIconActive: "bg-[rgba(69,118,148,0.18)] text-[#11384f]",
+    panelShell: "border-[rgba(69,118,148,0.2)] bg-[linear-gradient(180deg,rgba(238,247,255,0.98),rgba(214,233,247,0.98))]",
+    panelSurface: "border-[rgba(69,118,148,0.14)] bg-[rgba(255,255,255,0.78)]",
+    panelMuted: "bg-[rgba(200,224,242,0.5)]",
+    badge: "bg-[#1f5877] text-[#eff8ff]",
+  },
+  contacts: {
+    navActive: "border-[rgba(77,126,118,0.34)] bg-[linear-gradient(180deg,#dff3ef_0%,#cbe8e2_100%)] text-[#143e3a]",
+    navDescriptionActive: "text-[#4c6e69]",
+    navIconActive: "bg-[rgba(77,126,118,0.18)] text-[#143e3a]",
+    panelShell: "border-[rgba(77,126,118,0.2)] bg-[linear-gradient(180deg,rgba(238,250,247,0.98),rgba(215,239,233,0.98))]",
+    panelSurface: "border-[rgba(77,126,118,0.14)] bg-[rgba(255,255,255,0.78)]",
+    panelMuted: "bg-[rgba(205,233,226,0.5)]",
+    badge: "bg-[#26605a] text-[#f2fffc]",
+  },
+  programs: {
+    navActive: "border-[rgba(96,121,70,0.34)] bg-[linear-gradient(180deg,#e7f0d8_0%,#d6e7c0_100%)] text-[#253c19]",
+    navDescriptionActive: "text-[#576c47]",
+    navIconActive: "bg-[rgba(96,121,70,0.18)] text-[#253c19]",
+    panelShell: "border-[rgba(96,121,70,0.2)] bg-[linear-gradient(180deg,rgba(244,249,236,0.98),rgba(227,238,209,0.98))]",
+    panelSurface: "border-[rgba(96,121,70,0.14)] bg-[rgba(255,255,255,0.78)]",
+    panelMuted: "bg-[rgba(221,236,199,0.52)]",
+    badge: "bg-[#4f6838] text-[#fbfff6]",
+  },
+  events: {
+    navActive: "border-[rgba(181,131,58,0.32)] bg-[linear-gradient(180deg,#fff0d7_0%,#f6ddb1_100%)] text-[#5b3a08]",
+    navDescriptionActive: "text-[#85673c]",
+    navIconActive: "bg-[rgba(181,131,58,0.18)] text-[#5b3a08]",
+    panelShell: "border-[rgba(181,131,58,0.2)] bg-[linear-gradient(180deg,rgba(255,248,236,0.98),rgba(245,227,192,0.98))]",
+    panelSurface: "border-[rgba(181,131,58,0.14)] bg-[rgba(255,255,255,0.8)]",
+    panelMuted: "bg-[rgba(244,224,185,0.56)]",
+    badge: "bg-[#9f6c1f] text-[#fff9f0]",
+  },
+  articles: {
+    navActive: "border-[rgba(130,93,113,0.34)] bg-[linear-gradient(180deg,#f4e3eb_0%,#e8cedd_100%)] text-[#4f2339]",
+    navDescriptionActive: "text-[#775869]",
+    navIconActive: "bg-[rgba(130,93,113,0.18)] text-[#4f2339]",
+    panelShell: "border-[rgba(130,93,113,0.2)] bg-[linear-gradient(180deg,rgba(251,241,246,0.98),rgba(236,217,228,0.98))]",
+    panelSurface: "border-[rgba(130,93,113,0.14)] bg-[rgba(255,255,255,0.8)]",
+    panelMuted: "bg-[rgba(235,212,225,0.56)]",
+    badge: "bg-[#7a4760] text-[#fff7fb]",
+  },
+  gallery: {
+    navActive: "border-[rgba(126,104,139,0.34)] bg-[linear-gradient(180deg,#ece5f5_0%,#ddd2ed_100%)] text-[#3d294a]",
+    navDescriptionActive: "text-[#6a5875]",
+    navIconActive: "bg-[rgba(126,104,139,0.18)] text-[#3d294a]",
+    panelShell: "border-[rgba(126,104,139,0.2)] bg-[linear-gradient(180deg,rgba(247,243,252,0.98),rgba(226,216,241,0.98))]",
+    panelSurface: "border-[rgba(126,104,139,0.14)] bg-[rgba(255,255,255,0.8)]",
+    panelMuted: "bg-[rgba(223,211,240,0.56)]",
+    badge: "bg-[#654975] text-[#fbf7ff]",
+  },
+};
+
 type NotificationItem = {
   id: string;
   section: HistorySection;
@@ -373,6 +458,7 @@ export function AdminConsole({
     { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
     { id: "programs", label: "Training", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
   ];
+  const activeTheme = SECTION_THEMES[view];
   const navGroups: Array<{ title?: string; items: DashboardView[] }> = [
     { items: ["overview"] },
     { title: "Operations", items: ["applications", "payments", "contacts"] },
@@ -421,12 +507,6 @@ export function AdminConsole({
   );
 
   const unreadNotifications = allNotifications.filter((notification) => !notification.read).length;
-  const topBannerMessage = databaseConfigured
-    ? "Live database is connected. Counts, publishing actions, and admin edits are now running against production-backed records."
-    : applicationStorageMode === "local"
-      ? "Local preview is running without a database connection. Counts below reflect sample data, and save actions stay disabled until deployment is configured."
-      : "Database setup is not available locally yet. Layouts can be reviewed, but save actions remain disabled until deployment is configured.";
-
   function pushNotification(input: Omit<NotificationItem, "id" | "timestamp" | "read">) {
     setNotifications((current) => [
       {
@@ -851,16 +931,18 @@ export function AdminConsole({
                         }}
                         className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 text-left transition ${
                           view === item.id
-                            ? "bg-[#fff9ec] text-[#173f33]"
+                            ? SECTION_THEMES[item.id].navActive
                             : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec]"
                         }`}
                       >
-                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
+                        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
+                          view === item.id ? SECTION_THEMES[item.id].navIconActive : "bg-[rgba(245,198,94,0.16)] text-[#fff9ec]"
+                        }`}>
                           {item.icon}
                         </span>
                         <span className="min-w-0">
                           <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
-                          <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
+                          <span className={`mt-1 block text-sm ${view === item.id ? SECTION_THEMES[item.id].navDescriptionActive : "text-[#d7e1db]"}`}>{item.description}</span>
                         </span>
                       </button>
                     );
@@ -929,18 +1011,20 @@ export function AdminConsole({
                         onClick={() => setView(item.id)}
                         className={`flex items-center ${sidebarCollapsed ? "justify-center px-2" : "gap-3 px-4"} rounded-[1.2rem] py-3 text-left transition ${
                           view === item.id
-                            ? "bg-[#fff9ec] text-[#173f33]"
+                            ? SECTION_THEMES[item.id].navActive
                             : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.1)]"
                         }`}
                         title={item.label}
                       >
-                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(245,198,94,0.16)]">
+                        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
+                          view === item.id ? SECTION_THEMES[item.id].navIconActive : "bg-[rgba(245,198,94,0.16)] text-[#fff9ec]"
+                        }`}>
                           {item.icon}
                         </span>
                         {!sidebarCollapsed ? (
                           <span className="min-w-0">
                             <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
-                            <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
+                            <span className={`mt-1 block text-sm ${view === item.id ? SECTION_THEMES[item.id].navDescriptionActive : "text-[#d7e1db]"}`}>{item.description}</span>
                           </span>
                         ) : null}
                       </button>
@@ -990,14 +1074,13 @@ export function AdminConsole({
               />
             </div>
 
-            <div className="rounded-[1.45rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-3.5 shadow-[0_18px_38px_rgba(10,5,4,0.11)]">
+            <div className={`rounded-[1.45rem] border p-3.5 shadow-[0_18px_38px_rgba(10,5,4,0.11)] ${activeTheme.panelShell}`}>
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Control center</p>
-                  <p className="mt-1.5 text-[13px] font-semibold leading-5 text-[#607366]">Refresh records and review alerts.</p>
                 </div>
-                <div className="rounded-full bg-[#173f33] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#fff9ec]">
-                  {loading ? "Syncing" : "Live"}
+                <div className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${activeTheme.badge}`}>
+                  {loading ? "Sync" : "Live"}
                 </div>
               </div>
 
@@ -1005,14 +1088,13 @@ export function AdminConsole({
                 <button
                   disabled={loading}
                   onClick={load}
-                  className="inline-flex min-h-[3.75rem] items-center justify-between rounded-[1.1rem] border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] px-3.5 py-2.5 text-left text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                  className={`inline-flex min-h-[3.75rem] items-center justify-between rounded-[1.1rem] border px-3.5 py-2.5 text-left text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 ${activeTheme.panelSurface}`}
                   aria-label="Refresh data"
                 >
                   <span>
                     <span className="block text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Refresh data</span>
-                    <span className="mt-0.5 block text-xs font-semibold text-[#607366]">Sync the latest counts.</span>
                   </span>
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#173f33] text-[#fff9ec]">
+                  <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.badge}`}>
                     <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
                   </span>
                 </button>
@@ -1020,17 +1102,14 @@ export function AdminConsole({
                 <div className="relative" ref={notificationPanelRef}>
                   <button
                     onClick={() => setNotificationOpen((current) => !current)}
-                    className="inline-flex min-h-[3.75rem] w-full items-center justify-between rounded-[1.1rem] border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] px-3.5 py-2.5 text-left text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5"
+                    className={`inline-flex min-h-[3.75rem] w-full items-center justify-between rounded-[1.1rem] border px-3.5 py-2.5 text-left text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 ${activeTheme.panelSurface}`}
                     aria-label="Open notifications"
                     aria-expanded={notificationOpen}
                   >
                     <span>
                       <span className="block text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Notifications</span>
-                      <span className="mt-0.5 block text-xs font-semibold text-[#607366]">
-                        {unreadNotifications ? `${unreadNotifications} unread alerts.` : "All clear."}
-                      </span>
                     </span>
-                    <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f5f1e7]">
+                    <span className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
                       <Bell className="h-4 w-4" aria-hidden="true" />
                       {unreadNotifications ? (
                         <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d12e2e] px-1.5 py-0.5 text-[10px] font-black text-white">
@@ -1102,9 +1181,11 @@ export function AdminConsole({
             </div>
           </div>
 
-          <div className="rounded-[1.35rem] border border-[rgba(255,240,214,0.1)] bg-[linear-gradient(180deg,rgba(255,248,238,0.98),rgba(252,241,225,0.96))] px-4 py-3 text-[13px] font-semibold text-[#8c5a29] shadow-[0_14px_28px_rgba(0,0,0,0.14)]">
-            {notice || topBannerMessage}
-          </div>
+          {notice ? (
+            <div className={`rounded-[1.2rem] border px-4 py-2.5 text-[13px] font-semibold shadow-[0_14px_28px_rgba(0,0,0,0.12)] ${activeTheme.panelShell}`}>
+              {notice}
+            </div>
+          ) : null}
 
       {view === "overview" ? (
         <OverviewDashboard
@@ -1117,14 +1198,16 @@ export function AdminConsole({
           galleryImages={galleryImages}
           historyEntries={historyEntries}
           onOpenSection={setView}
+          theme={SECTION_THEMES.overview}
         />
       ) : null}
 
       {view === "programs" ? (
         <DashboardSection
+          view="programs"
           eyebrow="Training manager"
-          title="Manage training services"
-          className="mt-8"
+          title=""
+          className="mt-5"
         >
           <ProgramsWorkspace
             databaseConfigured={databaseConfigured}
@@ -1144,9 +1227,10 @@ export function AdminConsole({
 
       {view === "events" ? (
         <DashboardSection
+          view="events"
           eyebrow="Event planner"
-          title="Schedule orientations and field sessions"
-          className="mt-8"
+          title=""
+          className="mt-5"
         >
           <EventsWorkspace
             disabled={loading || !databaseConfigured}
@@ -1165,9 +1249,10 @@ export function AdminConsole({
 
       {view === "applications" ? (
         <DashboardSection
+          view="applications"
           eyebrow="Admissions desk"
           title=""
-          className="mt-8 bg-[linear-gradient(180deg,rgba(244,236,220,0.98),rgba(232,241,234,0.96))]"
+          className="mt-5"
         >
           <ApplicationAdminPanel
             storageMode={applicationStorageMode}
@@ -1178,9 +1263,10 @@ export function AdminConsole({
 
       {view === "payments" ? (
         <DashboardSection
+          view="payments"
           eyebrow="Payment control"
           title=""
-          className="mt-8 bg-[linear-gradient(180deg,rgba(236,244,255,0.98),rgba(232,241,234,0.96))]"
+          className="mt-5"
         >
           <PaymentAdminPanel
             databaseConfigured={databaseConfigured}
@@ -1191,9 +1277,10 @@ export function AdminConsole({
 
       {view === "contacts" ? (
         <DashboardSection
+          view="contacts"
           eyebrow="Contact desk"
           title=""
-          className="mt-8"
+          className="mt-5"
         >
           <ContactInboxPanel messages={contactMessages} loading={loading} />
         </DashboardSection>
@@ -1201,9 +1288,10 @@ export function AdminConsole({
 
       {view === "articles" ? (
         <DashboardSection
+          view="articles"
           eyebrow="Article manager"
-          title="Manage Articles"
-          className="mt-8"
+          title=""
+          className="mt-5"
         >
           <ArticlesWorkspace
             articles={articles}
@@ -1221,9 +1309,10 @@ export function AdminConsole({
 
       {view === "gallery" ? (
         <DashboardSection
+          view="gallery"
           eyebrow="Gallery manager"
           title=""
-          className="mt-8"
+          className="mt-5"
         >
           <GalleryWorkspace
             disabled={loading || !databaseConfigured}
@@ -1292,6 +1381,7 @@ function OverviewDashboard({
   galleryImages,
   historyEntries,
   onOpenSection,
+  theme,
 }: {
   applications: TrainingApplicationRecord[];
   payments: PaymentAdminRecord[];
@@ -1302,6 +1392,7 @@ function OverviewDashboard({
   galleryImages: GalleryAdminItem[];
   historyEntries: HistoryEntry[];
   onOpenSection: (view: DashboardView) => void;
+  theme: SectionTheme;
 }) {
   const pendingApplications = applications.filter((application) => application.payload.approvalStatus !== "APPROVED").length;
   const pendingPayments = payments.filter((payment) => !["PAID", "SUCCESS", "CAPTURED"].includes(payment.status)).length;
@@ -1312,17 +1403,16 @@ function OverviewDashboard({
 
   return (
     <div className="mt-5 grid gap-4 2xl:grid-cols-[minmax(0,1fr)_22rem]">
-      <section className="rounded-[1.55rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)]">
+      <section className={`rounded-[1.55rem] border p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] ${theme.panelShell}`}>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b8842a]">Overview</p>
-            <p className="mt-1 text-sm font-semibold text-[#607366]">Compact command view for the full admin surface.</p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.08)] bg-white/60 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#173f33]">
+          <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#173f33] ${theme.panelSurface}`}>
             <span>Queue</span>
-            <span className="rounded-full bg-[#173f33] px-2 py-0.5 text-[#fff9ec]">{operationsLoad}</span>
+            <span className={`rounded-full px-2 py-0.5 ${theme.badge}`}>{operationsLoad}</span>
             <span>Assets</span>
-            <span className="rounded-full bg-[#f3ecdf] px-2 py-0.5 text-[#9c6a18]">{publishedAssets}</span>
+            <span className={`rounded-full px-2 py-0.5 ${theme.badge}`}>{publishedAssets}</span>
           </div>
         </div>
 
@@ -1376,22 +1466,21 @@ function OverviewDashboard({
             icon={<Images className="h-5 w-5" aria-hidden="true" />}
             onClick={() => onOpenSection("gallery")}
           />
-          <div className="rounded-[1.3rem] border border-[rgba(23,63,51,0.1)] bg-[linear-gradient(180deg,rgba(238,245,240,0.95),rgba(249,244,232,0.98))] p-3.5 shadow-[0_14px_30px_rgba(64,44,8,0.08)]">
+          <div className={`rounded-[1.3rem] border p-3.5 shadow-[0_14px_30px_rgba(64,44,8,0.08)] ${theme.panelSurface}`}>
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
+              <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${theme.panelMuted} text-[#173f33]`}>
                 <History className="h-4 w-4" aria-hidden="true" />
               </span>
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Recent activity</p>
-                <p className="text-xs font-semibold text-[#607366]">Latest admin actions</p>
               </div>
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-              <div className="rounded-[1rem] border border-[rgba(23,63,51,0.08)] bg-white/70 px-3 py-2.5">
+              <div className={`rounded-[1rem] border px-3 py-2.5 ${theme.panelSurface}`}>
                 <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Applications waiting</p>
                 <p className="mt-1 text-2xl font-semibold text-[#173f33]">{pendingApplications}</p>
               </div>
-              <div className="rounded-[1rem] border border-[rgba(23,63,51,0.08)] bg-white/70 px-3 py-2.5">
+              <div className={`rounded-[1rem] border px-3 py-2.5 ${theme.panelSurface}`}>
                 <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Messages in inbox</p>
                 <p className="mt-1 text-2xl font-semibold text-[#173f33]">{contactCount}</p>
               </div>
@@ -1400,18 +1489,17 @@ function OverviewDashboard({
         </div>
       </section>
 
-      <section className="rounded-[1.55rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] 2xl:h-fit">
+      <section className={`rounded-[1.55rem] border p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] 2xl:h-fit ${theme.panelShell}`}>
         <div className="flex items-center gap-2.5">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
+          <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${theme.panelMuted} text-[#173f33]`}>
             <History className="h-4 w-4" aria-hidden="true" />
           </span>
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b8842a]">Activity log</p>
-            <p className="mt-0.5 text-xs font-semibold text-[#607366]">Contained feed so the dashboard stays compact.</p>
           </div>
         </div>
 
-        <div className="mt-3 rounded-[1.2rem] border border-dashed border-[rgba(23,63,51,0.12)] bg-[rgba(255,255,255,0.45)] p-3">
+        <div className={`mt-3 rounded-[1.2rem] border p-3 ${theme.panelSurface}`}>
           {recentActivity.length ? (
             <div className="grid max-h-[26rem] gap-2.5 overflow-y-auto pr-1">
               {recentActivity.map((entry) => (
@@ -1478,23 +1566,27 @@ function OverviewMetricCard({
 }
 
 function DashboardSection({
+  view,
   eyebrow,
   title,
   className = "",
   children,
 }: {
+  view: DashboardView;
   eyebrow: string;
   title: string;
   className?: string;
   children: ReactNode;
 }) {
+  const theme = SECTION_THEMES[view];
+
   return (
-    <section className={`rounded-[2rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-6 shadow-[0_24px_60px_rgba(64,44,8,0.08)] ${className}`}>
+    <section className={`rounded-[1.65rem] border p-5 shadow-[0_24px_60px_rgba(64,44,8,0.08)] ${theme.panelShell} ${className}`}>
       <div>
         <p className="text-xs font-black uppercase tracking-[0.28em] text-[#9c6a18]">{eyebrow}</p>
-        {title ? <h2 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">{title}</h2> : null}
+        {title ? <h2 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{title}</h2> : null}
       </div>
-      <div className={title ? "mt-6" : "mt-3"}>{children}</div>
+      <div className={title ? "mt-4" : "mt-2"}>{children}</div>
     </section>
   );
 }
