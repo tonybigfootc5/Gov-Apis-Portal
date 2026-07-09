@@ -961,27 +961,26 @@ export function AdminConsole({
           <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
             <CurrentBatchCard applications={applications} programs={programs} theme={activeTheme} />
 
-            <div className="grid grid-cols-3 gap-2.5 xl:w-fit">
+            <div className="flex items-center gap-3 xl:w-fit">
                 <button
                   disabled={loading}
                   onClick={load}
-                  className={`inline-flex min-h-[4.5rem] min-w-[5.2rem] flex-col items-center justify-center gap-1 rounded-[1.1rem] border px-3 py-2.5 text-center text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 ${activeTheme.panelSurface}`}
+                  className="inline-flex h-10 w-10 items-center justify-center text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
                   aria-label="Refresh data"
                 >
-                  <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.badge}`}>
+                  <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${activeTheme.badge}`}>
                     <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
                   </span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Refresh</span>
                 </button>
 
                 <div className="relative" ref={notificationPanelRef}>
                   <button
                     onClick={() => setNotificationOpen((current) => !current)}
-                    className={`inline-flex min-h-[4.5rem] min-w-[5.2rem] w-full flex-col items-center justify-center gap-1 rounded-[1.1rem] border px-3 py-2.5 text-center text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 ${activeTheme.panelSurface}`}
+                    className="inline-flex h-10 w-10 items-center justify-center text-[#173f33] transition hover:scale-105"
                     aria-label="Open notifications"
                     aria-expanded={notificationOpen}
                   >
-                    <span className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
+                    <span className={`relative inline-flex h-10 w-10 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
                       <Bell className="h-4 w-4" aria-hidden="true" />
                       {unreadNotifications ? (
                         <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d12e2e] px-1.5 py-0.5 text-[10px] font-black text-white">
@@ -989,7 +988,6 @@ export function AdminConsole({
                         </span>
                       ) : null}
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Alerts</span>
                   </button>
 
                   {notificationOpen ? (
@@ -1060,14 +1058,13 @@ export function AdminConsole({
                     type="button"
                     onClick={() => setActivityOpen((current) => !current)}
                     onMouseEnter={() => setActivityOpen(true)}
-                    className={`inline-flex min-h-[4.5rem] min-w-[5.2rem] flex-col items-center justify-center gap-1 rounded-[1.1rem] border px-3 py-2.5 text-center text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 ${activeTheme.panelSurface}`}
+                    className="inline-flex h-10 w-10 items-center justify-center text-[#173f33] transition hover:scale-105"
                     aria-label="Open activity log"
                     aria-expanded={activityOpen}
                   >
-                    <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
+                    <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
                       <History className="h-4 w-4" aria-hidden="true" />
                     </span>
-                    <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Activity</span>
                   </button>
 
                   {activityOpen ? (
@@ -1518,30 +1515,38 @@ function CurrentBatchCard({
   }
 
   return (
-    <section className={`rounded-[1.45rem] border p-4 shadow-[0_18px_38px_rgba(10,5,4,0.11)] ${theme.panelShell}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Current batch</p>
-          <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{snapshot.batchCode}</h3>
-          <p className="mt-1 text-sm font-semibold text-[#607366]">{snapshot.program.title}</p>
+    <section className={`rounded-[1.3rem] border p-3.5 shadow-[0_16px_32px_rgba(10,5,4,0.1)] ${theme.panelShell}`}>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Current batch</p>
+            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#173f33]">{snapshot.batchCode}</span>
+          </div>
+          <p className="mt-1.5 truncate text-sm font-semibold text-[#173f33]">{snapshot.program.title}</p>
         </div>
-        <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${theme.badge}`}>
+        <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${theme.badge}`}>
           {snapshot.statusLabel}
         </span>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <div className={`rounded-[1rem] border px-3 py-3 ${theme.panelSurface}`}>
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-4">
+        <div className={`rounded-[0.95rem] border px-3 py-2.5 ${theme.panelSurface}`}>
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Joined</p>
-          <p className="mt-1 text-2xl font-semibold text-[#173f33]">{snapshot.joinedCount}</p>
+          <p className="mt-1 text-xl font-semibold text-[#173f33]">{snapshot.joinedCount}</p>
         </div>
-        <div className={`rounded-[1rem] border px-3 py-3 ${theme.panelSurface}`}>
+        <div className={`rounded-[0.95rem] border px-3 py-2.5 ${theme.panelSurface}`}>
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Vacancies</p>
-          <p className="mt-1 text-2xl font-semibold text-[#173f33]">{snapshot.vacancies}</p>
+          <p className="mt-1 text-xl font-semibold text-[#173f33]">{snapshot.vacancies}</p>
         </div>
-        <div className={`rounded-[1rem] border px-3 py-3 ${theme.panelSurface}`}>
+        <div className={`rounded-[0.95rem] border px-3 py-2.5 ${theme.panelSurface}`}>
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Capacity</p>
-          <p className="mt-1 text-2xl font-semibold text-[#173f33]">{snapshot.capacity}</p>
+          <p className="mt-1 text-xl font-semibold text-[#173f33]">{snapshot.capacity}</p>
+        </div>
+        <div className={`rounded-[0.95rem] border px-3 py-2.5 ${theme.panelSurface}`}>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Starts</p>
+          <p className="mt-1 text-[13px] font-semibold text-[#173f33]">
+            {snapshot.program.batchStartsAt ? formatDateTime(snapshot.program.batchStartsAt) : "Not set"}
+          </p>
         </div>
       </div>
     </section>
