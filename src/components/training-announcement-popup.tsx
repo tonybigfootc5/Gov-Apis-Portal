@@ -6,6 +6,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight, BellRing, CalendarDays, X } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 
+const INSTITUTE_WORDS = ["National", "Institute", "of", "Rural", "Development", "&", "Panchayati", "Raj"];
+const INSTITUTE_INITIAL_COLORS = ["#d58a00", "#0e4b5a", "#8f5b00", "#3f6b3c", "#9f4d20", "#6d5a8d"];
+
 type AnnouncementProgram = {
   id: string;
   title: string;
@@ -24,7 +27,6 @@ export function TrainingAnnouncementPopup({
   const [compactVisible, setCompactVisible] = useState(false);
   const [hasOverflowBelow, setHasOverflowBelow] = useState(false);
   const [closeProgress, setCloseProgress] = useState(0);
-  const [referenceNow] = useState(() => Date.now());
   const [autoCloseEnabled, setAutoCloseEnabled] = useState(false);
   const enterTimerRef = useRef<number | null>(null);
   const collapseTimerRef = useRef<number | null>(null);
@@ -117,13 +119,10 @@ export function TrainingAnnouncementPopup({
 
   if (!programs.length) return null;
 
-  const currentPrograms = programs.filter((program) => {
-    if (!program.batchStartsAt) return true;
-    return new Date(program.batchStartsAt).getTime() <= referenceNow;
-  });
-  const upcomingPrograms = programs.filter((program) => {
-    if (!program.batchStartsAt) return false;
-    return new Date(program.batchStartsAt).getTime() > referenceNow;
+  const orderedPrograms = [...programs].sort((left, right) => {
+    const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
+    const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
+    return leftTime - rightTime;
   });
 
   const whatsappCta = (
@@ -161,7 +160,7 @@ export function TrainingAnnouncementPopup({
               <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </span>
             <span>
-              <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">Upcoming batch</span>
+              <span className="block text-[11px] font-black uppercase tracking-[0.2em] text-[#b36b00]">Training schedule</span>
               <span className="mt-0.5 block text-sm font-semibold text-[#1b3b2b]">
                 {programs.length > 1 ? `${programs.length} listed batches` : programs[0]?.title}
               </span>
@@ -172,6 +171,29 @@ export function TrainingAnnouncementPopup({
 
       {expandedVisible ? (
         <aside className="pointer-events-auto relative flex max-h-[min(78dvh,42rem)] w-[min(23rem,calc(100vw-1rem))] flex-col overflow-hidden rounded-[1.8rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,#fffdf8_0%,#fbf6ee_100%)] shadow-[0_24px_60px_rgba(64,44,8,0.14)] transition-all duration-700 ease-out sm:w-[min(24rem,calc(100vw-1.5rem))] xl:w-[25vw] xl:max-w-[25rem]">
+          <div className="shrink-0 border-b border-[rgba(27,59,43,0.08)] px-4 pb-3 pt-3">
+            <div className="rounded-full border border-[rgba(179,107,0,0.12)] bg-[rgba(255,255,255,0.82)] px-4 py-3 shadow-[0_10px_24px_rgba(64,44,8,0.08)]">
+              <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#7d5d1b]">
+                {INSTITUTE_WORDS.map((word, index) => {
+                  if (word === "&") {
+                    return <span key={`${word}-${index}`} className="mx-1 text-[#9c6a18]">&amp;</span>;
+                  }
+
+                  const firstChar = word.charAt(0);
+                  const rest = word.slice(1).toUpperCase();
+                  const color = INSTITUTE_INITIAL_COLORS[index % INSTITUTE_INITIAL_COLORS.length];
+
+                  return (
+                    <span key={`${word}-${index}`} className="mr-2 inline-block last:mr-0">
+                      <span style={{ color }} className="font-black">{firstChar.toUpperCase()}</span>
+                      <span>{rest}</span>
+                    </span>
+                  );
+                })}
+              </p>
+            </div>
+          </div>
+
           <div className="shrink-0 border-b border-[rgba(27,59,43,0.08)] px-4 pb-4 pt-4">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
@@ -179,9 +201,9 @@ export function TrainingAnnouncementPopup({
                   <BellRing className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">Upcoming training</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">Training schedule</p>
                   <h2 className="mt-1 font-display text-[1.65rem] leading-none font-semibold text-[#1b3b2b]">
-                    Batch status
+                    Batch overview
                   </h2>
                 </div>
               </div>
@@ -213,18 +235,10 @@ export function TrainingAnnouncementPopup({
             className="relative min-h-0 flex-1 overflow-y-auto px-4 pb-5 pt-4 scroll-smooth"
           >
             <div className="grid gap-4">
-              {currentPrograms.length ? (
-                <BatchSection
-                  title="Current batches"
-                  emptyLabel="No current batches listed"
-                  programs={currentPrograms}
-                  tone="current"
-                />
-              ) : null}
               <BatchSection
-                title="Upcoming batches"
-                emptyLabel="No upcoming batches listed"
-                programs={upcomingPrograms}
+                title="Training batches"
+                emptyLabel="No batches listed right now"
+                programs={orderedPrograms}
                 tone="upcoming"
               />
             </div>
@@ -296,16 +310,28 @@ function BatchSection({
         <div className="mt-3 grid gap-2.5">
           {programs.map((program) => (
             <div key={program.id} className={`rounded-[1rem] px-3 py-3 ${toneClasses.card}`}>
-              <p className="text-sm font-semibold leading-6 text-[#1b3b2b]">{program.title}</p>
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#596b62]">
-                <span>{program.duration}</span>
-                <span>{program.capacity} seats</span>
-                {program.batchStartsAt ? (
-                  <span className="inline-flex items-center gap-1.5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold leading-6 text-[#1b3b2b]">{program.title}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#6c7b73]">{program.duration}</p>
+                </div>
+                <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${toneClasses.badge}`}>
+                  {program.capacity} seats
+                </span>
+              </div>
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <div className="rounded-[0.9rem] border border-[rgba(27,59,43,0.08)] bg-white/70 px-3 py-2.5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Seat capacity</p>
+                  <p className="mt-1 text-sm font-semibold text-[#1b3b2b]">{program.capacity} total seats</p>
+                </div>
+                <div className="rounded-[0.9rem] border border-[rgba(27,59,43,0.08)] bg-white/70 px-3 py-2.5">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Program start</p>
+                  <p className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1b3b2b]">
                     <CalendarDays className={`h-3.5 w-3.5 ${toneClasses.icon}`} aria-hidden="true" />
-                    {formatDateTime(program.batchStartsAt)}
-                  </span>
-                ) : null}
+                    {program.batchStartsAt ? formatDateTime(program.batchStartsAt) : "Start date not set"}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
