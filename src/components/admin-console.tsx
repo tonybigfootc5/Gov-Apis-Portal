@@ -314,11 +314,12 @@ export function AdminConsole({
   const [activeHistorySection, setActiveHistorySection] = useState<HistorySection | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>(readStoredNotifications);
   const [notificationOpen, setNotificationOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
   const [readSystemNotificationIds, setReadSystemNotificationIds] = useState<string[]>([]);
   const [dismissedSystemNotificationIds, setDismissedSystemNotificationIds] = useState<string[]>([]);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const notificationPanelRef = useRef<HTMLDivElement | null>(null);
-  const overviewActivityRef = useRef<HTMLElement | null>(null);
+  const activityPanelRef = useRef<HTMLDivElement | null>(null);
 
   const applicationSummary = useMemo(() => {
     const ready = applications.filter(
@@ -407,14 +408,17 @@ export function AdminConsole({
       if (!notificationPanelRef.current?.contains(event.target as Node)) {
         setNotificationOpen(false);
       }
+      if (!activityPanelRef.current?.contains(event.target as Node)) {
+        setActivityOpen(false);
+      }
     }
 
-    if (notificationOpen) {
+    if (notificationOpen || activityOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [notificationOpen]);
+  }, [activityOpen, notificationOpen]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -873,13 +877,6 @@ export function AdminConsole({
     ]);
   }
 
-  function focusOverviewActivity() {
-    setView("overview");
-    window.setTimeout(() => {
-      overviewActivityRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 60);
-  }
-
   return (
     <div className="mx-auto max-w-[98rem] px-4 py-4 sm:px-5 lg:px-6">
       <div className="overflow-hidden rounded-[2.1rem] border border-[rgba(255,240,214,0.08)] bg-[radial-gradient(circle_at_top_left,rgba(41,98,73,0.34),transparent_28%),radial-gradient(circle_at_top_right,rgba(186,114,41,0.16),transparent_22%),linear-gradient(180deg,#120d0b_0%,#1a100d_42%,#17100f_100%)] p-4 shadow-[0_28px_80px_rgba(10,5,4,0.38)] sm:p-5 lg:p-6">
@@ -1172,17 +1169,60 @@ export function AdminConsole({
                   ) : null}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={focusOverviewActivity}
-                  className={`inline-flex min-h-[4.5rem] min-w-[5.2rem] flex-col items-center justify-center gap-1 rounded-[1.1rem] border px-3 py-2.5 text-center text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 ${activeTheme.panelSurface}`}
-                  aria-label="Open activity log"
+                <div
+                  className="relative"
+                  ref={activityPanelRef}
+                  onMouseLeave={() => setActivityOpen(false)}
                 >
-                  <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
-                    <History className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Activity</span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => setActivityOpen((current) => !current)}
+                    onMouseEnter={() => setActivityOpen(true)}
+                    className={`inline-flex min-h-[4.5rem] min-w-[5.2rem] flex-col items-center justify-center gap-1 rounded-[1.1rem] border px-3 py-2.5 text-center text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 ${activeTheme.panelSurface}`}
+                    aria-label="Open activity log"
+                    aria-expanded={activityOpen}
+                  >
+                    <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
+                      <History className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Activity</span>
+                  </button>
+
+                  {activityOpen ? (
+                    <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[26rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
+                      <div className="flex items-center gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
+                        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted} text-[#173f33]`}>
+                          <History className="h-4 w-4" aria-hidden="true" />
+                        </span>
+                        <div>
+                          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Activity log</p>
+                          <p className="mt-1 text-sm font-semibold text-[#607366]">{historyEntries.length} entries</p>
+                        </div>
+                      </div>
+
+                      <div className="max-h-[26rem] overflow-y-auto p-3">
+                        {historyEntries.length ? (
+                          <div className="grid gap-2.5">
+                            {historyEntries.map((entry) => (
+                              <div key={entry.id} className="rounded-[1.1rem] border border-[rgba(27,59,43,0.08)] bg-[#f9f6ef] px-3.5 py-3 text-left">
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <p className="text-[12px] font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
+                                  <p className="text-xs font-semibold text-[#7a8b80]">{timeAgo(entry.timestamp)}</p>
+                                </div>
+                                <p className="mt-1 text-[13px] font-semibold text-[#395547]">{entry.label}</p>
+                                {entry.details ? <p className="mt-1 text-[13px] leading-5 text-[#607366]">{entry.details}</p> : null}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
+                            No activity yet.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
             </div>
           </div>
 
@@ -1201,10 +1241,8 @@ export function AdminConsole({
           events={events}
           articles={articles}
           galleryImages={galleryImages}
-          historyEntries={historyEntries}
           onOpenSection={setView}
           theme={SECTION_THEMES.overview}
-          activityRef={overviewActivityRef}
         />
       ) : null}
 
@@ -1385,10 +1423,8 @@ function OverviewDashboard({
   events,
   articles,
   galleryImages,
-  historyEntries,
   onOpenSection,
   theme,
-  activityRef,
 }: {
   applications: TrainingApplicationRecord[];
   payments: PaymentAdminRecord[];
@@ -1397,20 +1433,17 @@ function OverviewDashboard({
   events: EventItem[];
   articles: ArticleItem[];
   galleryImages: GalleryAdminItem[];
-  historyEntries: HistoryEntry[];
   onOpenSection: (view: DashboardView) => void;
   theme: SectionTheme;
-  activityRef: React.RefObject<HTMLElement | null>;
 }) {
   const pendingApplications = applications.filter((application) => application.payload.approvalStatus !== "APPROVED").length;
   const pendingPayments = payments.filter((payment) => !["PAID", "SUCCESS", "CAPTURED"].includes(payment.status)).length;
   const contactCount = contactMessages.length;
-  const recentActivity = historyEntries.slice(0, 5);
   const operationsLoad = pendingApplications + pendingPayments + contactCount;
   const publishedAssets = programs.length + events.length + articles.length + galleryImages.length;
 
   return (
-    <div className="mt-5 grid gap-4 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className="mt-5">
       <section className={`rounded-[1.55rem] border p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] ${theme.panelShell}`}>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -1474,38 +1507,6 @@ function OverviewDashboard({
             icon={<Images className="h-5 w-5" aria-hidden="true" />}
             onClick={() => onOpenSection("gallery")}
           />
-        </div>
-      </section>
-
-      <section ref={activityRef} className={`rounded-[1.55rem] border p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] 2xl:h-fit ${theme.panelShell}`}>
-        <div className="flex items-center gap-2.5">
-          <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${theme.panelMuted} text-[#173f33]`}>
-            <History className="h-4 w-4" aria-hidden="true" />
-          </span>
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b8842a]">Activity log</p>
-          </div>
-        </div>
-
-        <div className={`mt-3 rounded-[1.2rem] border p-3 ${theme.panelSurface}`}>
-          {recentActivity.length ? (
-            <div className="grid max-h-[26rem] gap-2.5 overflow-y-auto pr-1">
-              {recentActivity.map((entry) => (
-                <div key={entry.id} className="rounded-[1rem] bg-white/80 px-3.5 py-3 shadow-[0_8px_18px_rgba(64,44,8,0.05)]">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-[13px] font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
-                    <p className="text-xs font-semibold text-[#7a8b80]">{timeAgo(entry.timestamp)}</p>
-                  </div>
-                  <p className="mt-1 text-[13px] font-semibold text-[#395547]">{entry.label}</p>
-                  {entry.details ? <p className="mt-1 text-[13px] leading-5 text-[#607366]">{entry.details}</p> : null}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="py-6 text-center text-sm font-semibold text-[#607366]">
-              No activity yet. Actions you take across the dashboard will show up here.
-            </p>
-          )}
         </div>
       </section>
     </div>
