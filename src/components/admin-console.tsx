@@ -793,8 +793,8 @@ export function AdminConsole({
   }
 
   return (
-    <div className="mx-auto max-w-[98rem] px-4 py-6 sm:px-6 lg:px-8">
-      <div className="overflow-hidden rounded-[2.4rem] border border-[rgba(255,240,214,0.08)] bg-[radial-gradient(circle_at_top_left,rgba(41,98,73,0.34),transparent_28%),radial-gradient(circle_at_top_right,rgba(186,114,41,0.16),transparent_22%),linear-gradient(180deg,#120d0b_0%,#1a100d_42%,#17100f_100%)] p-4 shadow-[0_28px_80px_rgba(10,5,4,0.38)] sm:p-6 lg:p-8">
+    <div className="mx-auto max-w-[98rem] px-4 py-4 sm:px-5 lg:px-6">
+      <div className="overflow-hidden rounded-[2.1rem] border border-[rgba(255,240,214,0.08)] bg-[radial-gradient(circle_at_top_left,rgba(41,98,73,0.34),transparent_28%),radial-gradient(circle_at_top_right,rgba(186,114,41,0.16),transparent_22%),linear-gradient(180deg,#120d0b_0%,#1a100d_42%,#17100f_100%)] p-4 shadow-[0_28px_80px_rgba(10,5,4,0.38)] sm:p-5 lg:p-6">
       <div className="lg:hidden">
         <button
           onClick={() => setSidebarOpen(true)}
@@ -873,7 +873,7 @@ export function AdminConsole({
       ) : null}
 
       <div
-        className={`mt-4 grid gap-6 lg:mt-0 ${
+        className={`mt-3 grid gap-5 lg:mt-0 ${
           sidebarCollapsed
             ? "lg:grid-cols-[6rem_minmax(0,1fr)]"
             : "lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)]"
@@ -952,8 +952,8 @@ export function AdminConsole({
           </div>
         </aside>
 
-        <div className="grid gap-8">
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
+        <div className="grid gap-5">
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-start">
             <div className="grid gap-3 md:grid-cols-3">
               <TopStatusChip
                 label="Pending review"
@@ -990,50 +990,48 @@ export function AdminConsole({
               />
             </div>
 
-            <div className="rounded-[1.8rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-4 shadow-[0_24px_54px_rgba(10,5,4,0.12)]">
+            <div className="rounded-[1.45rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-3.5 shadow-[0_18px_38px_rgba(10,5,4,0.11)]">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Control center</p>
-                  <p className="mt-2 text-sm font-semibold leading-6 text-[#607366]">
-                    Refresh live records, review notifications, and keep today&apos;s admin queue moving.
-                  </p>
+                  <p className="mt-1.5 text-[13px] font-semibold leading-5 text-[#607366]">Refresh records and review alerts.</p>
                 </div>
                 <div className="rounded-full bg-[#173f33] px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#fff9ec]">
                   {loading ? "Syncing" : "Live"}
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
                 <button
                   disabled={loading}
                   onClick={load}
-                  className="inline-flex min-h-[4.5rem] items-center justify-between rounded-[1.3rem] border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] px-4 py-3 text-left text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex min-h-[3.75rem] items-center justify-between rounded-[1.1rem] border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] px-3.5 py-2.5 text-left text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
                   aria-label="Refresh data"
                 >
                   <span>
                     <span className="block text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Refresh data</span>
-                    <span className="mt-1 block text-sm font-semibold text-[#607366]">Pull the latest records and recalculate admin counts.</span>
+                    <span className="mt-0.5 block text-xs font-semibold text-[#607366]">Sync the latest counts.</span>
                   </span>
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#173f33] text-[#fff9ec]">
-                    <RefreshCw className={`h-5 w-5${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#173f33] text-[#fff9ec]">
+                    <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
                   </span>
                 </button>
 
                 <div className="relative" ref={notificationPanelRef}>
                   <button
                     onClick={() => setNotificationOpen((current) => !current)}
-                    className="inline-flex min-h-[4.5rem] w-full items-center justify-between rounded-[1.3rem] border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] px-4 py-3 text-left text-[#173f33] shadow-[0_14px_30px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5"
+                    className="inline-flex min-h-[3.75rem] w-full items-center justify-between rounded-[1.1rem] border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] px-3.5 py-2.5 text-left text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5"
                     aria-label="Open notifications"
                     aria-expanded={notificationOpen}
                   >
                     <span>
                       <span className="block text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Notifications</span>
-                      <span className="mt-1 block text-sm font-semibold text-[#607366]">
-                        {unreadNotifications ? `${unreadNotifications} unread alerts need attention.` : "No unread alerts at the moment."}
+                      <span className="mt-0.5 block text-xs font-semibold text-[#607366]">
+                        {unreadNotifications ? `${unreadNotifications} unread alerts.` : "All clear."}
                       </span>
                     </span>
-                    <span className="relative inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#f5f1e7]">
-                      <Bell className="h-5 w-5" aria-hidden="true" />
+                    <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f5f1e7]">
+                      <Bell className="h-4 w-4" aria-hidden="true" />
                       {unreadNotifications ? (
                         <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d12e2e] px-1.5 py-0.5 text-[10px] font-black text-white">
                           {unreadNotifications}
@@ -1104,7 +1102,7 @@ export function AdminConsole({
             </div>
           </div>
 
-          <div className="rounded-[1.7rem] border border-[rgba(255,240,214,0.1)] bg-[linear-gradient(180deg,rgba(255,248,238,0.98),rgba(252,241,225,0.96))] px-5 py-4 text-sm font-semibold text-[#8c5a29] shadow-[0_18px_34px_rgba(0,0,0,0.14)]">
+          <div className="rounded-[1.35rem] border border-[rgba(255,240,214,0.1)] bg-[linear-gradient(180deg,rgba(255,248,238,0.98),rgba(252,241,225,0.96))] px-4 py-3 text-[13px] font-semibold text-[#8c5a29] shadow-[0_14px_28px_rgba(0,0,0,0.14)]">
             {notice || topBannerMessage}
           </div>
 
@@ -1313,132 +1311,122 @@ function OverviewDashboard({
   const publishedAssets = programs.length + events.length + articles.length + galleryImages.length;
 
   return (
-    <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.85fr)]">
-      <div className="grid gap-6">
-        <section className="rounded-[2rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(145deg,rgba(255,252,246,0.98),rgba(247,239,224,0.97))] p-6 shadow-[0_28px_64px_rgba(10,5,4,0.18)]">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b8842a]">Operations board</p>
-              <h2 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">What needs attention right now</h2>
+    <div className="mt-5 grid gap-4 2xl:grid-cols-[minmax(0,1fr)_22rem]">
+      <section className="rounded-[1.55rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)]">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b8842a]">Overview</p>
+            <p className="mt-1 text-sm font-semibold text-[#607366]">Compact command view for the full admin surface.</p>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.08)] bg-white/60 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#173f33]">
+            <span>Queue</span>
+            <span className="rounded-full bg-[#173f33] px-2 py-0.5 text-[#fff9ec]">{operationsLoad}</span>
+            <span>Assets</span>
+            <span className="rounded-full bg-[#f3ecdf] px-2 py-0.5 text-[#9c6a18]">{publishedAssets}</span>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <OverviewMetricCard
+            label="Applications"
+            value={pendingApplications}
+            description={pendingApplications ? "Awaiting review in admissions desk" : "Nothing waiting on you"}
+            icon={<UsersRound className="h-5 w-5" aria-hidden="true" />}
+            onClick={() => onOpenSection("applications")}
+          />
+          <OverviewMetricCard
+            label="Payments"
+            value={pendingPayments}
+            description={pendingPayments ? "Transactions need verification" : "All caught up"}
+            icon={<CreditCard className="h-5 w-5" aria-hidden="true" />}
+            onClick={() => onOpenSection("payments")}
+          />
+          <OverviewMetricCard
+            label="Contact Inbox"
+            value={contactCount}
+            description={contactCount ? "Student messages are waiting" : "Inbox is empty"}
+            icon={<Mail className="h-5 w-5" aria-hidden="true" />}
+            onClick={() => onOpenSection("contacts")}
+          />
+          <OverviewMetricCard
+            label="Training"
+            value={programs.length}
+            description={programs.length ? "Training catalog is live" : "No programs added yet"}
+            icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />}
+            onClick={() => onOpenSection("programs")}
+          />
+          <OverviewMetricCard
+            label="Events"
+            value={events.length}
+            description={events.length ? "Schedule is published" : "No events published yet"}
+            icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />}
+            onClick={() => onOpenSection("events")}
+          />
+          <OverviewMetricCard
+            label="Articles"
+            value={articles.length}
+            description={articles.length ? "Content library is updated" : "No articles published yet"}
+            icon={<BookOpenText className="h-5 w-5" aria-hidden="true" />}
+            onClick={() => onOpenSection("articles")}
+          />
+          <OverviewMetricCard
+            label="Gallery"
+            value={galleryImages.length}
+            description={galleryImages.length ? "Media showcase is ready" : "No gallery media yet"}
+            icon={<Images className="h-5 w-5" aria-hidden="true" />}
+            onClick={() => onOpenSection("gallery")}
+          />
+          <div className="rounded-[1.3rem] border border-[rgba(23,63,51,0.1)] bg-[linear-gradient(180deg,rgba(238,245,240,0.95),rgba(249,244,232,0.98))] p-3.5 shadow-[0_14px_30px_rgba(64,44,8,0.08)]">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
+                <History className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Recent activity</p>
+                <p className="text-xs font-semibold text-[#607366]">Latest admin actions</p>
+              </div>
             </div>
-            <div className="rounded-[1.2rem] border border-[rgba(23,63,51,0.08)] bg-white/60 px-4 py-3 text-right">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Active queue</p>
-              <p className="mt-1 text-2xl font-semibold text-[#173f33]">{operationsLoad}</p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="rounded-[1rem] border border-[rgba(23,63,51,0.08)] bg-white/70 px-3 py-2.5">
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Applications waiting</p>
+                <p className="mt-1 text-2xl font-semibold text-[#173f33]">{pendingApplications}</p>
+              </div>
+              <div className="rounded-[1rem] border border-[rgba(23,63,51,0.08)] bg-white/70 px-3 py-2.5">
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Messages in inbox</p>
+                <p className="mt-1 text-2xl font-semibold text-[#173f33]">{contactCount}</p>
+              </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-3">
-            <OverviewMetricCard
-              label="Applications"
-              value={pendingApplications}
-              description={pendingApplications ? "Awaiting review in admissions desk" : "Nothing waiting on you"}
-              icon={<UsersRound className="h-5 w-5" aria-hidden="true" />}
-              onClick={() => onOpenSection("applications")}
-            />
-            <OverviewMetricCard
-              label="Payments"
-              value={pendingPayments}
-              description={pendingPayments ? "Transactions need verification" : "All caught up"}
-              icon={<CreditCard className="h-5 w-5" aria-hidden="true" />}
-              onClick={() => onOpenSection("payments")}
-            />
-            <OverviewMetricCard
-              label="Contact Inbox"
-              value={contactCount}
-              description={contactCount ? "Student messages are waiting" : "Inbox is empty"}
-              icon={<Mail className="h-5 w-5" aria-hidden="true" />}
-              onClick={() => onOpenSection("contacts")}
-            />
-          </div>
-        </section>
-
-        <section className="rounded-[2rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-6 shadow-[0_28px_64px_rgba(10,5,4,0.14)]">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b8842a]">Content studio</p>
-              <h2 className="font-display mt-3 text-3xl font-semibold text-[#173f33]">Publishing surfaces in one place</h2>
-            </div>
-            <div className="rounded-[1.2rem] border border-[rgba(23,63,51,0.08)] bg-white/60 px-4 py-3 text-right">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Live assets</p>
-              <p className="mt-1 text-2xl font-semibold text-[#173f33]">{publishedAssets}</p>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
-            <OverviewMetricCard
-              compact
-              label="Training"
-              value={programs.length}
-              description={programs.length ? "Training catalog is live" : "No programs added yet"}
-              icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />}
-              onClick={() => onOpenSection("programs")}
-            />
-            <OverviewMetricCard
-              compact
-              label="Events"
-              value={events.length}
-              description={events.length ? "Schedule is published" : "No events published yet"}
-              icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />}
-              onClick={() => onOpenSection("events")}
-            />
-            <OverviewMetricCard
-              compact
-              label="Articles"
-              value={articles.length}
-              description={articles.length ? "Content library is updated" : "No articles published yet"}
-              icon={<BookOpenText className="h-5 w-5" aria-hidden="true" />}
-              onClick={() => onOpenSection("articles")}
-            />
-            <OverviewMetricCard
-              compact
-              label="Gallery"
-              value={galleryImages.length}
-              description={galleryImages.length ? "Media showcase is ready" : "No gallery media yet"}
-              icon={<Images className="h-5 w-5" aria-hidden="true" />}
-              onClick={() => onOpenSection("gallery")}
-            />
-          </div>
-        </section>
-      </div>
-
-      <section className="rounded-[2rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-6 shadow-[0_28px_64px_rgba(10,5,4,0.18)] xl:sticky xl:top-24 xl:h-fit">
-        <div className="flex items-center gap-3">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
+      <section className="rounded-[1.55rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] 2xl:h-fit">
+        <div className="flex items-center gap-2.5">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
             <History className="h-4 w-4" aria-hidden="true" />
           </span>
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b8842a]">Recent activity</p>
-            <p className="mt-1 text-sm font-semibold text-[#607366]">A quick pulse on the latest admin actions.</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b8842a]">Activity log</p>
+            <p className="mt-0.5 text-xs font-semibold text-[#607366]">Contained feed so the dashboard stays compact.</p>
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-          <div className="rounded-[1.3rem] border border-[rgba(23,63,51,0.08)] bg-white/65 px-4 py-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Applications waiting</p>
-            <p className="mt-2 text-3xl font-semibold text-[#173f33]">{pendingApplications}</p>
-          </div>
-          <div className="rounded-[1.3rem] border border-[rgba(23,63,51,0.08)] bg-white/65 px-4 py-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Messages in inbox</p>
-            <p className="mt-2 text-3xl font-semibold text-[#173f33]">{contactCount}</p>
-          </div>
-        </div>
-
-        <div className="mt-5 rounded-[1.5rem] border border-dashed border-[rgba(23,63,51,0.12)] bg-[rgba(255,255,255,0.45)] p-4 sm:p-5">
+        <div className="mt-3 rounded-[1.2rem] border border-dashed border-[rgba(23,63,51,0.12)] bg-[rgba(255,255,255,0.45)] p-3">
           {recentActivity.length ? (
-            <div className="grid gap-3">
+            <div className="grid max-h-[26rem] gap-2.5 overflow-y-auto pr-1">
               {recentActivity.map((entry) => (
-                <div key={entry.id} className="rounded-[1.1rem] bg-white/80 px-4 py-3 shadow-[0_10px_24px_rgba(64,44,8,0.05)]">
+                <div key={entry.id} className="rounded-[1rem] bg-white/80 px-3.5 py-3 shadow-[0_8px_18px_rgba(64,44,8,0.05)]">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
+                    <p className="text-[13px] font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
                     <p className="text-xs font-semibold text-[#7a8b80]">{timeAgo(entry.timestamp)}</p>
                   </div>
-                  <p className="mt-1 text-sm font-semibold text-[#395547]">{entry.label}</p>
-                  {entry.details ? <p className="mt-1 text-sm text-[#607366]">{entry.details}</p> : null}
+                  <p className="mt-1 text-[13px] font-semibold text-[#395547]">{entry.label}</p>
+                  {entry.details ? <p className="mt-1 text-[13px] leading-5 text-[#607366]">{entry.details}</p> : null}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="py-8 text-center text-sm font-semibold text-[#607366]">
+            <p className="py-6 text-center text-sm font-semibold text-[#607366]">
               No activity yet. Actions you take across the dashboard will show up here.
             </p>
           )}
@@ -1454,14 +1442,12 @@ function OverviewMetricCard({
   description,
   icon,
   onClick,
-  compact = false,
 }: {
   label: string;
   value: number;
   description: string;
   icon: ReactNode;
   onClick: () => void;
-  compact?: boolean;
 }) {
   const isEmpty = value === 0;
 
@@ -1469,22 +1455,24 @@ function OverviewMetricCard({
     <button
       type="button"
       onClick={onClick}
-      className={`flex h-full flex-col rounded-[1.8rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-5 text-left shadow-[0_24px_54px_rgba(10,5,4,0.16)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_64px_rgba(10,5,4,0.22)] ${compact ? "min-h-[12.5rem]" : "min-h-[14rem]"}`}
+      className="flex h-full min-h-[9.4rem] flex-col rounded-[1.3rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-3.5 text-left shadow-[0_16px_34px_rgba(10,5,4,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_42px_rgba(10,5,4,0.18)]"
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
           {icon}
         </span>
-        <span className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${isEmpty ? "bg-[#eef5ef] text-[#607366]" : "bg-[#173f33] text-[#fff9ec]"}`}>
+        <span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.16em] ${isEmpty ? "bg-[#eef5ef] text-[#607366]" : "bg-[#173f33] text-[#fff9ec]"}`}>
           {isEmpty ? "Clear" : "Active"}
         </span>
       </div>
-      <div className="mt-6 flex-1">
-        <p className={`font-display text-[#173f33] ${compact ? "text-5xl" : "text-6xl"}`}>{value}</p>
-        <p className="mt-3 text-[11px] font-black uppercase tracking-[0.2em] text-[#173f33]">{label}</p>
-        <p className="mt-2 text-base leading-7 text-[#607366]">{description}</p>
+      <div className="mt-3.5 flex-1">
+        <div className="flex items-end justify-between gap-3">
+          <p className="font-display text-4xl leading-none text-[#173f33]">{value}</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Open</p>
+        </div>
+        <p className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#173f33]">{label}</p>
+        <p className="mt-1.5 text-[13px] leading-5 text-[#607366]">{description}</p>
       </div>
-      <p className="mt-4 text-xs font-black uppercase tracking-[0.18em] text-[#9c6a18]">Open section</p>
     </button>
   );
 }
