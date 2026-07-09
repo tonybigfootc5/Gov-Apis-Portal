@@ -213,12 +213,14 @@ export function TrainingAnnouncementPopup({
             className="relative min-h-0 flex-1 overflow-y-auto px-4 pb-5 pt-4 scroll-smooth"
           >
             <div className="grid gap-4">
-              <BatchSection
-                title="Current batches"
-                emptyLabel="No current batches listed"
-                programs={currentPrograms}
-                tone="current"
-              />
+              {currentPrograms.length ? (
+                <BatchSection
+                  title="Current batches"
+                  emptyLabel="No current batches listed"
+                  programs={currentPrograms}
+                  tone="current"
+                />
+              ) : null}
               <BatchSection
                 title="Upcoming batches"
                 emptyLabel="No upcoming batches listed"
