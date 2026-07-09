@@ -318,6 +318,7 @@ export function AdminConsole({
   const [dismissedSystemNotificationIds, setDismissedSystemNotificationIds] = useState<string[]>([]);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const notificationPanelRef = useRef<HTMLDivElement | null>(null);
+  const overviewActivityRef = useRef<HTMLElement | null>(null);
 
   const applicationSummary = useMemo(() => {
     const ready = applications.filter(
@@ -872,6 +873,13 @@ export function AdminConsole({
     ]);
   }
 
+  function focusOverviewActivity() {
+    setView("overview");
+    window.setTimeout(() => {
+      overviewActivityRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 60);
+  }
+
   return (
     <div className="mx-auto max-w-[98rem] px-4 py-4 sm:px-5 lg:px-6">
       <div className="overflow-hidden rounded-[2.1rem] border border-[rgba(255,240,214,0.08)] bg-[radial-gradient(circle_at_top_left,rgba(41,98,73,0.34),transparent_28%),radial-gradient(circle_at_top_right,rgba(186,114,41,0.16),transparent_22%),linear-gradient(180deg,#120d0b_0%,#1a100d_42%,#17100f_100%)] p-4 shadow-[0_28px_80px_rgba(10,5,4,0.38)] sm:p-5 lg:p-6">
@@ -1037,7 +1045,7 @@ export function AdminConsole({
         </aside>
 
         <div className="grid gap-5">
-          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_18rem] xl:items-start">
+          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
             <div className="grid gap-3 md:grid-cols-3">
               <TopStatusChip
                 label="Pending review"
@@ -1074,41 +1082,26 @@ export function AdminConsole({
               />
             </div>
 
-            <div className={`rounded-[1.45rem] border p-3.5 shadow-[0_18px_38px_rgba(10,5,4,0.11)] ${activeTheme.panelShell}`}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Control center</p>
-                </div>
-                <div className={`rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] ${activeTheme.badge}`}>
-                  {loading ? "Sync" : "Live"}
-                </div>
-              </div>
-
-              <div className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="grid grid-cols-3 gap-2.5 xl:w-fit">
                 <button
                   disabled={loading}
                   onClick={load}
-                  className={`inline-flex min-h-[3.75rem] items-center justify-between rounded-[1.1rem] border px-3.5 py-2.5 text-left text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 ${activeTheme.panelSurface}`}
+                  className={`inline-flex min-h-[4.5rem] min-w-[5.2rem] flex-col items-center justify-center gap-1 rounded-[1.1rem] border px-3 py-2.5 text-center text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 ${activeTheme.panelSurface}`}
                   aria-label="Refresh data"
                 >
-                  <span>
-                    <span className="block text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Refresh data</span>
-                  </span>
                   <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.badge}`}>
                     <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
                   </span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Refresh</span>
                 </button>
 
                 <div className="relative" ref={notificationPanelRef}>
                   <button
                     onClick={() => setNotificationOpen((current) => !current)}
-                    className={`inline-flex min-h-[3.75rem] w-full items-center justify-between rounded-[1.1rem] border px-3.5 py-2.5 text-left text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 ${activeTheme.panelSurface}`}
+                    className={`inline-flex min-h-[4.5rem] min-w-[5.2rem] w-full flex-col items-center justify-center gap-1 rounded-[1.1rem] border px-3 py-2.5 text-center text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 ${activeTheme.panelSurface}`}
                     aria-label="Open notifications"
                     aria-expanded={notificationOpen}
                   >
-                    <span>
-                      <span className="block text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Notifications</span>
-                    </span>
                     <span className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
                       <Bell className="h-4 w-4" aria-hidden="true" />
                       {unreadNotifications ? (
@@ -1117,6 +1110,7 @@ export function AdminConsole({
                         </span>
                       ) : null}
                     </span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Alerts</span>
                   </button>
 
                   {notificationOpen ? (
@@ -1177,7 +1171,18 @@ export function AdminConsole({
                     </div>
                   ) : null}
                 </div>
-              </div>
+
+                <button
+                  type="button"
+                  onClick={focusOverviewActivity}
+                  className={`inline-flex min-h-[4.5rem] min-w-[5.2rem] flex-col items-center justify-center gap-1 rounded-[1.1rem] border px-3 py-2.5 text-center text-[#173f33] shadow-[0_12px_24px_rgba(64,44,8,0.08)] transition hover:-translate-y-0.5 ${activeTheme.panelSurface}`}
+                  aria-label="Open activity log"
+                >
+                  <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
+                    <History className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">Activity</span>
+                </button>
             </div>
           </div>
 
@@ -1199,6 +1204,7 @@ export function AdminConsole({
           historyEntries={historyEntries}
           onOpenSection={setView}
           theme={SECTION_THEMES.overview}
+          activityRef={overviewActivityRef}
         />
       ) : null}
 
@@ -1382,6 +1388,7 @@ function OverviewDashboard({
   historyEntries,
   onOpenSection,
   theme,
+  activityRef,
 }: {
   applications: TrainingApplicationRecord[];
   payments: PaymentAdminRecord[];
@@ -1393,6 +1400,7 @@ function OverviewDashboard({
   historyEntries: HistoryEntry[];
   onOpenSection: (view: DashboardView) => void;
   theme: SectionTheme;
+  activityRef: React.RefObject<HTMLElement | null>;
 }) {
   const pendingApplications = applications.filter((application) => application.payload.approvalStatus !== "APPROVED").length;
   const pendingPayments = payments.filter((payment) => !["PAID", "SUCCESS", "CAPTURED"].includes(payment.status)).length;
@@ -1466,30 +1474,10 @@ function OverviewDashboard({
             icon={<Images className="h-5 w-5" aria-hidden="true" />}
             onClick={() => onOpenSection("gallery")}
           />
-          <div className={`rounded-[1.3rem] border p-3.5 shadow-[0_14px_30px_rgba(64,44,8,0.08)] ${theme.panelSurface}`}>
-            <div className="flex items-center gap-2">
-              <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${theme.panelMuted} text-[#173f33]`}>
-                <History className="h-4 w-4" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Recent activity</p>
-              </div>
-            </div>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-              <div className={`rounded-[1rem] border px-3 py-2.5 ${theme.panelSurface}`}>
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Applications waiting</p>
-                <p className="mt-1 text-2xl font-semibold text-[#173f33]">{pendingApplications}</p>
-              </div>
-              <div className={`rounded-[1rem] border px-3 py-2.5 ${theme.panelSurface}`}>
-                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Messages in inbox</p>
-                <p className="mt-1 text-2xl font-semibold text-[#173f33]">{contactCount}</p>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      <section className={`rounded-[1.55rem] border p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] 2xl:h-fit ${theme.panelShell}`}>
+      <section ref={activityRef} className={`rounded-[1.55rem] border p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] 2xl:h-fit ${theme.panelShell}`}>
         <div className="flex items-center gap-2.5">
           <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full ${theme.panelMuted} text-[#173f33]`}>
             <History className="h-4 w-4" aria-hidden="true" />
