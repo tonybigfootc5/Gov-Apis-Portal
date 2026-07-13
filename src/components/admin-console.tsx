@@ -6,6 +6,7 @@ import {
   Bell,
   BookOpenText,
   CalendarDays,
+  Check,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -21,6 +22,7 @@ import {
   Plus,
   RefreshCw,
   Save,
+  Search,
   Trash2,
   UsersRound,
   X,
@@ -129,79 +131,25 @@ type SectionTheme = {
   badge: string;
 };
 
+const ADMIN_THEME: SectionTheme = {
+  navActive: "border-[rgba(245,198,94,0.18)] bg-[#f4f7f3] text-[#173f33]",
+  navDescriptionActive: "text-[#607366]",
+  navIconActive: "bg-[#fff8df] text-[#b87912]",
+  panelShell: "border-[rgba(245,198,94,0.16)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(248,244,234,0.98))]",
+  panelSurface: "border-[rgba(23,63,51,0.08)] bg-[rgba(255,255,255,0.78)]",
+  panelMuted: "bg-[#eef3ef]",
+  badge: "bg-[#173f33] text-[#fff9ec]",
+};
+
 const SECTION_THEMES: Record<DashboardView, SectionTheme> = {
-  overview: {
-    navActive: "border-[rgba(226,186,94,0.16)] bg-[linear-gradient(180deg,#fff8eb_0%,#f4e8c8_100%)] text-[#173f33]",
-    navDescriptionActive: "text-[#607366]",
-    navIconActive: "bg-[rgba(226,186,94,0.24)] text-[#173f33]",
-    panelShell: "border-[rgba(226,186,94,0.18)] bg-[linear-gradient(180deg,rgba(255,250,240,0.98),rgba(247,236,208,0.98))]",
-    panelSurface: "border-[rgba(226,186,94,0.14)] bg-[rgba(255,255,255,0.72)]",
-    panelMuted: "bg-[rgba(244,232,200,0.58)]",
-    badge: "bg-[#173f33] text-[#fff9ec]",
-  },
-  applications: {
-    navActive: "border-[rgba(86,110,78,0.36)] bg-[linear-gradient(180deg,#365d4c_0%,#274d3f_100%)] text-[#fff9ec]",
-    navDescriptionActive: "text-[#d7e7dc]",
-    navIconActive: "bg-[rgba(146,171,110,0.28)] text-[#fff9ec]",
-    panelShell: "border-[rgba(86,110,78,0.28)] bg-[linear-gradient(180deg,rgba(231,239,223,0.98),rgba(214,229,202,0.98))]",
-    panelSurface: "border-[rgba(86,110,78,0.16)] bg-[rgba(255,255,255,0.74)]",
-    panelMuted: "bg-[rgba(186,207,166,0.34)]",
-    badge: "bg-[#355a47] text-[#fff9ec]",
-  },
-  payments: {
-    navActive: "border-[rgba(69,118,148,0.34)] bg-[linear-gradient(180deg,#dff0fb_0%,#c9e2f5_100%)] text-[#11384f]",
-    navDescriptionActive: "text-[#47677b]",
-    navIconActive: "bg-[rgba(69,118,148,0.18)] text-[#11384f]",
-    panelShell: "border-[rgba(69,118,148,0.2)] bg-[linear-gradient(180deg,rgba(238,247,255,0.98),rgba(214,233,247,0.98))]",
-    panelSurface: "border-[rgba(69,118,148,0.14)] bg-[rgba(255,255,255,0.78)]",
-    panelMuted: "bg-[rgba(200,224,242,0.5)]",
-    badge: "bg-[#1f5877] text-[#eff8ff]",
-  },
-  contacts: {
-    navActive: "border-[rgba(77,126,118,0.34)] bg-[linear-gradient(180deg,#dff3ef_0%,#cbe8e2_100%)] text-[#143e3a]",
-    navDescriptionActive: "text-[#4c6e69]",
-    navIconActive: "bg-[rgba(77,126,118,0.18)] text-[#143e3a]",
-    panelShell: "border-[rgba(77,126,118,0.2)] bg-[linear-gradient(180deg,rgba(238,250,247,0.98),rgba(215,239,233,0.98))]",
-    panelSurface: "border-[rgba(77,126,118,0.14)] bg-[rgba(255,255,255,0.78)]",
-    panelMuted: "bg-[rgba(205,233,226,0.5)]",
-    badge: "bg-[#26605a] text-[#f2fffc]",
-  },
-  programs: {
-    navActive: "border-[rgba(96,121,70,0.34)] bg-[linear-gradient(180deg,#e7f0d8_0%,#d6e7c0_100%)] text-[#253c19]",
-    navDescriptionActive: "text-[#576c47]",
-    navIconActive: "bg-[rgba(96,121,70,0.18)] text-[#253c19]",
-    panelShell: "border-[rgba(96,121,70,0.2)] bg-[linear-gradient(180deg,rgba(244,249,236,0.98),rgba(227,238,209,0.98))]",
-    panelSurface: "border-[rgba(96,121,70,0.14)] bg-[rgba(255,255,255,0.78)]",
-    panelMuted: "bg-[rgba(221,236,199,0.52)]",
-    badge: "bg-[#4f6838] text-[#fbfff6]",
-  },
-  events: {
-    navActive: "border-[rgba(181,131,58,0.32)] bg-[linear-gradient(180deg,#fff0d7_0%,#f6ddb1_100%)] text-[#5b3a08]",
-    navDescriptionActive: "text-[#85673c]",
-    navIconActive: "bg-[rgba(181,131,58,0.18)] text-[#5b3a08]",
-    panelShell: "border-[rgba(181,131,58,0.2)] bg-[linear-gradient(180deg,rgba(255,248,236,0.98),rgba(245,227,192,0.98))]",
-    panelSurface: "border-[rgba(181,131,58,0.14)] bg-[rgba(255,255,255,0.8)]",
-    panelMuted: "bg-[rgba(244,224,185,0.56)]",
-    badge: "bg-[#9f6c1f] text-[#fff9f0]",
-  },
-  articles: {
-    navActive: "border-[rgba(130,93,113,0.34)] bg-[linear-gradient(180deg,#f4e3eb_0%,#e8cedd_100%)] text-[#4f2339]",
-    navDescriptionActive: "text-[#775869]",
-    navIconActive: "bg-[rgba(130,93,113,0.18)] text-[#4f2339]",
-    panelShell: "border-[rgba(130,93,113,0.2)] bg-[linear-gradient(180deg,rgba(251,241,246,0.98),rgba(236,217,228,0.98))]",
-    panelSurface: "border-[rgba(130,93,113,0.14)] bg-[rgba(255,255,255,0.8)]",
-    panelMuted: "bg-[rgba(235,212,225,0.56)]",
-    badge: "bg-[#7a4760] text-[#fff7fb]",
-  },
-  gallery: {
-    navActive: "border-[rgba(126,104,139,0.34)] bg-[linear-gradient(180deg,#ece5f5_0%,#ddd2ed_100%)] text-[#3d294a]",
-    navDescriptionActive: "text-[#6a5875]",
-    navIconActive: "bg-[rgba(126,104,139,0.18)] text-[#3d294a]",
-    panelShell: "border-[rgba(126,104,139,0.2)] bg-[linear-gradient(180deg,rgba(247,243,252,0.98),rgba(226,216,241,0.98))]",
-    panelSurface: "border-[rgba(126,104,139,0.14)] bg-[rgba(255,255,255,0.8)]",
-    panelMuted: "bg-[rgba(223,211,240,0.56)]",
-    badge: "bg-[#654975] text-[#fbf7ff]",
-  },
+  overview: ADMIN_THEME,
+  applications: ADMIN_THEME,
+  payments: ADMIN_THEME,
+  contacts: ADMIN_THEME,
+  programs: ADMIN_THEME,
+  events: ADMIN_THEME,
+  articles: ADMIN_THEME,
+  gallery: ADMIN_THEME,
 };
 
 type NotificationItem = {
@@ -408,6 +356,7 @@ export function AdminConsole({
     { id: "programs", label: "Training", description: "Training catalog", icon: <FolderKanban className="h-4 w-4" aria-hidden="true" /> },
   ];
   const activeTheme = SECTION_THEMES[view];
+  const activeNavItem = viewItems.find((item) => item.id === view) ?? viewItems[0];
   const navGroups: Array<{ title?: string; items: DashboardView[] }> = [
     { items: ["overview"] },
     { title: "Operations", items: ["applications", "payments", "contacts"] },
@@ -562,13 +511,6 @@ export function AdminConsole({
       setPayments(await paymentResponse.json());
       setContactMessages(await contactResponse.json());
       appendHistory("overview", "Refresh", "Dashboard data refreshed");
-      pushNotification({
-        section: "overview",
-        title: "Dashboard refreshed",
-        message: "Programs, applications, payments, contact inbox, events, articles, and gallery images were refreshed successfully.",
-        variant: "success",
-      });
-      setNotice("Dashboard refreshed.");
     } catch {
       setNotice("Unable to refresh the dashboard right now.");
     } finally {
@@ -595,7 +537,6 @@ export function AdminConsole({
         setNotice(data?.error ?? "Request failed.");
         return false;
       }
-      setNotice("Changes saved successfully.");
       await load();
       return true;
     } catch {
@@ -794,9 +735,11 @@ export function AdminConsole({
   }
 
   return (
-    <div className="mx-auto max-w-[98rem] px-4 py-4 sm:px-5 lg:px-6">
-      <div className="overflow-hidden rounded-[2.1rem] border border-[rgba(255,240,214,0.08)] bg-[radial-gradient(circle_at_top_left,rgba(41,98,73,0.34),transparent_28%),radial-gradient(circle_at_top_right,rgba(186,114,41,0.16),transparent_22%),linear-gradient(180deg,#120d0b_0%,#1a100d_42%,#17100f_100%)] p-4 shadow-[0_28px_80px_rgba(10,5,4,0.38)] sm:p-5 lg:p-6">
-      <div className="lg:hidden">
+    <div className="min-h-screen bg-[#173f33] px-3 py-3 sm:px-4 lg:px-5">
+      <div className={`mx-auto grid max-w-[108rem] gap-0 overflow-hidden rounded-[2rem] bg-[#173f33] shadow-[0_30px_90px_rgba(7,23,17,0.35)] ${
+        sidebarCollapsed ? "lg:grid-cols-[6rem_minmax(0,1fr)]" : "lg:grid-cols-[17rem_minmax(0,1fr)]"
+      }`}>
+      <div className="border-b border-[rgba(23,63,51,0.08)] bg-[#f4f7f3] p-3 lg:hidden">
         <button
           onClick={() => setSidebarOpen(true)}
           className="inline-flex items-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black uppercase tracking-[0.14em] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
@@ -850,20 +793,20 @@ export function AdminConsole({
                           setView(item.id);
                           setSidebarOpen(false);
                         }}
-                        className={`flex items-center gap-3 rounded-[1.2rem] px-4 py-3 text-left transition ${
+                        className={`flex items-center gap-3 px-4 py-3 text-left transition ${
                           view === item.id
-                            ? SECTION_THEMES[item.id].navActive
+                            ? "relative -mr-5 rounded-l-[1.1rem] rounded-r-none border border-transparent bg-[#f4f7f3] text-[#173f33] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] after:absolute after:right-[-1.25rem] after:top-0 after:h-full after:w-5 after:bg-[#f4f7f3]"
                             : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec]"
                         }`}
                       >
                         <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
-                          view === item.id ? SECTION_THEMES[item.id].navIconActive : "bg-[rgba(245,198,94,0.16)] text-[#fff9ec]"
+                          view === item.id ? "bg-[#e4ece6] text-[#173f33]" : "bg-[rgba(245,198,94,0.16)] text-[#fff9ec]"
                         }`}>
                           {item.icon}
                         </span>
                         <span className="min-w-0">
                           <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
-                          <span className={`mt-1 block text-sm ${view === item.id ? SECTION_THEMES[item.id].navDescriptionActive : "text-[#d7e1db]"}`}>{item.description}</span>
+                          <span className={`mt-1 block text-sm ${view === item.id ? "text-[#607366]" : "text-[#d7e1db]"}`}>{item.description}</span>
                         </span>
                       </button>
                     );
@@ -876,23 +819,19 @@ export function AdminConsole({
       ) : null}
 
       <div
-        className={`mt-3 grid gap-5 lg:mt-0 ${
-          sidebarCollapsed
-            ? "lg:grid-cols-[6rem_minmax(0,1fr)]"
-            : "lg:grid-cols-[18rem_minmax(0,1fr)] xl:grid-cols-[19rem_minmax(0,1fr)]"
-        }`}
+        className="contents"
       >
-        <aside className={`relative hidden lg:block ${sidebarCollapsed ? "w-[6rem]" : ""}`}>
+        <aside className={`relative hidden min-h-[calc(100vh-1.5rem)] bg-[linear-gradient(180deg,#1f513d_0%,#173f33_52%,#123429_100%)] lg:block ${sidebarCollapsed ? "w-[6rem]" : ""}`}>
           <button
             onClick={() => setSidebarCollapsed((current) => !current)}
-            className="absolute -right-4 top-10 z-20 inline-flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.12)]"
+            className="absolute -right-4 top-6 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#fffdf8] text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.12)]"
             aria-label={sidebarCollapsed ? "Expand navigation" : "Collapse navigation"}
           >
             {sidebarCollapsed ? <ChevronRight className="h-4 w-4" aria-hidden="true" /> : <ChevronLeft className="h-4 w-4" aria-hidden="true" />}
           </button>
-          <div className="sticky top-24 rounded-[2rem] bg-[#173f33] p-5 text-[#fff9ec] shadow-[0_24px_60px_rgba(23,63,51,0.2)]">
+          <div className="sticky top-0 min-h-[calc(100vh-1.5rem)] rounded-r-[1.8rem] bg-transparent p-5 text-[#fff9ec] shadow-[18px_0_50px_rgba(23,63,51,0.18)]">
             {!sidebarCollapsed ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 border-b border-[rgba(255,249,236,0.12)] pb-5">
                 <button
                   onClick={() => setLogoutDialogOpen(true)}
                   className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(255,249,236,0.18)] bg-[#fffdf8] text-[#173f33] shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
@@ -900,7 +839,10 @@ export function AdminConsole({
                 >
                   <Power className="h-4 w-4" aria-hidden="true" />
                 </button>
-                <p className="text-[11px] font-black uppercase tracking-[0.26em] text-[#f5c65e]">Admin navigation</p>
+                <div>
+                  <p className="text-sm font-black tracking-[0.02em] text-[#fff9ec]">API Culture</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-[0.22em] text-[#f5c65e]">Admin desk</p>
+                </div>
               </div>
             ) : (
               <div className="flex justify-center">
@@ -914,13 +856,17 @@ export function AdminConsole({
               </div>
             )}
 
-            <nav className="mt-5 grid gap-5">
+            <nav className="mt-5 grid gap-4">
               {navGroups.map((group, index) => (
-                <div key={group.title ?? `desktop-group-${index}`} className="grid gap-3">
+                <div key={group.title ?? `desktop-group-${index}`} className="grid gap-2.5">
                   {group.title && !sidebarCollapsed ? (
-                    <p className="px-1 text-[10px] font-black uppercase tracking-[0.3em] text-[rgba(245,198,94,0.76)]">
-                      {group.title}
-                    </p>
+                    <div className="flex items-center gap-3 px-3 pt-2">
+                      <span className="h-px flex-1 bg-[rgba(245,198,94,0.18)]" />
+                      <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[rgba(245,198,94,0.78)]">
+                        {group.title}
+                      </p>
+                      <span className="h-px flex-1 bg-[rgba(245,198,94,0.18)]" />
+                    </div>
                   ) : null}
                   {group.items.map((viewId) => {
                     const item = viewItems.find((entry) => entry.id === viewId);
@@ -930,22 +876,38 @@ export function AdminConsole({
                       <button
                         key={item.id}
                         onClick={() => setView(item.id)}
-                        className={`flex items-center ${sidebarCollapsed ? "justify-center px-2" : "gap-3 px-4"} rounded-[1.2rem] py-3 text-left transition ${
+                        className={`flex min-h-[3.9rem] items-center ${sidebarCollapsed ? "justify-center px-2" : "gap-3 px-3.5"} text-left transition ${
                           view === item.id
-                            ? SECTION_THEMES[item.id].navActive
-                            : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.1)]"
+                            ? sidebarCollapsed
+                              ? "rounded-[1rem] border border-transparent bg-[#f4f7f3] text-[#173f33] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+                              : "relative -mr-5 overflow-visible rounded-l-[1.25rem] rounded-r-none border border-transparent bg-[#f4f7f3] text-[#173f33] shadow-[0_16px_34px_rgba(7,23,17,0.12),inset_0_1px_0_rgba(255,255,255,0.82)] after:absolute after:right-[-1.25rem] after:top-0 after:h-full after:w-5 after:bg-[#f4f7f3]"
+                            : "rounded-[1rem] border border-[rgba(255,249,236,0.08)] bg-[rgba(255,255,255,0.035)] text-[#eef5ee] hover:border-[rgba(245,198,94,0.2)] hover:bg-[rgba(255,255,255,0.075)]"
                         }`}
                         title={item.label}
                       >
-                        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
-                          view === item.id ? SECTION_THEMES[item.id].navIconActive : "bg-[rgba(245,198,94,0.16)] text-[#fff9ec]"
+                        {view === item.id && !sidebarCollapsed ? (
+                          <>
+                            <span
+                              aria-hidden="true"
+                              className="pointer-events-none absolute -right-5 -top-5 h-5 w-5 rounded-br-[1.25rem]"
+                              style={{ boxShadow: "8px 8px 0 8px #f4f7f3" }}
+                            />
+                            <span
+                              aria-hidden="true"
+                              className="pointer-events-none absolute -bottom-5 -right-5 h-5 w-5 rounded-tr-[1.25rem]"
+                              style={{ boxShadow: "8px -8px 0 8px #f4f7f3" }}
+                            />
+                          </>
+                        ) : null}
+                        <span className={`relative z-10 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] ${
+                          view === item.id ? "bg-[#fff8df] text-[#b87912]" : "bg-[rgba(245,198,94,0.14)] text-[#f6d783]"
                         }`}>
                           {item.icon}
                         </span>
                         {!sidebarCollapsed ? (
-                          <span className="min-w-0">
-                            <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
-                            <span className={`mt-1 block text-sm ${view === item.id ? SECTION_THEMES[item.id].navDescriptionActive : "text-[#d7e1db]"}`}>{item.description}</span>
+                          <span className="relative z-10 min-w-0">
+                            <span className="block truncate text-[14px] font-black tracking-[0.01em]">{item.label}</span>
+                            <span className={`mt-1 block truncate text-xs font-semibold ${view === item.id ? "text-[#607366]" : "text-[#b9c9c0]"}`}>{item.description}</span>
                           </span>
                         ) : null}
                       </button>
@@ -957,15 +919,41 @@ export function AdminConsole({
           </div>
         </aside>
 
-        <div className="grid gap-5">
-          <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
-            <CurrentBatchCard applications={applications} programs={programs} theme={activeTheme} />
+        <main className="relative min-w-0 bg-[#f4f7f3] p-3 sm:p-4 lg:rounded-l-[2rem] lg:p-5 lg:shadow-[-24px_0_45px_rgba(244,247,243,0.18)]">
+          <div className="grid gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.2rem] bg-[#ffffff] px-4 py-3 shadow-[0_10px_28px_rgba(23,63,51,0.06)]">
+              <div>
+                <p className="text-xs font-semibold text-[#718477]">Application / Dashboard</p>
+                <h1 className="mt-1 text-xl font-black text-[#173f33]">{activeNavItem.label}</h1>
+              </div>
+              <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
+                <label className="hidden h-10 min-w-[16rem] max-w-sm flex-1 items-center rounded-full bg-[#edf2ef] px-4 text-[#607366] md:flex">
+                  <input
+                    className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#8b9a90]"
+                    placeholder="Search..."
+                    aria-label="Admin quick search"
+                  />
+                  <Search className="h-4 w-4" aria-hidden="true" />
+                </label>
+                <button
+                  disabled={loading}
+                  onClick={load}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#edf2ef] text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
+                  aria-label="Refresh data"
+                >
+                  <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+                </button>
+              </div>
+            </div>
+
+          <div className={`grid gap-3 ${view === "overview" ? "xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start" : "justify-items-end"}`}>
+            {view === "overview" ? <CurrentBatchCard applications={applications} programs={programs} theme={activeTheme} /> : null}
 
             <div className="flex items-center gap-3 xl:w-fit">
                 <button
                   disabled={loading}
                   onClick={load}
-                  className="inline-flex h-10 w-10 items-center justify-center text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="hidden h-10 w-10 items-center justify-center text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 xl:inline-flex"
                   aria-label="Refresh data"
                 >
                   <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${activeTheme.badge}`}>
@@ -1247,7 +1235,8 @@ export function AdminConsole({
           />
         </DashboardSection>
       ) : null}
-        </div>
+          </div>
+        </main>
       </div>
       </div>
 
@@ -1303,7 +1292,6 @@ function OverviewDashboard({
   articles,
   galleryImages,
   onOpenSection,
-  theme,
 }: {
   applications: TrainingApplicationRecord[];
   payments: PaymentAdminRecord[];
@@ -1320,74 +1308,157 @@ function OverviewDashboard({
   const contactCount = contactMessages.length;
   const operationsLoad = pendingApplications + pendingPayments + contactCount;
   const publishedAssets = programs.length + events.length + articles.length + galleryImages.length;
+  const paidPayments = payments.filter((payment) => ["PAID", "SUCCESS", "CAPTURED"].includes(payment.status));
+  const approvedApplications = applications.filter((application) => application.payload.approvalStatus === "APPROVED").length;
+  const latestApplication = [...applications].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
+  const latestPayment = [...payments].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
+  const latestContact = [...contactMessages].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
+  const latestTimes = [
+    latestApplication?.createdAt,
+    latestPayment?.createdAt,
+    latestContact?.createdAt,
+    programs[0]?.updatedAt,
+    events[0]?.updatedAt,
+    articles[0]?.publishedAt,
+  ].filter(Boolean) as string[];
+  const lastUpdated = latestTimes
+    .map((value) => new Date(value).getTime())
+    .filter((value) => Number.isFinite(value))
+    .sort((left, right) => right - left)[0];
+  const paidAmountPaise = paidPayments.reduce((total, payment) => total + payment.amountPaise, 0);
+  const totalPaymentAmountPaise = payments.reduce((total, payment) => total + payment.amountPaise, 0);
+  const reviewRows = [
+    { label: "Pending applications", value: pendingApplications, view: "applications" as DashboardView },
+    { label: "Pending payments", value: pendingPayments, view: "payments" as DashboardView },
+    { label: "Contact messages", value: contactCount, view: "contacts" as DashboardView },
+  ];
+  const liveBars = [applications.length, approvedApplications, pendingApplications, payments.length, pendingPayments, contactCount];
+  const maxLiveBar = Math.max(...liveBars, 1);
+  const recentPayments = payments.slice(0, 3);
+  const reviewTarget = pendingApplications > 0 ? "applications" : pendingPayments > 0 ? "payments" : "contacts";
 
   return (
-    <div className="mt-5">
-      <section className={`rounded-[1.55rem] border p-4 shadow-[0_22px_48px_rgba(10,5,4,0.14)] ${theme.panelShell}`}>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b8842a]">Overview</p>
-          </div>
-          <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#173f33] ${theme.panelSurface}`}>
-            <span>Queue</span>
-            <span className={`rounded-full px-2 py-0.5 ${theme.badge}`}>{operationsLoad}</span>
-            <span>Assets</span>
-            <span className={`rounded-full px-2 py-0.5 ${theme.badge}`}>{publishedAssets}</span>
-          </div>
+    <div className="mt-4 grid gap-4">
+      <section className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-black text-[#173f33]">Hello, Admin!</h2>
+          <p className="mt-1 text-sm font-semibold text-[#607366]">
+            Last updated: {lastUpdated ? formatDateTime(new Date(lastUpdated).toISOString()) : "No activity yet"}
+          </p>
         </div>
-
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <OverviewMetricCard
-            label="Applications"
-            value={pendingApplications}
-            description={pendingApplications ? "Awaiting review in admissions desk" : "Nothing waiting on you"}
-            icon={<UsersRound className="h-5 w-5" aria-hidden="true" />}
-            onClick={() => onOpenSection("applications")}
-          />
-          <OverviewMetricCard
-            label="Payments"
-            value={pendingPayments}
-            description={pendingPayments ? "Transactions need verification" : "All caught up"}
-            icon={<CreditCard className="h-5 w-5" aria-hidden="true" />}
-            onClick={() => onOpenSection("payments")}
-          />
-          <OverviewMetricCard
-            label="Contact Inbox"
-            value={contactCount}
-            description={contactCount ? "Student messages are waiting" : "Inbox is empty"}
-            icon={<Mail className="h-5 w-5" aria-hidden="true" />}
-            onClick={() => onOpenSection("contacts")}
-          />
-          <OverviewMetricCard
-            label="Training"
-            value={programs.length}
-            description={programs.length ? "Training catalog is live" : "No programs added yet"}
-            icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />}
-            onClick={() => onOpenSection("programs")}
-          />
-          <OverviewMetricCard
-            label="Events"
-            value={events.length}
-            description={events.length ? "Schedule is published" : "No events published yet"}
-            icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />}
-            onClick={() => onOpenSection("events")}
-          />
-          <OverviewMetricCard
-            label="Articles"
-            value={articles.length}
-            description={articles.length ? "Content library is updated" : "No articles published yet"}
-            icon={<BookOpenText className="h-5 w-5" aria-hidden="true" />}
-            onClick={() => onOpenSection("articles")}
-          />
-          <OverviewMetricCard
-            label="Gallery"
-            value={galleryImages.length}
-            description={galleryImages.length ? "Media showcase is ready" : "No gallery media yet"}
-            icon={<Images className="h-5 w-5" aria-hidden="true" />}
-            onClick={() => onOpenSection("gallery")}
-          />
-        </div>
+        <button onClick={() => onOpenSection(reviewTarget)} className="rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] shadow-[0_12px_28px_rgba(23,63,51,0.14)]">
+          Review queue
+        </button>
       </section>
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <OverviewMetricCard label="Applications" value={applications.length} description={`${approvedApplications} approved`} icon={<UsersRound className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("applications")} />
+        <OverviewMetricCard label="Payments" value={payments.length} description={`${paidPayments.length} paid`} icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("payments")} />
+        <OverviewMetricCard label="Inbox" value={contactCount} description="Current messages" icon={<Mail className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("contacts")} />
+        <OverviewMetricCard label="Content" value={publishedAssets} description="Programs, events, articles, gallery" icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("programs")} />
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1rem] bg-[#077b76] px-4 py-3 text-[#f9fffb] shadow-[0_14px_34px_rgba(7,123,118,0.18)]">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.85rem] bg-[#fffdf8] text-[#173f33] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+            <UsersRound className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-black">{operationsLoad ? `${operationsLoad} live items need review` : "All live queues are clear"}</p>
+            <p className="mt-1 truncate text-xs font-semibold text-[#d6f4ed]">
+              {latestApplication ? `Latest application: ${latestApplication.payload.candidateName}` : "No applications submitted yet."}
+            </p>
+          </div>
+        </div>
+        <button onClick={() => onOpenSection(reviewTarget)} className="rounded-[0.65rem] bg-[#fffdf8] px-3 py-2 text-xs font-black text-[#173f33]">
+          Review
+        </button>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.8fr)_minmax(16rem,0.7fr)]">
+        <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-black text-[#173f33]">Live Balance</h2>
+            <span className="rounded-full bg-[#edf2ef] px-3 py-1.5 text-xs font-black text-[#607366]">Current</span>
+          </div>
+          <div className="mt-5 h-44 rounded-[0.9rem] bg-[linear-gradient(180deg,#fbfdfb_0%,#f2f6f3_100%)] p-4">
+            <div className="relative flex h-full items-end gap-3">
+              <div className="absolute inset-x-0 top-1/4 border-t border-dashed border-[#dfe7e2]" />
+              <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-[#dfe7e2]" />
+              <div className="absolute inset-x-0 top-3/4 border-t border-dashed border-[#dfe7e2]" />
+              {liveBars.map((value, index) => (
+                <div key={`${value}-${index}`} className="relative z-10 flex flex-1 flex-col items-center gap-2">
+                  <div className="w-full rounded-t-[0.7rem] bg-[#077b76]" style={{ height: `${Math.max(10, (value / maxLiveBar) * 100)}%` }} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <MiniStat label="Admissions" value={applications.length} />
+            <MiniStat label="Payments" value={payments.length} />
+            <MiniStat label="Messages" value={contactCount} />
+          </div>
+        </section>
+
+        <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-black text-[#173f33]">Payments</h2>
+            <span className="text-xs font-black text-[#077b76]">Live</span>
+          </div>
+          <p className="mt-3 text-xs font-semibold text-[#718477]">Paid amount</p>
+          <p className="mt-1 text-3xl font-black text-[#173f33]">{formatRupees(paidAmountPaise)}</p>
+          <p className="mt-2 text-xs font-semibold text-[#607366]">Total initiated: {formatRupees(totalPaymentAmountPaise)}</p>
+          <div className="mt-5 rounded-[1rem] bg-[#eef5ef] p-4">
+            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border-[1rem] border-[#077b76] bg-[#fffdf8]">
+              <span className="text-xl font-black text-[#173f33]">{payments.length ? Math.round((paidPayments.length / payments.length) * 100) : 0}%</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[1rem] bg-white p-4 text-center shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#fff8df] text-[#d9931f]">
+            <BadgeMark />
+          </div>
+          <h2 className="mt-4 text-lg font-black text-[#173f33]">System Status</h2>
+          <p className="mt-1 text-sm font-semibold text-[#607366]">Live admin state</p>
+          <div className="mt-5 grid grid-cols-3 gap-2">
+            <MiniStat label="Programs" value={programs.length} />
+            <MiniStat label="Events" value={events.length} />
+            <MiniStat label="Media" value={galleryImages.length} />
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)]">
+        <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+          <h2 className="text-lg font-black text-[#173f33]">Review Queue</h2>
+          <div className="mt-4 grid gap-3">
+            {reviewRows.map((row) => (
+              <button key={row.label} onClick={() => onOpenSection(row.view)} className="flex items-center justify-between rounded-[0.9rem] bg-[#f7faf7] px-4 py-3 text-left">
+                <span className="text-sm font-black text-[#173f33]">{row.label}</span>
+                <span className="rounded-full bg-[#173f33] px-3 py-1 text-xs font-black text-[#fff9ec]">{row.value}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+          <h2 className="text-lg font-black text-[#173f33]">Recent Payments</h2>
+          <div className="mt-4 grid gap-3">
+            {recentPayments.length ? recentPayments.map((payment) => (
+              <div key={payment.id} className="rounded-[0.9rem] bg-[#f7faf7] px-4 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="truncate text-sm font-black text-[#173f33]">{payment.application.candidateName}</p>
+                  <span className="text-xs font-black text-[#077b76]">{formatRupees(payment.amountPaise)}</span>
+                </div>
+                <p className="mt-1 text-xs font-semibold text-[#607366]">{payment.status} - {formatDateTime(payment.createdAt)}</p>
+              </div>
+            )) : (
+              <p className="rounded-[0.9rem] bg-[#f7faf7] px-4 py-6 text-center text-sm font-semibold text-[#607366]">No payment records yet.</p>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
@@ -1466,31 +1537,50 @@ function OverviewMetricCard({
   icon: ReactNode;
   onClick: () => void;
 }) {
-  const isEmpty = value === 0;
-
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex h-full min-h-[9.4rem] flex-col rounded-[1.3rem] border border-[rgba(255,247,233,0.14)] bg-[linear-gradient(180deg,rgba(255,252,246,0.98),rgba(248,241,228,0.97))] p-3.5 text-left shadow-[0_16px_34px_rgba(10,5,4,0.12)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_42px_rgba(10,5,4,0.18)]"
+      className="min-h-[8.2rem] rounded-[1rem] bg-white p-4 text-left shadow-[0_12px_30px_rgba(23,63,51,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(23,63,51,0.1)]"
     >
       <div className="flex items-start justify-between gap-3">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(26,66,52,0.08)] text-[#173f33]">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-[0.75rem] bg-[#fff8df] text-[#d9931f]">
           {icon}
         </span>
-        <span className={`rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.16em] ${isEmpty ? "bg-[#eef5ef] text-[#607366]" : "bg-[#173f33] text-[#fff9ec]"}`}>
-          {isEmpty ? "Clear" : "Active"}
-        </span>
+        <span className="rounded-full bg-[#eef5ef] px-2.5 py-1 text-[10px] font-black text-[#077b76]">Live</span>
       </div>
-      <div className="mt-3.5 flex-1">
-        <div className="flex items-end justify-between gap-3">
-          <p className="font-display text-4xl leading-none text-[#173f33]">{value}</p>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Open</p>
+      <div className="mt-4">
+        <p className="text-xs font-semibold text-[#607366]">{label}</p>
+        <div className="mt-1">
+          <p className="text-3xl font-black leading-none text-[#173f33]">{value.toLocaleString("en-IN")}</p>
         </div>
-        <p className="mt-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#173f33]">{label}</p>
-        <p className="mt-1.5 text-[13px] leading-5 text-[#607366]">{description}</p>
+        <p className="mt-3 text-xs font-semibold text-[#718477]">{description}</p>
       </div>
     </button>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-[0.85rem] bg-[#f7faf7] px-3 py-2">
+      <p className="text-[11px] font-semibold text-[#718477]">{label}</p>
+      <p className="mt-1 text-lg font-black text-[#173f33]">{value.toLocaleString("en-IN")}</p>
+    </div>
+  );
+}
+
+function formatRupees(amountPaise: number) {
+  return `Rs. ${(amountPaise / 100).toLocaleString("en-IN", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+function BadgeMark() {
+  return (
+    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-current">
+      <Check className="h-3 w-3" aria-hidden="true" />
+    </span>
   );
 }
 
@@ -1580,7 +1670,6 @@ function DashboardSection({
 }
 
 function ScheduleActionRow({
-  section,
   label,
   schedules,
   onSchedule,
@@ -1614,11 +1703,11 @@ function ScheduleActionRow({
           Schedule
         </button>
       </div>
-      <p className="mt-2 text-xs leading-6 text-[#607366]">
-        {nextSchedule
-          ? `Next scheduled publish: ${formatDateTime(nextSchedule.publishAt)}`
-          : `No schedule is set for ${section} yet.`}
-      </p>
+      {nextSchedule ? (
+        <p className="mt-2 text-xs leading-6 text-[#607366]">
+          Next scheduled publish: {formatDateTime(nextSchedule.publishAt)}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -1915,10 +2004,16 @@ function ProgramsWorkspace({
   onProgramDelete: (id: string) => void;
 }) {
   const [selectedProgramId, setSelectedProgramId] = useState<string | "new">(programs[0]?.id ?? "new");
+  const [programListCollapsed, setProgramListCollapsed] = useState(false);
   const selectedProgram =
     selectedProgramId === "new"
       ? null
       : programs.find((program) => program.id === selectedProgramId) ?? programs[0] ?? null;
+  const upcomingPrograms = [...programs].sort((left, right) => {
+    const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.MAX_SAFE_INTEGER;
+    const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.MAX_SAFE_INTEGER;
+    return leftTime - rightTime;
+  });
 
   function discardNewTrainingDraft() {
     onDraftChange(emptyProgram);
@@ -1926,135 +2021,215 @@ function ProgramsWorkspace({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
-      <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
-        <div className="rounded-[1.5rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_12px_28px_rgba(64,44,8,0.06)]">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Existing trainings</p>
-            <div className="rounded-full bg-[#f6efe4] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#607366]">
-              {programs.length}
+    <div className="grid gap-4">
+      <section className="overflow-hidden rounded-[1.8rem] bg-white shadow-[0_18px_42px_rgba(23,63,51,0.08)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf2ee] px-4 py-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Training</p>
+              <h3 className="mt-1 text-2xl font-black text-[#173f33]">Upcoming programs</h3>
             </div>
+            <span className="rounded-full bg-[#eef3ef] px-3 py-1.5 text-xs font-black text-[#607366]">{programs.length} programs</span>
           </div>
-          <div className="mt-4 grid gap-3">
-            {programs.map((program, index) => (
-              <button
-                key={program.id}
-                onClick={() => setSelectedProgramId(program.id)}
-                className={`rounded-[1.3rem] border px-4 py-4 text-left transition ${
-                  selectedProgramId === program.id
-                    ? "border-[rgba(23,63,51,0.18)] bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.14)]"
-                    : "border-[rgba(27,59,43,0.08)] bg-[#faf7ef] text-[#173f33] hover:bg-[#f3ecdf]"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${selectedProgramId === program.id ? "bg-[rgba(255,255,255,0.14)] text-[#f5c65e]" : "bg-[#fffdf8] text-[#9c6a18]"}`}>
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${program.published ? selectedProgramId === program.id ? "bg-[rgba(255,255,255,0.14)] text-[#e4f6ea]" : "bg-[#eef8f1] text-[#21533f]" : selectedProgramId === program.id ? "bg-[rgba(255,255,255,0.14)] text-[#fff2d7]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
-                    {program.published ? "Published" : "Draft"}
-                  </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={onOpenHistory}
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-[#f7faf7] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#173f33]"
+            >
+              <History className="h-4 w-4" aria-hidden="true" />
+              History
+            </button>
+            <button
+              onClick={() => setSelectedProgramId("new")}
+              className={`inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition ${
+                selectedProgramId === "new"
+                  ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
+                  : "bg-[#f5c65e] text-[#173f33]"
+              }`}
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              New training
+            </button>
+          </div>
+        </div>
+
+        <div
+          className={`grid gap-4 bg-[#f5f6f3] p-4 transition-[grid-template-columns] ${
+            programListCollapsed ? "xl:grid-cols-[5rem_minmax(0,1fr)]" : "xl:grid-cols-[22rem_minmax(0,1fr)]"
+          }`}
+        >
+          <aside className="min-w-0 rounded-[1.15rem] bg-[#eef1ed] p-3">
+            <div className={`flex items-center gap-3 px-1 pb-3 ${programListCollapsed ? "justify-center" : "justify-between"}`}>
+              {!programListCollapsed ? (
+                <div>
+                  <p className="text-sm font-black text-[#173f33]">Upcoming</p>
+                  <p className="mt-1 text-[11px] font-semibold text-[#718477]">Existing training programs</p>
                 </div>
-                <p className="mt-3 line-clamp-2 text-sm font-black uppercase tracking-[0.12em]">{program.title}</p>
-                <p className={`mt-2 text-sm leading-6 ${selectedProgramId === program.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>
-                  {program.level} | {program.duration}
-                </p>
-                <p className={`mt-1 text-xs font-semibold ${selectedProgramId === program.id ? "text-[#f4e7bd]" : "text-[#8a7d61]"}`}>
-                  {program.enrollmentClosed
-                    ? "Enrollment closed"
-                    : program.batchStartsAt
-                      ? `Starts ${formatDateTime(program.batchStartsAt)}`
-                      : "Start date not set"}
-                </p>
-                <p className={`mt-1 text-[11px] font-semibold ${selectedProgramId === program.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>
-                  Banner {program.popupEnabled ? "enabled" : "disabled"}
-                </p>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-4">
-        <div className="flex flex-col items-end gap-3">
-          <button
-            type="button"
-            onClick={onOpenHistory}
-            className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
-          >
-            <History className="h-4 w-4" aria-hidden="true" />
-            History
-          </button>
-          <button
-            onClick={() => setSelectedProgramId("new")}
-            className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-black transition ${
-              selectedProgramId === "new"
-                ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
-                : "bg-[#f5c65e] text-[#173f33]"
-            }`}
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            New training
-          </button>
-        </div>
-
-      <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.52)] p-4">
-        {selectedProgram ? (
-          <ProgramEditorCard
-            key={selectedProgram.id}
-            disabled={disabled}
-            program={selectedProgram}
-            schedules={schedules}
-            onSchedule={onSchedule}
-            onSave={onProgramSave}
-            onDelete={onProgramDelete}
-          />
-        ) : (
-          <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">New training</p>
-                <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create training service</h3>
-              </div>
-              <div className="flex items-center gap-2">
-                {!databaseConfigured ? (
-                  <span className="rounded-full bg-[#fff5ea] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#8c4d1e]">
-                    Read only
-                  </span>
-                ) : null}
-                <button
-                  type="button"
-                  onClick={discardNewTrainingDraft}
-                  className="inline-flex items-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#92462d]"
-                >
-                  <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  Delete draft
-                </button>
-              </div>
-            </div>
-            <div className="mt-5">
-              <ProgramFields value={draft} onChange={onDraftChange} />
-            </div>
-            <div className="mt-5 grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-start">
+              ) : null}
               <button
-                disabled={disabled}
-                onClick={onDraftSave}
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
+                type="button"
+                onClick={() => setProgramListCollapsed((current) => !current)}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#173f33] shadow-[0_8px_18px_rgba(23,63,51,0.08)]"
+                aria-label={programListCollapsed ? "Expand program list" : "Collapse program list"}
               >
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                Add new training
+                {programListCollapsed ? <ChevronRight className="h-4 w-4" aria-hidden="true" /> : <ChevronLeft className="h-4 w-4" aria-hidden="true" />}
               </button>
-              <ScheduleActionRow
-                section="programs"
-                label={draft.title || "New training draft"}
-                schedules={schedules}
-                onSchedule={onSchedule}
-              />
             </div>
+            <div className={`grid gap-3 ${programListCollapsed ? "justify-items-center" : ""}`}>
+              {upcomingPrograms.length ? (
+                upcomingPrograms.map((program, index) =>
+                  programListCollapsed ? (
+                    <button
+                      key={program.id}
+                      type="button"
+                      onClick={() => setSelectedProgramId(program.id)}
+                      className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-xs font-black ${
+                        selectedProgramId === program.id ? "bg-[#173f33] text-[#fff9ec]" : "bg-white text-[#9c6a18]"
+                      }`}
+                      title={program.title}
+                    >
+                      {String(index + 1).padStart(2, "0")}
+                    </button>
+                  ) : (
+                    <ProgramKanbanCard
+                      key={program.id}
+                      program={program}
+                      selected={selectedProgramId === program.id}
+                      index={index}
+                      onSelect={() => setSelectedProgramId(program.id)}
+                    />
+                  ),
+                )
+              ) : (
+                <div className="rounded-[0.95rem] border border-dashed border-[#dce4de] bg-white/65 px-3 py-8 text-center text-xs font-semibold text-[#718477]">
+                  No training programs yet
+                </div>
+              )}
+            </div>
+          </aside>
+
+          <div className="min-w-0 rounded-[1.15rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+            {selectedProgram ? (
+              <>
+                <div className="mb-4 grid gap-3 rounded-[1.1rem] bg-[#f7faf7] p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Preview</p>
+                    <h4 className="mt-1 text-2xl font-black text-[#173f33]">{selectedProgram.title || "Untitled training"}</h4>
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[#607366]">{selectedProgram.summary || "No summary added yet."}</p>
+                  </div>
+                  <div className="grid gap-2 text-right text-xs font-black text-[#607366]">
+                    <span className="rounded-full bg-white px-3 py-1.5">{selectedProgram.duration}</span>
+                    <span className="rounded-full bg-white px-3 py-1.5">{selectedProgram.capacity} seats</span>
+                    <span className="rounded-full bg-white px-3 py-1.5">{selectedProgram.published ? "Published" : "Draft"}</span>
+                  </div>
+                </div>
+                <ProgramEditorCard
+                  key={selectedProgram.id}
+                  disabled={disabled}
+                  program={selectedProgram}
+                  schedules={schedules}
+                  onSchedule={onSchedule}
+                  onSave={onProgramSave}
+                  onDelete={onProgramDelete}
+                />
+              </>
+            ) : (
+              <div className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-5 shadow-[0_18px_44px_rgba(64,44,8,0.07)]">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">New training</p>
+                    <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">Create training service</h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {!databaseConfigured ? (
+                      <span className="rounded-full bg-[#fff5ea] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#8c4d1e]">
+                        Read only
+                      </span>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={discardNewTrainingDraft}
+                      className="inline-flex items-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#92462d]"
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      Delete draft
+                    </button>
+                  </div>
+                </div>
+                <div className="mt-5">
+                  <ProgramFields value={draft} onChange={onDraftChange} />
+                </div>
+                <div className="mt-5 grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-start">
+                  <button
+                    disabled={disabled}
+                    onClick={onDraftSave}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] transition hover:bg-[#204d3f] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                    Add new training
+                  </button>
+                  <ScheduleActionRow
+                    section="programs"
+                    label={draft.title || "New training draft"}
+                    schedules={schedules}
+                    onSchedule={onSchedule}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      </div>
+        </div>
+      </section>
     </div>
+  );
+}
+
+function ProgramKanbanCard({
+  program,
+  selected,
+  index,
+  onSelect,
+}: {
+  program: Program;
+  selected: boolean;
+  index: number;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={`rounded-[0.95rem] border p-3 text-left shadow-[0_8px_20px_rgba(23,63,51,0.06)] transition ${
+        selected
+          ? "border-[#173f33] bg-[#173f33] text-[#fff9ec]"
+          : "border-[#e2e8e3] bg-white text-[#173f33] hover:-translate-y-0.5 hover:shadow-[0_14px_24px_rgba(23,63,51,0.10)]"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${selected ? "bg-[rgba(255,255,255,0.14)] text-[#f5c65e]" : "bg-[#eef8f1] text-[#1f6b4b]"}`}>
+          {program.level}
+        </span>
+        <span className={`text-[10px] font-semibold ${selected ? "text-[#d4e1d8]" : "text-[#718477]"}`}>
+          {String(index + 1).padStart(2, "0")}
+        </span>
+      </div>
+      <h4 className="mt-3 line-clamp-2 text-sm font-black leading-5">{program.title || "Untitled training"}</h4>
+      <p className={`mt-2 line-clamp-2 text-xs leading-5 ${selected ? "text-[#d4e1d8]" : "text-[#607366]"}`}>
+        {program.summary || "No summary added yet."}
+      </p>
+      <div className={`mt-3 grid gap-1 text-[11px] font-semibold ${selected ? "text-[#f4e7bd]" : "text-[#718477]"}`}>
+        <span>{program.duration} | {program.capacity} seats</span>
+        <span>
+          {program.enrollmentClosed
+            ? "Enrollment closed"
+            : program.batchStartsAt
+              ? `Starts ${formatDateTime(program.batchStartsAt)}`
+              : "No start date"}
+        </span>
+        <span>Banner {program.popupEnabled ? "on" : "off"}</span>
+      </div>
+    </button>
   );
 }
 
@@ -2097,7 +2272,7 @@ function ArticleMediaUploader<T extends Omit<ArticleItem, "id">>({
           mediaObjectKey: "",
           mediaType: "IMAGE",
         });
-        setNotice("Article image prepared and ready to save.");
+        setNotice("Article image staged for saving.");
       } catch (error) {
         setNotice(error instanceof Error ? error.message : "Article media upload failed.");
       }

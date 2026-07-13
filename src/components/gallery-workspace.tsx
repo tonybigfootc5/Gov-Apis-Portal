@@ -3,18 +3,19 @@
 import { useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import {
-  ChevronLeft,
-  ChevronRight,
+  CheckSquare,
   Eye,
   History,
   ImagePlus,
   Images,
   MapPin,
+  MoreVertical,
   Plus,
   Save,
   Search,
-  SlidersHorizontal,
+  Square,
   Trash2,
+  X,
 } from "lucide-react";
 import { optimizeImageForInlineStorage } from "@/lib/client-media";
 import { galleryCategoryOptions, getGalleryCategoryLabel } from "@/lib/gallery";
@@ -81,7 +82,8 @@ export function GalleryWorkspace({
   const [libraryStatus, setLibraryStatus] = useState<"ALL" | "PUBLISHED" | "HIDDEN">("ALL");
   const [libraryCategory, setLibraryCategory] = useState<string>("ALL");
   const [sortMode, setSortMode] = useState<"NEWEST" | "OLDEST">("NEWEST");
-  const [libraryCollapsed, setLibraryCollapsed] = useState(false);
+  const [selectedImageIds, setSelectedImageIds] = useState<string[]>([]);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [isUploading, startUploadTransition] = useTransition();
 
   const selectedImage = useMemo(
@@ -114,6 +116,8 @@ export function GalleryWorkspace({
       });
   }, [images, libraryCategory, libraryQuery, libraryStatus, sortMode]);
 
+  const allVisibleSelected = filteredImages.length > 0 && filteredImages.every((image) => selectedImageIds.includes(image.id));
+
   function handleNewPhoto() {
     setSelectedId("new");
     setDraft({
@@ -123,6 +127,7 @@ export function GalleryWorkspace({
     });
     setUploadAssets([]);
     setUploadNotice("");
+    setActiveMenuId(null);
   }
 
   function handleSelectExisting(image: GalleryAdminItem) {
@@ -130,6 +135,7 @@ export function GalleryWorkspace({
     setDraft(toDraft(image));
     setUploadAssets([]);
     setUploadNotice("");
+    setActiveMenuId(null);
   }
 
   function updateDraft<K extends keyof GalleryDraftInput>(key: K, value: GalleryDraftInput[K]) {
@@ -178,8 +184,8 @@ export function GalleryWorkspace({
         }));
         setUploadNotice(
           uploaded.length === 1
-            ? "Photo prepared and ready for gallery save."
-            : `${uploaded.length} photos prepared and ready for gallery save.`,
+            ? "Photo staged for gallery save."
+            : `${uploaded.length} photos staged for gallery save.`,
         );
       } catch (error) {
         setUploadNotice(error instanceof Error ? error.message : "Gallery upload failed.");
@@ -211,361 +217,419 @@ export function GalleryWorkspace({
   async function handleDelete() {
     if (!selectedImage) return;
     await onDelete(selectedImage.id);
+    setSelectedImageIds((current) => current.filter((id) => id !== selectedImage.id));
     handleNewPhoto();
   }
 
-  return (
-    <div className="grid gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-3">
-          <StatTile label="Frames" value={String(images.length)} tone="neutral" />
-          <StatTile label="Live" value={String(publishedCount)} tone="green" />
-          <StatTile label="Hidden" value={String(hiddenCount)} tone="gold" />
-          <StatTile label="This Year" value={String(currentYearCount)} tone="neutral" />
-        </div>
+  async function handleBulkDelete() {
+    for (const id of selectedImageIds) {
+      await onDelete(id);
+    }
+    setSelectedImageIds([]);
+    handleNewPhoto();
+  }
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={onOpenHistory}
-            className="inline-flex items-center gap-2 rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-[#173f33]"
-          >
-            <History className="h-4 w-4" aria-hidden="true" />
-            History
-          </button>
-          <button
-            type="button"
-            onClick={handleNewPhoto}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#ebb428] px-5 py-3 text-sm font-black text-[#173f33] shadow-[0_14px_30px_rgba(235,180,40,0.18)]"
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            New upload
-          </button>
+  async function handleQuickVisibility(image: GalleryAdminItem, published: boolean) {
+    await onSave(image.id, { ...toDraft(image), published });
+    setActiveMenuId(null);
+  }
+
+  function toggleSelection(id: string) {
+    setSelectedImageIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  }
+
+  function toggleAllVisible() {
+    if (allVisibleSelected) {
+      setSelectedImageIds((current) => current.filter((id) => !filteredImages.some((image) => image.id === id)));
+      return;
+    }
+
+    setSelectedImageIds((current) => [...new Set([...current, ...filteredImages.map((image) => image.id)])]);
+  }
+
+  return (
+    <div className="grid gap-5">
+      <div className="overflow-hidden rounded-[1.7rem] bg-white shadow-[0_20px_48px_rgba(23,63,51,0.08)]">
+        <div className="grid grid-cols-3 text-sm font-black text-[#173f33]">
+          <StepHeader active number="01" title="Images" subtitle="Add, edit, remove" />
+          <StepHeader number="02" title="Details" subtitle="Caption and metadata" />
+          <StepHeader number="03" title="Publish" subtitle="Visibility and archive" />
         </div>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[auto_minmax(0,1fr)] xl:items-start">
-        <aside
-          className={`rounded-[2rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] shadow-[0_18px_40px_rgba(64,44,8,0.06)] transition-all duration-300 ease-out ${
-            libraryCollapsed ? "xl:w-[5.5rem]" : "xl:w-[24rem]"
-          }`}
-        >
-          <div className={`p-4 ${libraryCollapsed ? "flex h-full flex-col items-center gap-4" : ""}`}>
-            <div className={`flex items-start ${libraryCollapsed ? "w-full flex-col items-center gap-3" : "justify-between gap-3"}`}>
-              {libraryCollapsed ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setLibraryCollapsed(false)}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] text-[#173f33]"
-                    aria-label="Open photo library"
-                  >
-                    <ChevronRight className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <div className="rounded-full bg-[#173f33] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#fff9ec] [writing-mode:vertical-rl] rotate-180">
-                    {filteredImages.length} shown
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Photo library</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-[#173f33] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#fff9ec]">
-                      {filteredImages.length} shown
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setLibraryCollapsed(true)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(23,63,51,0.12)] bg-[#f8f4ea] text-[#173f33]"
-                      aria-label="Collapse photo library"
-                    >
-                      <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                  </div>
-                </>
-              )}
+      <section className="rounded-[1.7rem] bg-white p-4 shadow-[0_20px_48px_rgba(23,63,51,0.08)]">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="relative h-14 w-14 overflow-hidden rounded-[0.9rem] bg-[#f8f4ea]">
+              {firstImage ? <Image src={firstImage.url} alt={firstImage.caption} fill className="object-cover" sizes="3.5rem" /> : null}
             </div>
-
-            {!libraryCollapsed ? (
-              <>
-                <div className="mt-4 grid gap-3">
-                  <label className="relative block">
-                    <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b8d80]" aria-hidden="true" />
-                    <input
-                      value={libraryQuery}
-                      onChange={(event) => setLibraryQuery(event.target.value)}
-                      placeholder="Search caption or place"
-                      className="w-full rounded-[1rem] border border-[rgba(27,59,43,0.1)] bg-[#f8f4ea] py-3 pl-11 pr-4 text-sm text-[#173f33] outline-none ring-[#d9a127] transition focus:bg-white focus:ring-2"
-                    />
-                  </label>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <Field label="Status">
-                      <select value={libraryStatus} onChange={(event) => setLibraryStatus(event.target.value as "ALL" | "PUBLISHED" | "HIDDEN")} className={fieldClass()}>
-                        <option value="ALL">All photos</option>
-                        <option value="PUBLISHED">Published</option>
-                        <option value="HIDDEN">Hidden</option>
-                      </select>
-                    </Field>
-                    <Field label="Sort">
-                      <select value={sortMode} onChange={(event) => setSortMode(event.target.value as "NEWEST" | "OLDEST")} className={fieldClass()}>
-                        <option value="NEWEST">Newest first</option>
-                        <option value="OLDEST">Oldest first</option>
-                      </select>
-                    </Field>
-                  </div>
-
-                  <Field label="Category">
-                    <div className="relative">
-                      <SlidersHorizontal className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b8d80]" aria-hidden="true" />
-                      <select value={libraryCategory} onChange={(event) => setLibraryCategory(event.target.value)} className={`${fieldClass()} pl-11`}>
-                        <option value="ALL">All categories</option>
-                        {galleryCategoryOptions.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </Field>
-                </div>
-
-                <div className="mt-4 grid max-h-[52rem] gap-3 overflow-y-auto pr-1">
-                  {filteredImages.map((image) => (
-                    <button
-                      key={image.id}
-                      type="button"
-                      onClick={() => handleSelectExisting(image)}
-                      className={`rounded-[1.35rem] border p-3 text-left transition ${
-                        selectedId === image.id
-                          ? "border-[rgba(23,63,51,0.18)] bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.14)]"
-                          : "border-[rgba(27,59,43,0.08)] bg-[#faf7ef] text-[#173f33] hover:bg-[#f3ecdf]"
-                      }`}
-                    >
-                      <div className="flex gap-3">
-                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[1rem]">
-                          <Image src={image.url} alt={image.caption} fill className="object-cover" sizes="5rem" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
-                                image.published
-                                  ? selectedId === image.id
-                                    ? "bg-[rgba(255,255,255,0.14)] text-[#e4f6ea]"
-                                    : "bg-[#eef8f1] text-[#21533f]"
-                                  : selectedId === image.id
-                                    ? "bg-[rgba(255,255,255,0.14)] text-[#fff2d7]"
-                                    : "bg-[#fff5ea] text-[#8c4d1e]"
-                              }`}
-                            >
-                              {image.published ? "Published" : "Hidden"}
-                            </span>
-                            <span
-                              className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
-                                selectedId === image.id ? "bg-[rgba(255,255,255,0.14)] text-[#f4e7bd]" : "bg-[#f6efe4] text-[#9c6a18]"
-                              }`}
-                            >
-                              {image.year}
-                            </span>
-                          </div>
-                          <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6">{image.caption}</p>
-                          <p className={`mt-1 text-xs ${selectedId === image.id ? "text-[#dde4dc]" : "text-[#607366]"}`}>
-                            {formatDateLabel(image.date)}
-                            {image.place ? ` | ${truncateLabel(image.place, 28)}` : ""}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-
-                  {!filteredImages.length ? (
-                    <div className="rounded-[1.35rem] border border-dashed border-[rgba(27,59,43,0.14)] bg-[#faf8f2] px-4 py-8 text-center text-sm text-[#607366]">
-                      No photos match the current search or filters.
-                    </div>
-                  ) : null}
-                </div>
-              </>
-            ) : null}
-          </div>
-        </aside>
-
-        <section className="rounded-[2rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-5 shadow-[0_24px_60px_rgba(64,44,8,0.07)]">
-          <div className="grid gap-6 lg:grid-cols-[24rem_minmax(0,1fr)] lg:items-start">
-            <div className="grid gap-5">
-              <div className="overflow-hidden rounded-[1.8rem] border border-[rgba(27,59,43,0.1)] bg-[#f8f4ea]">
-                <div className="relative aspect-[4/5] w-full">
-                  {draft.url ? (
-                    <Image
-                      src={draft.url}
-                      alt={draft.caption || "Gallery preview"}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1024px) 100vw, 24rem"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_top,rgba(235,180,40,0.22),transparent_18rem),linear-gradient(180deg,rgba(244,236,220,0.95),rgba(231,239,233,0.95))]">
-                      <div className="px-8 text-center text-[#607366]">
-                        <ImagePlus className="mx-auto h-12 w-12 text-[#b36b00]" aria-hidden="true" />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-[1.5rem] border border-dashed border-[rgba(27,59,43,0.18)] bg-[#faf8f2] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-black text-[#173f33]">Upload photos</p>
-                  </div>
-                  <span className="rounded-full bg-[#eef8f1] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#21533f]">
-                    {uploadedCount ? `${uploadedCount} ready` : "No queue"}
-                  </span>
-                </div>
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(event) => handleFileUpload(event.target.files)}
-                  className="mt-4 block w-full rounded-[1rem] border border-[rgba(27,59,43,0.08)] bg-white px-3 py-3 text-sm text-[#173f33]"
-                />
-
-                {uploadAssets.length ? (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {uploadAssets.map((asset) => (
-                      <span
-                        key={asset.url}
-                        className="rounded-full bg-[#fffdf8] px-3 py-1.5 text-xs font-semibold text-[#516253] shadow-[0_8px_18px_rgba(64,44,8,0.05)]"
-                      >
-                        {truncateLabel(asset.name, 26)}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
-
-                {uploadNotice ? <p className="mt-4 text-sm font-semibold text-[#21533f]">{uploadNotice}</p> : null}
-                {isUploading ? <p className="mt-2 text-sm font-semibold text-[#9c6a18]">Preparing images for database storage...</p> : null}
-
-              </div>
-            </div>
-
-            <div className="grid gap-5">
-              <div className="rounded-[1.6rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] p-4 shadow-[0_14px_30px_rgba(64,44,8,0.06)]">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">
-                      {selectedImage ? "Edit photo" : "Photo details"}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-[#f6efe4] px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">
-                    {selectedImage ? "Existing" : "New"}
-                  </span>
-                </div>
-
-                <div className="mt-4 grid gap-4">
-                  <Field label="Caption">
-                    <input value={draft.caption} onChange={(event) => updateDraft("caption", event.target.value)} className={fieldClass()} />
-                  </Field>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <Field label="Date & Time">
-                      <input type="datetime-local" value={draft.date} onChange={(event) => updateDraft("date", event.target.value)} className={fieldClass()} />
-                    </Field>
-                    <Field label="Year">
-                      <input type="number" value={draft.year} onChange={(event) => updateDraft("year", Number(event.target.value))} className={fieldClass()} />
-                    </Field>
-                  </div>
-
-                  <Field label="Location / Place">
-                    <input value={draft.place ?? ""} onChange={(event) => updateDraft("place", event.target.value)} className={fieldClass()} />
-                  </Field>
-
-                  <Field label="Category">
-                    <select value={draft.category} onChange={(event) => updateDraft("category", event.target.value)} className={fieldClass()}>
-                      {galleryCategoryOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-
-                  <div className="grid gap-4 rounded-[1.4rem] border border-[rgba(27,59,43,0.08)] bg-[#f8f4ea] p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-                    <div>
-                      <p className="text-sm font-black text-[#173f33]">
-                        {draft.published ? "Visible on public gallery" : "Hidden from public gallery"}
-                      </p>
-                      <p className="mt-1 text-sm text-[#607366]">
-                        Use this toggle only when the photo is approved and ready for visitors.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => updateDraft("published", !draft.published)}
-                      className={`relative inline-flex h-8 w-14 rounded-full transition ${draft.published ? "bg-[#34c759]" : "bg-[#d6d4cd]"}`}
-                      aria-label="Toggle gallery visibility"
-                    >
-                      <span
-                        className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-[0_3px_8px_rgba(0,0,0,0.16)] transition ${
-                          draft.published ? "left-7" : "left-1"
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3 pt-1">
-                    <button
-                      type="button"
-                      disabled={disabled || isUploading || !draft.url}
-                      onClick={selectedImage ? handleSave : handleCreate}
-                      className="inline-flex min-w-[10rem] items-center justify-center gap-2 rounded-full bg-[#173f33] px-5 py-3 text-sm font-black text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)] disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {selectedImage ? <Save className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
-                      {selectedImage ? "Save photo" : "Save upload"}
-                    </button>
-
-                    {selectedImage ? (
-                      <button
-                        type="button"
-                        onClick={handleDelete}
-                        disabled={disabled}
-                        className="inline-flex min-w-[9rem] items-center justify-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-5 py-3 text-sm font-black text-[#92462d] disabled:cursor-not-allowed disabled:opacity-60"
-                      >
-                        <Trash2 className="h-4 w-4" aria-hidden="true" />
-                        Delete
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleNewPhoto}
-                        className="inline-flex min-w-[8rem] items-center justify-center gap-2 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] px-5 py-3 text-sm font-black text-[#173f33]"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                <MiniInfo icon={<MapPin className="h-4 w-4" aria-hidden="true" />} label="Place">
-                  {draft.place || "Add the exact location for quick archive search"}
-                </MiniInfo>
-                <MiniInfo icon={<Images className="h-4 w-4" aria-hidden="true" />} label="Category">
-                  {getGalleryCategoryLabel(draft.category)}
-                </MiniInfo>
-                <MiniInfo icon={<Eye className="h-4 w-4" aria-hidden="true" />} label="Status">
-                  {draft.published ? "Live on public gallery" : "Hidden until review"}
-                </MiniInfo>
-              </div>
+            <div>
+              <h3 className="text-2xl font-black text-[#173f33]">Gallery Library ({images.length})</h3>
+              <p className="mt-1 text-sm font-semibold text-[#607366]">{publishedCount} live, {hiddenCount} hidden, {currentYearCount} from {currentYear}</p>
             </div>
           </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={onOpenHistory}
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-[#f7faf7] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#173f33]"
+            >
+              <History className="h-4 w-4" aria-hidden="true" />
+              History
+            </button>
+            <button
+              type="button"
+              onClick={handleNewPhoto}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#f5c65e] px-4 text-sm font-black text-[#173f33]"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add image
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-center gap-2 rounded-[1.2rem] bg-[#f7faf7] p-3">
+          <button
+            type="button"
+            onClick={toggleAllVisible}
+            className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-3 text-xs font-black text-[#173f33]"
+          >
+            {allVisibleSelected ? <CheckSquare className="h-4 w-4" aria-hidden="true" /> : <Square className="h-4 w-4" aria-hidden="true" />}
+            All images
+          </button>
+          <label className="flex min-w-[16rem] flex-1 items-center rounded-full bg-white px-4 lg:max-w-sm">
+            <Search className="h-4 w-4 text-[#718477]" aria-hidden="true" />
+            <input
+              value={libraryQuery}
+              onChange={(event) => setLibraryQuery(event.target.value)}
+              placeholder="Search caption, place, year"
+              className="h-10 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#90a094]"
+            />
+          </label>
+          <select value={libraryStatus} onChange={(event) => setLibraryStatus(event.target.value as "ALL" | "PUBLISHED" | "HIDDEN")} className="h-10 rounded-full bg-white px-3 text-xs font-black text-[#607366] outline-none">
+            <option value="ALL">All status</option>
+            <option value="PUBLISHED">Published</option>
+            <option value="HIDDEN">Hidden</option>
+          </select>
+          <select value={libraryCategory} onChange={(event) => setLibraryCategory(event.target.value)} className="h-10 rounded-full bg-white px-3 text-xs font-black text-[#607366] outline-none">
+            <option value="ALL">All categories</option>
+            {galleryCategoryOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+          <select value={sortMode} onChange={(event) => setSortMode(event.target.value as "NEWEST" | "OLDEST")} className="h-10 rounded-full bg-white px-3 text-xs font-black text-[#607366] outline-none">
+            <option value="NEWEST">Newest</option>
+            <option value="OLDEST">Oldest</option>
+          </select>
+          {selectedImageIds.length ? (
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={handleBulkDelete}
+              className="inline-flex h-10 items-center gap-2 rounded-full bg-[#fff0ec] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#92462d] disabled:opacity-60"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              Delete {selectedImageIds.length}
+            </button>
+          ) : null}
+        </div>
+      </section>
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_26rem] xl:items-start">
+        <section className="rounded-[1.7rem] bg-white p-4 shadow-[0_20px_48px_rgba(23,63,51,0.08)]">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+            <button
+              type="button"
+              onClick={handleNewPhoto}
+              className="flex aspect-[1.22] flex-col items-center justify-center rounded-[1.1rem] border-2 border-dashed border-[#b8c6bc] bg-[#f7faf7] text-[#173f33] transition hover:bg-[#fff8df]"
+            >
+              <ImagePlus className="h-8 w-8" aria-hidden="true" />
+              <span className="mt-3 text-sm font-black">Add image</span>
+            </button>
+
+            {filteredImages.map((image) => (
+              <GalleryImageTile
+                key={image.id}
+                image={image}
+                selected={selectedId === image.id}
+                checked={selectedImageIds.includes(image.id)}
+                menuOpen={activeMenuId === image.id}
+                onCheck={() => toggleSelection(image.id)}
+                onSelect={() => handleSelectExisting(image)}
+                onMenu={() => setActiveMenuId((current) => (current === image.id ? null : image.id))}
+                onDelete={async () => {
+                  await onDelete(image.id);
+                  setSelectedImageIds((current) => current.filter((id) => id !== image.id));
+                  setActiveMenuId(null);
+                }}
+                onVisibility={(published) => void handleQuickVisibility(image, published)}
+              />
+            ))}
+          </div>
+
+          {!filteredImages.length ? (
+            <div className="mt-4 rounded-[1.2rem] border border-dashed border-[#dce4de] bg-[#f7faf7] px-4 py-10 text-center text-sm font-semibold text-[#607366]">
+              No photos match the current search or filters.
+            </div>
+          ) : null}
         </section>
+
+        <GalleryInspector
+          disabled={disabled}
+          draft={draft}
+          selectedImage={selectedImage}
+          uploadAssets={uploadAssets}
+          uploadNotice={uploadNotice}
+          uploadedCount={uploadedCount}
+          isUploading={isUploading}
+          onDraftChange={updateDraft}
+          onFileUpload={handleFileUpload}
+          onCreate={handleCreate}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          onReset={handleNewPhoto}
+        />
       </div>
     </div>
+  );
+}
+
+function StepHeader({ active, number, title, subtitle }: { active?: boolean; number: string; title: string; subtitle: string }) {
+  return (
+    <div className={`relative px-5 py-4 ${active ? "bg-[#bde8b7]" : "bg-white"}`}>
+      <div className="flex items-center gap-3">
+        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full border text-xs font-black ${active ? "border-[#173f33] bg-white text-[#173f33]" : "border-[#cfd8d2] text-[#607366]"}`}>{number}</span>
+        <div>
+          <p className="text-sm font-black text-[#173f33]">{title}</p>
+          <p className="mt-0.5 text-xs font-semibold text-[#607366]">{subtitle}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GalleryImageTile({
+  image,
+  selected,
+  checked,
+  menuOpen,
+  onCheck,
+  onSelect,
+  onMenu,
+  onDelete,
+  onVisibility,
+}: {
+  image: GalleryAdminItem;
+  selected: boolean;
+  checked: boolean;
+  menuOpen: boolean;
+  onCheck: () => void;
+  onSelect: () => void;
+  onMenu: () => void;
+  onDelete: () => void;
+  onVisibility: (published: boolean) => void;
+}) {
+  return (
+    <article className={`group relative rounded-[1.1rem] border bg-white p-2 shadow-[0_10px_24px_rgba(23,63,51,0.06)] ${selected ? "border-[#173f33]" : "border-[#e2e8e3]"}`}>
+      <button type="button" onClick={onSelect} className="block w-full text-left">
+        <div className="relative aspect-[1.45] overflow-hidden rounded-[0.85rem] bg-[#f7faf7]">
+          <Image src={image.url} alt={image.caption} fill className="object-cover" sizes="(max-width: 768px) 50vw, 20vw" />
+        </div>
+        <p className="mt-2 truncate text-sm font-black text-[#173f33]">{image.caption || "Untitled photo"}</p>
+        <p className="mt-1 truncate text-xs font-semibold text-[#718477]">{getGalleryCategoryLabel(image.category)}</p>
+      </button>
+      <button
+        type="button"
+        onClick={onCheck}
+        className="absolute left-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-[0.35rem] bg-white text-[#173f33] shadow-[0_6px_14px_rgba(23,63,51,0.14)]"
+        aria-label="Select image"
+      >
+        {checked ? <CheckSquare className="h-4 w-4" aria-hidden="true" /> : <Square className="h-4 w-4" aria-hidden="true" />}
+      </button>
+      <button
+        type="button"
+        onClick={onMenu}
+        className="absolute right-3 top-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#173f33] shadow-[0_6px_14px_rgba(23,63,51,0.14)]"
+        aria-label="Image actions"
+      >
+        <MoreVertical className="h-4 w-4" aria-hidden="true" />
+      </button>
+      <span className={`absolute bottom-[3.9rem] left-3 rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${image.published ? "bg-[#eef8f1] text-[#1f6b4b]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
+        {image.published ? "Live" : "Hidden"}
+      </span>
+      {menuOpen ? (
+        <div className="absolute right-3 top-11 z-20 w-52 rounded-[0.9rem] border border-[#dce4de] bg-white p-2 shadow-[0_18px_38px_rgba(23,63,51,0.16)]">
+          <ActionMenuButton onClick={onSelect}>Edit details</ActionMenuButton>
+          <ActionMenuButton onClick={() => onVisibility(!image.published)}>{image.published ? "Hide image" : "Publish image"}</ActionMenuButton>
+          <ActionMenuButton onClick={onSelect}>View metadata</ActionMenuButton>
+          <ActionMenuButton danger onClick={onDelete}>Delete image</ActionMenuButton>
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function GalleryInspector({
+  disabled,
+  draft,
+  selectedImage,
+  uploadAssets,
+  uploadNotice,
+  uploadedCount,
+  isUploading,
+  onDraftChange,
+  onFileUpload,
+  onCreate,
+  onSave,
+  onDelete,
+  onReset,
+}: {
+  disabled: boolean;
+  draft: GalleryDraftInput;
+  selectedImage: GalleryAdminItem | null;
+  uploadAssets: UploadAsset[];
+  uploadNotice: string;
+  uploadedCount: number;
+  isUploading: boolean;
+  onDraftChange: <K extends keyof GalleryDraftInput>(key: K, value: GalleryDraftInput[K]) => void;
+  onFileUpload: (files: FileList | null) => void;
+  onCreate: () => Promise<void>;
+  onSave: () => Promise<void>;
+  onDelete: () => Promise<void>;
+  onReset: () => void;
+}) {
+  return (
+    <aside className="sticky top-4 rounded-[1.7rem] bg-white p-4 shadow-[0_20px_48px_rgba(23,63,51,0.08)]">
+      <div className="overflow-hidden rounded-[1.25rem] bg-[#f7faf7]">
+        <div className="relative aspect-[4/3]">
+          {draft.url ? (
+            <Image src={draft.url} alt={draft.caption || "Gallery preview"} fill className="object-cover" sizes="26rem" />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <ImagePlus className="h-10 w-10 text-[#9c6a18]" aria-hidden="true" />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">{selectedImage ? "Edit image" : "New upload"}</p>
+          <p className="mt-1 text-lg font-black text-[#173f33]">{selectedImage ? "Image details" : "Upload details"}</p>
+        </div>
+        <span className="rounded-full bg-[#eef3ef] px-3 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#607366]">
+          {selectedImage ? "Existing" : "New"}
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        <div className="rounded-[1.2rem] border border-dashed border-[#dce4de] bg-[#fbfdfb] p-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-black text-[#173f33]">Upload photos</p>
+            <span className="rounded-full bg-[#eef8f1] px-2 py-1 text-[10px] font-black text-[#1f6b4b]">
+              {uploadedCount ? `${uploadedCount} selected` : "Queue empty"}
+            </span>
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(event) => onFileUpload(event.target.files)}
+            className="mt-3 block w-full rounded-[0.9rem] border border-[#e2e8e3] bg-white px-3 py-3 text-sm text-[#173f33]"
+          />
+          {uploadAssets.length ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {uploadAssets.map((asset) => (
+                <span key={asset.url} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#607366]">
+                  {truncateLabel(asset.name, 24)}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {uploadNotice ? <p className="mt-3 text-sm font-semibold text-[#1f6b4b]">{uploadNotice}</p> : null}
+          {isUploading ? <p className="mt-2 text-sm font-semibold text-[#9c6a18]">Preparing images...</p> : null}
+        </div>
+
+        <Field label="Caption">
+          <input value={draft.caption} onChange={(event) => onDraftChange("caption", event.target.value)} className={fieldClass()} />
+        </Field>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <Field label="Date">
+            <input type="datetime-local" value={draft.date} onChange={(event) => onDraftChange("date", event.target.value)} className={fieldClass()} />
+          </Field>
+          <Field label="Year">
+            <input type="number" value={draft.year} onChange={(event) => onDraftChange("year", Number(event.target.value))} className={fieldClass()} />
+          </Field>
+        </div>
+        <Field label="Place">
+          <input value={draft.place ?? ""} onChange={(event) => onDraftChange("place", event.target.value)} className={fieldClass()} />
+        </Field>
+        <Field label="Category">
+          <select value={draft.category} onChange={(event) => onDraftChange("category", event.target.value)} className={fieldClass()}>
+            {galleryCategoryOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </Field>
+        <button
+          type="button"
+          onClick={() => onDraftChange("published", !draft.published)}
+          className="flex items-center justify-between rounded-[1rem] bg-[#f7faf7] px-3 py-3 text-sm font-black text-[#173f33]"
+        >
+          {draft.published ? "Visible on gallery" : "Hidden from gallery"}
+          <span className={`relative inline-flex h-7 w-12 rounded-full ${draft.published ? "bg-[#34c759]" : "bg-[#d6d4cd]"}`}>
+            <span className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow ${draft.published ? "left-6" : "left-1"}`} />
+          </span>
+        </button>
+
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
+          <button
+            type="button"
+            disabled={disabled || isUploading || !draft.url}
+            onClick={selectedImage ? onSave : onCreate}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-3 text-sm font-black text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {selectedImage ? <Save className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
+            {selectedImage ? "Save changes" : "Save upload"}
+          </button>
+          {selectedImage ? (
+            <button
+              type="button"
+              onClick={onDelete}
+              disabled={disabled}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[#fff0ec] px-4 py-3 text-sm font-black text-[#92462d] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              Delete
+            </button>
+          ) : (
+            <button type="button" onClick={onReset} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#eef3ef] px-4 py-3 text-sm font-black text-[#173f33]">
+              <X className="h-4 w-4" aria-hidden="true" />
+              Reset
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-2">
+        <MiniInfo icon={<MapPin className="h-4 w-4" aria-hidden="true" />} label="Place">{draft.place || "Location can be added later"}</MiniInfo>
+        <MiniInfo icon={<Images className="h-4 w-4" aria-hidden="true" />} label="Category">{getGalleryCategoryLabel(draft.category)}</MiniInfo>
+        <MiniInfo icon={<Eye className="h-4 w-4" aria-hidden="true" />} label="Status">{draft.published ? "Public" : "Hidden"}</MiniInfo>
+      </div>
+    </aside>
+  );
+}
+
+function ActionMenuButton({ children, danger, onClick }: { children: React.ReactNode; danger?: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`block w-full rounded-[0.6rem] px-3 py-2 text-left text-sm font-semibold hover:bg-[#f7faf7] ${danger ? "text-[#92462d]" : "text-[#173f33]"}`}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -581,30 +645,6 @@ function toDraft(image: GalleryAdminItem): GalleryDraftInput {
   };
 }
 
-function StatTile({
-  label,
-  value,
-  tone,
-}: {
-  label: string;
-  value: string;
-  tone: "neutral" | "green" | "gold";
-}) {
-  const className =
-    tone === "green"
-      ? "bg-[#eef8f1] text-[#21533f] border-[rgba(33,83,63,0.12)]"
-      : tone === "gold"
-        ? "bg-[#fff7df] text-[#946600] border-[rgba(148,102,0,0.12)]"
-        : "bg-[#fffdf8] text-[#173f33] border-[rgba(27,59,43,0.08)]";
-
-  return (
-    <div className={`rounded-[1.6rem] border px-4 py-3 shadow-[0_14px_30px_rgba(64,44,8,0.05)] ${className}`}>
-      <p className="text-[11px] font-black uppercase tracking-[0.18em]">{label}</p>
-      <p className="font-display mt-2 text-2xl font-semibold">{value}</p>
-    </div>
-  );
-}
-
 function MiniInfo({
   icon,
   label,
@@ -615,8 +655,8 @@ function MiniInfo({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-[1.2rem] border border-[rgba(27,59,43,0.08)] bg-[#faf7ef] p-3">
-      <p className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">
+    <div className="rounded-[1rem] bg-[#f7faf7] p-3">
+      <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">
         {icon}
         {label}
       </p>
@@ -641,15 +681,7 @@ function Field({
 }
 
 function fieldClass() {
-  return "w-full rounded-[1.2rem] border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] px-4 py-3 text-sm text-[#173f33] outline-none ring-[#d9a127] transition focus:bg-white focus:ring-2";
-}
-
-function formatDateLabel(value: string) {
-  return new Date(value).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return "w-full rounded-[1rem] border border-[#e2e8e3] bg-[#f8f4ea] px-3 py-2.5 text-sm text-[#173f33] outline-none ring-[#d9a127] transition focus:bg-white focus:ring-2";
 }
 
 function truncateLabel(value: string, max: number) {
