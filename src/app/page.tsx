@@ -231,28 +231,18 @@ export default async function Home() {
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
         <div className="relative min-h-[34rem] overflow-hidden rounded-[2.2rem] border border-white/10 bg-black p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:min-h-[38rem] lg:p-10">
           <Image
-            src="/field-beekeeping.jpg"
+            src="/honey-bee-dark-reference.png"
             alt=""
             fill
             sizes="(min-width: 1280px) 80rem, 100vw"
-            className="object-cover opacity-35 grayscale"
+            className="object-cover object-center opacity-95"
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0.05)_19%,rgba(0,0,0,0.72)_48%,rgba(0,0,0,0.96)_100%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.92)_0%,rgba(0,0,0,0.4)_48%,rgba(0,0,0,0.92)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.92))]" />
-          <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center">
-            <Image
-              src="/api-culture-logo-clean.png"
-              alt=""
-              width={900}
-              height={760}
-              className="w-[min(60rem,96vw)] opacity-70 brightness-110 drop-shadow-[0_0_42px_rgba(255,255,255,0.26)] saturate-150"
-            />
-          </div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,transparent_0%,rgba(0,0,0,0.05)_33%,rgba(0,0,0,0.72)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.78))]" />
 
-          <div className="relative z-10 mx-auto flex min-h-[28rem] max-w-4xl flex-col items-center justify-center text-center lg:min-h-[32rem]">
+          <div className="relative z-10 mx-auto flex min-h-[28rem] max-w-3xl flex-col items-center justify-center text-center lg:min-h-[32rem]">
             <p className="text-[11px] font-black uppercase tracking-[0.28em] text-white/72">{localCopy.quoteEyebrow}</p>
-            <blockquote className="font-display mt-8 rounded-[1.6rem] border border-white/22 bg-black/38 px-5 py-6 text-3xl leading-tight text-white shadow-[0_22px_70px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-[2px] sm:px-8 sm:py-8 sm:text-4xl lg:text-[2.55rem]">
+            <blockquote className="font-display mt-8 rounded-[1.6rem] border border-white/24 bg-black/28 px-5 py-6 text-2xl leading-tight text-white shadow-[0_22px_70px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-[1px] sm:px-8 sm:py-8 sm:text-3xl lg:text-[2.15rem]">
               If the honey bee disappeared from the surface of the globe the man would only have four years of life left.
               No more bees, No more pollination, No more plants, No more animals, No more man.
             </blockquote>
