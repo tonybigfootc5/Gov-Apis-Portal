@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  Quote,
   CalendarDays,
   GraduationCap,
   MapPin,
@@ -230,30 +229,34 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-[2.2rem] border border-[rgba(41,56,49,0.08)] bg-[linear-gradient(135deg,rgba(255,253,248,0.92),rgba(247,238,220,0.9))] p-6 shadow-[0_24px_60px_rgba(78,55,15,0.08)] sm:p-8 lg:p-10">
-          <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-[#f2b544]/10 blur-3xl" />
-          <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-[#88a37c]/10 blur-3xl" />
-          <div className="absolute right-8 top-8 hidden opacity-80 lg:block">
-            <div className="grid grid-cols-3 gap-2">
-              {Array.from({ length: 9 }).map((_, index) => (
-                <span
-                  key={index}
-                  className="h-4 w-4 bg-[linear-gradient(180deg,#f6d36f,#dba33b)] opacity-70 [clip-path:polygon(25%_0%,75%_0%,100%_50%,75%_100%,25%_100%,0%_50%)]"
-                />
-              ))}
-            </div>
+        <div className="relative min-h-[34rem] overflow-hidden rounded-[2.2rem] border border-white/10 bg-black p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:min-h-[38rem] lg:p-10">
+          <Image
+            src="/field-beekeeping.jpg"
+            alt=""
+            fill
+            sizes="(min-width: 1280px) 80rem, 100vw"
+            className="object-cover opacity-35 grayscale"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(255,255,255,0.2)_0%,rgba(255,255,255,0.05)_19%,rgba(0,0,0,0.72)_48%,rgba(0,0,0,0.96)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.92)_0%,rgba(0,0,0,0.4)_48%,rgba(0,0,0,0.92)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.92))]" />
+          <div className="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center">
+            <Image
+              src="/api-culture-logo-clean.png"
+              alt=""
+              width={900}
+              height={760}
+              className="w-[min(60rem,96vw)] opacity-70 brightness-110 drop-shadow-[0_0_42px_rgba(255,255,255,0.26)] saturate-150"
+            />
           </div>
 
-          <div className="relative z-10 mx-auto max-w-4xl text-center">
-            <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">{localCopy.quoteEyebrow}</p>
-            <div className="mx-auto mt-6 flex h-14 w-14 items-center justify-center rounded-full border border-[#f2b544]/25 bg-white/75 text-[#b36b00] shadow-[0_10px_28px_rgba(100,70,16,0.08)]">
-              <Quote className="h-6 w-6" aria-hidden="true" />
-            </div>
-            <blockquote className="font-display mt-6 text-3xl leading-tight text-[#1f352b] sm:text-4xl lg:text-[2.9rem]">
-              “If the honey bee disappeared from the surface of the globe the man would only have four years of life left.
-              No more bees, No more pollination, No more plants, No more animals, No more man.”
+          <div className="relative z-10 mx-auto flex min-h-[28rem] max-w-4xl flex-col items-center justify-center text-center lg:min-h-[32rem]">
+            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-white/72">{localCopy.quoteEyebrow}</p>
+            <blockquote className="font-display mt-8 rounded-[1.6rem] border border-white/22 bg-black/38 px-5 py-6 text-3xl leading-tight text-white shadow-[0_22px_70px_rgba(0,0,0,0.28),inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-[2px] sm:px-8 sm:py-8 sm:text-4xl lg:text-[2.55rem]">
+              If the honey bee disappeared from the surface of the globe the man would only have four years of life left.
+              No more bees, No more pollination, No more plants, No more animals, No more man.
             </blockquote>
-            <p className="mt-6 text-sm font-black uppercase tracking-[0.22em] text-[#7d8b74]">{localCopy.quoteAuthor}</p>
+            <p className="mt-7 text-sm font-black uppercase tracking-[0.24em] text-white/68">{localCopy.quoteAuthor}</p>
           </div>
         </div>
       </section>
