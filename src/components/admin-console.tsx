@@ -927,7 +927,7 @@ export function AdminConsole({
                 <h1 className="mt-1 text-xl font-black text-[#173f33]">{activeNavItem.label}</h1>
               </div>
               <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
-                <label className="hidden h-10 min-w-[16rem] max-w-sm flex-1 items-center rounded-full bg-[#edf2ef] px-4 text-[#607366] md:flex">
+                <label className="hidden h-10 min-w-[16rem] max-w-xl flex-1 items-center rounded-full bg-[#edf2ef] px-4 text-[#607366] md:flex">
                   <input
                     className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#8b9a90]"
                     placeholder="Search..."
@@ -935,163 +935,150 @@ export function AdminConsole({
                   />
                   <Search className="h-4 w-4" aria-hidden="true" />
                 </label>
-                <button
-                  disabled={loading}
-                  onClick={load}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#edf2ef] text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
-                  aria-label="Refresh data"
-                >
-                  <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-                </button>
+                <div className="flex items-center gap-2.5 rounded-full bg-[#f6faf7] p-1 shadow-[inset_0_0_0_1px_rgba(23,63,51,0.05)]">
+                  <button
+                    disabled={loading}
+                    onClick={load}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#edf2ef] text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
+                    aria-label="Refresh data"
+                  >
+                    <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+                  </button>
+
+                  <div className="relative" ref={notificationPanelRef}>
+                    <button
+                      onClick={() => setNotificationOpen((current) => !current)}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#edf2ef] text-[#173f33] transition hover:scale-105"
+                      aria-label="Open notifications"
+                      aria-expanded={notificationOpen}
+                    >
+                      <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full">
+                        <Bell className="h-4 w-4" aria-hidden="true" />
+                        {unreadNotifications ? (
+                          <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d12e2e] px-1.5 py-0.5 text-[10px] font-black text-white">
+                            {unreadNotifications}
+                          </span>
+                        ) : null}
+                      </span>
+                    </button>
+
+                    {notificationOpen ? (
+                      <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[24rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
+                        <div className="flex items-center justify-between gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
+                          <div>
+                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Admin notifications</p>
+                            <p className="mt-1 text-sm font-semibold text-[#607366]">{unreadNotifications} unread</p>
+                          </div>
+                          <button
+                            onClick={clearNotifications}
+                            className="rounded-full bg-[#f3ecdf] px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-[#173f33]"
+                          >
+                            Clear All
+                          </button>
+                        </div>
+
+                        <div className="max-h-[26rem] overflow-y-auto p-3">
+                          {allNotifications.length ? (
+                            <div className="grid gap-3">
+                              {allNotifications.map((notification) => (
+                                <button
+                                  key={notification.id}
+                                  onClick={() => markNotificationRead(notification.id)}
+                                  className={`rounded-[1.2rem] border p-4 text-left transition ${
+                                    notification.read
+                                      ? "border-[rgba(27,59,43,0.08)] bg-[#f7f4ed]"
+                                      : "border-[rgba(28,95,212,0.16)] bg-[rgba(214,230,255,0.55)]"
+                                  }`}
+                                >
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                      <p className="text-sm font-black text-[#173f33]">{notification.title}</p>
+                                      <p className="mt-2 text-sm leading-6 text-[#607366]">{notification.message}</p>
+                                    </div>
+                                    <span
+                                      className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
+                                        notification.variant === "success"
+                                          ? "bg-[#eef8f1] text-[#21533f]"
+                                          : notification.variant === "warning"
+                                            ? "bg-[#fff5ea] text-[#8c4d1e]"
+                                            : "bg-[#fff0ea] text-[#99462d]"
+                                      }`}
+                                    >
+                                      {notification.section}
+                                    </span>
+                                  </div>
+                                  <p className="mt-3 text-xs font-semibold text-[#7a8b80]">{timeAgo(notification.timestamp)}</p>
+                                </button>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
+                              No critical notifications right now.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div
+                    className="relative"
+                    ref={activityPanelRef}
+                    onMouseLeave={() => setActivityOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setActivityOpen((current) => !current)}
+                      onMouseEnter={() => setActivityOpen(true)}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#edf2ef] text-[#173f33] transition hover:scale-105"
+                      aria-label="Open activity log"
+                      aria-expanded={activityOpen}
+                    >
+                      <History className="h-4 w-4" aria-hidden="true" />
+                    </button>
+
+                    {activityOpen ? (
+                      <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[26rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
+                        <div className="flex items-center gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
+                          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#eef3ef] text-[#173f33]">
+                            <History className="h-4 w-4" aria-hidden="true" />
+                          </span>
+                          <div>
+                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Activity log</p>
+                            <p className="mt-1 text-sm font-semibold text-[#607366]">{historyEntries.length} entries</p>
+                          </div>
+                        </div>
+
+                        <div className="max-h-[26rem] overflow-y-auto p-3">
+                          {historyEntries.length ? (
+                            <div className="grid gap-2.5">
+                              {historyEntries.map((entry) => (
+                                <div key={entry.id} className="rounded-[1.1rem] border border-[rgba(27,59,43,0.08)] bg-[#f9f6ef] px-3.5 py-3 text-left">
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
+                                    <p className="text-[12px] font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
+                                    <p className="text-xs font-semibold text-[#7a8b80]">{timeAgo(entry.timestamp)}</p>
+                                  </div>
+                                  <p className="mt-1 text-[13px] font-semibold text-[#395547]">{entry.label}</p>
+                                  {entry.details ? <p className="mt-1 text-[13px] leading-5 text-[#607366]">{entry.details}</p> : null}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
+                              No activity yet.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
               </div>
             </div>
 
-          <div className={`grid gap-3 ${view === "overview" ? "xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start" : "justify-items-end"}`}>
-            {view === "overview" ? <CurrentBatchCard applications={applications} programs={programs} theme={activeTheme} /> : null}
-
-            <div className="flex items-center gap-3 xl:w-fit">
-                <button
-                  disabled={loading}
-                  onClick={load}
-                  className="hidden h-10 w-10 items-center justify-center text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 xl:inline-flex"
-                  aria-label="Refresh data"
-                >
-                  <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${activeTheme.badge}`}>
-                    <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-                  </span>
-                </button>
-
-                <div className="relative" ref={notificationPanelRef}>
-                  <button
-                    onClick={() => setNotificationOpen((current) => !current)}
-                    className="inline-flex h-10 w-10 items-center justify-center text-[#173f33] transition hover:scale-105"
-                    aria-label="Open notifications"
-                    aria-expanded={notificationOpen}
-                  >
-                    <span className={`relative inline-flex h-10 w-10 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
-                      <Bell className="h-4 w-4" aria-hidden="true" />
-                      {unreadNotifications ? (
-                        <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d12e2e] px-1.5 py-0.5 text-[10px] font-black text-white">
-                          {unreadNotifications}
-                        </span>
-                      ) : null}
-                    </span>
-                  </button>
-
-                  {notificationOpen ? (
-                    <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[24rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
-                    <div className="flex items-center justify-between gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Admin notifications</p>
-                        <p className="mt-1 text-sm font-semibold text-[#607366]">{unreadNotifications} unread</p>
-                      </div>
-                      <button
-                        onClick={clearNotifications}
-                        className="rounded-full bg-[#f3ecdf] px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-[#173f33]"
-                      >
-                        Clear All
-                      </button>
-                    </div>
-
-                    <div className="max-h-[26rem] overflow-y-auto p-3">
-                      {allNotifications.length ? (
-                        <div className="grid gap-3">
-                          {allNotifications.map((notification) => (
-                            <button
-                              key={notification.id}
-                              onClick={() => markNotificationRead(notification.id)}
-                              className={`rounded-[1.2rem] border p-4 text-left transition ${
-                                notification.read
-                                  ? "border-[rgba(27,59,43,0.08)] bg-[#f7f4ed]"
-                                  : "border-[rgba(28,95,212,0.16)] bg-[rgba(214,230,255,0.55)]"
-                              }`}
-                            >
-                              <div className="flex items-start justify-between gap-3">
-                                <div>
-                                  <p className="text-sm font-black text-[#173f33]">{notification.title}</p>
-                                  <p className="mt-2 text-sm leading-6 text-[#607366]">{notification.message}</p>
-                                </div>
-                                <span
-                                  className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
-                                    notification.variant === "success"
-                                      ? "bg-[#eef8f1] text-[#21533f]"
-                                      : notification.variant === "warning"
-                                        ? "bg-[#fff5ea] text-[#8c4d1e]"
-                                        : "bg-[#fff0ea] text-[#99462d]"
-                                  }`}
-                                >
-                                  {notification.section}
-                                </span>
-                              </div>
-                              <p className="mt-3 text-xs font-semibold text-[#7a8b80]">{timeAgo(notification.timestamp)}</p>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
-                          No critical notifications right now.
-                        </div>
-                      )}
-                    </div>
-                    </div>
-                  ) : null}
-                </div>
-
-                <div
-                  className="relative"
-                  ref={activityPanelRef}
-                  onMouseLeave={() => setActivityOpen(false)}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setActivityOpen((current) => !current)}
-                    onMouseEnter={() => setActivityOpen(true)}
-                    className="inline-flex h-10 w-10 items-center justify-center text-[#173f33] transition hover:scale-105"
-                    aria-label="Open activity log"
-                    aria-expanded={activityOpen}
-                  >
-                    <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full ${activeTheme.panelMuted}`}>
-                      <History className="h-4 w-4" aria-hidden="true" />
-                    </span>
-                  </button>
-
-                  {activityOpen ? (
-                    <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[26rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
-                      <div className="flex items-center gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
-                        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${activeTheme.panelMuted} text-[#173f33]`}>
-                          <History className="h-4 w-4" aria-hidden="true" />
-                        </span>
-                        <div>
-                          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Activity log</p>
-                          <p className="mt-1 text-sm font-semibold text-[#607366]">{historyEntries.length} entries</p>
-                        </div>
-                      </div>
-
-                      <div className="max-h-[26rem] overflow-y-auto p-3">
-                        {historyEntries.length ? (
-                          <div className="grid gap-2.5">
-                            {historyEntries.map((entry) => (
-                              <div key={entry.id} className="rounded-[1.1rem] border border-[rgba(27,59,43,0.08)] bg-[#f9f6ef] px-3.5 py-3 text-left">
-                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                  <p className="text-[12px] font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
-                                  <p className="text-xs font-semibold text-[#7a8b80]">{timeAgo(entry.timestamp)}</p>
-                                </div>
-                                <p className="mt-1 text-[13px] font-semibold text-[#395547]">{entry.label}</p>
-                                {entry.details ? <p className="mt-1 text-[13px] leading-5 text-[#607366]">{entry.details}</p> : null}
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
-                            No activity yet.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-            </div>
-          </div>
+            {view === "overview" ? (
+              <CurrentBatchCard applications={applications} programs={programs} theme={activeTheme} />
+            ) : null}
 
           {notice ? (
             <div className={`rounded-[1.2rem] border px-4 py-2.5 text-[13px] font-semibold shadow-[0_14px_28px_rgba(0,0,0,0.12)] ${activeTheme.panelShell}`}>
