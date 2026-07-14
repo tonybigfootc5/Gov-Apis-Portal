@@ -151,14 +151,6 @@ const equipmentTools = [
     imageAlt: "Bee veils used for protection during hive work",
     icon: ShieldCheck,
   },
-  {
-    title: "Necessary field equipment",
-    category: "Apiary readiness",
-    body: "Support gear for demonstrations, handling, transport, and maintenance.",
-    imageSrc: "/field-beekeeping.jpg",
-    imageAlt: "Field beekeeping visual representing necessary apiary equipment",
-    icon: Factory,
-  },
 ] as const;
 
 const supportCards = [
@@ -181,9 +173,9 @@ const supportCards = [
 
 export default function EquipmentPage() {
   const featured = equipmentTools[6];
-  const leftRailItems = equipmentTools.slice(0, 4);
-  const middleRailItems = equipmentTools.slice(4, 6);
-  const rightRailItems = equipmentTools.slice(7, 10);
+  const leftRailItems = equipmentTools.slice(0, 3);
+  const middleRailItems = equipmentTools.slice(3, 5);
+  const rightRailItems = [equipmentTools[5], ...equipmentTools.slice(7)];
 
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -202,7 +194,7 @@ export default function EquipmentPage() {
               </nav>
 
               <div className="flex items-center justify-start gap-3 lg:justify-end">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f2b544] text-sm font-black text-[#133226]">10</span>
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f2b544] text-sm font-black text-[#133226]">9</span>
                 <span className="text-[11px] font-black uppercase tracking-[0.22em] text-[#133226]">Visible support tools</span>
               </div>
             </header>
