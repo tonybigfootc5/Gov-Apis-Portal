@@ -204,12 +204,14 @@ function ProductShowcaseCard({
     <article className={compact ? "group grid h-[21rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]" : "group grid h-[19rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"}>
       <div className="relative min-h-0">
         <ProductCardMedia item={item} sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02),rgba(20,38,31,0.36))]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02)_0%,rgba(20,38,31,0.08)_48%,rgba(7,30,22,0.88)_100%)]" />
+        <div className="absolute inset-x-0 bottom-0 p-3.5 text-white">
+          <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#f9d779]">{copy.streamLabel}</p>
+          <h2 className={compact ? "mt-1 product-card-title-overlay max-w-full text-2xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]" : "mt-1 product-card-title-overlay max-w-full text-xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"}>{item.title}</h2>
+        </div>
       </div>
       <div className={compact ? "min-h-0 overflow-hidden p-4" : "min-h-0 overflow-hidden p-3.5"}>
-        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#a36600]">{copy.streamLabel}</p>
-        <h2 className={compact ? "mt-1 text-xl font-black leading-tight tracking-[-0.03em] text-[#133226]" : "mt-1 text-lg font-black leading-tight tracking-[-0.03em] text-[#133226]"}>{item.title}</h2>
-        <p className={compact ? "mt-1 product-card-copy text-sm leading-6 text-[#65756c]" : "mt-1 product-card-copy text-xs leading-5 text-[#65756c]"}>{item.description}</p>
+        <p className={compact ? "product-card-copy text-sm leading-6 text-[#65756c]" : "product-card-copy text-xs leading-5 text-[#65756c]"}>{item.description}</p>
       </div>
     </article>
   );
@@ -220,16 +222,18 @@ function FeaturedProductCard({ item, copy }: { item: (typeof productItems)[numbe
     <article className="relative grid h-[28rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.45rem] bg-[#008f68] text-white shadow-[0_24px_54px_rgba(0,79,58,0.24)]">
       <div className="relative min-h-0 bg-[#e6eee8]">
         <ProductCardMedia item={item} sizes="(min-width: 1024px) 24rem, 100vw" priority />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,143,104,0)_12%,rgba(0,76,54,0.82)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,143,104,0)_10%,rgba(0,76,54,0.2)_48%,rgba(0,45,32,0.92)_100%)]" />
         <span className="absolute left-4 top-4 rounded-full bg-white/92 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#00513d]">
           {copy.streamLabel}
         </span>
+        <div className="absolute inset-x-0 bottom-0 p-5">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f9d779]">{copy.streamLabel}</p>
+          <h2 className="mt-2 product-card-title-overlay text-4xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_3px_10px_rgba(0,0,0,0.5)]">{item.title}</h2>
+        </div>
       </div>
       <div className="grid min-h-0 gap-3 overflow-hidden p-4">
         <div className="min-h-0 overflow-hidden">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f9d779]">{copy.streamLabel}</p>
-          <h2 className="mt-2 text-3xl font-black leading-none tracking-[-0.03em]">{item.title}</h2>
-          <p className="mt-2 product-card-copy text-sm leading-6 text-white/78">{item.description}</p>
+          <p className="product-card-copy text-sm leading-6 text-white/78">{item.description}</p>
         </div>
         <Link href="/programs" className="inline-flex h-10 w-fit items-center justify-center gap-2 rounded-full bg-white px-5 text-xs font-black uppercase tracking-[0.16em] text-[#083527]">
           {copy.training}
