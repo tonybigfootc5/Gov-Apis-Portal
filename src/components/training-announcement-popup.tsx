@@ -18,6 +18,8 @@ type AnnouncementProgram = {
   batchStartsAt: Date | string | null;
 };
 
+const ANNOUNCEMENT_AUTO_OPEN_KEY = "api-culture-training-announcement-auto-opened";
+
 export function TrainingAnnouncementPopup({
   programs,
 }: {
@@ -46,6 +48,15 @@ export function TrainingAnnouncementPopup({
     setAutoCloseEnabled(false);
   }, [clearTimers]);
 
+  const hideAnnouncementCards = useCallback(() => {
+    clearTimers();
+    setHasOverflowBelow(false);
+    setExpandedVisible(false);
+    setCompactVisible(false);
+    setCloseProgress(0);
+    setAutoCloseEnabled(false);
+  }, [clearTimers]);
+
   const showExpandedCard = useCallback((autoClose: boolean) => {
     clearTimers();
     setHasOverflowBelow(false);
@@ -60,13 +71,25 @@ export function TrainingAnnouncementPopup({
 
   useEffect(() => {
     if (!programs.length) return;
-    const bootTimer = window.setTimeout(() => showExpandedCard(true), 0);
+    const hasAlreadyAutoOpened = window.localStorage.getItem(ANNOUNCEMENT_AUTO_OPEN_KEY) === "true";
+    if (hasAlreadyAutoOpened) {
+      const hideTimer = window.setTimeout(() => hideAnnouncementCards(), 0);
+      return () => {
+        window.clearTimeout(hideTimer);
+        clearTimers();
+      };
+    }
+
+    const bootTimer = window.setTimeout(() => {
+      window.localStorage.setItem(ANNOUNCEMENT_AUTO_OPEN_KEY, "true");
+      showExpandedCard(true);
+    }, 0);
 
     return () => {
       window.clearTimeout(bootTimer);
       clearTimers();
     };
-  }, [clearTimers, programs, showExpandedCard]);
+  }, [clearTimers, hideAnnouncementCards, programs, showExpandedCard]);
 
   useEffect(() => {
     if (!expandedVisible) return;

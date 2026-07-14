@@ -196,7 +196,9 @@ export default function EquipmentPage() {
 
               <main className="order-1 lg:order-2">
                 <div className="mx-auto max-w-[39rem] text-center lg:mt-2">
-                  <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">API CULTURE equipment desk</p>
+                  <p className="inline-flex rounded-full border border-[#f2b544]/45 bg-[#fff4d8] px-3.5 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18] shadow-[inset_0_1px_0_rgba(255,255,255,0.88),0_8px_18px_rgba(179,107,0,0.08)]">
+                    API CULTURE equipment desk
+                  </p>
                   <h1 className="mx-auto mt-4 max-w-[32rem] text-balance font-display text-[clamp(2.35rem,4.35vw,4.1rem)] font-semibold leading-[0.88] text-[#008b67]">
                     Beekeeping equipment for field-ready apiaries.
                   </h1>
