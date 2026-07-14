@@ -211,10 +211,10 @@ export default function EquipmentPage() {
                   ))}
                 </div>
 
-                <div className="mx-auto mt-8 hidden w-full max-w-[42rem] gap-4 lg:grid lg:grid-cols-3">
-                  <ProductOrbitCard item={featured} compact />
+                <div className="mx-auto mt-8 hidden w-full max-w-[48rem] gap-5 lg:grid lg:grid-cols-3">
+                  <ProductOrbitCard item={featured} showcase />
                   {middleRailItems.map((item) => (
-                    <ProductOrbitCard key={item.title} item={item} compact />
+                    <ProductOrbitCard key={item.title} item={item} showcase />
                   ))}
                 </div>
               </main>
@@ -265,9 +265,25 @@ export default function EquipmentPage() {
   );
 }
 
-function ProductOrbitCard({ item, compact = false, className = "" }: { item: (typeof equipmentTools)[number]; compact?: boolean; className?: string }) {
+function ProductOrbitCard({
+  item,
+  compact = false,
+  showcase = false,
+  className = "",
+}: {
+  item: (typeof equipmentTools)[number];
+  compact?: boolean;
+  showcase?: boolean;
+  className?: string;
+}) {
+  const sizeClass = showcase
+    ? "group grid h-[31rem] grid-rows-[3.35fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_18px_42px_rgba(121,105,70,0.12)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(0,79,58,0.16)]"
+    : compact
+      ? "group grid h-[17.5rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"
+      : "group grid h-[19rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]";
+
   return (
-    <article className={`${compact ? "group grid h-[17.5rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]" : "group grid h-[19rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"} ${className}`}>
+    <article className={`${sizeClass} ${className}`}>
       <div className="relative min-h-0">
         <EquipmentCardMedia item={item} sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02)_0%,rgba(20,38,31,0.08)_48%,rgba(7,30,22,0.88)_100%)]" />
