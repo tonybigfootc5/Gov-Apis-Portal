@@ -116,21 +116,24 @@ export default async function ProductsPage() {
               </div>
             </header>
 
-            <main className="mx-auto w-full max-w-5xl">
-              <div className="mx-auto max-w-[42rem] text-center lg:mt-2">
-                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">{copy.eyebrow}</p>
-                <h1 className="mx-auto mt-4 max-w-[38rem] text-balance font-display text-[clamp(2.55rem,4.9vw,4.65rem)] font-semibold leading-[0.88] text-[#008b67]">
-                  {copy.title}
-                </h1>
-                <p className="mx-auto mt-5 max-w-[34rem] text-sm leading-7 text-[#65756c] sm:text-base">
-                  {copy.body}
-                </p>
-              </div>
+            <main className="mx-auto w-full max-w-6xl">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[17rem_minmax(0,1fr)_17rem] lg:items-center">
+                <div className="relative z-10 order-first mx-auto w-full max-w-[42rem] rounded-[2rem] border border-[rgba(41,56,49,0.08)] bg-white/72 px-5 py-8 text-center shadow-[0_24px_70px_rgba(121,105,70,0.12)] backdrop-blur lg:col-start-2 lg:row-start-2 lg:row-span-2 lg:px-9 lg:py-10">
+                  <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">{copy.eyebrow}</p>
+                  <h1 className="mx-auto mt-4 max-w-[38rem] text-balance font-display text-[clamp(2.45rem,4.7vw,4.45rem)] font-semibold leading-[0.88] text-[#008b67]">
+                    {copy.title}
+                  </h1>
+                  <p className="mx-auto mt-5 max-w-[34rem] text-sm leading-7 text-[#65756c] sm:text-base">
+                    {copy.body}
+                  </p>
+                </div>
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {localizedItems.map((item) => (
-                  <ProductShowcaseCard key={item.title} item={item} copy={copy} />
-                ))}
+                <ProductShowcaseCard className="lg:col-start-2 lg:row-start-1 lg:mx-auto lg:w-[18rem]" key={localizedItems[0].title} item={localizedItems[0]} copy={copy} compact />
+                <ProductShowcaseCard className="lg:col-start-1 lg:row-start-2" key={localizedItems[1].title} item={localizedItems[1]} copy={copy} compact />
+                <ProductShowcaseCard className="lg:col-start-3 lg:row-start-2" key={localizedItems[2].title} item={localizedItems[2]} copy={copy} compact />
+                <ProductShowcaseCard className="lg:col-start-1 lg:row-start-3" key={localizedItems[3].title} item={localizedItems[3]} copy={copy} compact />
+                <ProductShowcaseCard className="lg:col-start-3 lg:row-start-3" key={localizedItems[4].title} item={localizedItems[4]} copy={copy} compact />
+                <ProductShowcaseCard className="lg:col-start-2 lg:row-start-4 lg:mx-auto lg:w-[18rem]" key={localizedItems[5].title} item={localizedItems[5]} copy={copy} compact />
               </div>
             </main>
           </div>
@@ -160,13 +163,15 @@ function ProductShowcaseCard({
   item,
   copy,
   compact = false,
+  className = "",
 }: {
   item: (typeof productItems)[number];
   copy: { streamLabel: string };
   compact?: boolean;
+  className?: string;
 }) {
   return (
-    <article className={compact ? "group grid h-[21rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]" : "group grid h-[19rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"}>
+    <article className={`${className} ${compact ? "group grid h-[17.5rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]" : "group grid h-[19rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"}`}>
       <div className="relative min-h-0">
         <ProductCardMedia item={item} sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02)_0%,rgba(20,38,31,0.08)_48%,rgba(7,30,22,0.88)_100%)]" />
