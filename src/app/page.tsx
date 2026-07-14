@@ -231,7 +231,7 @@ export default async function Home() {
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
         <div className="relative min-h-[34rem] overflow-hidden rounded-[2.2rem] border border-white/10 bg-black p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:min-h-[38rem] lg:p-10">
           <Image
-            src="/honey-bee-dark-reference.png"
+            src="/einstein-quote-background.jpg"
             alt=""
             fill
             sizes="(min-width: 1280px) 80rem, 100vw"
