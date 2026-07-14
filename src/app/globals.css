@@ -265,6 +265,13 @@ canvas {
   animation: product-image-crossfade 9s ease-in-out infinite;
 }
 
+.product-card-copy {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee-track,
   .float-gentle,
