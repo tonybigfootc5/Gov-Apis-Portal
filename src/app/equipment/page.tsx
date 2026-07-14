@@ -121,7 +121,7 @@ export default function EquipmentPage() {
         <div className="relative overflow-hidden rounded-[2.35rem] border border-[rgba(41,56,49,0.1)] bg-[#fffefa] shadow-[0_30px_90px_rgba(121,105,70,0.16)]">
           <div className="absolute left-1/2 top-0 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[#dcefe8]" />
           <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(180deg,rgba(214,239,229,0.72),rgba(255,255,255,0))]" />
-          <div className="relative grid min-h-[43rem] grid-rows-[auto_1fr] gap-5 p-5 sm:p-8 lg:p-10">
+          <div className="relative grid grid-rows-[auto_1fr] gap-5 p-5 sm:p-8 lg:p-10">
             <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
               <nav aria-label="Equipment categories" className="flex flex-wrap items-center gap-x-8 gap-y-3 pt-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#52695e]">
                 <span>Colonies</span>
@@ -139,8 +139,8 @@ export default function EquipmentPage() {
 
             <div className="grid gap-6 lg:grid-cols-[15.5rem_minmax(0,1fr)_15.5rem] lg:items-start xl:gap-8">
               <aside className="hidden gap-3 lg:order-1 lg:grid lg:grid-cols-1">
-                {leftRailItems.map((item, index) => (
-                  <ProductOrbitCard key={item.title} item={item} index={index} />
+                {leftRailItems.map((item) => (
+                  <ProductOrbitCard key={item.title} item={item} />
                 ))}
               </aside>
 
@@ -156,18 +156,12 @@ export default function EquipmentPage() {
                 </div>
 
                 <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:hidden">
-                  {equipmentTools.map((item, index) => (
-                    <ProductOrbitCard key={item.title} item={item} index={index} compact />
+                  {equipmentTools.map((item) => (
+                    <ProductOrbitCard key={item.title} item={item} compact />
                   ))}
                 </div>
 
-                <div className="mx-auto mt-8 hidden w-full max-w-[42rem] gap-6 lg:grid lg:grid-cols-2">
-                  {middleRailItems.map((item, index) => (
-                    <ProductOrbitCard key={item.title} item={item} index={index + 4} compact />
-                  ))}
-                </div>
-
-                <div className="relative mx-auto mt-6 w-full max-w-[42rem]">
+                <div className="relative mx-auto mt-8 w-full max-w-[42rem]">
                   <div className="absolute inset-x-10 bottom-0 h-28 rounded-[100%] bg-[#123f32]/15 blur-2xl" />
                   <article className="relative overflow-hidden rounded-[1.8rem] bg-[#008f68] text-white shadow-[0_34px_74px_rgba(0,79,58,0.3)]">
                     <div className="relative h-[15rem] bg-[#e6eee8] sm:h-[17rem]">
@@ -197,11 +191,17 @@ export default function EquipmentPage() {
                     </div>
                   </article>
                 </div>
+
+                <div className="mx-auto mt-6 hidden w-full max-w-[42rem] gap-6 lg:grid lg:grid-cols-2">
+                  {middleRailItems.map((item) => (
+                    <ProductOrbitCard key={item.title} item={item} compact />
+                  ))}
+                </div>
               </main>
 
               <aside className="hidden gap-3 lg:order-3 lg:grid lg:grid-cols-1">
-                {rightRailItems.map((item, index) => (
-                  <ProductOrbitCard key={item.title} item={item} index={index + 6} />
+                {rightRailItems.map((item) => (
+                  <ProductOrbitCard key={item.title} item={item} />
                 ))}
               </aside>
             </div>
@@ -226,8 +226,8 @@ export default function EquipmentPage() {
           </div>
 
           <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {equipmentTools.map((item, index) => (
-              <EquipmentToolCard key={item.title} item={item} index={index} />
+            {equipmentTools.map((item) => (
+              <EquipmentToolCard key={item.title} item={item} />
             ))}
           </div>
         </section>
@@ -263,15 +263,12 @@ export default function EquipmentPage() {
   );
 }
 
-function ProductOrbitCard({ item, index, compact = false }: { item: (typeof equipmentTools)[number]; index: number; compact?: boolean }) {
+function ProductOrbitCard({ item, compact = false }: { item: (typeof equipmentTools)[number]; compact?: boolean }) {
   return (
     <article className="group overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]">
       <div className={compact ? "relative h-24" : "relative h-24"}>
         <Image src={item.imageSrc} alt={item.imageAlt} fill sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02),rgba(20,38,31,0.36))]" />
-        <span className="absolute left-3 top-3 rounded-full bg-white/92 px-3 py-1.5 text-[10px] font-black text-[#b36b00]">
-          {String(index + 1).padStart(2, "0")}
-        </span>
       </div>
       <div className="p-3.5">
         <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#a36600]">{item.category}</p>
@@ -282,7 +279,7 @@ function ProductOrbitCard({ item, index, compact = false }: { item: (typeof equi
   );
 }
 
-function EquipmentToolCard({ item, index }: { item: (typeof equipmentTools)[number]; index: number }) {
+function EquipmentToolCard({ item }: { item: (typeof equipmentTools)[number] }) {
   const Icon = item.icon;
 
   return (
@@ -290,9 +287,6 @@ function EquipmentToolCard({ item, index }: { item: (typeof equipmentTools)[numb
       <div className="relative -mx-4 -mt-4 mb-4 h-32 overflow-hidden rounded-t-[1.35rem]">
         <Image src={item.imageSrc} alt={item.imageAlt} fill sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02),rgba(20,38,31,0.38))]" />
-        <span className="absolute right-3 top-3 rounded-full bg-white/92 px-3 py-1.5 text-[10px] font-black text-[#b36b00]">
-          {String(index + 1).padStart(2, "0")}
-        </span>
       </div>
       <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#dcefe8] text-[#0f5d47] transition group-hover:bg-[#f2b544] group-hover:text-[#133226]">
         <Icon className="h-5 w-5" aria-hidden="true" />
