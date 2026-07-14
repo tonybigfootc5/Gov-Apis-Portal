@@ -157,6 +157,10 @@ const supportCards = [
     icon: Factory,
     title: "Local manufacturing",
     body: "Encouraging nearby units so practical beekeeping equipment can reach farmers faster.",
+    imageSrc: "/equipment/local-manufacturing.jpeg",
+    imageAlt: "Locally manufactured wooden beekeeping hive box",
+    badgeSrc: "/equipment/made-in-india.png",
+    badgeAlt: "Make in India",
   },
   {
     icon: PackageCheck,
@@ -306,19 +310,52 @@ function EquipmentCardMedia({
   return <Image src={item.imageSrc} alt={item.imageAlt} fill sizes={sizes} priority={priority} className="object-cover transition duration-500 group-hover:scale-105" />;
 }
 
-function SupportCard({ icon: Icon, title, body }: { icon: typeof Factory; title: string; body: string }) {
+function SupportCard({
+  icon: Icon,
+  title,
+  body,
+  imageSrc,
+  imageAlt,
+  badgeSrc,
+  badgeAlt,
+}: {
+  icon: typeof Factory;
+  title: string;
+  body: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  badgeSrc?: string;
+  badgeAlt?: string;
+}) {
+  const hasBackground = Boolean(imageSrc);
+
   return (
-    <article className="rounded-[1.5rem] border border-[rgba(41,56,49,0.1)] bg-white/74 p-5 shadow-[0_18px_48px_rgba(121,105,70,0.1)]">
-      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#dcefe8] text-[#0f5d47]">
+    <article className={`${hasBackground ? "min-h-[17rem] bg-[#113f32] p-6 text-white" : "bg-white/74 p-5"} relative overflow-hidden rounded-[1.5rem] border border-[rgba(41,56,49,0.1)] shadow-[0_18px_48px_rgba(121,105,70,0.1)]`}>
+      {imageSrc ? (
+        <>
+          <Image src={imageSrc} alt={imageAlt ?? ""} fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(12,44,34,0.9)_0%,rgba(12,44,34,0.62)_48%,rgba(12,44,34,0.28)_100%)]" />
+        </>
+      ) : null}
+
+      <div className="relative z-10 max-w-[18rem]">
+        <span className={`${hasBackground ? "bg-white/90 text-[#0f5d47]" : "bg-[#dcefe8] text-[#0f5d47]"} inline-flex h-12 w-12 items-center justify-center rounded-full`}>
         <Icon className="h-5 w-5" aria-hidden="true" />
       </span>
-      <h2 className="mt-5 text-xl font-black tracking-[-0.02em] text-[#133226]">{title}</h2>
-      <p className="mt-3 text-sm leading-7 text-[#65756c]">{body}</p>
-      <div className="mt-5 flex items-center gap-2 text-[#f2b544]">
-        <Leaf className="h-4 w-4" aria-hidden="true" />
-        <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-        <Boxes className="h-4 w-4" aria-hidden="true" />
+        <h2 className={`${hasBackground ? "text-white" : "text-[#133226]"} mt-5 text-xl font-black tracking-[-0.02em]`}>{title}</h2>
+        <p className={`${hasBackground ? "text-white/82" : "text-[#65756c]"} mt-3 text-sm leading-7`}>{body}</p>
+        <div className={`${hasBackground ? "text-[#f9d779]" : "text-[#f2b544]"} mt-5 flex items-center gap-2`}>
+          <Leaf className="h-4 w-4" aria-hidden="true" />
+          <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+          <Boxes className="h-4 w-4" aria-hidden="true" />
+        </div>
       </div>
+
+      {badgeSrc ? (
+        <div className="absolute bottom-4 right-4 z-10 flex h-16 w-24 items-center justify-center rounded-xl bg-white/88 p-2 shadow-[0_12px_30px_rgba(0,0,0,0.18)] backdrop-blur">
+          <Image src={badgeSrc} alt={badgeAlt ?? ""} width={112} height={72} className="h-auto max-h-12 w-full object-contain mix-blend-multiply" />
+        </div>
+      ) : null}
     </article>
   );
 }
