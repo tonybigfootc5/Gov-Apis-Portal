@@ -154,12 +154,9 @@ export default async function Home() {
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-[#2f473d]">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(31,53,43,0.12)] bg-[rgba(255,255,255,0.62)] px-4 py-2 shadow-[0_10px_24px_rgba(119,89,36,0.1)] backdrop-blur-md">
-              <MapPin className="h-4 w-4 text-[#8ec5ff]" aria-hidden="true" />
+            <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(242,181,68,0.34)] bg-[linear-gradient(135deg,rgba(255,255,255,0.86),rgba(255,245,219,0.78))] px-5 py-3 font-black uppercase tracking-[0.12em] text-[#1f352b] shadow-[0_14px_34px_rgba(119,89,36,0.16),inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-md">
+              <MapPin className="h-4 w-4 text-[#f2b544]" aria-hidden="true" />
               {copy.home.locationChip}
-            </span>
-            <span className="rounded-full border border-[rgba(31,53,43,0.12)] bg-[rgba(255,255,255,0.62)] px-4 py-2 shadow-[0_10px_24px_rgba(119,89,36,0.1)] backdrop-blur-md">
-              {copy.home.portalChip}
             </span>
           </div>
         </div>
