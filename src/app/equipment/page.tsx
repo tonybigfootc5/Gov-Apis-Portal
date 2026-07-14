@@ -8,104 +8,85 @@ export const metadata: Metadata = {
   description: "Beekeeping equipment support and local manufacturing encouragement from API CULTURE Technology Center.",
 };
 
-const showcaseItems = [
-  {
-    title: "Bee hives",
-    shortTitle: "Hives",
-    category: "Colony housing",
-    imageSrc: "/training-field-visuals/image1.jpeg",
-    imageAlt: "Rows of bee hive boxes in an apiary field",
-    detail: "Standard hive boxes and frames for colony inspection, seasonal expansion, and field demonstrations.",
-    specs: ["Movable frames", "Field ready", "Training use"],
-  },
-  {
-    title: "Hive tools",
-    shortTitle: "Tools",
-    category: "Daily handling",
-    imageSrc: "https://upload.wikimedia.org/wikipedia/commons/6/64/Beekeeping_hive_tool.jpg",
-    imageAlt: "A beekeeping hive tool used during hive inspection",
-    detail: "Inspection tools that help farmers open boxes, lift frames, clear burr comb, and work with precision.",
-    specs: ["Inspection", "Frame lifting", "Cleaner work"],
-  },
-  {
-    title: "Honey extractors",
-    shortTitle: "Extractors",
-    category: "Harvest support",
-    imageSrc: "https://upload.wikimedia.org/wikipedia/commons/7/74/Extractor_Beekeeping.jpg",
-    imageAlt: "Honey extractor used for beekeeping harvest work",
-    detail: "Processing equipment that supports cleaner honey removal and more organized value addition after harvest.",
-    specs: ["Harvesting", "Processing", "Value addition"],
-  },
-  {
-    title: "Protective veils",
-    shortTitle: "Veils",
-    category: "Field safety",
-    imageSrc: "/training-field-visuals/image6.jpeg",
-    imageAlt: "Beekeepers and farmers standing near hive boxes with protective veils",
-    detail: "Safety equipment for trainees, apiarists, and farmers during hive opening and field practice.",
-    specs: ["Trainee safety", "Hive opening", "Confidence"],
-  },
-] as const;
-
 const equipmentTools = [
   {
     title: "Bee colonies",
     category: "Living stock",
-    body: "Starter and working colonies for practical apiary establishment, demonstrations, and farmer support.",
+    body: "Starter and working colonies for practical apiary setup and demonstrations.",
+    imageSrc: "/training-field-visuals/image1.jpeg",
+    imageAlt: "Rows of bee colonies in hive boxes across a field apiary",
     icon: Leaf,
   },
   {
     title: "Queens",
     category: "Colony strength",
-    body: "Queen support for colony continuity, brood quality, and stronger apiary productivity.",
+    body: "Queen support for colony continuity, brood quality, and productivity.",
+    imageSrc: "https://upload.wikimedia.org/wikipedia/commons/5/5e/Beekeeper_with_moveable_comb_hive.jpg",
+    imageAlt: "Beekeeper holding a movable comb hive frame",
     icon: Sparkles,
   },
   {
     title: "Queen excluders",
     category: "Hive management",
-    body: "Hive partitions that help organize brood and honey areas during seasonal colony work.",
+    body: "Partitions that help organize brood and honey areas in the hive.",
+    imageSrc: "/scientific-foundation-bg.jpg",
+    imageAlt: "Comb and hive foundation visual used for equipment support",
     icon: ShieldCheck,
   },
   {
     title: "Feeders",
     category: "Nutrition support",
-    body: "Feeding accessories for colony support during training, seasonal gaps, and weak colony recovery.",
+    body: "Feeding accessories for seasonal gaps and weak colony recovery.",
+    imageSrc: "/training-field-visuals/image2.jpeg",
+    imageAlt: "Apiary field visual representing feeding support equipment",
     icon: PackageCheck,
   },
   {
     title: "Comb foundation sheets",
     category: "Comb building",
-    body: "Foundation support for uniform comb construction, cleaner frames, and organized hive expansion.",
+    body: "Foundation support for uniform comb building and cleaner frames.",
+    imageSrc: "/queen-rearing-bg.jpg",
+    imageAlt: "Honeycomb and beekeeping visual representing comb foundation sheets",
     icon: Boxes,
   },
   {
     title: "Extractors",
     category: "Honey harvest",
-    body: "Honey extraction equipment for cleaner removal, handling, and value-added processing.",
+    body: "Extraction equipment for cleaner honey removal and processing.",
+    imageSrc: "https://upload.wikimedia.org/wikipedia/commons/7/74/Extractor_Beekeeping.jpg",
+    imageAlt: "Honey extractor used for beekeeping harvest work",
     icon: Wrench,
   },
   {
     title: "Bee hives",
     category: "Colony housing",
-    body: "Hive boxes and frames for inspection, colony expansion, and field-level apiary setup.",
+    body: "Hive boxes and frames for inspection, expansion, and field setup.",
+    imageSrc: "/training-field-visuals/image10.jpeg",
+    imageAlt: "Bee hive boxes in a practical field training setting",
     icon: Boxes,
   },
   {
     title: "Hive tools",
     category: "Inspection work",
-    body: "Daily handling tools for opening boxes, lifting frames, removing comb, and safer inspection.",
+    body: "Daily tools for opening boxes, lifting frames, and safer inspection.",
+    imageSrc: "https://upload.wikimedia.org/wikipedia/commons/6/64/Beekeeping_hive_tool.jpg",
+    imageAlt: "A beekeeping hive tool used during hive inspection",
     icon: Wrench,
   },
   {
     title: "Bee veils",
     category: "Protection",
-    body: "Protective veils and safety wear so trainees and farmers can work with confidence.",
+    body: "Protective veils so trainees and farmers can work with confidence.",
+    imageSrc: "/training-field-visuals/image6.jpeg",
+    imageAlt: "Farmers and beekeepers wearing protective veils near hive boxes",
     icon: ShieldCheck,
   },
   {
     title: "Necessary field equipment",
     category: "Apiary readiness",
-    body: "Supporting equipment required for demonstrations, field handling, transport, and maintenance.",
+    body: "Support gear for demonstrations, handling, transport, and maintenance.",
+    imageSrc: "/field-beekeeping.jpg",
+    imageAlt: "Field beekeeping visual representing necessary apiary equipment",
     icon: Factory,
   },
 ] as const;
@@ -129,7 +110,10 @@ const supportCards = [
 ] as const;
 
 export default function EquipmentPage() {
-  const featured = showcaseItems[0];
+  const featured = equipmentTools[6];
+  const leftRailItems = equipmentTools.slice(0, 4);
+  const middleRailItems = equipmentTools.slice(4, 6);
+  const rightRailItems = equipmentTools.slice(6, 10);
 
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -153,10 +137,10 @@ export default function EquipmentPage() {
               </div>
             </header>
 
-            <div className="grid gap-8 lg:grid-cols-[15rem_minmax(0,1fr)_17rem] lg:items-center">
-              <aside className="order-3 grid gap-4 sm:grid-cols-2 lg:order-1 lg:grid-cols-1">
-                {showcaseItems.slice(1, 3).map((item) => (
-                  <EquipmentPreview key={item.title} item={item} />
+            <div className="grid gap-5 lg:grid-cols-[16rem_minmax(0,1fr)_16rem] lg:items-start">
+              <aside className="hidden gap-3 lg:order-1 lg:grid lg:grid-cols-1">
+                {leftRailItems.map((item, index) => (
+                  <ProductOrbitCard key={item.title} item={item} index={index} />
                 ))}
               </aside>
 
@@ -171,9 +155,15 @@ export default function EquipmentPage() {
                   </p>
                 </div>
 
-                <div className="mx-auto mt-6 grid max-w-[58rem] grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:hidden">
                   {equipmentTools.map((item, index) => (
-                    <CompactToolPill key={item.title} item={item} index={index} />
+                    <ProductOrbitCard key={item.title} item={item} index={index} compact />
+                  ))}
+                </div>
+
+                <div className="mx-auto mt-7 hidden max-w-[34rem] gap-4 lg:grid lg:grid-cols-2">
+                  {middleRailItems.map((item, index) => (
+                    <ProductOrbitCard key={item.title} item={item} index={index + 4} compact />
                   ))}
                 </div>
 
@@ -198,7 +188,7 @@ export default function EquipmentPage() {
                       <div>
                         <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f9d779]">{featured.category}</p>
                         <h2 className="mt-3 text-3xl font-black leading-none tracking-[-0.03em] sm:text-4xl">{featured.title}</h2>
-                        <p className="mt-4 max-w-[24rem] text-sm leading-7 text-white/78">{featured.detail}</p>
+                        <p className="mt-4 max-w-[24rem] text-sm leading-7 text-white/78">{featured.body}</p>
                       </div>
                       <Link href="/programs" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-5 text-xs font-black uppercase tracking-[0.16em] text-[#083527]">
                         Train
@@ -209,18 +199,10 @@ export default function EquipmentPage() {
                 </div>
               </main>
 
-              <aside className="order-2 space-y-5 lg:order-3">
-                <div className="rounded-[1.4rem] border border-[rgba(41,56,49,0.08)] bg-white/80 p-5 shadow-[0_18px_46px_rgba(121,105,70,0.1)]">
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#b36b00]">Full supply scope</p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {equipmentTools.map((item) => (
-                      <span key={item.title} className="rounded-full bg-[#f5efe4] px-3 py-2 text-[11px] font-bold text-[#52695e]">
-                        {item.title}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <EquipmentPreview item={showcaseItems[3]} />
+              <aside className="hidden gap-3 lg:grid lg:grid-cols-1">
+                {rightRailItems.map((item, index) => (
+                  <ProductOrbitCard key={item.title} item={item} index={index + 6} />
+                ))}
               </aside>
             </div>
           </div>
@@ -281,17 +263,20 @@ export default function EquipmentPage() {
   );
 }
 
-function EquipmentPreview({ item }: { item: (typeof showcaseItems)[number] }) {
+function ProductOrbitCard({ item, index, compact = false }: { item: (typeof equipmentTools)[number]; index: number; compact?: boolean }) {
   return (
-    <article className="group overflow-hidden rounded-[1.55rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_18px_46px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_58px_rgba(0,79,58,0.14)]">
-      <div className="relative h-36">
+    <article className="group overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]">
+      <div className={compact ? "relative h-24" : "relative h-24"}>
         <Image src={item.imageSrc} alt={item.imageAlt} fill sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02),rgba(20,38,31,0.36))]" />
+        <span className="absolute left-3 top-3 rounded-full bg-white/92 px-3 py-1.5 text-[10px] font-black text-[#b36b00]">
+          {String(index + 1).padStart(2, "0")}
+        </span>
       </div>
-      <div className="p-5">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#a36600]">{item.category}</p>
-        <h3 className="mt-3 text-2xl font-black leading-none tracking-[-0.03em] text-[#133226]">{item.shortTitle}</h3>
-        <p className="mt-3 text-sm leading-6 text-[#65756c]">{item.detail}</p>
+      <div className="p-3.5">
+        <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#a36600]">{item.category}</p>
+        <h3 className="mt-1.5 text-lg font-black leading-tight tracking-[-0.03em] text-[#133226]">{item.title}</h3>
+        <p className="mt-1.5 text-xs leading-5 text-[#65756c]">{item.body}</p>
       </div>
     </article>
   );
@@ -302,32 +287,20 @@ function EquipmentToolCard({ item, index }: { item: (typeof equipmentTools)[numb
 
   return (
     <article className="group flex min-h-[16rem] flex-col rounded-[1.35rem] border border-[rgba(41,56,49,0.1)] bg-white/82 p-4 shadow-[0_16px_38px_rgba(121,105,70,0.09)] transition duration-300 hover:-translate-y-1 hover:border-[#f2b544]/50 hover:bg-[#fffdf8]">
-      <div className="flex items-start justify-between gap-3">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#dcefe8] text-[#0f5d47] transition group-hover:bg-[#f2b544] group-hover:text-[#133226]">
-          <Icon className="h-5 w-5" aria-hidden="true" />
+      <div className="relative -mx-4 -mt-4 mb-4 h-32 overflow-hidden rounded-t-[1.35rem]">
+        <Image src={item.imageSrc} alt={item.imageAlt} fill sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02),rgba(20,38,31,0.38))]" />
+        <span className="absolute right-3 top-3 rounded-full bg-white/92 px-3 py-1.5 text-[10px] font-black text-[#b36b00]">
+          {String(index + 1).padStart(2, "0")}
         </span>
-        <span className="text-[11px] font-black text-[#b36b00]">{String(index + 1).padStart(2, "0")}</span>
       </div>
+      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#dcefe8] text-[#0f5d47] transition group-hover:bg-[#f2b544] group-hover:text-[#133226]">
+        <Icon className="h-5 w-5" aria-hidden="true" />
+      </span>
       <p className="mt-5 text-[10px] font-black uppercase tracking-[0.18em] text-[#a36600]">{item.category}</p>
       <h3 className="mt-2 text-xl font-black leading-tight tracking-[-0.02em] text-[#133226]">{item.title}</h3>
       <p className="mt-3 text-sm leading-6 text-[#65756c]">{item.body}</p>
     </article>
-  );
-}
-
-function CompactToolPill({ item, index }: { item: (typeof equipmentTools)[number]; index: number }) {
-  const Icon = item.icon;
-
-  return (
-    <div className="flex min-h-[4.5rem] items-center gap-3 rounded-[1rem] border border-[rgba(41,56,49,0.08)] bg-white/86 px-3 py-3 text-left shadow-[0_10px_26px_rgba(121,105,70,0.08)]">
-      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dcefe8] text-[#0f5d47]">
-        <Icon className="h-4 w-4" aria-hidden="true" />
-      </span>
-      <span className="min-w-0">
-        <span className="block text-[10px] font-black text-[#b36b00]">{String(index + 1).padStart(2, "0")}</span>
-        <span className="block text-[0.78rem] font-black leading-tight text-[#133226]">{item.title}</span>
-      </span>
-    </div>
   );
 }
 
