@@ -18,12 +18,7 @@ export default async function ProductsPage() {
       title: "Products that connect beekeeping with value addition and rural opportunity.",
       body:
         "These products represent the major hive-product streams commonly linked to practical apiary work, collection discipline, processing awareness, and market-facing presentation.",
-      snapshot: "Snapshot",
       streamCount: "Product streams",
-      learningPath: "Learning path",
-      approach: "Approach",
-      learningPathValue: "Collection + processing",
-      approachValue: "Field-linked",
       streamLabel: "Product stream",
       explore: "Explore technologies",
       training: "View training",
@@ -101,10 +96,6 @@ export default async function ProductsPage() {
     description: productOverrides[item.title]?.description ?? item.description,
     highlights: productOverrides[item.title]?.highlights ?? item.highlights,
   }));
-  const featuredProduct = localizedItems[0];
-  const leftRailProducts = localizedItems.slice(1, 3);
-  const rightRailProducts = localizedItems.slice(3, 6);
-
   return (
     <section className="px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
       <div className="mx-auto max-w-7xl">
@@ -125,49 +116,23 @@ export default async function ProductsPage() {
               </div>
             </header>
 
-            <div className="grid gap-6 lg:grid-cols-[15.5rem_minmax(0,1fr)_15.5rem] lg:items-start xl:gap-8">
-              <aside className="hidden gap-4 lg:order-1 lg:grid lg:grid-cols-1">
-                {leftRailProducts.map((item) => (
+            <main className="mx-auto w-full max-w-5xl">
+              <div className="mx-auto max-w-[42rem] text-center lg:mt-2">
+                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">{copy.eyebrow}</p>
+                <h1 className="mx-auto mt-4 max-w-[38rem] text-balance font-display text-[clamp(2.55rem,4.9vw,4.65rem)] font-semibold leading-[0.88] text-[#008b67]">
+                  {copy.title}
+                </h1>
+                <p className="mx-auto mt-5 max-w-[34rem] text-sm leading-7 text-[#65756c] sm:text-base">
+                  {copy.body}
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {localizedItems.map((item) => (
                   <ProductShowcaseCard key={item.title} item={item} copy={copy} />
                 ))}
-              </aside>
-
-              <main className="order-1 lg:order-2">
-                <div className="mx-auto max-w-[42rem] text-center lg:mt-2">
-                  <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">{copy.eyebrow}</p>
-                  <h1 className="mx-auto mt-4 max-w-[38rem] text-balance font-display text-[clamp(2.55rem,4.9vw,4.65rem)] font-semibold leading-[0.88] text-[#008b67]">
-                    {copy.title}
-                  </h1>
-                  <p className="mx-auto mt-5 max-w-[34rem] text-sm leading-7 text-[#65756c] sm:text-base">
-                    {copy.body}
-                  </p>
-                </div>
-
-                <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:hidden">
-                  {localizedItems.map((item) => (
-                    <ProductShowcaseCard key={item.title} item={item} copy={copy} compact />
-                  ))}
-                </div>
-
-                <div className="mx-auto mt-8 hidden w-full max-w-[42rem] gap-4 lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-                  <FeaturedProductCard item={featuredProduct} copy={copy} />
-                  <div className="rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-white/86 p-4 shadow-[0_14px_34px_rgba(121,105,70,0.1)]">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{copy.snapshot}</p>
-                    <div className="mt-4 grid gap-3">
-                      <QuickStat value={`${productItems.length}`} label={copy.streamCount} />
-                      <QuickStat value={copy.learningPathValue} label={copy.learningPath} />
-                      <QuickStat value={copy.approachValue} label={copy.approach} />
-                    </div>
-                  </div>
-                </div>
-              </main>
-
-              <aside className="hidden gap-4 lg:order-3 lg:grid lg:grid-cols-1">
-                {rightRailProducts.map((item) => (
-                  <ProductShowcaseCard key={item.title} item={item} copy={copy} />
-                ))}
-              </aside>
-            </div>
+              </div>
+            </main>
           </div>
         </div>
 
@@ -217,33 +182,6 @@ function ProductShowcaseCard({
   );
 }
 
-function FeaturedProductCard({ item, copy }: { item: (typeof productItems)[number]; copy: { streamLabel: string; training: string } }) {
-  return (
-    <article className="relative grid h-[28rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.45rem] bg-[#008f68] text-white shadow-[0_24px_54px_rgba(0,79,58,0.24)]">
-      <div className="relative min-h-0 bg-[#e6eee8]">
-        <ProductCardMedia item={item} sizes="(min-width: 1024px) 24rem, 100vw" priority />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,143,104,0)_10%,rgba(0,76,54,0.2)_48%,rgba(0,45,32,0.92)_100%)]" />
-        <span className="absolute left-4 top-4 rounded-full bg-white/92 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#00513d]">
-          {copy.streamLabel}
-        </span>
-        <div className="absolute inset-x-0 bottom-0 p-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f9d779]">{copy.streamLabel}</p>
-          <h2 className="mt-2 product-card-title-overlay text-4xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_3px_10px_rgba(0,0,0,0.5)]">{item.title}</h2>
-        </div>
-      </div>
-      <div className="grid min-h-0 gap-3 overflow-hidden p-4">
-        <div className="min-h-0 overflow-hidden">
-          <p className="product-card-copy text-sm leading-6 text-white/78">{item.description}</p>
-        </div>
-        <Link href="/programs" className="inline-flex h-10 w-fit items-center justify-center gap-2 rounded-full bg-white px-5 text-xs font-black uppercase tracking-[0.16em] text-[#083527]">
-          {copy.training}
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
-      </div>
-    </article>
-  );
-}
-
 function ProductCardMedia({
   item,
   sizes,
@@ -274,13 +212,4 @@ function ProductCardMedia({
   }
 
   return <Image src={item.imageSrc} alt={item.imageAlt} fill sizes={sizes} priority={priority} className="object-cover transition duration-500 group-hover:scale-105" />;
-}
-
-function QuickStat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4">
-      <p className="text-lg font-semibold text-bright">{value}</p>
-      <p className="mt-1 text-sm text-dim">{label}</p>
-    </div>
-  );
 }

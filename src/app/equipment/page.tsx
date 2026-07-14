@@ -1,7 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Boxes, Factory, Leaf, PackageCheck, ShieldCheck, Sparkles, Wrench } from "lucide-react";
+import { Boxes, Factory, Leaf, PackageCheck, ShieldCheck, Sparkles, Wrench } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Equipment",
@@ -172,11 +171,6 @@ const supportCards = [
 ] as const;
 
 export default function EquipmentPage() {
-  const featured = equipmentTools[6];
-  const leftRailItems = equipmentTools.slice(0, 3);
-  const middleRailItems = equipmentTools.slice(3, 5);
-  const rightRailItems = [equipmentTools[5], ...equipmentTools.slice(7)];
-
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <div className="mx-auto max-w-7xl">
@@ -199,46 +193,23 @@ export default function EquipmentPage() {
               </div>
             </header>
 
-            <div className="grid gap-6 lg:grid-cols-[15.5rem_minmax(0,1fr)_15.5rem] lg:items-start xl:gap-8">
-              <aside className="hidden gap-3 lg:order-1 lg:grid lg:grid-cols-1">
-                {leftRailItems.map((item) => (
+            <main className="mx-auto w-full max-w-5xl">
+              <div className="mx-auto max-w-[39rem] text-center lg:mt-2">
+                <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">API CULTURE equipment desk</p>
+                <h1 className="mx-auto mt-4 max-w-[32rem] text-balance font-display text-[clamp(2.55rem,4.9vw,4.65rem)] font-semibold leading-[0.88] text-[#008b67]">
+                  Beekeeping equipment for field-ready apiaries.
+                </h1>
+                <p className="mx-auto mt-5 max-w-[32rem] text-sm leading-7 text-[#65756c] sm:text-base">
+                  Supply support and local manufacturing encouragement for the tools farmers need to manage colonies, harvest honey, and work safely.
+                </p>
+              </div>
+
+              <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {equipmentTools.map((item) => (
                   <ProductOrbitCard key={item.title} item={item} />
                 ))}
-              </aside>
-
-              <main className="order-1 lg:order-2">
-                <div className="mx-auto max-w-[39rem] text-center lg:mt-2">
-                  <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">API CULTURE equipment desk</p>
-                  <h1 className="mx-auto mt-4 max-w-[32rem] text-balance font-display text-[clamp(2.55rem,4.9vw,4.65rem)] font-semibold leading-[0.88] text-[#008b67]">
-                    Beekeeping equipment for field-ready apiaries.
-                  </h1>
-                  <p className="mx-auto mt-5 max-w-[32rem] text-sm leading-7 text-[#65756c] sm:text-base">
-                    Supply support and local manufacturing encouragement for the tools farmers need to manage colonies, harvest honey, and work safely.
-                  </p>
-                </div>
-
-                <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:hidden">
-                  {equipmentTools.map((item) => (
-                    <ProductOrbitCard key={item.title} item={item} compact />
-                  ))}
-                </div>
-
-                <div className="mx-auto mt-8 hidden w-full max-w-[42rem] gap-4 lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-                  <FeatureEquipmentCard item={featured} />
-                  <div className="grid gap-4">
-                    {middleRailItems.map((item) => (
-                      <ProductOrbitCard key={item.title} item={item} compact />
-                    ))}
-                  </div>
-                </div>
-              </main>
-
-              <aside className="hidden gap-3 lg:order-3 lg:grid lg:grid-cols-1">
-                {rightRailItems.map((item) => (
-                  <ProductOrbitCard key={item.title} item={item} />
-                ))}
-              </aside>
-            </div>
+              </div>
+            </main>
           </div>
         </div>
 
@@ -292,33 +263,6 @@ function ProductOrbitCard({ item, compact = false }: { item: (typeof equipmentTo
       </div>
       <div className={compact ? "min-h-0 overflow-hidden p-3" : "min-h-0 overflow-hidden p-3.5"}>
         <p className={compact ? "product-card-copy text-xs leading-[1.35rem] text-[#65756c]" : "product-card-copy text-xs leading-5 text-[#65756c]"}>{item.body}</p>
-      </div>
-    </article>
-  );
-}
-
-function FeatureEquipmentCard({ item }: { item: (typeof equipmentTools)[number] }) {
-  return (
-    <article className="relative grid h-[25rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.45rem] bg-[#008f68] text-white shadow-[0_24px_54px_rgba(0,79,58,0.24)]">
-      <div className="relative min-h-0 bg-[#e6eee8]">
-        <EquipmentCardMedia item={item} sizes="(min-width: 1024px) 24rem, 100vw" priority />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,143,104,0)_10%,rgba(0,76,54,0.2)_48%,rgba(0,45,32,0.92)_100%)]" />
-        <span className="absolute left-4 top-4 rounded-full bg-white/92 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#00513d]">
-          Featured
-        </span>
-        <div className="absolute inset-x-0 bottom-0 p-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f9d779]">{item.category}</p>
-          <h2 className="mt-2 product-card-title-overlay text-4xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_3px_10px_rgba(0,0,0,0.5)]">{item.title}</h2>
-        </div>
-      </div>
-      <div className="grid min-h-0 gap-3 overflow-hidden p-4">
-        <div className="min-h-0 overflow-hidden">
-          <p className="product-card-copy text-sm leading-6 text-white/78">{item.body}</p>
-        </div>
-        <Link href="/programs" className="inline-flex h-10 w-fit items-center justify-center gap-2 rounded-full bg-white px-5 text-xs font-black uppercase tracking-[0.16em] text-[#083527]">
-          Train
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
       </div>
     </article>
   );
