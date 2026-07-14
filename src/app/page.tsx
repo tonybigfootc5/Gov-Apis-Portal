@@ -229,24 +229,35 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="relative min-h-[34rem] overflow-hidden rounded-[2.2rem] border border-white/10 bg-black p-6 shadow-[0_30px_80px_rgba(0,0,0,0.28)] sm:p-8 lg:min-h-[38rem] lg:p-10">
+        <div className="relative min-h-[36rem] overflow-hidden rounded-[2.2rem] border border-white/15 bg-black p-5 shadow-[0_34px_90px_rgba(0,0,0,0.34)] sm:p-7 lg:min-h-[40rem] lg:p-10">
           <Image
             src="/einstein-quote-background.jpg"
             alt=""
             fill
             sizes="(min-width: 1280px) 80rem, 100vw"
-            className="object-cover object-center opacity-95"
+            className="object-cover object-[52%_28%] opacity-90 sm:object-[56%_30%] lg:object-[62%_34%]"
           />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,transparent_0%,rgba(0,0,0,0.05)_33%,rgba(0,0,0,0.72)_100%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.78))]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.78)_0%,rgba(0,0,0,0.44)_42%,rgba(0,0,0,0.18)_72%,rgba(0,0,0,0.58)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_30%,rgba(255,255,255,0.18)_0%,rgba(255,255,255,0.04)_22%,transparent_46%),radial-gradient(circle_at_18%_82%,rgba(242,181,68,0.18)_0%,transparent_30%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.82))]" />
 
-          <div className="relative z-10 mx-auto flex min-h-[28rem] max-w-3xl flex-col items-center justify-center text-center lg:min-h-[32rem]">
-            <p className="text-[11px] font-black uppercase tracking-[0.28em] text-white/72">{localCopy.quoteEyebrow}</p>
-            <blockquote className="font-display mt-8 rounded-[1.6rem] border border-white/24 bg-black/28 px-5 py-6 text-2xl leading-tight text-white shadow-[0_22px_70px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-[1px] sm:px-8 sm:py-8 sm:text-3xl lg:text-[2.15rem]">
-              If the honey bee disappeared from the surface of the globe the man would only have four years of life left.
-              No more bees, No more pollination, No more plants, No more animals, No more man.
-            </blockquote>
-            <p className="mt-7 text-sm font-black uppercase tracking-[0.24em] text-white/68">{localCopy.quoteAuthor}</p>
+          <div className="relative z-10 flex min-h-[30rem] items-end lg:min-h-[34rem]">
+            <div className="w-full max-w-4xl rounded-[1.75rem] border border-white/22 bg-[linear-gradient(135deg,rgba(255,255,255,0.2),rgba(255,255,255,0.06)_42%,rgba(255,255,255,0.12))] p-5 text-left shadow-[0_28px_90px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-1px_0_rgba(255,255,255,0.12)] backdrop-blur-[20px] sm:p-7 lg:p-8">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="rounded-full border border-white/18 bg-white/12 px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/76 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
+                  {localCopy.quoteEyebrow}
+                </p>
+                <p className="text-xs font-black uppercase tracking-[0.22em] text-white/58">{localCopy.quoteAuthor}</p>
+              </div>
+              <blockquote className="font-display mt-6 max-w-3xl text-[clamp(2rem,4.4vw,4.35rem)] leading-[0.96] text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.5)]">
+                If the honey bee disappeared from the surface of the globe the man would only have four years of life left.
+                No more bees, No more pollination, No more plants, No more animals, No more man.
+              </blockquote>
+              <div className="mt-6 h-px w-full bg-[linear-gradient(90deg,rgba(255,255,255,0.7),rgba(255,255,255,0.12),transparent)]" />
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-white/68">
+                A quiet reminder that pollination, farming, and rural livelihood are connected systems.
+              </p>
+            </div>
           </div>
         </div>
       </section>
