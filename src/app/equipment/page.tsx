@@ -137,7 +137,7 @@ export default function EquipmentPage() {
               </div>
             </header>
 
-            <div className="grid gap-5 lg:grid-cols-[16rem_minmax(0,1fr)_16rem] lg:items-start">
+            <div className="grid gap-6 lg:grid-cols-[15.5rem_minmax(0,1fr)_15.5rem] lg:items-start xl:gap-8">
               <aside className="hidden gap-3 lg:order-1 lg:grid lg:grid-cols-1">
                 {leftRailItems.map((item, index) => (
                   <ProductOrbitCard key={item.title} item={item} index={index} />
@@ -161,16 +161,16 @@ export default function EquipmentPage() {
                   ))}
                 </div>
 
-                <div className="mx-auto mt-7 hidden max-w-[34rem] gap-4 lg:grid lg:grid-cols-2">
+                <div className="mx-auto mt-8 hidden w-full max-w-[42rem] gap-6 lg:grid lg:grid-cols-2">
                   {middleRailItems.map((item, index) => (
                     <ProductOrbitCard key={item.title} item={item} index={index + 4} compact />
                   ))}
                 </div>
 
-                <div className="relative mx-auto mt-5 max-w-[34rem]">
-                  <div className="absolute inset-x-8 bottom-0 h-24 rounded-[100%] bg-[#123f32]/15 blur-2xl" />
+                <div className="relative mx-auto mt-6 w-full max-w-[42rem]">
+                  <div className="absolute inset-x-10 bottom-0 h-28 rounded-[100%] bg-[#123f32]/15 blur-2xl" />
                   <article className="relative overflow-hidden rounded-[1.8rem] bg-[#008f68] text-white shadow-[0_34px_74px_rgba(0,79,58,0.3)]">
-                    <div className="relative h-[16rem] bg-[#e6eee8] sm:h-[19rem]">
+                    <div className="relative h-[15rem] bg-[#e6eee8] sm:h-[17rem]">
                       <Image
                         src={featured.imageSrc}
                         alt={featured.imageAlt}
@@ -184,7 +184,7 @@ export default function EquipmentPage() {
                         Featured
                       </span>
                     </div>
-                    <div className="grid gap-5 p-6 sm:grid-cols-[1fr_auto] sm:items-end sm:p-7">
+                    <div className="grid gap-5 p-6 sm:grid-cols-[1fr_auto] sm:items-end">
                       <div>
                         <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f9d779]">{featured.category}</p>
                         <h2 className="mt-3 text-3xl font-black leading-none tracking-[-0.03em] sm:text-4xl">{featured.title}</h2>
@@ -199,7 +199,7 @@ export default function EquipmentPage() {
                 </div>
               </main>
 
-              <aside className="hidden gap-3 lg:grid lg:grid-cols-1">
+              <aside className="hidden gap-3 lg:order-3 lg:grid lg:grid-cols-1">
                 {rightRailItems.map((item, index) => (
                   <ProductOrbitCard key={item.title} item={item} index={index + 6} />
                 ))}
