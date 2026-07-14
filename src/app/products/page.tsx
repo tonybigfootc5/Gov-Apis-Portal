@@ -196,28 +196,6 @@ export default async function ProductsPage() {
           </div>
         </section>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-          <div className="rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(135deg,#113f32,#0f5d47)] p-6 text-[#fff9ef] shadow-[0_24px_70px_rgba(22,57,46,0.18)] sm:p-8">
-            <Package2 className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />
-            <h2 className="mt-5 font-display text-4xl leading-tight">{copy.contextTitle}</h2>
-            <p className="mt-5 text-sm leading-7 text-white/76">{copy.contextBody}</p>
-          </div>
-
-          <div className="rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-white/78 p-5 shadow-[0_20px_60px_rgba(121,105,70,0.11)] sm:p-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#b36b00]">{copy.learningPath}</p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {[copy.learningPathValue, copy.approachValue, copy.streamCount].map((value, index) => (
-                <div key={`${value}-${index}`} className="rounded-[1.2rem] border border-[rgba(41,56,49,0.09)] bg-[#fffaf1] p-4">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#dcefe8] text-sm font-black text-[#0f5d47]">
-                    {index + 1}
-                  </span>
-                  <p className="mt-4 text-sm font-black uppercase tracking-[0.12em] text-[#133226]">{value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
             href="/technologies"
