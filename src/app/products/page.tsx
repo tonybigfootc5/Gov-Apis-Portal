@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Package2, ShieldCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getRequestLanguage } from "@/lib/request-language";
 import { productItems } from "@/lib/products";
 
@@ -27,9 +27,6 @@ export default async function ProductsPage() {
       streamLabel: "Product stream",
       explore: "Explore technologies",
       training: "View training",
-      contextTitle: "Product context",
-      contextBody:
-        "These product entries are positioned as representative hive-product streams connected to the center's practical beekeeping and value-addition orientation, not as an e-commerce catalog.",
       items: {} as Record<string, { title: string; description: string; highlights: string[] }>,
     },
     te: {
@@ -46,9 +43,6 @@ export default async function ProductsPage() {
       streamLabel: "ఉత్పత్తి విభాగం",
       explore: "టెక్నాలజీలను చూడండి",
       training: "శిక్షణ చూడండి",
-      contextTitle: "ఉత్పత్తి సందర్భం",
-      contextBody:
-        "ఈ ఉత్పత్తి ఎంట్రీలు కేంద్రం యొక్క ప్రాక్టికల్ తేనెటీగల పెంపకం మరియు విలువ వృద్ధి దిశకు సంబంధించిన ప్రతినిధి హైవ్-ఉత్పత్తులుగా మాత్రమే చూపించబడ్డాయి; ఇవి ఈ-కామర్స్ క్యాటలాగ్ కావు.",
       items: {
         Honey: {
           title: "తేనె",
@@ -96,9 +90,6 @@ export default async function ProductsPage() {
       streamLabel: "उत्पाद श्रेणी",
       explore: "तकनीकें देखें",
       training: "प्रशिक्षण देखें",
-      contextTitle: "उत्पाद संदर्भ",
-      contextBody:
-        "ये उत्पाद प्रविष्टियाँ केंद्र के व्यावहारिक मधुमक्खी पालन और मूल्य-वर्धन उन्मुखीकरण से जुड़े प्रतिनिधि छत्ता-उत्पाद प्रवाह हैं, ई-कॉमर्स कैटलॉग नहीं।",
       items: {} as Record<string, { title: string; description: string; highlights: string[] }>,
     },
   }[language];
@@ -180,22 +171,6 @@ export default async function ProductsPage() {
           </div>
         </div>
 
-        <section className="mt-8 rounded-[2rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(180deg,#fffefa_0%,#f7f1e7_100%)] p-5 shadow-[0_24px_70px_rgba(121,105,70,0.12)] sm:p-7 lg:p-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">{copy.contextTitle}</p>
-              <h2 className="mt-3 font-display text-4xl leading-tight text-[#133226] sm:text-5xl">{copy.streamCount}</h2>
-            </div>
-            <p className="max-w-[30rem] text-sm leading-7 text-[#65756c]">{copy.contextBody}</p>
-          </div>
-
-          <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {localizedItems.map((item) => (
-              <ProductDetailCard key={item.title} item={item} copy={copy} />
-            ))}
-          </div>
-        </section>
-
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
             href="/technologies"
@@ -260,35 +235,6 @@ function FeaturedProductCard({ item, copy }: { item: (typeof productItems)[numbe
           {copy.training}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
-      </div>
-    </article>
-  );
-}
-
-function ProductDetailCard({ item, copy }: { item: (typeof productItems)[number]; copy: { streamLabel: string } }) {
-  return (
-    <article className="group flex min-h-[24rem] flex-col overflow-hidden rounded-[1.35rem] border border-[rgba(41,56,49,0.1)] bg-white/82 shadow-[0_16px_38px_rgba(121,105,70,0.09)] transition duration-300 hover:-translate-y-1 hover:border-[#f2b544]/50 hover:bg-[#fffdf8]">
-      <div className="relative h-40 bg-[#f3ecdf]">
-        <Image src={item.imageSrc} alt={item.imageAlt} fill sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02),rgba(20,38,31,0.38))]" />
-      </div>
-      <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-center gap-3">
-          <span className="rounded-full border border-[#8ec5ff]/22 bg-[#8ec5ff]/10 px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#547ba1]">
-            {copy.streamLabel}
-          </span>
-          <Package2 className="h-4 w-4 text-[#f2b544]" aria-hidden="true" />
-        </div>
-        <h2 className="mt-4 text-2xl font-black leading-tight tracking-[-0.03em] text-[#133226]">{item.title}</h2>
-        <p className="mt-3 text-sm leading-7 text-[#65756c]">{item.description}</p>
-        <div className="mt-5 grid gap-3">
-          {item.highlights.map((highlight) => (
-            <p key={highlight} className="inline-flex gap-3 text-sm leading-6 text-[#65756c]">
-              <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-[#8ec5ff]" aria-hidden="true" />
-              {highlight}
-            </p>
-          ))}
-        </div>
       </div>
     </article>
   );

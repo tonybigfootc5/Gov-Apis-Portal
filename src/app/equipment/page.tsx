@@ -113,7 +113,7 @@ export default function EquipmentPage() {
   const featured = equipmentTools[6];
   const leftRailItems = equipmentTools.slice(0, 4);
   const middleRailItems = equipmentTools.slice(4, 6);
-  const rightRailItems = equipmentTools.slice(6, 10);
+  const rightRailItems = equipmentTools.slice(7, 10);
 
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -186,14 +186,6 @@ export default function EquipmentPage() {
           ))}
         </div>
 
-        <section className="mt-8 rounded-[2rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(180deg,#fffefa_0%,#f7f1e7_100%)] p-5 shadow-[0_24px_70px_rgba(121,105,70,0.12)] sm:p-7 lg:p-8">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            {equipmentTools.map((item) => (
-              <EquipmentToolCard key={item.title} item={item} />
-            ))}
-          </div>
-        </section>
-
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.25fr]">
           <section className="rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(135deg,#113f32,#0f5d47)] p-6 text-[#fff9ef] shadow-[0_24px_70px_rgba(22,57,46,0.18)] sm:p-8">
             <Sparkles className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />
@@ -262,25 +254,6 @@ function FeatureEquipmentCard({ item }: { item: (typeof equipmentTools)[number] 
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>
       </div>
-    </article>
-  );
-}
-
-function EquipmentToolCard({ item }: { item: (typeof equipmentTools)[number] }) {
-  const Icon = item.icon;
-
-  return (
-    <article className="group flex min-h-[16rem] flex-col rounded-[1.35rem] border border-[rgba(41,56,49,0.1)] bg-white/82 p-4 shadow-[0_16px_38px_rgba(121,105,70,0.09)] transition duration-300 hover:-translate-y-1 hover:border-[#f2b544]/50 hover:bg-[#fffdf8]">
-      <div className="relative -mx-4 -mt-4 mb-4 h-32 overflow-hidden rounded-t-[1.35rem]">
-        <Image src={item.imageSrc} alt={item.imageAlt} fill sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02),rgba(20,38,31,0.38))]" />
-      </div>
-      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#dcefe8] text-[#0f5d47] transition group-hover:bg-[#f2b544] group-hover:text-[#133226]">
-        <Icon className="h-5 w-5" aria-hidden="true" />
-      </span>
-      <p className="mt-5 text-[10px] font-black uppercase tracking-[0.18em] text-[#a36600]">{item.category}</p>
-      <h3 className="mt-2 text-xl font-black leading-tight tracking-[-0.02em] text-[#133226]">{item.title}</h3>
-      <p className="mt-3 text-sm leading-6 text-[#65756c]">{item.body}</p>
     </article>
   );
 }
