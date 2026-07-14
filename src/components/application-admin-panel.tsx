@@ -60,8 +60,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
     const normalizedQuery = query.trim().toLowerCase();
 
     return applications.filter((application) => {
+      const meta = getPreviewApplicationMeta(application);
       const matchesQuery =
         !normalizedQuery ||
+        application.id.toLowerCase().includes(normalizedQuery) ||
+        (meta.applicationCode?.toLowerCase().includes(normalizedQuery) ?? false) ||
+        (meta.studentCode?.toLowerCase().includes(normalizedQuery) ?? false) ||
+        meta.batchNumber.toLowerCase().includes(normalizedQuery) ||
         application.payload.candidateName.toLowerCase().includes(normalizedQuery) ||
         application.payload.serviceName.toLowerCase().includes(normalizedQuery) ||
         application.payload.phone.toLowerCase().includes(normalizedQuery) ||
@@ -98,7 +103,9 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
       }
 
       if (sortBy === "BATCH") {
-        return getPreviewApplicationMeta(left).batchNumber.localeCompare(getPreviewApplicationMeta(right).batchNumber);
+        const leftMeta = getPreviewApplicationMeta(left);
+        const rightMeta = getPreviewApplicationMeta(right);
+        return (leftMeta.studentCode ?? leftMeta.batchNumber).localeCompare(rightMeta.studentCode ?? rightMeta.batchNumber);
       }
 
       return new Date(right.payload.submittedAt).getTime() - new Date(left.payload.submittedAt).getTime();
@@ -137,6 +144,18 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
       ([left], [right]) => new Date(right).getTime() - new Date(left).getTime(),
     );
   }, [filteredApplications]);
+  const visibleApplicationGroups = viewMode === "batch" ? applicationsByBatch : applicationsByDate;
+  const approvedCount = filteredApplications.filter((application) => application.payload.approvalStatus === "APPROVED").length;
+  const pendingApprovalCount = filteredApplications.filter((application) => application.payload.approvalStatus === "PENDING").length;
+  const paidCount = filteredApplications.filter((application) => application.payload.paymentStatus === "PAID").length;
+  const verifiedCount = filteredApplications.filter((application) => application.payload.crossCheckStatus === "VERIFIED").length;
+  const statCards = [
+    { label: "Students", value: filteredApplications.length, hint: "Visible records", dot: "bg-[#d9931f]" },
+    { label: "Approved", value: approvedCount, hint: "Cleared", dot: "bg-[#1b8f63]" },
+    { label: "Pending", value: pendingApprovalCount, hint: "Needs review", dot: "bg-[#f5a524]" },
+    { label: "Paid", value: paidCount, hint: "Fee confirmed", dot: "bg-[#077b76]" },
+    { label: "Verified", value: verifiedCount, hint: "Cross-check done", dot: "bg-[#6b7cff]" },
+  ];
 
   async function load() {
     setLoading(true);
@@ -219,9 +238,8 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
   }
 
   function collapseAllGroups() {
-    const groups = viewMode === "batch" ? applicationsByBatch : applicationsByDate;
     setCollapsedGroups(
-      groups.reduce<Record<string, boolean>>((acc, [label]) => {
+      visibleApplicationGroups.reduce<Record<string, boolean>>((acc, [label]) => {
         acc[label] = true;
         return acc;
       }, {}),
@@ -229,16 +247,37 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
   }
 
   return (
-    <section>
+    <section className="grid gap-4">
       {notice ? <p className="rounded-[1.4rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-4 py-3 text-sm font-semibold text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.05)]">{notice}</p> : null}
 
-        <div className={`${notice ? "mt-4" : ""} flex flex-wrap items-center justify-between gap-3 rounded-[1.55rem] border border-[rgba(27,59,43,0.12)] bg-[linear-gradient(135deg,rgba(242,233,216,0.96),rgba(233,243,236,0.92))] px-4 py-3 shadow-[0_16px_34px_rgba(64,44,8,0.08)]`}>
-        <div className="flex flex-wrap items-center gap-3">
+      <div className="rounded-[1.55rem] bg-white p-3 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+        <div className="grid gap-3 xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-center">
+          <div className="flex flex-wrap items-center gap-3">
+          <label className="flex min-w-[18rem] flex-1 items-center rounded-[0.9rem] border border-[#e5ebe6] bg-[#fbfdfb] px-4">
+            <Search className="h-4 w-4 shrink-0 text-[#9c6a18]" aria-hidden="true" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search name, phone, student no., batch no."
+              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#819083]"
+              aria-label="Search applications"
+            />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3ecdf] text-[#173f33]"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            ) : null}
+          </label>
           <div className="relative">
             <button
               type="button"
               onClick={() => setFiltersOpen((current) => !current)}
-              className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-4 py-2.5 text-sm font-black text-[#173f33] shadow-[0_10px_24px_rgba(64,44,8,0.06)]"
+              className="inline-flex h-11 items-center gap-2 rounded-[0.9rem] border border-[#e5ebe6] bg-[#fbfdfb] px-4 text-sm font-black text-[#173f33]"
             >
               <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
               Filters
@@ -258,19 +297,6 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
                   </button>
                 </div>
                 <div className="mt-3 grid gap-3">
-                  <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-[#718477]">
-                    Search applicant
-                    <div className="flex items-center rounded-2xl border border-[rgba(27,59,43,0.12)] bg-[#fffdf8] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
-                      <Search className="h-4 w-4 text-[#718477]" aria-hidden="true" />
-                      <input
-                        value={query}
-                        onChange={(event) => setQuery(event.target.value)}
-                        placeholder="Name, guardian, phone, or service"
-                        className="w-full bg-transparent px-3 py-3 text-sm text-[#173f33] outline-none placeholder:text-[#90a094]"
-                      />
-                    </div>
-                  </label>
-
                   <div className="grid gap-3">
                     <SelectField theme="light" label="Service filter" value={serviceFilter} onChange={setServiceFilter} options={["ALL", ...serviceOptions]} />
                     <SelectField theme="light" label="Date range" value={dateFilter} onChange={setDateFilter} options={["ALL", "LAST_7_DAYS", "LAST_30_DAYS"]} />
@@ -283,25 +309,28 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
               </div>
             ) : null}
           </div>
-        </div>
+          {viewMode === "date" ? (
+            <div className="flex flex-wrap items-center gap-2 rounded-[0.9rem] border border-[#e5ebe6] bg-[#fbfdfb] px-3 py-2">
+              <CalendarDays className="h-4 w-4 text-[#9c6a18]" aria-hidden="true" />
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(event) => setFromDate(event.target.value)}
+                className="bg-transparent text-sm font-semibold text-[#173f33] outline-none"
+              />
+              <span className="text-xs font-black uppercase tracking-[0.12em] text-[#718477]">to</span>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(event) => setToDate(event.target.value)}
+                className="bg-transparent text-sm font-semibold text-[#173f33] outline-none"
+              />
+            </div>
+          ) : null}
+          </div>
 
-        <button
-          disabled={loading}
-          onClick={load}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] shadow-[0_14px_28px_rgba(23,63,51,0.14)] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-          Refresh applications
-        </button>
-      </div>
-
-      <div className="mt-6">
-        <div className="rounded-[1.9rem] border border-[rgba(27,59,43,0.08)] bg-[linear-gradient(180deg,rgba(255,253,248,0.96),rgba(246,239,228,0.92))] p-5 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Admissions roster</p>
-              <div className="flex items-center gap-3 rounded-[1.2rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] px-3 py-2 shadow-[0_8px_18px_rgba(64,44,8,0.05)]">
-                <span className="text-[11px] font-black uppercase tracking-[0.16em] text-[#607366]">View mode</span>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <div className="flex items-center rounded-[0.95rem] bg-[#eef3ef] p-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -311,12 +340,12 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
                       return next;
                     });
                   }}
-                  className="relative inline-flex h-9 w-[12.5rem] items-center rounded-full bg-[#e7ece6] p-1"
+                className="relative inline-flex h-9 w-[12.5rem] items-center rounded-[0.75rem]"
                   aria-label="Toggle roster view mode"
                 >
                   <span
-                    className={`absolute top-1 h-7 rounded-full bg-[#173f33] shadow-[0_10px_18px_rgba(23,63,51,0.18)] transition-all ${
-                      viewMode === "batch" ? "left-1 w-[6rem]" : "left-[6.1rem] w-[5.4rem]"
+                  className={`absolute top-0 h-9 rounded-[0.75rem] bg-[#173f33] shadow-[0_10px_18px_rgba(23,63,51,0.18)] transition-all ${
+                    viewMode === "batch" ? "left-0 w-[6rem]" : "left-[6.35rem] w-[6.15rem]"
                     }`}
                   />
                   <span className={`relative z-10 flex w-1/2 items-center justify-center text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "batch" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
@@ -327,102 +356,100 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
                     Date
                   </span>
                 </button>
-              </div>
-              {viewMode === "date" ? (
-                <div className="flex flex-wrap items-center gap-2 rounded-[1.2rem] border border-[rgba(27,59,43,0.08)] bg-[#fffdf8] px-3 py-2 shadow-[0_8px_18px_rgba(64,44,8,0.05)]">
-                  <CalendarDays className="h-4 w-4 text-[#9c6a18]" aria-hidden="true" />
-                  <input
-                    type="date"
-                    value={fromDate}
-                    onChange={(event) => setFromDate(event.target.value)}
-                    className="rounded-full border border-[rgba(27,59,43,0.1)] bg-[#faf7ef] px-3 py-2 text-sm font-semibold text-[#173f33] outline-none"
-                  />
-                  <span className="text-xs font-black uppercase tracking-[0.14em] text-[#718477]">to</span>
-                  <input
-                    type="date"
-                    value={toDate}
-                    onChange={(event) => setToDate(event.target.value)}
-                    className="rounded-full border border-[rgba(27,59,43,0.1)] bg-[#faf7ef] px-3 py-2 text-sm font-semibold text-[#173f33] outline-none"
-                  />
-                </div>
-              ) : null}
             </div>
-            <div className="rounded-[1.4rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-right shadow-[0_10px_24px_rgba(64,44,8,0.05)]">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Visible students</p>
-              <p className="font-display mt-1 text-4xl font-semibold text-[#173f33]">{filteredApplications.length}</p>
-              <p className="text-xs font-semibold text-[#718477]">{viewMode === "batch" ? "Grouped by batch" : "Grouped by date"}</p>
-            </div>
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
             <button
-              type="button"
-              onClick={expandAllGroups}
-              className="rounded-full border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#173f33] shadow-[0_8px_18px_rgba(64,44,8,0.05)]"
+              disabled={loading}
+              onClick={load}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[0.9rem] bg-[#f5c65e] px-4 text-sm font-black text-[#173f33] shadow-[0_10px_22px_rgba(217,147,31,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
             >
+              <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-1 overflow-hidden rounded-[1.1rem] bg-[#f5f8f5] sm:grid-cols-2 lg:grid-cols-5">
+          {statCards.map((stat) => (
+            <ApplicationStatCard key={stat.label} {...stat} />
+          ))}
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-[1.55rem] bg-white shadow-[0_14px_34px_rgba(23,63,51,0.07)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf2ee] px-4 py-4">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Admissions board</p>
+            <h3 className="mt-1 text-xl font-black text-[#173f33]">{filteredApplications.length} visible students</h3>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" onClick={expandAllGroups} className="rounded-[0.8rem] border border-[#e6ece7] bg-[#fbfdfb] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]">
               Expand all
             </button>
-            <button
-              type="button"
-              onClick={collapseAllGroups}
-              className="rounded-full border border-[rgba(27,59,43,0.1)] bg-[#f3ecdf] px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#173f33] shadow-[0_8px_18px_rgba(64,44,8,0.05)]"
-            >
+            <button type="button" onClick={collapseAllGroups} className="rounded-[0.8rem] border border-[#e6ece7] bg-[#eef3ef] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]">
               Collapse all
             </button>
           </div>
+        </div>
 
-          <div className="mt-6 grid gap-5">
-            {applicationsByBatch.length === 0 ? (
-              <div className="rounded-[1.4rem] border border-dashed border-[rgba(27,59,43,0.14)] bg-[#fffdf8] px-4 py-10 text-center text-sm font-semibold text-[#607366]">
-                No applications match the current filters.
-              </div>
-            ) : (
-              (viewMode === "batch" ? applicationsByBatch : applicationsByDate).map(([groupLabel, groupApplications]) => {
-                const isCollapsed = collapsedGroups[groupLabel] ?? false;
+        <div className="grid gap-0">
+          {visibleApplicationGroups.length === 0 ? (
+            <div className="px-4 py-12 text-center text-sm font-semibold text-[#607366]">
+              No applications match the current filters.
+            </div>
+          ) : (
+            visibleApplicationGroups.map(([groupLabel, groupApplications]) => {
+              const isCollapsed = collapsedGroups[groupLabel] ?? false;
 
-                return (
+              return (
                 <section
                   key={groupLabel}
-                  className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.66)] p-4 shadow-[0_12px_30px_rgba(64,44,8,0.05)]"
+                  className="border-b border-[#edf2ee] last:border-b-0"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-[1.1rem] bg-[#173f33] text-sm font-black uppercase tracking-[0.12em] text-[#f5c65e] shadow-[0_12px_24px_rgba(23,63,51,0.18)]">
-                        {viewMode === "batch" ? groupLabel.split("-").slice(-1)[0] : new Date(groupLabel).getDate()}
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">{viewMode === "batch" ? "Batch dossier" : "Date dossier"}</p>
-                        <h4 className="text-xl font-semibold text-[#173f33]">{viewMode === "batch" ? groupLabel : formatDateGroup(groupLabel)}</h4>
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#fbfdfb] px-4 py-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#fff8df] text-xs font-black text-[#9c6a18]">
+                        {String(groupApplications.length).padStart(2, "0")}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">{viewMode === "batch" ? "Batch" : "Date"}</p>
+                        <h4 className="truncate text-sm font-black text-[#173f33]">{viewMode === "batch" ? groupLabel : formatDateGroup(groupLabel)}</h4>
                       </div>
                     </div>
-                    <div className="rounded-full bg-[#f6efe4] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#607366]">
-                      {groupApplications.length} students
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => toggleGroup(groupLabel)}
-                      className="inline-flex items-center gap-2 rounded-full border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-3 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#173f33] shadow-[0_8px_18px_rgba(64,44,8,0.05)]"
-                    >
-                      {isCollapsed ? <ChevronDown className="h-4 w-4" aria-hidden="true" /> : <ChevronUp className="h-4 w-4" aria-hidden="true" />}
-                      {isCollapsed ? "Expand" : "Collapse"}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleGroup(groupLabel)}
+                      className="inline-flex items-center gap-2 rounded-[0.8rem] border border-[#e6ece7] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]"
+                      >
+                        {isCollapsed ? <ChevronDown className="h-4 w-4" aria-hidden="true" /> : <ChevronUp className="h-4 w-4" aria-hidden="true" />}
+                        {isCollapsed ? "Expand" : "Collapse"}
+                      </button>
                   </div>
 
                   {!isCollapsed ? (
-                  <div className="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+                    <div className="overflow-x-auto">
+                      <div className="min-w-[62rem]">
+                        <div className="grid grid-cols-[minmax(12rem,1.55fr)_minmax(11rem,1.25fr)_minmax(7rem,0.85fr)_minmax(9rem,1fr)_minmax(7rem,0.8fr)_minmax(7rem,0.85fr)_minmax(10rem,1.15fr)_minmax(5rem,0.45fr)] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
+                          <span>Student</span>
+                          <span>Course</span>
+                          <span>Phone</span>
+                          <span>Submitted</span>
+                          <span>Payment</span>
+                          <span>Approval</span>
+                          <span>Number</span>
+                          <span className="text-right">Action</span>
+                        </div>
                     {groupApplications.map((application) => {
                       const isActive = selectedApplication?.id === application.id;
+                      const meta = getPreviewApplicationMeta(application);
                       return (
-                        <div
+                            <button
                           key={application.id}
                           onClick={() => setSelectedApplicationId(application.id)}
-                          className={`group relative overflow-hidden rounded-[1.45rem] border p-4 text-left transition duration-200 ${
+                              className={`grid grid-cols-[minmax(12rem,1.55fr)_minmax(11rem,1.25fr)_minmax(7rem,0.85fr)_minmax(9rem,1fr)_minmax(7rem,0.8fr)_minmax(7rem,0.85fr)_minmax(10rem,1.15fr)_minmax(5rem,0.45fr)] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-left transition last:border-b-0 ${
                             isActive
-                              ? "border-[rgba(23,63,51,0.18)] bg-[#173f33] text-[#fff9ec] shadow-[0_16px_32px_rgba(23,63,51,0.18)]"
-                              : "border-[rgba(27,59,43,0.08)] bg-[#fffdf8] text-[#173f33] hover:-translate-y-0.5 hover:bg-[#f8f2e6] hover:shadow-[0_16px_32px_rgba(64,44,8,0.08)]"
+                                  ? "bg-[#173f33] text-[#fff9ec]"
+                                  : "bg-white text-[#173f33] hover:bg-[#fbf7ee]"
                           }`}
-                          role="button"
-                          tabIndex={0}
                           onKeyDown={(event) => {
                             if (event.key === "Enter" || event.key === " ") {
                               event.preventDefault();
@@ -430,59 +457,43 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
                             }
                           }}
                         >
-                          <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(245,198,94,0.85),transparent)] opacity-70" />
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${isActive ? "text-[#f5c65e]" : "text-[#9c6a18]"}`}>
-                                {application.payload.serviceName}
-                              </p>
-                              <h5 className="mt-2 text-lg font-semibold">{application.payload.candidateName}</h5>
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-black">{application.payload.candidateName}</p>
+                                <p className={`mt-1 truncate text-xs font-semibold ${isActive ? "text-[#d4e1d8]" : "text-[#718477]"}`}>Guardian: {application.payload.guardianName}</p>
                             </div>
-                            <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${
-                              application.payload.approvalStatus === "APPROVED"
-                                ? isActive
-                                  ? "bg-[rgba(255,255,255,0.14)] text-[#e4f6ea]"
-                                  : "bg-[#eef8f1] text-[#21533f]"
-                                : isActive
-                                  ? "bg-[rgba(255,255,255,0.14)] text-[#fff2d7]"
-                                  : "bg-[#fff5ea] text-[#8c4d1e]"
-                            }`}>
-                              {application.payload.approvalStatus}
-                            </span>
-                          </div>
-                          <div className={`mt-4 grid gap-2 text-sm ${isActive ? "text-[#dde4dc]" : "text-[#607366]"}`}>
-                            <p>Phone: {application.payload.phone}</p>
-                            <p>Submitted: {formatDateLabel(application.payload.submittedAt)}</p>
-                            <p>Guardian: {application.payload.guardianName}</p>
-                          </div>
-                          <div className="mt-4 flex items-center justify-between">
-                            <button
-                              type="button"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                openStudentProfile(application.id);
-                              }}
-                              className={`inline-flex items-center justify-center rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.18em] transition ${
+                              <div className="min-w-0">
+                                <p className="truncate text-xs font-black uppercase tracking-[0.08em]">{application.payload.serviceName}</p>
+                                <p className={`mt-1 truncate text-xs font-semibold ${isActive ? "text-[#d4e1d8]" : "text-[#718477]"}`}>{meta.batchNumber}</p>
+                              </div>
+                              <span className="truncate text-sm font-semibold">{application.payload.phone}</span>
+                              <span className={`text-xs font-semibold ${isActive ? "text-[#d4e1d8]" : "text-[#718477]"}`}>{formatDateLabel(application.payload.submittedAt)}</span>
+                              <StatusBadge status={application.payload.paymentStatus} active={isActive} />
+                              <StatusBadge status={application.payload.approvalStatus} active={isActive} />
+                              <span className={`truncate text-xs font-black ${isActive ? "text-[#f5c65e]" : "text-[#9c6a18]"}`}>
+                                {meta.studentCode ?? meta.applicationCode}
+                              </span>
+                              <span
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  openStudentProfile(application.id);
+                                }}
+                                className={`inline-flex items-center justify-center rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
                                 isActive
                                   ? "bg-[rgba(255,255,255,0.14)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.2)]"
                                   : "bg-[#173f33] text-[#fff9ec] hover:bg-[#204d3f]"
                               }`}
                             >
                               View
-                            </button>
-                            <span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${isActive ? "bg-[rgba(255,255,255,0.14)] text-[#fff9ec]" : "bg-[#f3ecdf] text-[#173f33]"}`}>
-                              {getPreviewApplicationMeta(application).batchNumber}
                             </span>
-                          </div>
-                        </div>
+                            </button>
                       );
                     })}
+                      </div>
                   </div>
                   ) : null}
                 </section>
               )})
-            )}
-          </div>
+          )}
         </div>
       </div>
 
@@ -495,6 +506,61 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
         />
       ) : null}
     </section>
+  );
+}
+
+function ApplicationStatCard({
+  label,
+  value,
+  hint,
+  dot,
+}: {
+  label: string;
+  value: number;
+  hint: string;
+  dot: string;
+}) {
+  return (
+    <div className="bg-white px-4 py-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-2xl font-black leading-none text-[#173f33]">{value.toLocaleString("en-IN")}</p>
+          <div className="mt-2 flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${dot}`} />
+            <p className="text-xs font-semibold text-[#607366]">{label}</p>
+          </div>
+        </div>
+        <span className="rounded-full bg-[#eef3ef] px-2 py-1 text-[10px] font-black text-[#607366]">{hint}</span>
+      </div>
+    </div>
+  );
+}
+
+function StatusBadge({ status, active }: { status: string; active: boolean }) {
+  const normalized = status.replaceAll("_", " ");
+  const isGood = status === "PAID" || status === "APPROVED" || status === "VERIFIED" || status === "PAYMENT_COMPLETED";
+  const isBad = status === "FAILED" || status === "REJECTED" || status === "PAYMENT_FAILED";
+
+  if (active) {
+    return (
+      <span className="w-fit rounded-full bg-[rgba(255,255,255,0.14)] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#fff9ec]">
+        {normalized}
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className={`w-fit rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${
+        isGood
+          ? "bg-[#eef8f1] text-[#1f6b4b]"
+          : isBad
+            ? "bg-[#fff0ec] text-[#a74224]"
+            : "bg-[#fff5e7] text-[#9c6a18]"
+      }`}
+    >
+      {normalized}
+    </span>
   );
 }
 
@@ -576,6 +642,8 @@ function ApplicationCard({
   const photoSrc = application.payload.photoUrl || application.payload.photoDataUrl;
   const previewMeta = getPreviewApplicationMeta(application);
   const studentDetailRows = [
+    { label: "Application number", value: previewMeta.applicationCode ?? "Not assigned yet" },
+    { label: "Student number", value: previewMeta.studentCode ?? "Not assigned yet" },
     { label: "Student name", value: application.payload.candidateName },
     { label: "Batch number", value: previewMeta.batchNumber },
     { label: "Phone number", value: application.payload.phone || "Not provided" },
@@ -699,7 +767,7 @@ function ApplicationCard({
           </div>
         ) : null}
 
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-4">
           <InfoCard icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} label="Current priority">
             <p>{joinReady ? "Learner cleared to join" : readyToApprove ? "Ready for final approval" : "Needs review before approval"}</p>
             {blockers.length ? (
@@ -707,11 +775,6 @@ function ApplicationCard({
             ) : (
               <p>This application has passed the required review gates.</p>
             )}
-          </InfoCard>
-
-          <InfoCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Cross-check guidance">
-            <p>Cross-check the application first, then approve only after payment is confirmed and the details are acceptable.</p>
-            <p>Once approved, the student can be treated as cleared to join the selected service batch.</p>
           </InfoCard>
         </div>
 
@@ -725,7 +788,6 @@ function ApplicationCard({
                 <p className="text-xs font-black uppercase tracking-[0.12em] text-[#d4e1d8]">Gateway payment</p>
                 <p className="mt-2">Status: {paymentStatus.replaceAll("_", " ")}</p>
                 <p>Reference: {paymentReference || "Waiting for PhonePe confirmation"}</p>
-                <p className="text-[#d4e1d8]">Payment truth now comes from the PhonePe order history in the Payments section.</p>
               </div>
             </div>
           </div>
@@ -873,9 +935,20 @@ function formatDateGroup(value: string) {
 function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
   const match = /app-preview-(\d+)/.exec(application.id);
   const index = match ? Number(match[1]) - 1 : -1;
+  const unassignedBatchNumber = buildUnassignedBatchNumber();
+  const unassignedStudentCode = `${unassignedBatchNumber}-${String(buildStableStudentSequence(application.id)).padStart(3, "0")}`;
+  const applicationCode = application.applicationCode ?? (
+    application.applicationNumber ? `API-${String(application.applicationNumber).padStart(4, "0")}` : null
+  );
+  const studentCode = application.studentCode ?? (
+    application.batchCode && application.batchSequenceNumber
+      ? `${application.batchCode}-${String(application.batchSequenceNumber).padStart(3, "0")}`
+      : null
+  );
 
   if (index >= 0) {
-    const batchNumber = index < 10 ? "BK-26-07" : index < 20 ? "QR-26-08" : "BK-26-09";
+    const batchNumber = index < 10 ? "BK-001-07-2026" : index < 20 ? "QR-001-08-2026" : "BK-002-09-2026";
+    const previewStudentCode = `${batchNumber}-${String(index + 1).padStart(3, "0")}`;
     const paymentSentDate =
       application.payload.paymentStatus === "NOT_STARTED"
         ? "Not sent yet"
@@ -887,6 +960,8 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
     const passedOutDate = application.payload.approvalStatus === "APPROVED" ? "Batch completed" : "Batch not completed yet";
 
     return {
+      applicationCode: applicationCode ?? `API-P${String(index + 1).padStart(3, "0")}`,
+      studentCode: studentCode ?? previewStudentCode,
       batchNumber,
       paymentSentDate,
       paymentApprovedDate,
@@ -898,10 +973,26 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
   }
 
   return {
-    batchNumber: "Not assigned yet",
+    applicationCode: applicationCode ?? `API-${application.id.slice(-6).toUpperCase()}`,
+    studentCode: studentCode ?? unassignedStudentCode,
+    batchNumber: application.batchCode ?? unassignedBatchNumber,
     paymentSentDate: "Not captured yet",
     paymentApprovedDate: application.payload.approvedAt ? formatDateLabel(application.payload.approvedAt) : "Not approved yet",
     passedOutDate: "Not captured yet",
     studentFiles: application.payload.photoName ? `${application.payload.photoName} (${application.payload.photoType || "file"})` : "No extra student files are stored yet",
   };
+}
+
+function buildUnassignedBatchNumber() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = String(now.getFullYear());
+
+  return `UN-001-${month}-${year}`;
+}
+
+function buildStableStudentSequence(value: string) {
+  const hash = Array.from(value).reduce((total, character) => total + character.charCodeAt(0), 0);
+
+  return (hash % 999) + 1;
 }
