@@ -261,7 +261,7 @@ function ProductCardMedia({
             sizes={sizes}
             priority={priority && index === 0}
             aria-hidden={index > 0}
-            className="royal-jelly-slide object-cover transition duration-500 group-hover:scale-105"
+            className="product-image-slide object-cover transition duration-500 group-hover:scale-105"
             style={{ animationDelay: `${index * -4.5}s` }}
           />
         ))}

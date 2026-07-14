@@ -245,7 +245,7 @@ canvas {
   will-change: transform;
 }
 
-@keyframes royal-jelly-crossfade {
+@keyframes product-image-crossfade {
   0%,
   44% {
     opacity: 1;
@@ -261,14 +261,14 @@ canvas {
   }
 }
 
-.royal-jelly-slide {
-  animation: royal-jelly-crossfade 9s ease-in-out infinite;
+.product-image-slide {
+  animation: product-image-crossfade 9s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-track,
   .float-gentle,
-  .royal-jelly-slide {
+  .product-image-slide {
     animation: none;
   }
 
