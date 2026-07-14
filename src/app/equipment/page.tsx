@@ -1,7 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Boxes, Factory, Leaf, PackageCheck, ShieldCheck, Sparkles, Wrench } from "lucide-react";
+import { Boxes, Factory, Leaf, PackageCheck, ShieldCheck, Sparkles, Wrench } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Equipment",
@@ -187,22 +186,7 @@ export default function EquipmentPage() {
         <div className="relative overflow-hidden rounded-[2.35rem] border border-[rgba(41,56,49,0.1)] bg-[#fffefa] shadow-[0_30px_90px_rgba(121,105,70,0.16)]">
           <div className="absolute left-1/2 top-0 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[#dcefe8]" />
           <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(180deg,rgba(214,239,229,0.72),rgba(255,255,255,0))]" />
-          <div className="relative grid grid-rows-[auto_1fr] gap-5 p-5 sm:p-8 lg:p-10">
-            <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-              <nav aria-label="Equipment categories" className="flex flex-wrap items-center gap-x-8 gap-y-3 pt-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#52695e]">
-                <span>Colonies</span>
-                <span>Hives</span>
-                <span>Tools</span>
-                <span>Safety</span>
-                <span>Processing</span>
-              </nav>
-
-              <div className="flex items-center justify-start gap-3 lg:justify-end">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f2b544] text-sm font-black text-[#133226]">9</span>
-                <span className="text-[11px] font-black uppercase tracking-[0.22em] text-[#133226]">Visible support tools</span>
-              </div>
-            </header>
-
+          <div className="relative grid gap-5 p-5 sm:p-8 lg:p-10">
             <div className="grid gap-6 lg:grid-cols-[15.5rem_minmax(0,1fr)_15.5rem] lg:items-start xl:gap-8">
               <aside className="hidden gap-3 lg:order-1 lg:grid lg:grid-cols-1">
                 {leftRailItems.map((item) => (
@@ -227,13 +211,11 @@ export default function EquipmentPage() {
                   ))}
                 </div>
 
-                <div className="mx-auto mt-8 hidden w-full max-w-[42rem] gap-4 lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-                  <FeatureEquipmentCard item={featured} />
-                  <div className="grid gap-4">
-                    {middleRailItems.map((item) => (
-                      <ProductOrbitCard key={item.title} item={item} compact />
-                    ))}
-                  </div>
+                <div className="mx-auto mt-8 hidden w-full max-w-[42rem] gap-4 lg:grid lg:grid-cols-3">
+                  <ProductOrbitCard item={featured} compact />
+                  {middleRailItems.map((item) => (
+                    <ProductOrbitCard key={item.title} item={item} compact />
+                  ))}
                 </div>
               </main>
 
@@ -301,33 +283,6 @@ function ProductOrbitCard({ item, compact = false, className = "" }: { item: (ty
   );
 }
 
-function FeatureEquipmentCard({ item }: { item: (typeof equipmentTools)[number] }) {
-  return (
-    <article className="relative grid h-[25rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.45rem] bg-[#008f68] text-white shadow-[0_24px_54px_rgba(0,79,58,0.24)]">
-      <div className="relative min-h-0 bg-[#e6eee8]">
-        <EquipmentCardMedia item={item} sizes="(min-width: 1024px) 24rem, 100vw" priority />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,143,104,0)_10%,rgba(0,76,54,0.2)_48%,rgba(0,45,32,0.92)_100%)]" />
-        <span className="absolute left-4 top-4 rounded-full bg-white/92 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#00513d]">
-          Featured
-        </span>
-        <div className="absolute inset-x-0 bottom-0 p-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f9d779]">{item.category}</p>
-          <h2 className="mt-2 product-card-title-overlay text-4xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_3px_10px_rgba(0,0,0,0.5)]">{item.title}</h2>
-        </div>
-      </div>
-      <div className="grid min-h-0 gap-3 overflow-hidden p-4">
-        <div className="min-h-0 overflow-hidden">
-          <p className="product-card-copy text-sm leading-6 text-white/78">{item.body}</p>
-        </div>
-        <Link href="/programs" className="inline-flex h-10 w-fit items-center justify-center gap-2 rounded-full bg-white px-5 text-xs font-black uppercase tracking-[0.16em] text-[#083527]">
-          Train
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
-      </div>
-    </article>
-  );
-}
-
 function EquipmentCardMedia({
   item,
   sizes,
@@ -389,22 +344,24 @@ function SupportCard({
       ) : null}
 
       <div className="relative z-10 max-w-[18rem]">
-        <span className={`${hasBackground ? "bg-white/90 text-[#0f5d47]" : "bg-[#dcefe8] text-[#0f5d47]"} inline-flex h-12 w-12 items-center justify-center rounded-full`}>
-        <Icon className="h-5 w-5" aria-hidden="true" />
-      </span>
+        {!hasBackground ? (
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#dcefe8] text-[#0f5d47]">
+            <Icon className="h-5 w-5" aria-hidden="true" />
+          </span>
+        ) : null}
         <h2 className={`${hasBackground ? "text-white" : "text-[#133226]"} mt-5 text-xl font-black tracking-[-0.02em]`}>{title}</h2>
         <p className={`${hasBackground ? "text-white/82" : "text-[#65756c]"} mt-3 text-sm leading-7`}>{body}</p>
-        <div className={`${hasBackground ? "text-[#f9d779]" : "text-[#f2b544]"} mt-5 flex items-center gap-2`}>
-          <Leaf className="h-4 w-4" aria-hidden="true" />
-          <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-          <Boxes className="h-4 w-4" aria-hidden="true" />
-        </div>
+        {!hasBackground ? (
+          <div className="mt-5 flex items-center gap-2 text-[#f2b544]">
+            <Leaf className="h-4 w-4" aria-hidden="true" />
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            <Boxes className="h-4 w-4" aria-hidden="true" />
+          </div>
+        ) : null}
       </div>
 
       {badgeSrc ? (
-        <div className="absolute bottom-4 right-4 z-10 flex h-16 w-24 items-center justify-center rounded-xl bg-white/88 p-2 shadow-[0_12px_30px_rgba(0,0,0,0.18)] backdrop-blur">
-          <Image src={badgeSrc} alt={badgeAlt ?? ""} width={112} height={72} className="h-auto max-h-12 w-full object-contain mix-blend-multiply" />
-        </div>
+        <Image src={badgeSrc} alt={badgeAlt ?? ""} width={128} height={78} className="absolute bottom-4 right-4 z-10 h-auto w-24 object-contain mix-blend-multiply drop-shadow-[0_10px_22px_rgba(0,0,0,0.24)]" />
       ) : null}
     </article>
   );
