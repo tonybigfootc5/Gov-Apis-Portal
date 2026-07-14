@@ -194,26 +194,27 @@ export default function EquipmentPage() {
             </header>
 
             <main className="mx-auto w-full max-w-6xl">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[15.5rem_minmax(0,1fr)_minmax(0,1fr)_15.5rem] lg:items-center">
-                <div className="relative z-10 order-first mx-auto w-full max-w-[43rem] rounded-[2rem] border border-[rgba(41,56,49,0.08)] bg-white/72 px-5 py-8 text-center shadow-[0_24px_70px_rgba(121,105,70,0.12)] backdrop-blur lg:col-start-2 lg:col-span-2 lg:row-start-2 lg:row-span-2 lg:px-9 lg:py-10">
+              <div className="grid gap-4 sm:grid-cols-2 lg:auto-rows-[6.75rem] lg:grid-cols-12 lg:items-stretch">
+                <div className="relative z-10 order-first overflow-hidden rounded-[2rem] border border-[rgba(41,56,49,0.08)] bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(250,246,236,0.72))] px-5 py-8 text-center shadow-[0_24px_70px_rgba(121,105,70,0.12)] backdrop-blur lg:col-span-6 lg:col-start-4 lg:row-span-3 lg:row-start-3 lg:flex lg:flex-col lg:justify-center lg:px-9 lg:py-10">
+                  <div className="absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#f2b544,transparent)]" />
                   <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">API CULTURE equipment desk</p>
-                  <h1 className="mx-auto mt-4 max-w-[32rem] text-balance font-display text-[clamp(2.45rem,4.7vw,4.35rem)] font-semibold leading-[0.88] text-[#008b67]">
+                  <h1 className="mx-auto mt-4 max-w-[32rem] text-balance font-display text-[clamp(2.35rem,4.35vw,4.1rem)] font-semibold leading-[0.88] text-[#008b67]">
                     Beekeeping equipment for field-ready apiaries.
                   </h1>
-                  <p className="mx-auto mt-5 max-w-[32rem] text-sm leading-7 text-[#65756c] sm:text-base">
+                  <p className="mx-auto mt-5 max-w-[32rem] text-sm leading-7 text-[#65756c]">
                     Supply support and local manufacturing encouragement for the tools farmers need to manage colonies, harvest honey, and work safely.
                   </p>
                 </div>
 
-                <ProductOrbitCard className="lg:col-start-1 lg:row-start-1" key={equipmentTools[0].title} item={equipmentTools[0]} compact />
-                <ProductOrbitCard className="lg:col-start-2 lg:row-start-1" key={equipmentTools[1].title} item={equipmentTools[1]} compact />
-                <ProductOrbitCard className="lg:col-start-3 lg:row-start-1" key={equipmentTools[2].title} item={equipmentTools[2]} compact />
-                <ProductOrbitCard className="lg:col-start-4 lg:row-start-1" key={equipmentTools[3].title} item={equipmentTools[3]} compact />
-                <ProductOrbitCard className="lg:col-start-1 lg:row-start-2" key={equipmentTools[4].title} item={equipmentTools[4]} compact />
-                <ProductOrbitCard className="lg:col-start-4 lg:row-start-2" key={equipmentTools[5].title} item={equipmentTools[5]} compact />
-                <ProductOrbitCard className="lg:col-start-1 lg:row-start-3" key={equipmentTools[6].title} item={equipmentTools[6]} compact />
-                <ProductOrbitCard className="lg:col-start-4 lg:row-start-3" key={equipmentTools[7].title} item={equipmentTools[7]} compact />
-                <ProductOrbitCard className="lg:col-start-2 lg:col-span-2 lg:row-start-4 lg:mx-auto lg:w-[18rem]" key={equipmentTools[8].title} item={equipmentTools[8]} compact />
+                <ProductOrbitCard className="lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:!h-full" key={equipmentTools[0].title} item={equipmentTools[0]} compact />
+                <ProductOrbitCard className="lg:col-span-3 lg:col-start-4 lg:row-span-2 lg:row-start-1 lg:!h-full" key={equipmentTools[1].title} item={equipmentTools[1]} compact />
+                <ProductOrbitCard className="lg:col-span-3 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:!h-full" key={equipmentTools[2].title} item={equipmentTools[2]} compact />
+                <ProductOrbitCard className="lg:col-span-3 lg:col-start-10 lg:row-span-2 lg:row-start-1 lg:!h-full" key={equipmentTools[3].title} item={equipmentTools[3]} compact />
+                <ProductOrbitCard className="lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-3 lg:!h-full" key={equipmentTools[4].title} item={equipmentTools[4]} compact />
+                <ProductOrbitCard className="lg:col-span-3 lg:col-start-10 lg:row-span-2 lg:row-start-3 lg:!h-full" key={equipmentTools[5].title} item={equipmentTools[5]} compact />
+                <ProductOrbitCard className="lg:col-span-4 lg:col-start-1 lg:row-span-2 lg:row-start-6 lg:!h-full" key={equipmentTools[6].title} item={equipmentTools[6]} compact />
+                <ProductOrbitCard className="lg:col-span-4 lg:col-start-5 lg:row-span-2 lg:row-start-6 lg:!h-full" key={equipmentTools[7].title} item={equipmentTools[7]} compact />
+                <ProductOrbitCard className="lg:col-span-4 lg:col-start-9 lg:row-span-2 lg:row-start-6 lg:!h-full" key={equipmentTools[8].title} item={equipmentTools[8]} compact />
               </div>
             </main>
           </div>
@@ -258,7 +259,7 @@ export default function EquipmentPage() {
 
 function ProductOrbitCard({ item, compact = false, className = "" }: { item: (typeof equipmentTools)[number]; compact?: boolean; className?: string }) {
   return (
-    <article className={`${className} ${compact ? "group grid h-[17.5rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]" : "group grid h-[19rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"}`}>
+    <article className={`${compact ? "group grid h-[17.5rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]" : "group grid h-[19rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"} ${className}`}>
       <div className="relative min-h-0">
         <EquipmentCardMedia item={item} sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02)_0%,rgba(20,38,31,0.08)_48%,rgba(7,30,22,0.88)_100%)]" />
