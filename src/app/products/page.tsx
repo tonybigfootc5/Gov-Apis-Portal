@@ -203,7 +203,7 @@ function ProductShowcaseCard({
   return (
     <article className="group overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]">
       <div className={compact ? "relative h-28" : "relative h-24"}>
-        <Image src={item.imageSrc} alt={item.imageAlt} fill sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" className="object-cover transition duration-500 group-hover:scale-105" />
+        <ProductCardMedia item={item} sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02),rgba(20,38,31,0.36))]" />
       </div>
       <div className={compact ? "p-4" : "p-3.5"}>
@@ -219,7 +219,7 @@ function FeaturedProductCard({ item, copy }: { item: (typeof productItems)[numbe
   return (
     <article className="relative overflow-hidden rounded-[1.45rem] bg-[#008f68] text-white shadow-[0_24px_54px_rgba(0,79,58,0.24)]">
       <div className="relative h-36 bg-[#e6eee8]">
-        <Image src={item.imageSrc} alt={item.imageAlt} fill sizes="(min-width: 1024px) 24rem, 100vw" className="object-cover" priority />
+        <ProductCardMedia item={item} sizes="(min-width: 1024px) 24rem, 100vw" priority />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,143,104,0)_12%,rgba(0,76,54,0.82)_100%)]" />
         <span className="absolute left-4 top-4 rounded-full bg-white/92 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#00513d]">
           {copy.streamLabel}
@@ -238,6 +238,38 @@ function FeaturedProductCard({ item, copy }: { item: (typeof productItems)[numbe
       </div>
     </article>
   );
+}
+
+function ProductCardMedia({
+  item,
+  sizes,
+  priority = false,
+}: {
+  item: (typeof productItems)[number];
+  sizes: string;
+  priority?: boolean;
+}) {
+  if (item.imageSlides?.length) {
+    return (
+      <>
+        {item.imageSlides.map((slide, index) => (
+          <Image
+            key={slide.src}
+            src={slide.src}
+            alt={index === 0 ? slide.alt : ""}
+            fill
+            sizes={sizes}
+            priority={priority && index === 0}
+            aria-hidden={index > 0}
+            className="royal-jelly-slide object-cover transition duration-500 group-hover:scale-105"
+            style={{ animationDelay: `${index * -4.5}s` }}
+          />
+        ))}
+      </>
+    );
+  }
+
+  return <Image src={item.imageSrc} alt={item.imageAlt} fill sizes={sizes} priority={priority} className="object-cover transition duration-500 group-hover:scale-105" />;
 }
 
 function QuickStat({ value, label }: { value: string; label: string }) {

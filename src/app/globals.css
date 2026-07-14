@@ -245,9 +245,30 @@ canvas {
   will-change: transform;
 }
 
+@keyframes royal-jelly-crossfade {
+  0%,
+  44% {
+    opacity: 1;
+  }
+
+  50%,
+  94% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.royal-jelly-slide {
+  animation: royal-jelly-crossfade 9s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee-track,
-  .float-gentle {
+  .float-gentle,
+  .royal-jelly-slide {
     animation: none;
   }
 

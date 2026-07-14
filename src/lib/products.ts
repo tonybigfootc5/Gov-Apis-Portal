@@ -4,6 +4,10 @@ export type ProductItem = {
   highlights: string[];
   imageSrc: string;
   imageAlt: string;
+  imageSlides?: {
+    src: string;
+    alt: string;
+  }[];
 };
 
 export const productItems: ProductItem[] = [
@@ -20,8 +24,18 @@ export const productItems: ProductItem[] = [
     description:
       "Royal jelly is a specialized high-value bee product that depends on queen-cell preparation, collection timing, careful transfer, and sensitive handling.",
     highlights: ["Collected from prepared queen cells", "Requires precise timing", "Handled as a delicate value-added bee product"],
-    imageSrc: "/field-beekeeping.jpg",
-    imageAlt: "Practical field training context for royal jelly production",
+    imageSrc: "/products/royal-jelly.webp",
+    imageAlt: "Royal jelly collection and queen cell handling",
+    imageSlides: [
+      {
+        src: "/products/royal-jelly.webp",
+        alt: "Royal jelly collection and queen cell handling",
+      },
+      {
+        src: "/products/royal-jelly-1.webp",
+        alt: "Close view of royal jelly preparation work",
+      },
+    ],
   },
   {
     title: "Bee Pollen",
