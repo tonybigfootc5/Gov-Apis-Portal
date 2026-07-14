@@ -1338,13 +1338,6 @@ function OverviewDashboard({
         </button>
       </section>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <OverviewMetricCard label="Applications" value={applications.length} description={`${approvedApplications} approved`} icon={<UsersRound className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("applications")} />
-        <OverviewMetricCard label="Payments" value={payments.length} description={`${paidPayments.length} paid`} icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("payments")} />
-        <OverviewMetricCard label="Inbox" value={contactCount} description="Current messages" icon={<Mail className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("contacts")} />
-        <OverviewMetricCard label="Content" value={publishedAssets} description="Programs, events, articles, gallery" icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("programs")} />
-      </div>
-
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1rem] bg-[#077b76] px-4 py-3 text-[#f9fffb] shadow-[0_14px_34px_rgba(7,123,118,0.18)]">
         <div className="flex min-w-0 items-center gap-3">
           <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.85rem] bg-[#fffdf8] text-[#173f33] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
@@ -1360,6 +1353,13 @@ function OverviewDashboard({
         <button onClick={() => onOpenSection(reviewTarget)} className="rounded-[0.65rem] bg-[#fffdf8] px-3 py-2 text-xs font-black text-[#173f33]">
           Review
         </button>
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <OverviewMetricCard label="Applications" value={applications.length} description={`${approvedApplications} approved`} icon={<UsersRound className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("applications")} />
+        <OverviewMetricCard label="Payments" value={payments.length} description={`${paidPayments.length} paid`} icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("payments")} />
+        <OverviewMetricCard label="Inbox" value={contactCount} description="Current messages" icon={<Mail className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("contacts")} />
+        <OverviewMetricCard label="Content" value={publishedAssets} description="Programs, events, articles, gallery" icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("programs")} />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.8fr)_minmax(16rem,0.7fr)]">
