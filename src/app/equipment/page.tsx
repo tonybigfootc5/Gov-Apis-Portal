@@ -195,8 +195,7 @@ export default function EquipmentPage() {
 
             <main className="mx-auto w-full max-w-6xl">
               <div className="grid gap-4 sm:grid-cols-2 lg:auto-rows-[6.75rem] lg:grid-cols-12 lg:items-stretch lg:gap-x-3 lg:gap-y-4">
-                <div className="relative z-10 order-first overflow-hidden rounded-[2rem] border border-[rgba(41,56,49,0.08)] bg-[linear-gradient(145deg,rgba(255,255,255,0.9),rgba(250,246,236,0.72))] px-5 py-8 text-center shadow-[0_24px_70px_rgba(121,105,70,0.12)] backdrop-blur lg:col-span-6 lg:col-start-4 lg:row-span-3 lg:row-start-3 lg:flex lg:flex-col lg:justify-center lg:px-9 lg:py-10">
-                  <div className="absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,#f2b544,transparent)]" />
+                <div className="relative z-10 order-first px-5 py-8 text-center lg:col-span-6 lg:col-start-4 lg:row-span-3 lg:row-start-3 lg:flex lg:flex-col lg:justify-center lg:px-9 lg:py-10">
                   <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">API CULTURE equipment desk</p>
                   <h1 className="mx-auto mt-4 max-w-[32rem] text-balance font-display text-[clamp(2.35rem,4.35vw,4.1rem)] font-semibold leading-[0.88] text-[#008b67]">
                     Beekeeping equipment for field-ready apiaries.
@@ -211,9 +210,9 @@ export default function EquipmentPage() {
                 <ProductOrbitCard className="lg:col-span-3 lg:col-start-7 lg:row-span-2 lg:row-start-1 lg:!h-full" key={equipmentTools[2].title} item={equipmentTools[2]} compact />
                 <ProductOrbitCard className="lg:col-span-3 lg:col-start-10 lg:row-span-2 lg:row-start-1 lg:!h-full" key={equipmentTools[3].title} item={equipmentTools[3]} compact />
                 <ProductOrbitCard className="lg:col-span-4 lg:col-start-5 lg:row-span-2 lg:row-start-6 lg:!h-full" key={equipmentTools[4].title} item={equipmentTools[4]} compact />
-                <ProductOrbitCard className="lg:col-span-3 lg:col-start-10 lg:row-span-2 lg:row-start-3 lg:!h-full" key={equipmentTools[5].title} item={equipmentTools[5]} compact />
+                <ProductOrbitCard className="lg:col-span-3 lg:col-start-10 lg:row-span-3 lg:row-start-3 lg:!h-full" key={equipmentTools[5].title} item={equipmentTools[5]} compact />
                 <ProductOrbitCard className="lg:col-span-4 lg:col-start-1 lg:row-span-2 lg:row-start-6 lg:!h-full" key={equipmentTools[6].title} item={equipmentTools[6]} compact />
-                <ProductOrbitCard className="lg:col-span-3 lg:col-start-1 lg:row-span-2 lg:row-start-3 lg:!h-full" key={equipmentTools[7].title} item={equipmentTools[7]} compact />
+                <ProductOrbitCard className="lg:col-span-3 lg:col-start-1 lg:row-span-3 lg:row-start-3 lg:!h-full" key={equipmentTools[7].title} item={equipmentTools[7]} compact />
                 <ProductOrbitCard className="lg:col-span-4 lg:col-start-9 lg:row-span-2 lg:row-start-6 lg:!h-full" key={equipmentTools[8].title} item={equipmentTools[8]} compact />
               </div>
             </main>
