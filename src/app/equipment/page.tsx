@@ -187,17 +187,7 @@ export default function EquipmentPage() {
         </div>
 
         <section className="mt-8 rounded-[2rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(180deg,#fffefa_0%,#f7f1e7_100%)] p-5 shadow-[0_24px_70px_rgba(121,105,70,0.12)] sm:p-7 lg:p-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#b36b00]">All supportive equipment</p>
-              <h2 className="mt-3 font-display text-4xl leading-tight text-[#133226] sm:text-5xl">Every tool visible, with its field purpose.</h2>
-            </div>
-            <p className="max-w-[30rem] text-sm leading-7 text-[#65756c]">
-              These are the equipment categories from the earlier content, expanded so visitors can scan the full support list without hunting through small tags.
-            </p>
-          </div>
-
-          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {equipmentTools.map((item) => (
               <EquipmentToolCard key={item.title} item={item} />
             ))}
