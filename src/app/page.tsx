@@ -12,7 +12,6 @@ import {
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingAnnouncementPopup } from "@/components/training-announcement-popup";
 import { getPopupAnnouncementPrograms } from "@/lib/data";
-import { institute } from "@/lib/fallback-data";
 import { getTranslatedProgramContent } from "@/lib/i18n";
 import type { SiteLanguage } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
@@ -103,9 +102,18 @@ export default async function Home() {
         <div className="relative mx-auto flex min-h-[calc(100vh-5.5rem)] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
           <div className="max-w-5xl rounded-[2.6rem] border border-[rgba(255,255,255,0.62)] bg-[linear-gradient(180deg,rgba(255,253,248,0.84),rgba(255,248,236,0.74))] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_28px_72px_rgba(119,89,36,0.16)] backdrop-blur-[18px] sm:p-8 lg:p-10">
             <div className="relative z-10">
-              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-[rgba(179,107,0,0.14)] bg-[rgba(255,255,255,0.72)] px-4 py-2 text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00] shadow-[0_10px_30px_rgba(119,89,36,0.12)]">
+              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-[rgba(179,107,0,0.14)] bg-[rgba(255,255,255,0.76)] py-2 pl-2 pr-4 text-[11px] font-black uppercase tracking-[0.16em] text-[#9a5b00] shadow-[0_10px_30px_rgba(119,89,36,0.12)]">
+                <span className="relative flex h-8 w-[4.8rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(31,53,43,0.1)] bg-white px-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_18px_rgba(61,41,10,0.08)]">
+                  <Image
+                    src="/nirdpr-logo-badge.jpeg"
+                    alt="NIRDPR"
+                    fill
+                    sizes="5rem"
+                    className="object-contain p-1"
+                  />
+                </span>
                 <BadgeCheck className="h-4 w-4" aria-hidden="true" />
-                {institute.parent.split(",")[0]}
+                Choose a course. Apply online.
               </p>
 
               <h1 className="font-display mt-6 max-w-5xl text-[clamp(3.6rem,9vw,7.3rem)] leading-[0.9] text-[#1d392e]">
