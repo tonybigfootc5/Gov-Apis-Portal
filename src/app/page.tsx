@@ -189,9 +189,9 @@ export default async function Home() {
                       alt=""
                       fill
                       sizes="(min-width: 1280px) 20rem, (min-width: 768px) 50vw, 100vw"
-                      className="object-cover opacity-50"
+                      className="object-cover opacity-60"
                     />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,241,0.8)_0%,rgba(255,248,236,0.78)_52%,rgba(255,244,228,0.9)_100%)]" />
+                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,251,244,0.96)_0%,rgba(255,248,236,0.88)_38%,rgba(255,244,228,0.62)_100%),linear-gradient(180deg,rgba(255,250,241,0.7)_0%,rgba(255,246,234,0.5)_46%,rgba(255,242,225,0.72)_100%)]" />
                   </>
                 ) : null}
                 <div className="relative z-10">
