@@ -3,11 +3,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  CalendarDays,
   MapPin,
-  Microscope,
-  PackageCheck,
-  Wrench,
 } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingAnnouncementPopup } from "@/components/training-announcement-popup";
@@ -64,15 +60,15 @@ export default async function Home() {
     getTranslatedProgramContent(program, language),
   );
   const cards: ReadonlyArray<{
-    icon: typeof PackageCheck;
+    label: string;
     title: string;
     text: string;
     href: string;
     cta: string;
-    backgroundSrc?: string;
+    backgroundSrc: string;
   }> = [
     {
-      icon: PackageCheck,
+      label: copy.home.cards[0].title,
       title: copy.home.cards[0].title,
       text: copy.home.cards[0].text,
       href: "/products",
@@ -80,7 +76,7 @@ export default async function Home() {
       backgroundSrc: "/card-backgrounds/honey-bee-hive.jpg",
     },
     {
-      icon: Microscope,
+      label: localCopy.technologies,
       title: localCopy.technologies,
       text: localCopy.technologiesText,
       href: "/technologies",
@@ -88,7 +84,7 @@ export default async function Home() {
       backgroundSrc: "/card-backgrounds/honey-bee-tech-image.jpg",
     },
     {
-      icon: Wrench,
+      label: copy.home.cards[2].title,
       title: copy.home.cards[2].title,
       text: copy.home.cards[2].text,
       href: "/equipment",
@@ -96,11 +92,12 @@ export default async function Home() {
       backgroundSrc: "/card-backgrounds/equipment-support-tools.png",
     },
     {
-      icon: CalendarDays,
+      label: copy.home.cards[3].title,
       title: copy.home.cards[3].title,
       text: copy.home.cards[3].text,
       href: "/events",
       cta: localCopy.openCard,
+      backgroundSrc: "/kavuri-extract-3.png",
     },
   ] as const;
 
@@ -179,45 +176,40 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {cards.map(({ icon: Icon, title, text, href, cta, backgroundSrc }) => {
-            const content = (
-              <>
-                {backgroundSrc ? (
-                  <>
-                    <Image
-                      src={backgroundSrc}
-                      alt=""
-                      fill
-                      sizes="(min-width: 1280px) 20rem, (min-width: 768px) 50vw, 100vw"
-                      className="object-cover opacity-80"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,251,244,0.92)_0%,rgba(255,248,236,0.74)_30%,rgba(255,244,228,0.24)_72%,rgba(255,242,225,0.2)_100%),linear-gradient(180deg,rgba(255,250,241,0.34)_0%,rgba(255,246,234,0.14)_46%,rgba(255,242,225,0.42)_100%)]" />
-                  </>
-                ) : null}
-                <div className="relative z-10">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f2b544]/12 text-[#f2b544]">
-                    <Icon className="h-5 w-5" aria-hidden="true" />
-                  </span>
-                  <h2 className="font-display mt-5 text-3xl text-bright">{title}</h2>
-                  <p className="mt-3 text-sm leading-7 text-dim">{text}</p>
-                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
-                    {cta}
-                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  </span>
+        <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-4">
+          {cards.map(({ label, title, text, href, cta, backgroundSrc }) => (
+            <Link
+              key={title}
+              href={href}
+              className="group relative overflow-hidden rounded-[2.2rem] border border-white/90 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] p-3 shadow-[0_24px_60px_rgba(88,71,33,0.14),inset_0_1px_0_rgba(255,255,255,0.95)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_30px_72px_rgba(88,71,33,0.18),inset_0_1px_0_rgba(255,255,255,0.98)]"
+            >
+              <div className="relative overflow-hidden rounded-[1.9rem] border border-white/80 shadow-[0_18px_38px_rgba(25,33,29,0.18)]">
+                <div className="relative aspect-[1.28/1]">
+                  <Image
+                    src={backgroundSrc}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1280px) 18rem, (min-width: 768px) 45vw, 100vw"
+                    className="object-cover transition duration-700 group-hover:scale-[1.04]"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,16,20,0.06)_0%,rgba(7,16,20,0.18)_100%)]" />
+                  <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(4,10,12,0)_0%,rgba(4,10,12,0.58)_100%)]" />
                 </div>
-              </>
-            );
-            return (
-              <Link
-                key={title}
-                href={href}
-                className="section-frame relative overflow-hidden rounded-[1.8rem] p-6 transition hover:-translate-y-1 hover:border-[rgba(199,123,34,0.24)]"
-              >
-                {content}
-              </Link>
-            );
-          })}
+              </div>
+
+              <div className="px-4 pb-4 pt-5 sm:px-5 sm:pb-5">
+                <p className="text-[11px] font-black uppercase tracking-[0.12em] text-[#a7a49d]">{label}</p>
+                <h2 className="font-display mt-4 text-[2.15rem] leading-[0.94] tracking-[-0.045em] text-[#173f33]">
+                  {title}
+                </h2>
+                <p className="mt-4 text-[1.02rem] leading-8 text-[#66776f]">{text}</p>
+                <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
+                  {cta}
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" aria-hidden="true" />
+                </span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
