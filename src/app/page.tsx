@@ -93,6 +93,7 @@ export default async function Home() {
       text: copy.home.cards[2].text,
       href: "/equipment",
       cta: localCopy.openCard,
+      backgroundSrc: "/card-backgrounds/equipment-support-tools.png",
     },
     {
       icon: CalendarDays,
