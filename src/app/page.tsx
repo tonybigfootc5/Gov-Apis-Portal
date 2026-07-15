@@ -273,31 +273,29 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="relative min-h-[20rem] overflow-hidden rounded-[1.4rem] border border-white/15 bg-black shadow-[0_22px_58px_rgba(0,0,0,0.28)] sm:min-h-[22rem] lg:min-h-[24rem]">
+        <div className="relative min-h-[20rem] overflow-hidden rounded-[1.7rem] border border-white/10 bg-black shadow-[0_26px_68px_rgba(0,0,0,0.34)] sm:min-h-[22rem] lg:min-h-[24rem]">
           <Image
-            src="/einstein-quote-background.avif"
+            src="/quote-honey-bee.jpg"
             alt=""
             fill
             sizes="(min-width: 1280px) 64rem, 100vw"
-            className="object-cover object-center opacity-95"
+            className="object-contain object-center opacity-92"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.22)_38%,rgba(0,0,0,0.7)_72%,rgba(0,0,0,0.88)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_24%,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.05)_20%,transparent_42%),linear-gradient(180deg,rgba(0,0,0,0)_42%,rgba(0,0,0,0.72)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,214,157,0.16)_0%,rgba(255,214,157,0.04)_26%,rgba(0,0,0,0)_54%),linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.48)_100%)]" />
 
-          <div className="relative z-10 flex min-h-[20rem] items-end p-5 sm:min-h-[22rem] sm:p-7 lg:min-h-[24rem] lg:justify-center lg:p-8 lg:pl-[30%] lg:pr-[16%]">
-            <div className="w-full text-left lg:max-w-[34rem]">
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="rounded-full border border-white/18 bg-black/28 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] backdrop-blur-md">
+          <div className="relative z-10 flex min-h-[20rem] items-end justify-center p-5 sm:min-h-[22rem] sm:p-7 lg:min-h-[24rem] lg:p-8">
+            <div className="w-full max-w-[48rem] text-center">
+              <div className="flex justify-center">
+                <p className="rounded-full border border-white/14 bg-black/40 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/76 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-md">
                   {localCopy.quoteEyebrow}
                 </p>
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/68">{localCopy.quoteAuthor}</p>
               </div>
-              <blockquote className="font-display mt-5 max-w-[34rem] text-[clamp(1.18rem,1.75vw,1.72rem)] leading-[1.12] text-white drop-shadow-[0_6px_22px_rgba(0,0,0,0.68)]">
-                &ldquo;If the honey bee disappeared from the surface of the globe, man would have only four years of life left.
-                No more bees, no more pollination, no more plants, no more animals, no more man.&rdquo;
+              <blockquote className="font-display mt-5 text-[clamp(1.2rem,1.9vw,1.9rem)] leading-[1.16] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.76)]">
+                <span className="block">&ldquo;If the honey bee disappeared from the surface of the globe, man would have only four years of life left.</span>
+                <span className="block">No more bees, no more pollination, no more plants, no more animals, no more man.&rdquo;</span>
               </blockquote>
-              <div className="mt-5 h-px w-full max-w-[38rem] bg-[linear-gradient(90deg,rgba(255,255,255,0.64),rgba(255,255,255,0.12),transparent)]" />
-              <p className="mt-3 max-w-[42rem] text-sm leading-6 text-white/72">
+              <div className="mx-auto mt-5 h-px w-full max-w-[38rem] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.56),transparent)]" />
+              <p className="mx-auto mt-3 max-w-[42rem] text-sm leading-6 text-white/72">
                 A quiet reminder that pollination, farming, and rural livelihood are connected systems.
               </p>
             </div>
