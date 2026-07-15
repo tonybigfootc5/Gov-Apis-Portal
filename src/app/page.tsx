@@ -97,7 +97,7 @@ export default async function Home() {
       text: copy.home.cards[3].text,
       href: "/events",
       cta: localCopy.openCard,
-      backgroundSrc: "/kavuri-extract-3.png",
+      backgroundSrc: "/card-backgrounds/events-and-workshops.png",
     },
   ] as const;
 
