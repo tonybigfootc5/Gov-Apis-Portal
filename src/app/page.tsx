@@ -254,18 +254,18 @@ export default async function Home() {
               <div className="absolute left-[16%] bottom-[16%] h-4 w-4 rounded-full border-4 border-white/80 bg-[#f7f3ea] shadow-[0_8px_24px_rgba(0,0,0,0.18)]" />
 
               <div className="absolute left-[13%] top-[23%] max-w-[15rem] rounded-[1.2rem] bg-[rgba(244,245,237,0.9)] px-4 py-3 text-[#173f33] shadow-[0_18px_34px_rgba(0,0,0,0.16)] backdrop-blur-md">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Pollination support</p>
-                <p className="mt-1 text-lg font-semibold leading-tight">Healthier flowering and stronger crop confidence.</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Crop impact</p>
+                <p className="mt-1 text-lg font-semibold leading-tight">Stronger pollination means better flowering and field stability.</p>
               </div>
 
               <div className="absolute right-[9%] top-[24%] max-w-[13rem] rounded-[1.2rem] bg-[rgba(244,245,237,0.9)] px-4 py-3 text-[#173f33] shadow-[0_18px_34px_rgba(0,0,0,0.16)] backdrop-blur-md">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Field learning</p>
-                <p className="mt-1 text-base leading-6">Training becomes more credible when people can see the work, not just read about it.</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Training trust</p>
+                <p className="mt-1 text-base leading-6">Visible field practice makes the center feel real, active, and dependable.</p>
               </div>
 
               <div className="absolute bottom-[11%] left-[48%] -translate-x-1/2 rounded-full bg-[rgba(255,250,241,0.96)] px-5 py-3 text-center text-[#173f33] shadow-[0_18px_34px_rgba(0,0,0,0.18)]">
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Livelihoods</p>
-                <p className="mt-1 text-xl font-semibold leading-none">Rural value grows from practice.</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Rural income</p>
+                <p className="mt-1 text-xl font-semibold leading-none">Beekeeping skills turn into earning pathways.</p>
               </div>
             </div>
           </div>
@@ -288,12 +288,7 @@ export default async function Home() {
 
           <div className="relative z-10 flex min-h-[20rem] items-center p-5 sm:min-h-[22rem] sm:p-7 lg:min-h-[24rem] lg:px-10 lg:py-8">
             <div className="w-full max-w-[34rem] text-left">
-              <div className="flex justify-start">
-                <p className="rounded-full border border-white/14 bg-black/40 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/76 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-md">
-                  {localCopy.quoteEyebrow}
-                </p>
-              </div>
-              <blockquote className="font-display mt-5 text-[clamp(1.22rem,1.8vw,1.82rem)] leading-[1.12] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.76)]">
+              <blockquote className="font-display text-[clamp(1.22rem,1.8vw,1.82rem)] leading-[1.12] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.76)]">
                 <span className="block">“If the honey bee disappeared from the surface of the globe, man would have only four years of life left.</span>
                 <span className="block">No more bees, no more pollination, no more plants, no more animals, no more man.”</span>
               </blockquote>
