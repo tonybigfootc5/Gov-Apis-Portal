@@ -69,6 +69,7 @@ export default async function Home() {
     text: string;
     href: string;
     cta: string;
+    backgroundSrc?: string;
   }> = [
     {
       icon: PackageCheck,
@@ -76,6 +77,7 @@ export default async function Home() {
       text: copy.home.cards[0].text,
       href: "/products",
       cta: localCopy.openCard,
+      backgroundSrc: "/card-backgrounds/honey-bee-hive.jpg",
     },
     {
       icon: Microscope,
@@ -176,25 +178,39 @@ export default async function Home() {
 
       <section className="mx-auto max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {cards.map(({ icon: Icon, title, text, href, cta }) => {
+          {cards.map(({ icon: Icon, title, text, href, cta, backgroundSrc }) => {
             const content = (
               <>
-              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f2b544]/12 text-[#f2b544]">
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <h2 className="font-display mt-5 text-3xl text-bright">{title}</h2>
-              <p className="mt-3 text-sm leading-7 text-dim">{text}</p>
-              <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
-                {cta}
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </span>
+                {backgroundSrc ? (
+                  <>
+                    <Image
+                      src={backgroundSrc}
+                      alt=""
+                      fill
+                      sizes="(min-width: 1280px) 20rem, (min-width: 768px) 50vw, 100vw"
+                      className="object-cover opacity-50"
+                    />
+                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,250,241,0.8)_0%,rgba(255,248,236,0.78)_52%,rgba(255,244,228,0.9)_100%)]" />
+                  </>
+                ) : null}
+                <div className="relative z-10">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f2b544]/12 text-[#f2b544]">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h2 className="font-display mt-5 text-3xl text-bright">{title}</h2>
+                  <p className="mt-3 text-sm leading-7 text-dim">{text}</p>
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
+                    {cta}
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                </div>
               </>
             );
             return (
               <Link
                 key={title}
                 href={href}
-                className="section-frame rounded-[1.8rem] p-6 transition hover:-translate-y-1 hover:border-[rgba(199,123,34,0.24)]"
+                className="section-frame relative overflow-hidden rounded-[1.8rem] p-6 transition hover:-translate-y-1 hover:border-[rgba(199,123,34,0.24)]"
               >
                 {content}
               </Link>
