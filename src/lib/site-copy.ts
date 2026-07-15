@@ -121,20 +121,20 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       portalChip: "Public-facing training portal",
       cards: [
         {
-          title: "Applied training",
-          text: "Programs designed around field readiness, not brochure talk.",
+          title: "Hive products",
+          text: "Explore honey, wax, royal jelly, pollen, propolis, and other hive-product streams.",
         },
         {
           title: "Current batches",
           text: "Clear batch-led enrollment with direct progression to payment.",
         },
         {
-          title: "Practical methods",
-          text: "Scientific beekeeping, processing, and specialized production tracks.",
+          title: "Equipment support",
+          text: "See the tools, hive systems, and field equipment that support practical apiary work.",
         },
         {
-          title: "Institutional backing",
-          text: "Anchored within a national public-sector development ecosystem.",
+          title: "Events and workshops",
+          text: "Follow workshops, public sessions, and upcoming center activity from the field.",
         },
       ],
       whyEyebrow: "Why this matters",
@@ -331,20 +331,20 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       portalChip: "ప్రజలకు అందుబాటులో ఉన్న శిక్షణ పోర్టల్",
       cards: [
         {
-          title: "ప్రాయోగిక శిక్షణ",
-          text: "బ్రోచర్ మాటలకు కాదు, ఫీల్డ్ సిద్ధతకు అనుగుణంగా రూపొందించిన కార్యక్రమాలు.",
+          title: "హైవ్ ఉత్పత్తులు",
+          text: "తేనె, మైనం, రాయల్ జెల్లీ, పోలెన్, ప్రోపోలిస్ మరియు ఇతర హైవ్ ఉత్పత్తి ప్రవాహాలను అన్వేషించండి.",
         },
         {
           title: "ప్రస్తుత బ్యాచ్‌లు",
           text: "బ్యాచ్ ఆధారిత నమోదు నుంచి చెల్లింపువరకు స్పష్టమైన మార్గం.",
         },
         {
-          title: "ప్రాక్టికల్ పద్ధతులు",
-          text: "శాస్త్రీయ తేనెటీగల పెంపకం, ప్రాసెసింగ్ మరియు ప్రత్యేక శిక్షణ మార్గాలు.",
+          title: "పరికరాల మద్దతు",
+          text: "ప్రాయోగిక అపియరీ పనికి అవసరమైన పరికరాలు, హైవ్ వ్యవస్థలు మరియు ఫీల్డ్ సహాయ ఉపకరణాలను చూడండి.",
         },
         {
-          title: "సంస్థాగత మద్దతు",
-          text: "జాతీయ ప్రజా రంగ అభివృద్ధి వ్యవస్థలో నిలిచిన విశ్వసనీయ ఆధారం.",
+          title: "ఈవెంట్లు మరియు వర్క్‌షాప్‌లు",
+          text: "ఫీల్డ్ నుంచి వర్క్‌షాప్‌లు, ప్రజా సెషన్‌లు మరియు రాబోయే కేంద్ర కార్యకలాపాలను అనుసరించండి.",
         },
       ],
       whyEyebrow: "ఇది ఎందుకు ముఖ్యము",
@@ -538,20 +538,20 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       portalChip: "सार्वजनिक प्रशिक्षण पोर्टल",
       cards: [
         {
-          title: "व्यावहारिक प्रशिक्षण",
-          text: "ब्रॉशर की बातों से नहीं, वास्तविक फील्ड तैयारी से बने कार्यक्रम।",
+          title: "छत्ता उत्पाद",
+          text: "शहद, मोम, रॉयल जेली, पॉलेन, प्रोपोलिस और अन्य छत्ता-उत्पाद प्रवाहों को एक जगह पर देखें।",
         },
         {
           title: "वर्तमान बैच",
           text: "बैच आधारित नामांकन से भुगतान तक स्पष्ट प्रगति मार्ग।",
         },
         {
-          title: "प्रायोगिक विधियाँ",
-          text: "वैज्ञानिक मधुमक्खी पालन, प्रोसेसिंग और विशेष प्रशिक्षण ट्रैक।",
+          title: "उपकरण सहयोग",
+          text: "व्यावहारिक एपियरी कार्य को समर्थन देने वाले उपकरण, हाइव सिस्टम और फील्ड गियर को देखें।",
         },
         {
-          title: "संस्थागत आधार",
-          text: "राष्ट्रीय सार्वजनिक विकास तंत्र के भीतर स्थापित विश्वसनीय समर्थन।",
+          title: "आयोजन और वर्कशॉप",
+          text: "फील्ड से जुड़े वर्कशॉप, सार्वजनिक सत्र और आगामी केंद्र गतिविधियों की अपडेट पाएँ।",
         },
       ],
       whyEyebrow: "यह क्यों महत्वपूर्ण है",

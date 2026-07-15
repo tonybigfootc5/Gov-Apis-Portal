@@ -4,10 +4,10 @@ import {
   ArrowRight,
   BadgeCheck,
   CalendarDays,
-  GraduationCap,
   MapPin,
   Microscope,
-  ShieldCheck,
+  PackageCheck,
+  Wrench,
 } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingAnnouncementPopup } from "@/components/training-announcement-popup";
@@ -29,6 +29,7 @@ export default async function Home() {
       technologies: string;
       technologiesText: string;
       openTechnologies: string;
+      openCard: string;
       quoteEyebrow: string;
       quoteAuthor: string;
     }
@@ -37,6 +38,7 @@ export default async function Home() {
       technologies: "Technologies",
       technologiesText: "Explore the beekeeping and bee-product technologies taught at the center.",
       openTechnologies: "Open technologies",
+      openCard: "Open page",
       quoteEyebrow: "Honey Bee In Nature",
       quoteAuthor: "Albert Einstein",
     },
@@ -44,6 +46,7 @@ export default async function Home() {
       technologies: "టెక్నాలజీలు",
       technologiesText: "కేంద్రంలో బోధించే తేనెటీగల పెంపకం మరియు తేనెటీగ ఉత్పత్తుల టెక్నాలజీలను తెలుసుకోండి.",
       openTechnologies: "టెక్నాలజీలు చూడండి",
+      openCard: "పేజీ చూడండి",
       quoteEyebrow: "ప్రకృతిలో తేనెటీగ",
       quoteAuthor: "ఆల్బర్ట్ ఐన్‌స్టీన్",
     },
@@ -51,6 +54,7 @@ export default async function Home() {
       technologies: "टेक्नोलॉजी",
       technologiesText: "केंद्र में सिखाई जाने वाली मधुमक्खी पालन और बी-प्रोडक्ट टेक्नोलॉजी देखें।",
       openTechnologies: "टेक्नोलॉजी देखें",
+      openCard: "पेज देखें",
       quoteEyebrow: "प्रकृति में मधुमक्खी",
       quoteAuthor: "अल्बर्ट आइंस्टीन",
     },
@@ -60,31 +64,39 @@ export default async function Home() {
     getTranslatedProgramContent(program, language),
   );
   const cards: ReadonlyArray<{
-    icon: typeof GraduationCap;
+    icon: typeof PackageCheck;
     title: string;
     text: string;
-    href?: string;
+    href: string;
+    cta: string;
   }> = [
     {
-      icon: GraduationCap,
+      icon: PackageCheck,
       title: copy.home.cards[0].title,
       text: copy.home.cards[0].text,
+      href: "/products",
+      cta: localCopy.openCard,
     },
     {
       icon: Microscope,
       title: localCopy.technologies,
       text: localCopy.technologiesText,
       href: "/technologies",
+      cta: localCopy.openTechnologies,
+    },
+    {
+      icon: Wrench,
+      title: copy.home.cards[2].title,
+      text: copy.home.cards[2].text,
+      href: "/equipment",
+      cta: localCopy.openCard,
     },
     {
       icon: CalendarDays,
-      title: copy.home.cards[2].title,
-      text: copy.home.cards[2].text,
-    },
-    {
-      icon: ShieldCheck,
       title: copy.home.cards[3].title,
       text: copy.home.cards[3].text,
+      href: "/events",
+      cta: localCopy.openCard,
     },
   ] as const;
 
@@ -164,7 +176,7 @@ export default async function Home() {
 
       <section className="mx-auto max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          {cards.map(({ icon: Icon, title, text, href }) => {
+          {cards.map(({ icon: Icon, title, text, href, cta }) => {
             const content = (
               <>
               <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f2b544]/12 text-[#f2b544]">
@@ -172,31 +184,20 @@ export default async function Home() {
               </span>
               <h2 className="font-display mt-5 text-3xl text-bright">{title}</h2>
               <p className="mt-3 text-sm leading-7 text-dim">{text}</p>
-              {href ? (
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
-                  {localCopy.openTechnologies}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </span>
-              ) : null}
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
+                {cta}
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </span>
               </>
             );
-
-            if (href) {
-              return (
-                <Link
-                  key={title}
-                  href={href}
-                  className="section-frame rounded-[1.8rem] p-6 transition hover:-translate-y-1 hover:border-[rgba(199,123,34,0.24)]"
-                >
-                  {content}
-                </Link>
-              );
-            }
-
             return (
-              <div key={title} className="section-frame rounded-[1.8rem] p-6">
+              <Link
+                key={title}
+                href={href}
+                className="section-frame rounded-[1.8rem] p-6 transition hover:-translate-y-1 hover:border-[rgba(199,123,34,0.24)]"
+              >
                 {content}
-              </div>
+              </Link>
             );
           })}
         </div>
