@@ -274,20 +274,20 @@ export default async function Home() {
 
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
         <div className="relative min-h-[20rem] overflow-hidden rounded-[1.7rem] border border-white/10 bg-black shadow-[0_26px_68px_rgba(0,0,0,0.34)] sm:min-h-[22rem] lg:min-h-[24rem]">
-          <div className="absolute inset-y-0 right-0 w-full lg:w-[48%]">
+          <div className="absolute inset-0">
             <Image
-              src="/quote-honey-bee.jpg"
+              src="/quote-honey-bee-glow.png"
               alt=""
               fill
-              sizes="(min-width: 1024px) 32rem, 100vw"
-              className="object-contain object-right opacity-95"
+              sizes="(min-width: 1024px) 72rem, 100vw"
+              className="object-contain object-center opacity-100"
             />
           </div>
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.62)_58%,rgba(0,0,0,0.18)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_46%,rgba(255,214,157,0.16)_0%,rgba(255,214,157,0.04)_24%,rgba(0,0,0,0)_54%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(255,214,157,0.12)_0%,rgba(255,214,157,0.03)_22%,rgba(0,0,0,0)_46%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.78)_0%,rgba(0,0,0,0.42)_32%,rgba(0,0,0,0.16)_58%,rgba(0,0,0,0.28)_100%)]" />
 
           <div className="relative z-10 flex min-h-[20rem] items-center p-5 sm:min-h-[22rem] sm:p-7 lg:min-h-[24rem] lg:px-10 lg:py-8">
-            <div className="w-full max-w-[34rem] text-left">
+            <div className="w-full max-w-[34rem] rounded-[1.45rem] border border-white/14 bg-[rgba(0,0,0,0.36)] p-5 text-left shadow-[0_20px_44px_rgba(0,0,0,0.24)] backdrop-blur-[6px] sm:p-6 lg:p-7">
               <blockquote className="font-display text-[clamp(1.22rem,1.8vw,1.82rem)] leading-[1.12] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.76)]">
                 <span className="block">“If the honey bee disappeared from the surface of the globe, man would have only four years of life left.</span>
                 <span className="block">No more bees, no more pollination, no more plants, no more animals, no more man.”</span>
