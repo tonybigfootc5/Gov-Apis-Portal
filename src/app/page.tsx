@@ -214,31 +214,59 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
-          <div className="section-frame rounded-[2rem] p-6 sm:p-8">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">{copy.home.whyEyebrow}</p>
-            <h2 className="font-display mt-4 text-4xl text-bright sm:text-5xl">
-              {copy.home.whyTitle}
-            </h2>
-            <p className="mt-5 max-w-3xl text-base leading-8 text-dim">
-              {copy.home.whyBody}
-            </p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <ValueCard title={copy.home.values[0].title} body={copy.home.values[0].body} />
-              <ValueCard title={copy.home.values[1].title} body={copy.home.values[1].body} />
-            </div>
-          </div>
+        <div className="overflow-hidden rounded-[2.35rem] border border-white/80 bg-[linear-gradient(180deg,#fffdfa_0%,#f4ecdf_100%)] p-4 shadow-[0_30px_90px_rgba(96,73,24,0.14),inset_0_1px_0_rgba(255,255,255,0.95)] sm:p-5">
+          <div className="grid gap-4 lg:grid-cols-[0.88fr_1.12fr]">
+            <div className="rounded-[1.9rem] bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(255,251,244,0.9))] px-6 py-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_18px_42px_rgba(96,73,24,0.08)] sm:px-8 sm:py-9">
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#2f6a5e]">{copy.home.whyEyebrow}</p>
+              <h2 className="font-display mt-4 max-w-sm text-[clamp(2.4rem,4vw,4.3rem)] leading-[0.92] tracking-[-0.05em] text-[#173f33]">
+                {copy.home.whyTitle}
+              </h2>
+              <p className="mt-6 max-w-md text-base leading-8 text-[#5c6d63]">
+                {copy.home.whyBody}
+              </p>
 
-            <div className="section-frame rounded-[2rem] p-4">
-              <div className="relative min-h-[24rem] overflow-hidden rounded-[1.6rem]">
+              <div className="mt-7 space-y-3">
+                <div className="rounded-[1.35rem] border border-[rgba(47,106,94,0.1)] bg-[#f7f3ea] px-4 py-3">
+                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#2f6a5e]">{copy.home.values[0].title}</p>
+                  <p className="mt-2 text-sm leading-7 text-[#66776f]">{copy.home.values[0].body}</p>
+                </div>
+                <div className="rounded-[1.35rem] border border-[rgba(47,106,94,0.1)] bg-[#f7f3ea] px-4 py-3">
+                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#2f6a5e]">{copy.home.values[1].title}</p>
+                  <p className="mt-2 text-sm leading-7 text-[#66776f]">{copy.home.values[1].body}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative min-h-[28rem] overflow-hidden rounded-[2rem] border border-white/70 shadow-[0_26px_60px_rgba(17,41,34,0.18)] sm:min-h-[34rem]">
               <Image
                 src="/field-beekeeping.jpg"
-                alt="Field beekeeping session"
+                alt="Field beekeeping landscape and training path"
                 fill
-                sizes="(min-width: 1024px) 40vw, 100vw"
+                sizes="(min-width: 1024px) 46vw, 100vw"
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,13,20,0.08)_0%,rgba(10,13,20,0.68)_100%)]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,19,16,0.1)_0%,rgba(8,19,16,0.3)_100%)]" />
+              <div className="absolute inset-y-[10%] left-[21%] w-px bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,0.68),rgba(255,255,255,0.1))]" />
+              <div className="absolute inset-y-[22%] right-[26%] w-px bg-[linear-gradient(180deg,rgba(255,255,255,0.12),rgba(255,255,255,0.62),rgba(255,255,255,0))]" />
+
+              <div className="absolute left-[16%] top-[16%] h-4 w-4 rounded-full border-4 border-white/80 bg-[#f7f3ea] shadow-[0_8px_24px_rgba(0,0,0,0.18)]" />
+              <div className="absolute right-[21%] top-[34%] h-4 w-4 rounded-full border-4 border-white/80 bg-[#f7f3ea] shadow-[0_8px_24px_rgba(0,0,0,0.18)]" />
+              <div className="absolute left-[16%] bottom-[16%] h-4 w-4 rounded-full border-4 border-white/80 bg-[#f7f3ea] shadow-[0_8px_24px_rgba(0,0,0,0.18)]" />
+
+              <div className="absolute left-[13%] top-[23%] max-w-[15rem] rounded-[1.2rem] bg-[rgba(244,245,237,0.9)] px-4 py-3 text-[#173f33] shadow-[0_18px_34px_rgba(0,0,0,0.16)] backdrop-blur-md">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Pollination support</p>
+                <p className="mt-1 text-lg font-semibold leading-tight">Healthier flowering and stronger crop confidence.</p>
+              </div>
+
+              <div className="absolute right-[9%] top-[24%] max-w-[13rem] rounded-[1.2rem] bg-[rgba(244,245,237,0.9)] px-4 py-3 text-[#173f33] shadow-[0_18px_34px_rgba(0,0,0,0.16)] backdrop-blur-md">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Field learning</p>
+                <p className="mt-1 text-base leading-6">Training becomes more credible when people can see the work, not just read about it.</p>
+              </div>
+
+              <div className="absolute bottom-[11%] left-[48%] -translate-x-1/2 rounded-full bg-[rgba(255,250,241,0.96)] px-5 py-3 text-center text-[#173f33] shadow-[0_18px_34px_rgba(0,0,0,0.18)]">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#6d7f76]">Livelihoods</p>
+                <p className="mt-1 text-xl font-semibold leading-none">Rural value grows from practice.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -316,15 +344,6 @@ function HeroStat({ value, label }: { value: string; label: string }) {
       <div className="absolute inset-x-5 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(242,181,68,0.7),transparent)]" />
       <p className="font-display text-[clamp(2.35rem,4vw,3.35rem)] leading-none tracking-[-0.04em] text-[#1f352b]">{value}</p>
       <p className="mt-3 text-sm font-medium tracking-[0.02em] text-[#54655d]">{label}</p>
-    </div>
-  );
-}
-
-function ValueCard({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-[1.4rem] border border-[rgba(41,56,49,0.08)] bg-[rgba(255,255,255,0.76)] p-5 shadow-[0_16px_40px_rgba(120,95,41,0.08)]">
-      <p className="text-lg font-semibold text-bright">{title}</p>
-      <p className="mt-3 text-sm leading-7 text-dim">{body}</p>
     </div>
   );
 }
