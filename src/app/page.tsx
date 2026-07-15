@@ -233,33 +233,32 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="relative min-h-[36rem] overflow-hidden rounded-[2.2rem] border border-white/15 bg-black p-5 shadow-[0_34px_90px_rgba(0,0,0,0.34)] sm:p-7 lg:min-h-[40rem] lg:p-10">
+      <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="relative min-h-[20rem] overflow-hidden rounded-[1.4rem] border border-white/15 bg-black shadow-[0_22px_58px_rgba(0,0,0,0.28)] sm:min-h-[22rem] lg:min-h-[24rem]">
           <Image
             src="/einstein-quote-background.avif"
             alt=""
             fill
-            sizes="(min-width: 1280px) 80rem, 100vw"
-            className="object-cover object-center opacity-92"
+            sizes="(min-width: 1280px) 64rem, 100vw"
+            className="object-cover object-center opacity-95"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.18)_34%,rgba(0,0,0,0.58)_62%,rgba(0,0,0,0.86)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.14)_0%,rgba(255,255,255,0.04)_24%,transparent_44%),radial-gradient(circle_at_82%_74%,rgba(242,181,68,0.16)_0%,transparent_32%)]" />
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.82))]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.08)_0%,rgba(0,0,0,0.22)_38%,rgba(0,0,0,0.7)_72%,rgba(0,0,0,0.88)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_24%,rgba(255,255,255,0.16)_0%,rgba(255,255,255,0.05)_20%,transparent_42%),linear-gradient(180deg,rgba(0,0,0,0)_42%,rgba(0,0,0,0.72)_100%)]" />
 
-          <div className="relative z-10 flex min-h-[30rem] items-end lg:min-h-[34rem] lg:items-center lg:justify-end">
-            <div className="w-full max-w-[42rem] rounded-[1.75rem] border border-white/22 bg-[linear-gradient(135deg,rgba(255,255,255,0.2),rgba(255,255,255,0.06)_42%,rgba(255,255,255,0.12))] p-5 text-left shadow-[0_28px_90px_rgba(0,0,0,0.38),inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-1px_0_rgba(255,255,255,0.12)] backdrop-blur-[20px] sm:p-7 lg:w-[48%] lg:p-8">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="rounded-full border border-white/18 bg-white/12 px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/76 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)]">
+          <div className="relative z-10 flex min-h-[20rem] items-end p-5 sm:min-h-[22rem] sm:p-7 lg:min-h-[24rem] lg:justify-center lg:p-8 lg:pl-[30%] lg:pr-[16%]">
+            <div className="w-full text-left lg:max-w-[34rem]">
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="rounded-full border border-white/18 bg-black/28 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.22)] backdrop-blur-md">
                   {localCopy.quoteEyebrow}
                 </p>
-                <p className="text-xs font-black uppercase tracking-[0.22em] text-white/58">{localCopy.quoteAuthor}</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/68">{localCopy.quoteAuthor}</p>
               </div>
-              <blockquote className="font-display mt-6 max-w-[36rem] text-[clamp(1.85rem,3.55vw,3.35rem)] leading-[0.98] text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.5)]">
-                If the honey bee disappeared from the surface of the globe the man would only have four years of life left.
-                No more bees, No more pollination, No more plants, No more animals, No more man.
+              <blockquote className="font-display mt-5 max-w-[34rem] text-[clamp(1.18rem,1.75vw,1.72rem)] leading-[1.12] text-white drop-shadow-[0_6px_22px_rgba(0,0,0,0.68)]">
+                &ldquo;If the honey bee disappeared from the surface of the globe, man would have only four years of life left.
+                No more bees, no more pollination, no more plants, no more animals, no more man.&rdquo;
               </blockquote>
-              <div className="mt-6 h-px w-full bg-[linear-gradient(90deg,rgba(255,255,255,0.7),rgba(255,255,255,0.12),transparent)]" />
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-white/68">
+              <div className="mt-5 h-px w-full max-w-[38rem] bg-[linear-gradient(90deg,rgba(255,255,255,0.64),rgba(255,255,255,0.12),transparent)]" />
+              <p className="mt-3 max-w-[42rem] text-sm leading-6 text-white/72">
                 A quiet reminder that pollination, farming, and rural livelihood are connected systems.
               </p>
             </div>
