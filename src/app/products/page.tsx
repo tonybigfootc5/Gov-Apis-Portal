@@ -101,9 +101,9 @@ export default async function ProductsPage() {
     description: productOverrides[item.title]?.description ?? item.description,
     highlights: productOverrides[item.title]?.highlights ?? item.highlights,
   }));
-  const featuredProduct = localizedItems[0];
-  const leftRailProducts = localizedItems.slice(1, 3);
-  const rightRailProducts = localizedItems.slice(3, 6);
+  const leftRailProducts = [localizedItems[1], localizedItems[0]];
+  const centerProducts = [localizedItems[2], localizedItems[4]];
+  const rightRailProducts = [localizedItems[3], localizedItems[5]];
 
   return (
     <section className="px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
@@ -112,33 +112,19 @@ export default async function ProductsPage() {
           <div className="absolute left-1/2 top-0 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[#dcefe8]" />
           <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(180deg,rgba(214,239,229,0.72),rgba(255,255,255,0))]" />
           <div className="relative grid gap-5 p-5 sm:p-8 lg:p-10">
-            <header className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
-              <nav aria-label="Product streams" className="flex flex-wrap items-center gap-x-8 gap-y-3 pt-2 text-[11px] font-black uppercase tracking-[0.22em] text-[#52695e]">
-                {localizedItems.slice(0, 5).map((item) => (
-                  <span key={item.title}>{item.title}</span>
-                ))}
-              </nav>
-
-              <div className="flex items-center justify-start gap-3 lg:justify-end">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#f2b544] text-sm font-black text-[#133226]">{localizedItems.length}</span>
-                <span className="text-[11px] font-black uppercase tracking-[0.22em] text-[#133226]">{copy.streamCount}</span>
-              </div>
-            </header>
-
-            <div className="grid gap-6 lg:grid-cols-[15.5rem_minmax(0,1fr)_15.5rem] lg:items-start xl:gap-8">
-              <aside className="hidden gap-4 lg:order-1 lg:grid lg:grid-cols-1">
+            <div className="grid gap-6 lg:grid-cols-[17.5rem_minmax(0,1fr)_17.5rem] lg:items-start xl:gap-8">
+              <aside className="hidden gap-5 lg:order-1 lg:grid lg:grid-cols-1 lg:pt-4">
                 {leftRailProducts.map((item) => (
                   <ProductShowcaseCard key={item.title} item={item} copy={copy} />
                 ))}
               </aside>
 
-              <main className="order-1 lg:order-2">
-                <div className="mx-auto max-w-[42rem] text-center lg:mt-2">
-                  <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#b36b00]">{copy.eyebrow}</p>
-                  <h1 className="mx-auto mt-4 max-w-[38rem] text-balance font-display text-[clamp(2.55rem,4.9vw,4.65rem)] font-semibold leading-[0.88] text-[#008b67]">
+              <main className="order-1 lg:order-2 lg:flex lg:flex-col lg:items-center">
+                <div className="mx-auto max-w-[43rem] text-center lg:pt-8">
+                  <h1 className="mx-auto max-w-[39rem] text-balance font-display text-[clamp(2.4rem,4.2vw,4rem)] font-semibold leading-[0.9] text-[#008b67]">
                     {copy.title}
                   </h1>
-                  <p className="mx-auto mt-5 max-w-[34rem] text-sm leading-7 text-[#65756c] sm:text-base">
+                  <p className="mx-auto mt-5 max-w-[38rem] text-[15px] leading-8 text-[#65756c]">
                     {copy.body}
                   </p>
                 </div>
@@ -149,20 +135,14 @@ export default async function ProductsPage() {
                   ))}
                 </div>
 
-                <div className="mx-auto mt-8 hidden w-full max-w-[42rem] gap-4 lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-                  <FeaturedProductCard item={featuredProduct} copy={copy} />
-                  <div className="rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-white/86 p-4 shadow-[0_14px_34px_rgba(121,105,70,0.1)]">
-                    <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{copy.snapshot}</p>
-                    <div className="mt-4 grid gap-3">
-                      <QuickStat value={`${productItems.length}`} label={copy.streamCount} />
-                      <QuickStat value={copy.learningPathValue} label={copy.learningPath} />
-                      <QuickStat value={copy.approachValue} label={copy.approach} />
-                    </div>
-                  </div>
+                <div className="mx-auto mt-8 hidden w-full max-w-[38rem] gap-5 lg:grid lg:grid-cols-2">
+                  {centerProducts.map((item) => (
+                    <ProductShowcaseCard key={item.title} item={item} copy={copy} center />
+                  ))}
                 </div>
               </main>
 
-              <aside className="hidden gap-4 lg:order-3 lg:grid lg:grid-cols-1">
+              <aside className="hidden gap-5 lg:order-3 lg:grid lg:grid-cols-1 lg:pt-4">
                 {rightRailProducts.map((item) => (
                   <ProductShowcaseCard key={item.title} item={item} copy={copy} />
                 ))}
@@ -195,52 +175,29 @@ function ProductShowcaseCard({
   item,
   copy,
   compact = false,
+  showcase = false,
+  center = false,
   className = "",
 }: {
   item: (typeof productItems)[number];
   copy: { streamLabel: string };
   compact?: boolean;
+  showcase?: boolean;
+  center?: boolean;
   className?: string;
 }) {
   return (
-    <article className={`${compact ? "group grid h-[17.5rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]" : "group grid h-[19rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"} ${className}`}>
+    <article className={`${showcase ? "group grid h-[31rem] grid-rows-[3.35fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_18px_42px_rgba(121,105,70,0.12)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(0,79,58,0.16)]" : center ? "group grid h-[21rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_16px_38px_rgba(121,105,70,0.12)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_48px_rgba(0,79,58,0.15)]" : compact ? "group grid h-[17.5rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]" : "group grid h-[20.5rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.25rem] border border-[rgba(41,56,49,0.08)] bg-[#edeae3] shadow-[0_14px_34px_rgba(121,105,70,0.1)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_46px_rgba(0,79,58,0.14)]"} ${className}`}>
       <div className="relative min-h-0">
         <ProductCardMedia item={item} sizes="(min-width: 1024px) 17rem, (min-width: 640px) 50vw, 100vw" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,38,31,0.02)_0%,rgba(20,38,31,0.08)_48%,rgba(7,30,22,0.88)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 p-3.5 text-white">
           <p className="text-[9px] font-black uppercase tracking-[0.18em] text-[#f9d779]">{copy.streamLabel}</p>
-          <h2 className={compact ? "mt-1 product-card-title-overlay max-w-full text-2xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]" : "mt-1 product-card-title-overlay max-w-full text-xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"}>{item.title}</h2>
+          <h2 className={showcase || compact || center ? "mt-1 product-card-title-overlay max-w-full text-2xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]" : "mt-1 product-card-title-overlay max-w-full text-xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.55)]"}>{item.title}</h2>
         </div>
       </div>
       <div className={compact ? "min-h-0 overflow-hidden p-4" : "min-h-0 overflow-hidden p-3.5"}>
         <p className={compact ? "product-card-copy text-sm leading-6 text-[#65756c]" : "product-card-copy text-xs leading-5 text-[#65756c]"}>{item.description}</p>
-      </div>
-    </article>
-  );
-}
-
-function FeaturedProductCard({ item, copy }: { item: (typeof productItems)[number]; copy: { streamLabel: string; training: string } }) {
-  return (
-    <article className="relative grid h-[28rem] grid-rows-[3fr_1fr] overflow-hidden rounded-[1.45rem] bg-[#008f68] text-white shadow-[0_24px_54px_rgba(0,79,58,0.24)]">
-      <div className="relative min-h-0 bg-[#e6eee8]">
-        <ProductCardMedia item={item} sizes="(min-width: 1024px) 24rem, 100vw" priority />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,143,104,0)_10%,rgba(0,76,54,0.2)_48%,rgba(0,45,32,0.92)_100%)]" />
-        <span className="absolute left-4 top-4 rounded-full bg-white/92 px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] text-[#00513d]">
-          {copy.streamLabel}
-        </span>
-        <div className="absolute inset-x-0 bottom-0 p-5">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#f9d779]">{copy.streamLabel}</p>
-          <h2 className="mt-2 product-card-title-overlay text-4xl font-black leading-none tracking-[-0.03em] drop-shadow-[0_3px_10px_rgba(0,0,0,0.5)]">{item.title}</h2>
-        </div>
-      </div>
-      <div className="grid min-h-0 gap-3 overflow-hidden p-4">
-        <div className="min-h-0 overflow-hidden">
-          <p className="product-card-copy text-sm leading-6 text-white/78">{item.description}</p>
-        </div>
-        <Link href="/programs" className="inline-flex h-10 w-fit items-center justify-center gap-2 rounded-full bg-white px-5 text-xs font-black uppercase tracking-[0.16em] text-[#083527]">
-          {copy.training}
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
       </div>
     </article>
   );
@@ -276,13 +233,4 @@ function ProductCardMedia({
   }
 
   return <Image src={item.imageSrc} alt={item.imageAlt} fill sizes={sizes} priority={priority} className="object-cover transition duration-500 group-hover:scale-105" />;
-}
-
-function QuickStat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4">
-      <p className="text-lg font-semibold text-bright">{value}</p>
-      <p className="mt-1 text-sm text-dim">{label}</p>
-    </div>
-  );
 }

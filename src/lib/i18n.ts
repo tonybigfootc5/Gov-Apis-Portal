@@ -87,7 +87,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "contact.eyebrow": "Contact",
     "contact.title": "Reach API CULTURE",
     "contact.body":
-      "Use the secure contact form or the official contact details from the center. Our team at API CULTURE is ready to assist with inquiries about programs, training, and partnerships.",
+      "The API CULTURE team responds to inquiries about programs, training, partnerships, and center services through the official contact channels.",
     "contact.phone": "Phone",
     "contact.email": "Email",
     "contact.website": "Website",

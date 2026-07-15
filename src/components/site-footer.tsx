@@ -47,6 +47,8 @@ export function SiteFooter({ language }: SiteFooterProps) {
       refund: "à¤°à¤¿à¤«à¤‚à¤¡ à¤¨à¥€à¤¤à¤¿",
     },
   }[language];
+  const pricingNote =
+    "Course fees are determined by the NIRDPR administrative team. We provide flexible pricing options for farmers, students, and individuals in financial need; please call on +91 9395507766.";
 
   const primaryLinks = [
     { href: "/programs", label: t(language, "footer.programs"), icon: GraduationCap },
@@ -103,7 +105,7 @@ export function SiteFooter({ language }: SiteFooterProps) {
               <div className={`mt-4 grid gap-2.5 text-sm ${isAdminRoute ? "text-[#98a4b1]" : "text-[#5d6d66]"}`}>
                 <a href={`tel:${institute.phone[0]}`} className={compactLinkClass}>
                   <Phone className="h-4 w-4 text-[#f2b544]" aria-hidden="true" />
-                  {institute.phone[0]}
+                  {institute.phone.join(" / ")}
                 </a>
                 <a href={`mailto:${institute.email}`} className={compactLinkClass}>
                   <Mail className="h-4 w-4 text-[#8aa884]" aria-hidden="true" />
@@ -202,8 +204,20 @@ export function SiteFooter({ language }: SiteFooterProps) {
                   <span>{copy.footer.youtubeHandle}</span>
                 </a>
               </div>
+
             </div>
           </div>
+        </div>
+
+        <div
+          className={`mt-4 flex items-center gap-4 overflow-hidden rounded-[1.1rem] px-4 py-3 text-left text-[11px] leading-none ${
+            isAdminRoute
+              ? "border border-[rgba(255,240,214,0.08)] bg-[rgba(255,255,255,0.03)] text-[#9ba8b6]"
+              : "border border-[rgba(41,56,49,0.08)] bg-[rgba(255,255,255,0.62)] text-[#5d6d66] shadow-[0_10px_24px_rgba(137,114,75,0.06)]"
+          }`}
+        >
+          <p className="shrink-0 font-semibold uppercase tracking-[0.16em] text-[#c77b22]">Course pricing</p>
+          <p className="min-w-0 flex-1 truncate whitespace-nowrap text-right">{pricingNote}</p>
         </div>
 
         <div className={`mt-4 flex flex-col gap-2 text-center text-xs sm:flex-row sm:items-center sm:justify-end sm:gap-6 sm:text-right ${isAdminRoute ? "text-[#8491a0]" : "text-[#687870]"}`}>

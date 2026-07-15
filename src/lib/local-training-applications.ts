@@ -3,6 +3,11 @@ import path from "path";
 import { randomUUID } from "crypto";
 import {
   buildTrainingApplicationPayload,
+  buildTrainingBatchCode,
+  formatApplicationCode,
+  formatStudentCode,
+  getTrainingBatchPeriod,
+  getTrainingServiceInitials,
   type ApplicationApprovalStatus,
   type ApplicationAttemptStatus,
   type ApplicationCrossCheckStatus,
@@ -12,6 +17,10 @@ import {
 
 type LocalTrainingApplicationStore = {
   version: 1;
+  nextApplicationNumber?: number;
+  batchCounters?: Record<string, number>;
+  monthBatchCodes?: Record<string, string>;
+  nextBatchNumbers?: Record<string, number>;
   applications: TrainingApplicationRecord[];
 };
 
@@ -52,6 +61,10 @@ type UpdateLocalTrainingApplicationInput = {
 const localStorePath = path.join(process.cwd(), ".local-data", "training-applications.json");
 const emptyStore: LocalTrainingApplicationStore = {
   version: 1,
+  nextApplicationNumber: 1,
+  batchCounters: {},
+  monthBatchCodes: {},
+  nextBatchNumbers: {},
   applications: [],
 };
 
@@ -111,11 +124,25 @@ export async function createLocalTrainingApplication(input: CreateLocalTrainingA
   return withStoreMutation((store) => {
     const now = new Date().toISOString();
     const id = `local-app-${randomUUID()}`;
+    const applicationNumber = store.nextApplicationNumber ?? 1;
+    const batchDate = new Date(now);
+    const initials = getTrainingServiceInitials(input.serviceName);
+    const { month, year } = getTrainingBatchPeriod(batchDate);
+    const monthBatchKey = `${input.serviceName.toLowerCase()}|${month}|${year}`;
+    const existingBatchCode = store.monthBatchCodes?.[monthBatchKey];
+    const nextBatchNumber = store.nextBatchNumbers?.[initials] ?? 1;
+    const batchCode = existingBatchCode ?? buildTrainingBatchCode(input.serviceName, nextBatchNumber, batchDate);
+    const batchSequenceNumber = (store.batchCounters?.[batchCode] ?? 0) + 1;
     const payload = buildTrainingApplicationPayload(input);
     const record: TrainingApplicationRecord = {
       id,
       createdAt: now,
       updatedAt: now,
+      applicationNumber,
+      applicationCode: formatApplicationCode(applicationNumber),
+      batchCode,
+      batchSequenceNumber,
+      studentCode: formatStudentCode(batchCode, batchSequenceNumber),
       name: input.candidateName,
       email: input.email || "no-email-provided@applicant.local",
       phone: input.phone,
@@ -123,6 +150,13 @@ export async function createLocalTrainingApplication(input: CreateLocalTrainingA
       payload,
     };
 
+    store.nextApplicationNumber = applicationNumber + 1;
+    store.monthBatchCodes = { ...(store.monthBatchCodes ?? {}), [monthBatchKey]: batchCode };
+    store.nextBatchNumbers = {
+      ...(store.nextBatchNumbers ?? {}),
+      [initials]: existingBatchCode ? nextBatchNumber : nextBatchNumber + 1,
+    };
+    store.batchCounters = { ...(store.batchCounters ?? {}), [batchCode]: batchSequenceNumber };
     store.applications.unshift(record);
     return record;
   });

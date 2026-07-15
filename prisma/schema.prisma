@@ -152,6 +152,9 @@ model ContactMessage {
 model TrainingApplication {
   id                     String                         @id @default(cuid())
   legacyMessageId        String?                        @unique
+  applicationNumber      Int?                           @unique
+  batchCode              String?
+  batchSequenceNumber    Int?
   serviceName            String
   applicationDate        String
   candidateName          String
@@ -183,6 +186,9 @@ model TrainingApplication {
   createdAt              DateTime                       @default(now())
   updatedAt              DateTime                       @updatedAt
   paymentOrders          PaymentOrder[]
+
+  @@unique([batchCode, batchSequenceNumber])
+  @@index([batchCode, batchSequenceNumber])
 }
 
 model PaymentOrder {

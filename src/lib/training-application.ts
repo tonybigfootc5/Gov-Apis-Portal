@@ -54,6 +54,11 @@ export type TrainingApplicationRecord = {
   id: string;
   createdAt: string;
   updatedAt: string;
+  applicationNumber?: number | null;
+  applicationCode?: string | null;
+  batchCode?: string | null;
+  batchSequenceNumber?: number | null;
+  studentCode?: string | null;
   name: string;
   email: string;
   phone: string | null;
@@ -85,6 +90,39 @@ export const trainingApplicationAdminInclude = {
 export type TrainingApplicationAdminEntity = Prisma.TrainingApplicationGetPayload<{
   include: typeof trainingApplicationAdminInclude;
 }>;
+
+export function getTrainingServiceInitials(serviceName: string) {
+  return serviceName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((word) => word[0])
+    .join("")
+    .replace(/[^A-Z]/gi, "")
+    .toUpperCase() || "TRN";
+}
+
+export function getTrainingBatchPeriod(date = new Date()) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear());
+
+  return { month, year };
+}
+
+export function buildTrainingBatchCode(serviceName: string, batchNumber: number, date = new Date()) {
+  const servicePrefix = getTrainingServiceInitials(serviceName);
+  const { month, year } = getTrainingBatchPeriod(date);
+
+  return `${servicePrefix}-${String(batchNumber).padStart(3, "0")}-${month}-${year}`;
+}
+
+export function formatApplicationCode(applicationNumber?: number | null) {
+  return applicationNumber ? `API-${String(applicationNumber).padStart(4, "0")}` : null;
+}
+
+export function formatStudentCode(batchCode?: string | null, batchSequenceNumber?: number | null) {
+  return batchCode && batchSequenceNumber ? `${batchCode}-${String(batchSequenceNumber).padStart(3, "0")}` : null;
+}
 
 export function buildTrainingApplicationPayload(
   input: Omit<
@@ -155,6 +193,11 @@ export function mapTrainingApplicationRecord(message: ContactMessage): TrainingA
     id: message.id,
     createdAt: message.createdAt.toISOString(),
     updatedAt: message.createdAt.toISOString(),
+    applicationNumber: null,
+    applicationCode: null,
+    batchCode: null,
+    batchSequenceNumber: null,
+    studentCode: null,
     name: message.name,
     email: message.email,
     phone: message.phone,
@@ -205,6 +248,11 @@ export function mapTrainingApplicationEntity(
     id: application.id,
     createdAt: application.createdAt.toISOString(),
     updatedAt: application.updatedAt.toISOString(),
+    applicationNumber: application.applicationNumber,
+    applicationCode: formatApplicationCode(application.applicationNumber),
+    batchCode: application.batchCode,
+    batchSequenceNumber: application.batchSequenceNumber,
+    studentCode: formatStudentCode(application.batchCode, application.batchSequenceNumber),
     name: application.candidateName,
     email: application.email,
     phone: application.phone,

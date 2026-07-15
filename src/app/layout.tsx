@@ -55,6 +55,7 @@ const sharedNavCopy: Record<
   SiteLanguage,
   {
     articles: string;
+    equipment?: string;
     products: string;
     explore: string;
     training: string;
@@ -63,6 +64,7 @@ const sharedNavCopy: Record<
 > = {
   en: {
     articles: "Articles",
+    equipment: "Equipment",
     products: "Products",
     explore: "Explore",
     training: "Training",
@@ -121,6 +123,7 @@ export default async function RootLayout({
     { label: navCopy.articles, href: "/articles" },
     { label: t(language, "nav.events"), href: "/events" },
     { label: t(language, "nav.gallery"), href: "/gallery" },
+    { label: navCopy.equipment ?? "Equipment", href: "/equipment" },
     { label: navCopy.products, href: "/products" },
   ];
 

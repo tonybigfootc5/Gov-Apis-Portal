@@ -196,11 +196,15 @@ export default function EquipmentPage() {
 
               <main className="order-1 lg:order-2">
                 <div className="mx-auto max-w-[39rem] text-center lg:mt-2">
-                  <h1 className="mx-auto max-w-[32rem] text-balance font-display text-[clamp(2.35rem,4.35vw,4.1rem)] font-semibold leading-[0.88] text-[#008b67]">
-                    Beekeeping equipment for field-ready apiaries.
+                  <h1 className="mx-auto max-w-[34rem] text-balance font-display text-[clamp(2.35rem,4.2vw,4rem)] font-semibold leading-[0.9] text-[#008b67]">
+                    <span className="block">Beekeeping equipment</span>
+                    <span className="block">for field-ready</span>
+                    <span className="block">apiaries.</span>
                   </h1>
-                  <p className="mx-auto mt-5 max-w-[32rem] text-sm leading-7 text-[#65756c]">
-                    Supply support and local manufacturing encouragement for the tools farmers need to manage colonies, harvest honey, and work safely.
+                  <p className="mx-auto mt-6 max-w-[39rem] text-[15px] leading-8 text-[#65756c]">
+                    <span className="block">Supply support and local manufacturing encouragement</span>
+                    <span className="block">for the tools farmers need to manage colonies,</span>
+                    <span className="block">harvest honey, and work safely.</span>
                   </p>
                 </div>
 
@@ -218,8 +222,14 @@ export default function EquipmentPage() {
                 </div>
 
                 <div className="mx-auto mt-5 hidden w-full max-w-[48rem] justify-center lg:flex">
-                  <p className="inline-flex min-h-12 w-full max-w-[42rem] items-center justify-center rounded-[1.35rem] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.7),rgba(255,244,216,0.46))] px-6 py-3 text-center text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18] shadow-[inset_0_1px_0_rgba(255,255,255,0.92),inset_0_-14px_28px_rgba(242,181,68,0.12),0_18px_42px_rgba(121,105,70,0.12)] backdrop-blur-2xl">
-                    API CULTURE equipment desk
+                  <p className="flex w-full max-w-[42rem] items-center justify-center gap-5 py-1 text-center">
+                    <span className="text-[15px] font-black uppercase tracking-[0.28em] text-[#b36b00]">
+                      API CULTURE
+                    </span>
+                    <span className="h-px w-20 bg-[#cda24c]" aria-hidden="true" />
+                    <span className="font-display text-[clamp(2.45rem,3.05vw,3.55rem)] font-semibold leading-none text-[#0f5d47]">
+                      Equipment Desk
+                    </span>
                   </p>
                 </div>
               </main>

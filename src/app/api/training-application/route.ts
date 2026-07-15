@@ -11,7 +11,7 @@ import {
 } from "@/lib/phonepe-config";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
-import { buildMerchantOrderId } from "@/lib/training-application";
+import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingBatchPeriod, getTrainingServiceInitials } from "@/lib/training-application";
 import { trainingProgramCatalog } from "@/lib/training-programs";
 import { trainingApplicationSchema } from "@/lib/validators";
 
@@ -61,31 +61,65 @@ export async function POST(request: Request) {
 
     const amountPaise = getTrainingApplicationAmountPaise();
 
-    const application = await prisma.trainingApplication.create({
-      data: {
-        serviceName: parsed.data.serviceName,
-        applicationDate: parsed.data.applicationDate,
-        candidateName: parsed.data.candidateName,
-        guardianName: parsed.data.guardianName,
-        email: parsed.data.email || "no-email-provided@applicant.local",
-        gender: parsed.data.gender,
-        dateOfBirth: parsed.data.dateOfBirth,
-        addressLine: parsed.data.addressLine,
-        mandal: parsed.data.mandal,
-        district: parsed.data.district,
-        state: parsed.data.state,
-        pinCode: parsed.data.pinCode,
-        phone: parsed.data.phone,
-        residencePhone: parsed.data.residencePhone || "",
-        educationQualification: parsed.data.educationQualification || "",
-        occupation: parsed.data.occupation || "",
-        sponsoringOrganization: parsed.data.sponsoringOrganization || "",
-        photoName: parsed.data.photoName,
-        photoType: parsed.data.photoType,
-        photoUrl: parsed.data.photoUrl || null,
-        photoObjectKey: parsed.data.photoObjectKey || null,
-        photoDataUrl: parsed.data.photoDataUrl || null,
-      },
+    const application = await prisma.$transaction(async (tx) => {
+      const batchDate = new Date();
+      const initials = getTrainingServiceInitials(parsed.data.serviceName);
+      const { month, year } = getTrainingBatchPeriod(batchDate);
+      const monthSuffix = `-${month}-${year}`;
+      const existingMonthlyBatch = await tx.trainingApplication.findFirst({
+        where: {
+          serviceName: parsed.data.serviceName,
+          batchCode: { endsWith: monthSuffix },
+        },
+        orderBy: { createdAt: "asc" },
+        select: { batchCode: true },
+      });
+      const batchCode =
+        existingMonthlyBatch?.batchCode ??
+        buildTrainingBatchCode(
+          parsed.data.serviceName,
+          await getNextBatchNumberForService(tx, initials, parsed.data.serviceName),
+          batchDate,
+        );
+      const [applicationCounter, batchCounter] = await Promise.all([
+        tx.trainingApplication.aggregate({ _max: { applicationNumber: true } }),
+        tx.trainingApplication.aggregate({
+          _max: { batchSequenceNumber: true },
+          where: { batchCode },
+        }),
+      ]);
+      const applicationNumber = (applicationCounter._max.applicationNumber ?? 0) + 1;
+      const batchSequenceNumber = (batchCounter._max.batchSequenceNumber ?? 0) + 1;
+
+      return tx.trainingApplication.create({
+        data: {
+          applicationNumber,
+          batchCode,
+          batchSequenceNumber,
+          serviceName: parsed.data.serviceName,
+          applicationDate: parsed.data.applicationDate,
+          candidateName: parsed.data.candidateName,
+          guardianName: parsed.data.guardianName,
+          email: parsed.data.email || "no-email-provided@applicant.local",
+          gender: parsed.data.gender,
+          dateOfBirth: parsed.data.dateOfBirth,
+          addressLine: parsed.data.addressLine,
+          mandal: parsed.data.mandal,
+          district: parsed.data.district,
+          state: parsed.data.state,
+          pinCode: parsed.data.pinCode,
+          phone: parsed.data.phone,
+          residencePhone: parsed.data.residencePhone || "",
+          educationQualification: parsed.data.educationQualification || "",
+          occupation: parsed.data.occupation || "",
+          sponsoringOrganization: parsed.data.sponsoringOrganization || "",
+          photoName: parsed.data.photoName,
+          photoType: parsed.data.photoType,
+          photoUrl: parsed.data.photoUrl || null,
+          photoObjectKey: parsed.data.photoObjectKey || null,
+          photoDataUrl: parsed.data.photoDataUrl || null,
+        },
+      });
     });
 
     if (!isPhonePeConfigured()) {
@@ -154,4 +188,27 @@ export async function POST(request: Request) {
   } catch {
     return serviceUnavailable("Application storage is temporarily unavailable.");
   }
+}
+
+async function getNextBatchNumberForService(
+  tx: Pick<typeof prisma, "trainingApplication">,
+  initials: string,
+  serviceName: string,
+) {
+  const existingBatches = await tx.trainingApplication.findMany({
+    where: {
+      serviceName,
+      batchCode: { startsWith: `${initials}-` },
+    },
+    select: { batchCode: true },
+    distinct: ["batchCode"],
+  });
+  const largestBatchNumber = existingBatches.reduce((largest, application) => {
+    const parts = application.batchCode?.split("-") ?? [];
+    const batchNumber = parts[0] === initials && parts.length === 4 ? Number(parts[1]) : 0;
+
+    return Number.isFinite(batchNumber) ? Math.max(largest, batchNumber) : largest;
+  }, 0);
+
+  return largestBatchNumber + 1;
 }

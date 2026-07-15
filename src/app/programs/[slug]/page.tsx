@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Check, Clock3, GraduationCap, Users2 } from "lucide-react";
+import { ArrowLeft, Check, Clock3, GraduationCap, IndianRupee, Users2 } from "lucide-react";
 import { TrainingApplicationForm } from "@/components/training-application-form";
 import { getProgram } from "@/lib/data";
 import { getTranslatedProgramContent, t, type SiteLanguage } from "@/lib/i18n";
@@ -149,10 +149,11 @@ export default async function ProgramDetailPage({ params }: Props) {
         <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="grid gap-6">
             <section className="section-frame rounded-[1.8rem] p-5 sm:p-6">
-              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <MiniInfo icon={Clock3} label={pageCopy.duration} value={translatedProgram.duration} />
                 <MiniInfo icon={GraduationCap} label={pageCopy.level} value={translatedProgram.level} />
                 <MiniInfo icon={Users2} label={pageCopy.capacity} value={`${translatedProgram.capacity} ${pageCopy.participants}`} />
+                <MiniInfo icon={IndianRupee} label={t(language, "programs.detail.fee")} value={translatedProgram.fee ?? t(language, "programs.detail.fallbackFee")} />
               </div>
             </section>
 

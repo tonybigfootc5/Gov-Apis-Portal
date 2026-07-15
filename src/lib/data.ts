@@ -104,7 +104,7 @@ function mergeProgramWithCatalog(program: ProgramItem): ProgramItem {
     description: catalog.description,
     duration: catalog.duration,
     level: catalog.level,
-    fee: program.fee ?? catalog.fee,
+    fee: catalog.fee || program.fee,
     capacity: catalog.capacity,
     slug: catalog.slug,
   };
