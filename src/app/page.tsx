@@ -274,28 +274,31 @@ export default async function Home() {
 
       <section className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8">
         <div className="relative min-h-[20rem] overflow-hidden rounded-[1.7rem] border border-white/10 bg-black shadow-[0_26px_68px_rgba(0,0,0,0.34)] sm:min-h-[22rem] lg:min-h-[24rem]">
-          <Image
-            src="/quote-honey-bee.jpg"
-            alt=""
-            fill
-            sizes="(min-width: 1280px) 64rem, 100vw"
-            className="object-contain object-center opacity-92"
-          />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,214,157,0.16)_0%,rgba(255,214,157,0.04)_26%,rgba(0,0,0,0)_54%),linear-gradient(180deg,rgba(0,0,0,0.18)_0%,rgba(0,0,0,0.48)_100%)]" />
+          <div className="absolute inset-y-0 right-0 w-full lg:w-[48%]">
+            <Image
+              src="/quote-honey-bee.jpg"
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 32rem, 100vw"
+              className="object-contain object-right opacity-95"
+            />
+          </div>
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.94)_0%,rgba(0,0,0,0.88)_34%,rgba(0,0,0,0.62)_58%,rgba(0,0,0,0.18)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_46%,rgba(255,214,157,0.16)_0%,rgba(255,214,157,0.04)_24%,rgba(0,0,0,0)_54%)]" />
 
-          <div className="relative z-10 flex min-h-[20rem] items-end justify-center p-5 sm:min-h-[22rem] sm:p-7 lg:min-h-[24rem] lg:p-8">
-            <div className="w-full max-w-[48rem] text-center">
-              <div className="flex justify-center">
+          <div className="relative z-10 flex min-h-[20rem] items-center p-5 sm:min-h-[22rem] sm:p-7 lg:min-h-[24rem] lg:px-10 lg:py-8">
+            <div className="w-full max-w-[34rem] text-left">
+              <div className="flex justify-start">
                 <p className="rounded-full border border-white/14 bg-black/40 px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/76 shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] backdrop-blur-md">
                   {localCopy.quoteEyebrow}
                 </p>
               </div>
-              <blockquote className="font-display mt-5 text-[clamp(1.2rem,1.9vw,1.9rem)] leading-[1.16] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.76)]">
-                <span className="block">&ldquo;If the honey bee disappeared from the surface of the globe, man would have only four years of life left.</span>
-                <span className="block">No more bees, no more pollination, no more plants, no more animals, no more man.&rdquo;</span>
+              <blockquote className="font-display mt-5 text-[clamp(1.22rem,1.8vw,1.82rem)] leading-[1.12] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.76)]">
+                <span className="block">“If the honey bee disappeared from the surface of the globe, man would have only four years of life left.</span>
+                <span className="block">No more bees, no more pollination, no more plants, no more animals, no more man.”</span>
               </blockquote>
-              <div className="mx-auto mt-5 h-px w-full max-w-[38rem] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.56),transparent)]" />
-              <p className="mx-auto mt-3 max-w-[42rem] text-sm leading-6 text-white/72">
+              <div className="mt-5 h-px w-full max-w-[30rem] bg-[linear-gradient(90deg,rgba(255,255,255,0.56),rgba(255,255,255,0.12),transparent)]" />
+              <p className="mt-3 max-w-[30rem] text-sm leading-6 text-white/72">
                 A quiet reminder that pollination, farming, and rural livelihood are connected systems.
               </p>
             </div>
