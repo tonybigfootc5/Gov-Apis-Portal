@@ -6,6 +6,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
+import { HomeNavigationCards } from "@/components/home-navigation-cards";
 import { TrainingAnnouncementPopup } from "@/components/training-announcement-popup";
 import { getPopupAnnouncementPrograms } from "@/lib/data";
 import { getTranslatedProgramContent } from "@/lib/i18n";
@@ -64,7 +65,6 @@ export default async function Home() {
     title: string;
     text: string;
     href: string;
-    cta: string;
     backgroundSrc: string;
   }> = [
     {
@@ -72,7 +72,6 @@ export default async function Home() {
       title: copy.home.cards[0].title,
       text: copy.home.cards[0].text,
       href: "/products",
-      cta: localCopy.openCard,
       backgroundSrc: "/card-backgrounds/honey-bee-hive.jpg",
     },
     {
@@ -80,7 +79,6 @@ export default async function Home() {
       title: localCopy.technologies,
       text: localCopy.technologiesText,
       href: "/technologies",
-      cta: localCopy.openTechnologies,
       backgroundSrc: "/card-backgrounds/honey-bee-tech-image.jpg",
     },
     {
@@ -88,7 +86,6 @@ export default async function Home() {
       title: copy.home.cards[2].title,
       text: copy.home.cards[2].text,
       href: "/equipment",
-      cta: localCopy.openCard,
       backgroundSrc: "/card-backgrounds/equipment-support-tools.png",
     },
     {
@@ -96,13 +93,9 @@ export default async function Home() {
       title: copy.home.cards[3].title,
       text: copy.home.cards[3].text,
       href: "/events",
-      cta: localCopy.openCard,
       backgroundSrc: "/card-backgrounds/events-and-workshops.png",
     },
   ] as const;
-  const cardShellClipPath = "polygon(16% 0%,84% 0%,100% 8%,100% 88%,50% 100%,0% 88%,0% 8%)";
-  const cardMediaClipPath = "polygon(18% 0%,82% 0%,100% 18%,100% 78%,50% 100%,0% 78%,0% 18%)";
-
   return (
     <>
       <TrainingAnnouncementPopup programs={activeAnnouncementPrograms} />
@@ -178,46 +171,7 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-18 sm:px-6 lg:px-8">
-        <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-4">
-          {cards.map(({ label, title, text, href, cta, backgroundSrc }) => (
-            <Link
-              key={title}
-              href={href}
-              style={{ clipPath: cardShellClipPath }}
-              className="group relative overflow-hidden border border-white/90 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] px-4 pb-8 pt-4 shadow-[0_24px_60px_rgba(88,71,33,0.14),inset_0_1px_0_rgba(255,255,255,0.95)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_30px_72px_rgba(88,71,33,0.18),inset_0_1px_0_rgba(255,255,255,0.98)]"
-            >
-              <div className="pointer-events-none absolute inset-x-8 top-3 h-8 rounded-full bg-white/55 blur-xl" />
-              <div
-                style={{ clipPath: cardMediaClipPath }}
-                className="relative mx-auto overflow-hidden border border-white/85 shadow-[0_18px_38px_rgba(25,33,29,0.18)]"
-              >
-                <div className="relative aspect-[1.1/0.88]">
-                  <Image
-                    src={backgroundSrc}
-                    alt=""
-                    fill
-                    sizes="(min-width: 1280px) 18rem, (min-width: 768px) 45vw, 100vw"
-                    className="object-cover transition duration-700 group-hover:scale-[1.04]"
-                  />
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,16,20,0.06)_0%,rgba(7,16,20,0.18)_100%)]" />
-                  <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(4,10,12,0)_0%,rgba(4,10,12,0.58)_100%)]" />
-                </div>
-              </div>
-
-              <div className="px-3 pb-2 pt-6 sm:px-4">
-                <p className="text-[11px] font-black uppercase tracking-[0.12em] text-[#a7a49d]">{label}</p>
-                <h2 className="font-display mt-4 text-[2.15rem] leading-[0.94] tracking-[-0.045em] text-[#173f33]">
-                  {title}
-                </h2>
-                <p className="mt-4 text-[1.02rem] leading-8 text-[#66776f]">{text}</p>
-                <span className="mt-6 inline-flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-[#f2b544]">
-                  {cta}
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" aria-hidden="true" />
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <HomeNavigationCards cards={cards} />
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
