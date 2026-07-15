@@ -280,11 +280,11 @@ export default async function Home() {
               alt=""
               fill
               sizes="(min-width: 1024px) 72rem, 100vw"
-              className="object-contain object-center opacity-100"
+              className="object-contain object-[78%_50%] opacity-100"
             />
           </div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(255,214,157,0.12)_0%,rgba(255,214,157,0.03)_22%,rgba(0,0,0,0)_46%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.78)_0%,rgba(0,0,0,0.42)_32%,rgba(0,0,0,0.16)_58%,rgba(0,0,0,0.28)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.64)_34%,rgba(0,0,0,0.18)_62%,rgba(0,0,0,0.14)_100%)]" />
 
           <div className="relative z-10 flex min-h-[20rem] items-center p-5 sm:min-h-[22rem] sm:p-7 lg:min-h-[24rem] lg:px-10 lg:py-8">
             <div className="w-full max-w-[34rem] rounded-[1.45rem] border border-white/14 bg-[rgba(0,0,0,0.36)] p-5 text-left shadow-[0_20px_44px_rgba(0,0,0,0.24)] backdrop-blur-[6px] sm:p-6 lg:p-7">
