@@ -100,6 +100,8 @@ export default async function Home() {
       backgroundSrc: "/card-backgrounds/events-and-workshops.png",
     },
   ] as const;
+  const cardShellClipPath = "polygon(16% 0%,84% 0%,100% 8%,100% 88%,50% 100%,0% 88%,0% 8%)";
+  const cardMediaClipPath = "polygon(18% 0%,82% 0%,100% 18%,100% 78%,50% 100%,0% 78%,0% 18%)";
 
   return (
     <>
@@ -181,10 +183,15 @@ export default async function Home() {
             <Link
               key={title}
               href={href}
-              className="group relative overflow-hidden rounded-[2.2rem] border border-white/90 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] p-3 shadow-[0_24px_60px_rgba(88,71,33,0.14),inset_0_1px_0_rgba(255,255,255,0.95)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_30px_72px_rgba(88,71,33,0.18),inset_0_1px_0_rgba(255,255,255,0.98)]"
+              style={{ clipPath: cardShellClipPath }}
+              className="group relative overflow-hidden border border-white/90 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] px-4 pb-8 pt-4 shadow-[0_24px_60px_rgba(88,71,33,0.14),inset_0_1px_0_rgba(255,255,255,0.95)] transition duration-300 hover:-translate-y-2 hover:shadow-[0_30px_72px_rgba(88,71,33,0.18),inset_0_1px_0_rgba(255,255,255,0.98)]"
             >
-              <div className="relative overflow-hidden rounded-[1.9rem] border border-white/80 shadow-[0_18px_38px_rgba(25,33,29,0.18)]">
-                <div className="relative aspect-[1.28/1]">
+              <div className="pointer-events-none absolute inset-x-8 top-3 h-8 rounded-full bg-white/55 blur-xl" />
+              <div
+                style={{ clipPath: cardMediaClipPath }}
+                className="relative mx-auto overflow-hidden border border-white/85 shadow-[0_18px_38px_rgba(25,33,29,0.18)]"
+              >
+                <div className="relative aspect-[1.1/0.88]">
                   <Image
                     src={backgroundSrc}
                     alt=""
@@ -197,7 +204,7 @@ export default async function Home() {
                 </div>
               </div>
 
-              <div className="px-4 pb-4 pt-5 sm:px-5 sm:pb-5">
+              <div className="px-3 pb-2 pt-6 sm:px-4">
                 <p className="text-[11px] font-black uppercase tracking-[0.12em] text-[#a7a49d]">{label}</p>
                 <h2 className="font-display mt-4 text-[2.15rem] leading-[0.94] tracking-[-0.045em] text-[#173f33]">
                   {title}
