@@ -85,6 +85,7 @@ export default async function Home() {
       text: localCopy.technologiesText,
       href: "/technologies",
       cta: localCopy.openTechnologies,
+      backgroundSrc: "/card-backgrounds/honey-bee-tech-image.jpg",
     },
     {
       icon: Wrench,
