@@ -3,10 +3,10 @@
 :root {
   --background: #fffcf6;
   --foreground: #1f352b;
-  --surface: rgba(255, 255, 255, 0.82);
-  --surface-high: rgba(255, 255, 255, 0.96);
-  --surface-low: rgba(248, 242, 231, 0.88);
-  --surface-variant: rgba(31, 53, 43, 0.05);
+  --surface: rgba(255, 255, 255, 0.54);
+  --surface-high: rgba(255, 255, 255, 0.76);
+  --surface-low: rgba(248, 242, 231, 0.46);
+  --surface-variant: rgba(31, 53, 43, 0.035);
   --primary: #f2b544;
   --primary-strong: #ff8a2a;
   --secondary: #8ec5ff;
@@ -35,10 +35,14 @@ body {
   user-select: text;
   -webkit-user-select: text;
   background-image:
-    radial-gradient(circle at top left, rgba(255, 171, 79, 0.22), transparent 24rem),
-    radial-gradient(circle at top right, rgba(142, 197, 255, 0.18), transparent 28rem),
-    radial-gradient(circle at bottom center, rgba(242, 181, 68, 0.14), transparent 32rem),
-    linear-gradient(180deg, #fffdf8 0%, #f8f1e6 42%, #fffaf2 100%);
+    linear-gradient(180deg, rgba(248, 246, 239, 0.26) 0%, rgba(240, 236, 223, 0.18) 28%, rgba(233, 229, 211, 0.24) 100%),
+    radial-gradient(circle at top left, rgba(255, 196, 120, 0.08), transparent 24rem),
+    radial-gradient(circle at top right, rgba(160, 193, 173, 0.08), transparent 28rem),
+    radial-gradient(circle at bottom center, rgba(95, 120, 72, 0.1), transparent 34rem),
+    url("/site-backdrops/global-moss-rain-v1.jpg");
+  background-size: auto, auto, auto, auto, cover;
+  background-position: center, top left, top right, bottom center, center center;
+  background-attachment: fixed;
 }
 
 body::before {
@@ -46,12 +50,13 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.14;
+  opacity: 0.12;
   background-image:
-    linear-gradient(rgba(41, 56, 49, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(41, 56, 49, 0.05) 1px, transparent 1px);
-  background-size: 36px 36px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.88), transparent);
+    linear-gradient(180deg, rgba(255, 252, 246, 0.2), rgba(244, 239, 227, 0.08) 24%, rgba(234, 229, 214, 0.04) 52%, rgba(249, 246, 238, 0.16) 100%),
+    linear-gradient(rgba(41, 56, 49, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(41, 56, 49, 0.028) 1px, transparent 1px);
+  background-size: 100% 100%, 36px 36px, 36px 36px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.84));
 }
 
 body::after {
@@ -59,12 +64,12 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.12;
+  opacity: 0.1;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(179, 107, 0, 0.55) 0.5px, transparent 0.5px),
-    radial-gradient(circle at 80% 40%, rgba(33, 83, 63, 0.4) 0.5px, transparent 0.5px),
-    radial-gradient(circle at 35% 80%, rgba(142, 197, 255, 0.55) 0.5px, transparent 0.5px);
-  background-size: 120px 120px, 160px 160px, 200px 200px;
+    radial-gradient(circle at 18% 18%, rgba(255, 245, 220, 0.24) 0%, rgba(255, 245, 220, 0) 22rem),
+    radial-gradient(circle at 82% 22%, rgba(146, 170, 126, 0.12) 0%, rgba(146, 170, 126, 0) 18rem),
+    radial-gradient(circle at 50% 100%, rgba(47, 77, 42, 0.14) 0%, rgba(47, 77, 42, 0) 20rem);
+  background-size: auto, auto, auto;
 }
 
 body.sandbox-shell {
@@ -107,17 +112,17 @@ canvas {
 .glass-panel {
   border: 1px solid rgba(41, 56, 49, 0.1);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 248, 236, 0.82)),
-    rgba(255, 255, 255, 0.72);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(245, 240, 227, 0.18)),
+    rgba(255, 255, 255, 0.18);
   box-shadow: 0 24px 70px rgba(143, 116, 67, 0.14);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(8px);
 }
 
 .paper-panel {
   border: 1px solid rgba(41, 56, 49, 0.08);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(250, 244, 233, 0.92)),
-    rgba(255, 255, 255, 0.84);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(248, 242, 230, 0.2)),
+    rgba(255, 255, 255, 0.18);
   box-shadow: 0 22px 58px rgba(143, 116, 67, 0.12);
 }
 
@@ -183,12 +188,12 @@ canvas {
   overflow: hidden;
   border: 1px solid rgba(41, 56, 49, 0.1);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 243, 232, 0.92)),
-    rgba(255, 252, 246, 0.9);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(247, 241, 227, 0.18)),
+    rgba(255, 252, 246, 0.16);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.88),
     0 24px 64px rgba(143, 116, 67, 0.14);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(8px);
 }
 
 .neo-shell::before {
@@ -202,8 +207,8 @@ canvas {
 .section-frame {
   border: 1px solid rgba(41, 56, 49, 0.1);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 241, 230, 0.92)),
-    rgba(255, 255, 255, 0.86);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(245, 239, 226, 0.2)),
+    rgba(255, 255, 255, 0.2);
   box-shadow: 0 20px 54px rgba(143, 116, 67, 0.12);
 }
 

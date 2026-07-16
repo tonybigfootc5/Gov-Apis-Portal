@@ -79,7 +79,7 @@ export function HomeNavigationCards({ cards }: HomeNavigationCardsProps) {
           <Link
             href={href}
             style={{ clipPath: cardShellClipPath }}
-            className="relative block overflow-hidden border border-white/90 bg-[linear-gradient(180deg,#ffffff_0%,#fbfaf7_100%)] px-4 pb-8 pt-4 shadow-[0_24px_60px_rgba(88,71,33,0.14),inset_0_1px_0_rgba(255,255,255,0.95)] transition duration-300 hover:shadow-[0_34px_82px_rgba(88,71,33,0.22),inset_0_1px_0_rgba(255,255,255,0.98)]"
+            className="relative block overflow-hidden border border-white/78 bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(251,250,247,0.42)_100%)] px-4 pb-8 pt-4 shadow-[0_24px_60px_rgba(88,71,33,0.12),inset_0_1px_0_rgba(255,255,255,0.86)] backdrop-blur-[10px] transition duration-300 hover:shadow-[0_34px_82px_rgba(88,71,33,0.18),inset_0_1px_0_rgba(255,255,255,0.92)]"
           >
             <motion.div
               aria-hidden="true"
@@ -107,7 +107,7 @@ export function HomeNavigationCards({ cards }: HomeNavigationCardsProps) {
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,rgba(4,10,12,0)_0%,rgba(4,10,12,0.5)_100%)]" />
 
                 <motion.div
-                  className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/88 text-[#173f33] shadow-[0_14px_30px_rgba(0,0,0,0.16)] backdrop-blur-md"
+                className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/58 bg-white/62 text-[#173f33] shadow-[0_14px_30px_rgba(0,0,0,0.12)] backdrop-blur-[8px]"
                   initial={{ opacity: 0, scale: 0.8, y: -8 }}
                   whileHover={{ opacity: 1, scale: 1, y: 0 }}
                   transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
