@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowRight, BellRing, CalendarDays, X } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { formatDateTime } from "@/lib/utils";
 
 type AnnouncementProgram = {
@@ -28,6 +29,8 @@ export function TrainingAnnouncementPopup({
 }: {
   programs: AnnouncementProgram[];
 }) {
+  const pathname = usePathname();
+  const isHomeRoute = pathname === "/";
   const [expandedVisible, setExpandedVisible] = useState(false);
   const [compactVisible, setCompactVisible] = useState(false);
   const [hasOverflowBelow, setHasOverflowBelow] = useState(false);
@@ -166,13 +169,18 @@ export function TrainingAnnouncementPopup({
   );
 
   return (
-    <div className="pointer-events-none fixed bottom-3 right-3 z-50 flex flex-col items-end gap-3 sm:bottom-4 sm:right-4">
+    <div
+      className={`pointer-events-none fixed z-50 flex flex-col gap-3 ${
+        isHomeRoute ? "left-1/2 w-[calc(100vw-2rem)] max-w-[21.5rem] -translate-x-1/2 items-center" : "bottom-3 right-3 items-end sm:bottom-4 sm:right-4"
+      }`}
+      style={isHomeRoute ? { top: "29.25rem" } : undefined}
+    >
       {compactVisible ? (
         <div className="pointer-events-auto transition-all duration-700 ease-out translate-y-0 opacity-100">
           <button
             type="button"
             onClick={() => showExpandedCard(false)}
-            className="float-gentle relative flex w-[min(21.5rem,calc(100vw-1.5rem))] items-center gap-4 overflow-hidden rounded-[1.45rem] border border-[#f1d29c] bg-[linear-gradient(145deg,rgba(255,255,255,0.99),rgba(255,247,231,0.98))] px-5 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.98),inset_0_-16px_28px_rgba(255,184,67,0.08),0_18px_44px_rgba(29,20,5,0.28),0_2px_0_rgba(255,255,255,0.72)] ring-1 ring-[#54330a]/10 backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff9b2d]"
+            className="float-gentle relative flex w-full items-center gap-4 overflow-hidden rounded-[1.45rem] border border-[#f1d29c] bg-[linear-gradient(145deg,rgba(255,255,255,0.99),rgba(255,247,231,0.98))] px-5 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.98),inset_0_-16px_28px_rgba(255,184,67,0.08),0_18px_44px_rgba(29,20,5,0.28),0_2px_0_rgba(255,255,255,0.72)] ring-1 ring-[#54330a]/10 backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff9b2d]"
             aria-label="Open new batch announcement"
           >
             <span className="pointer-events-none absolute inset-x-5 top-1 h-px bg-white/95" />

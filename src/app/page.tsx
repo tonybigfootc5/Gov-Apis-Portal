@@ -110,30 +110,15 @@ export default async function Home() {
     <>
       <TrainingAnnouncementPopup programs={activeAnnouncementPrograms} />
 
-      <section className="relative isolate overflow-hidden bg-[#f8faf7] px-4 pb-10 sm:px-6 lg:px-8">
-        <div className="relative mx-auto min-h-[calc(100vh-5.25rem)] max-w-7xl overflow-hidden rounded-[1.55rem] border border-white/70 bg-[#15283a] shadow-[0_28px_70px_rgba(20,31,24,0.16)] sm:rounded-[1.85rem]">
+      <section className="relative isolate overflow-hidden bg-[#f8faf7] px-4 pb-10 pt-4 sm:px-6 lg:px-8">
+        <div className="relative mx-auto min-h-[calc(100vh-2rem)] max-w-7xl overflow-hidden rounded-[1.55rem] border border-white/70 bg-[#15283a] shadow-[0_28px_70px_rgba(20,31,24,0.16)] sm:rounded-[1.85rem]">
           <div className="absolute inset-0">
             <HeroBackgroundVideo />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,36,42,0.08)_0%,rgba(24,36,42,0.1)_42%,rgba(12,21,27,0.36)_100%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,14,22,0.16)_0%,rgba(4,14,22,0.02)_38%,rgba(4,14,22,0.24)_100%)]" />
           </div>
 
-          <div className="relative z-10 flex min-h-[calc(100vh-5.25rem)] flex-col items-center px-5 py-10 text-center text-white sm:px-8 sm:py-14 lg:px-12">
-            <p className="inline-flex w-full max-w-[20rem] items-center gap-3 overflow-hidden rounded-full border border-white/24 bg-white/12 py-2 pl-2 pr-4 text-[10px] font-semibold uppercase leading-5 tracking-[0.14em] text-white/86 shadow-[0_12px_36px_rgba(6,18,26,0.16)] backdrop-blur-md sm:w-auto sm:max-w-full">
-              <span className="relative flex h-8 w-[4.6rem] shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/92 px-2">
-                <Image
-                  src="/nirdpr-logo-badge.jpeg"
-                  alt="NIRDPR"
-                  fill
-                  sizes="5rem"
-                  className="object-contain p-1"
-                />
-              </span>
-              <BadgeCheck className="h-4 w-4" aria-hidden="true" />
-              <span className="min-w-0 truncate sm:hidden">NIRDPR training center</span>
-              <span className="hidden min-w-0 truncate sm:inline">National Institute of Rural Development and Panchayati Raj</span>
-            </p>
-
+          <div className="relative z-10 flex min-h-[calc(100vh-2rem)] flex-col items-center px-5 pb-10 pt-28 text-center text-white sm:px-8 sm:pb-14 sm:pt-32 lg:px-12">
             <div className="mx-auto mt-10 max-w-5xl sm:mt-16">
               <h1 className="font-display mx-auto w-72 max-w-full text-[clamp(2.05rem,10vw,3.2rem)] leading-[0.98] tracking-[-0.025em] text-white [text-shadow:0_18px_42px_rgba(7,19,27,0.34)] sm:w-auto sm:max-w-5xl sm:text-[clamp(2.65rem,6.6vw,5.9rem)] sm:tracking-[-0.045em]">
                 {copy.home.heroTitle.filter(Boolean).map((line) => (
@@ -164,27 +149,34 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="mt-auto flex w-full flex-col gap-4 pt-12 sm:flex-row sm:items-end sm:justify-between sm:pt-14">
-              <div className="mx-auto flex max-w-full flex-wrap items-center justify-center gap-3 rounded-full border border-white/16 bg-white/12 px-3 py-2 text-left text-white shadow-[0_18px_38px_rgba(7,20,33,0.18)] backdrop-blur-md sm:mx-0 sm:justify-start">
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[11px] font-black text-[#071421]">30+</span>
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-[#f2b544] text-[10px] font-black text-[#071421]">25K</span>
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[10px] font-black text-[#071421]">100</span>
-                <span className="hidden pr-2 text-[11px] font-medium leading-4 text-white/82 min-[430px]:block">
-                  {copy.home.stats[0]}<br />
-                  {copy.home.stats[1]}
-                </span>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-medium text-white/84 sm:justify-end">
+            <div className="mt-auto flex w-full justify-end pt-12 sm:pt-14">
+              <div className="flex w-full max-w-full flex-col items-center gap-3 text-[11px] font-medium text-white/84 sm:w-auto sm:items-end">
+                <p className="inline-flex w-full max-w-[20rem] items-center gap-3 overflow-hidden rounded-full border border-white/20 bg-white/12 py-2 pl-2 pr-4 text-[10px] font-semibold uppercase leading-5 tracking-[0.14em] text-white/86 shadow-[0_12px_36px_rgba(6,18,26,0.16)] backdrop-blur-md sm:w-auto sm:max-w-full">
+                  <span className="relative flex h-8 w-[4.6rem] shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/92 px-2">
+                    <Image
+                      src="/nirdpr-logo-badge.jpeg"
+                      alt="NIRDPR"
+                      fill
+                      sizes="5rem"
+                      className="object-contain p-1"
+                    />
+                  </span>
+                  <BadgeCheck className="h-4 w-4" aria-hidden="true" />
+                  <span className="min-w-0 truncate sm:hidden">NIRDPR training center</span>
+                  <span className="hidden min-w-0 truncate sm:inline">National Institute of Rural Development and Panchayati Raj</span>
+                </p>
+                <div className="flex max-w-full flex-wrap items-center justify-center gap-3 rounded-full border border-white/16 bg-white/12 px-3 py-2 text-left text-white shadow-[0_18px_38px_rgba(7,20,33,0.18)] backdrop-blur-md sm:justify-end">
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[11px] font-black text-[#071421]">30+</span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-[#f2b544] text-[10px] font-black text-[#071421]">25K</span>
+                  <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[10px] font-black text-[#071421]">100</span>
+                  <span className="hidden pr-2 text-[11px] font-medium leading-4 text-white/82 min-[430px]:block">
+                    {copy.home.stats[0]}<br />
+                    {copy.home.stats[1]}
+                  </span>
+                </div>
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/16 bg-white/12 px-3 py-2 backdrop-blur-md">
                   <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
                   {copy.home.locationChip}
-                </span>
-                <span className="inline-flex items-center rounded-full border border-white/16 bg-white/12 px-3 py-2 backdrop-blur-md">
-                  {copy.home.stats[2]}
-                </span>
-                <span className="inline-flex items-center rounded-full border border-white/16 bg-white/12 px-3 py-2 backdrop-blur-md">
-                  {copy.home.stats[3]}
                 </span>
               </div>
             </div>

@@ -53,7 +53,7 @@ export function SiteHeader({
   };
 
   const frameClass = isHomeRoute
-    ? "border-transparent bg-[#f8faf7]"
+    ? "border-transparent bg-transparent"
     : isAdminRoute
     ? "border-[rgba(255,240,214,0.08)] bg-[linear-gradient(180deg,rgba(10,8,8,0.94),rgba(19,14,12,0.9))]"
     : "border-[rgba(41,56,49,0.08)] bg-[linear-gradient(180deg,rgba(255,253,248,0.94),rgba(248,241,230,0.88))]";
@@ -69,7 +69,7 @@ export function SiteHeader({
     : "border-[rgba(41,56,49,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.8),rgba(246,239,227,0.78))] shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]";
 
   return (
-    <header className={`${isHomeRoute ? "relative overflow-x-clip" : "sticky top-0"} z-50 border-b backdrop-blur-2xl ${frameClass}`}>
+    <header className={`${isHomeRoute ? "absolute inset-x-0 top-0 overflow-x-clip" : "sticky top-0"} z-50 border-b backdrop-blur-2xl ${frameClass}`}>
       <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${isHomeRoute ? "py-4" : "py-3"}`}>
         {sandboxMode ? (
           <div
