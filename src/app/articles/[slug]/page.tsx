@@ -3,13 +3,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Tag } from "lucide-react";
-import { getArticle, getArticles } from "@/lib/data";
+import { getArticle } from "@/lib/data";
 import { getLocalizedArticle } from "@/lib/public-content";
 import { getRequestLanguage } from "@/lib/request-language";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -25,11 +27,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: article.seoTitle || article.title,
     description: article.metaDescription || article.excerpt,
   };
-}
-
-export async function generateStaticParams() {
-  const articles = await getArticles();
-  return articles.map((article) => ({ slug: article.slug }));
 }
 
 export default async function ArticleDetailPage({ params }: Props) {

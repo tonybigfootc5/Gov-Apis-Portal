@@ -58,19 +58,25 @@ export function SiteHeader({
     ? "border-[rgba(255,240,214,0.08)] bg-[linear-gradient(180deg,rgba(10,8,8,0.94),rgba(19,14,12,0.9))]"
     : "border-[rgba(41,56,49,0.08)] bg-[linear-gradient(180deg,rgba(255,253,248,0.94),rgba(248,241,230,0.88))]";
   const shellClass = isHomeRoute
-    ? "border-transparent bg-transparent shadow-none"
+    ? "border-white/80 bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(239,236,226,0.96))] shadow-[0_18px_46px_rgba(7,20,33,0.2),inset_0_1px_0_rgba(255,255,255,0.96)]"
     : isAdminRoute
     ? "border-[rgba(255,240,214,0.09)] bg-[linear-gradient(135deg,rgba(31,31,33,0.96),rgba(20,20,22,0.94)_54%,rgba(34,33,31,0.94))] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_24px_56px_rgba(0,0,0,0.3)]"
     : "border-[rgba(41,56,49,0.1)] bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(248,242,232,0.88)_54%,rgba(240,235,222,0.9))] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_20px_48px_rgba(151,128,88,0.12)]";
   const navWrapClass = isHomeRoute
-    ? "border-transparent bg-transparent shadow-none"
+    ? "border-[rgba(7,20,33,0.16)] bg-[rgba(255,255,255,0.86)] shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_10px_28px_rgba(7,20,33,0.08)]"
     : isAdminRoute
     ? "border-[rgba(255,240,214,0.08)] bg-[rgba(12,13,15,0.9)] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
     : "border-[rgba(41,56,49,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.8),rgba(246,239,227,0.78))] shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]";
 
   return (
-    <header className={`${isHomeRoute ? "absolute inset-x-0 top-0 overflow-x-clip" : "sticky top-0"} z-50 border-b backdrop-blur-2xl ${frameClass}`}>
-      <div className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${isHomeRoute ? "py-4" : "py-3"}`}>
+    <header
+      className={`${
+        isHomeRoute
+          ? "absolute inset-x-0 top-0 overflow-x-clip px-4 sm:px-6 lg:px-8"
+          : "sticky top-0 border-b backdrop-blur-2xl"
+      } z-50 ${frameClass}`}
+    >
+      <div className={`mx-auto max-w-7xl ${isHomeRoute ? "py-4" : "px-4 py-3 sm:px-6 lg:px-8"}`}>
         {sandboxMode ? (
           <div
             className={`mb-3 rounded-[1.2rem] border px-4 py-3 text-center text-xs font-black uppercase tracking-[0.16em] ${
@@ -83,20 +89,26 @@ export function SiteHeader({
           </div>
         ) : null}
 
-        <div className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] ${isHomeRoute ? "rounded-none px-0 py-0" : "rounded-[1.6rem] px-3 py-3"} ${shellClass}`}>
+        <div
+          className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] ${
+            isHomeRoute
+              ? "rounded-[2rem] px-5 py-3 backdrop-blur-2xl"
+              : "rounded-[1.6rem] px-3 py-3"
+          } ${shellClass}`}
+        >
           <Link href="/" className="flex min-w-0 items-center gap-3 pr-2" aria-label="API CULTURE home">
-            <span className={`relative shrink-0 ${isHomeRoute ? "h-8 w-9 sm:h-9 sm:w-10" : "h-12 w-14 sm:h-14 sm:w-16"}`}>
+            <span className={`relative shrink-0 ${isHomeRoute ? "h-9 w-10 sm:h-10 sm:w-12" : "h-12 w-14 sm:h-14 sm:w-16"}`}>
               <Image
                 src="/api-culture-logo-clean.png"
                 alt="API CULTURE honeycomb logo"
                 fill
-                className={`object-contain ${isHomeRoute ? "" : "drop-shadow-[0_10px_24px_rgba(242,181,68,0.18)]"}`}
+                className={`object-contain ${isHomeRoute ? "drop-shadow-[0_8px_18px_rgba(7,20,33,0.18)]" : "drop-shadow-[0_10px_24px_rgba(242,181,68,0.18)]"}`}
                 sizes="64px"
                 priority
               />
             </span>
             <span className="min-w-0 leading-tight">
-              <span className={`block sm:whitespace-nowrap ${isHomeRoute ? "text-[1.05rem] font-semibold tracking-[-0.03em] text-[#071421] sm:text-[1.25rem]" : `text-[clamp(1rem,4.6vw,1.2rem)] font-black uppercase tracking-[0.18em] ${isAdminRoute ? "text-[#f4efe3]" : "text-[#1c382d]"}`}`}>
+              <span className={`block sm:whitespace-nowrap ${isHomeRoute ? "text-[1.05rem] font-black uppercase tracking-[0.02em] text-[#071421] sm:text-[1.2rem]" : `text-[clamp(1rem,4.6vw,1.2rem)] font-black uppercase tracking-[0.18em] ${isAdminRoute ? "text-[#f4efe3]" : "text-[#1c382d]"}`}`}>
                 API CULTURE
               </span>
               <span className={`block max-w-[12rem] text-[10px] leading-4 font-bold tracking-[0.08em] sm:max-w-none sm:whitespace-nowrap sm:text-[10px] ${isHomeRoute ? "hidden" : isAdminRoute ? "text-[#9ca6a1]" : "text-[#64756f]"}`}>
@@ -144,7 +156,7 @@ export function SiteHeader({
             {isHomeRoute ? (
               <Link
                 href="/programs"
-                className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full bg-[#071421] px-5 py-2 text-sm font-medium text-white shadow-[0_14px_34px_rgba(7,20,33,0.18)] transition hover:-translate-y-0.5 hover:bg-[#132236]"
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[#071421] px-5 py-2 text-sm font-black text-white shadow-[0_14px_34px_rgba(7,20,33,0.24)] transition hover:-translate-y-0.5 hover:bg-[#132236]"
               >
                 Apply now <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </Link>
@@ -161,7 +173,7 @@ export function SiteHeader({
             <summary
               className={`grid h-10 w-10 cursor-pointer list-none place-items-center rounded-full border ${
                 isHomeRoute
-                  ? "border-[rgba(7,20,33,0.12)] bg-white text-[#071421] shadow-[0_10px_24px_rgba(7,20,33,0.08)]"
+                  ? "border-[rgba(7,20,33,0.12)] bg-[#071421] text-white shadow-[0_10px_24px_rgba(7,20,33,0.16)]"
                   : isAdminRoute
                   ? "border-[rgba(255,240,214,0.1)] bg-[rgba(255,255,255,0.08)] text-[#fff7eb]"
                   : "border-[rgba(41,56,49,0.12)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,239,227,0.84))] text-[#234235]"
