@@ -110,73 +110,84 @@ export default async function Home() {
     <>
       <TrainingAnnouncementPopup programs={activeAnnouncementPrograms} />
 
-      <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0">
-          <HeroBackgroundVideo />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,27,23,0.14)_0%,rgba(38,37,27,0.18)_46%,rgba(74,56,29,0.34)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,179,71,0.12),transparent_24rem),radial-gradient(circle_at_top_right,rgba(142,197,255,0.12),transparent_28rem),radial-gradient(circle_at_bottom_center,rgba(255,224,166,0.12),transparent_30rem)]" />
-        </div>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-28 bg-[linear-gradient(180deg,rgba(112,132,126,0)_0%,rgba(112,132,126,0.24)_28%,rgba(112,132,126,0.56)_58%,rgba(112,132,126,0.82)_100%)] blur-[2px]" />
+      <section className="relative isolate overflow-hidden bg-[#f8faf7] px-4 pb-10 sm:px-6 lg:px-8">
+        <div className="relative mx-auto min-h-[calc(100vh-5.25rem)] max-w-7xl overflow-hidden rounded-[1.55rem] border border-white/70 bg-[#15283a] shadow-[0_28px_70px_rgba(20,31,24,0.16)] sm:rounded-[1.85rem]">
+          <div className="absolute inset-0">
+            <HeroBackgroundVideo />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(24,36,42,0.08)_0%,rgba(24,36,42,0.1)_42%,rgba(12,21,27,0.36)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(4,14,22,0.16)_0%,rgba(4,14,22,0.02)_38%,rgba(4,14,22,0.24)_100%)]" />
+          </div>
 
-        <div className="relative mx-auto flex min-h-[calc(100vh-5.5rem)] max-w-7xl flex-col justify-center px-4 py-12 sm:px-6 lg:px-8">
-          <div className="max-w-5xl rounded-[2.6rem] border border-[rgba(255,255,255,0.54)] bg-[linear-gradient(180deg,rgba(255,253,248,0.58),rgba(248,242,228,0.34))] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.82),0_28px_72px_rgba(119,89,36,0.12)] backdrop-blur-[10px] sm:p-8 lg:p-10">
-            <div className="relative z-10">
-              <p className="inline-flex max-w-full flex-wrap items-center gap-3 rounded-full border border-[rgba(179,107,0,0.14)] bg-[rgba(255,255,255,0.76)] py-2 pl-2 pr-4 text-[11px] font-black uppercase leading-5 tracking-[0.11em] text-[#9a5b00] shadow-[0_10px_30px_rgba(119,89,36,0.12)]">
-                <span className="relative flex h-8 w-[4.8rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(31,53,43,0.1)] bg-white px-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_18px_rgba(61,41,10,0.08)]">
-                  <Image
-                    src="/nirdpr-logo-badge.jpeg"
-                    alt="NIRDPR"
-                    fill
-                    sizes="5rem"
-                    className="object-contain p-1"
-                  />
-                </span>
-                <BadgeCheck className="h-4 w-4" aria-hidden="true" />
-                National Institute of Rural Development and Panchayati Raj
-              </p>
+          <div className="relative z-10 flex min-h-[calc(100vh-5.25rem)] flex-col items-center px-5 py-10 text-center text-white sm:px-8 sm:py-14 lg:px-12">
+            <p className="inline-flex w-full max-w-[20rem] items-center gap-3 overflow-hidden rounded-full border border-white/24 bg-white/12 py-2 pl-2 pr-4 text-[10px] font-semibold uppercase leading-5 tracking-[0.14em] text-white/86 shadow-[0_12px_36px_rgba(6,18,26,0.16)] backdrop-blur-md sm:w-auto sm:max-w-full">
+              <span className="relative flex h-8 w-[4.6rem] shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/92 px-2">
+                <Image
+                  src="/nirdpr-logo-badge.jpeg"
+                  alt="NIRDPR"
+                  fill
+                  sizes="5rem"
+                  className="object-contain p-1"
+                />
+              </span>
+              <BadgeCheck className="h-4 w-4" aria-hidden="true" />
+              <span className="min-w-0 truncate sm:hidden">NIRDPR training center</span>
+              <span className="hidden min-w-0 truncate sm:inline">National Institute of Rural Development and Panchayati Raj</span>
+            </p>
 
-              <h1 className="font-display mt-6 max-w-5xl text-[clamp(3.6rem,9vw,7.3rem)] leading-[0.9] text-[#1d392e]">
+            <div className="mx-auto mt-10 max-w-5xl sm:mt-16">
+              <h1 className="font-display mx-auto w-72 max-w-full text-[clamp(2.05rem,10vw,3.2rem)] leading-[0.98] tracking-[-0.025em] text-white [text-shadow:0_18px_42px_rgba(7,19,27,0.34)] sm:w-auto sm:max-w-5xl sm:text-[clamp(2.65rem,6.6vw,5.9rem)] sm:tracking-[-0.045em]">
                 {copy.home.heroTitle.filter(Boolean).map((line) => (
-                  <span key={line} className="block">
+                  <span key={line} className="mx-auto block w-full whitespace-normal sm:max-w-none">
                     {line}
                   </span>
                 ))}
               </h1>
 
-              <p className="mt-6 max-w-3xl text-base leading-8 text-[#42584e] sm:text-lg">
+              <p className="mx-auto mt-5 w-72 max-w-full text-sm leading-6 text-white/82 sm:w-auto sm:max-w-2xl sm:text-base sm:leading-7">
                 {copy.home.heroDescription}
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
                 <Link
                   href="/programs"
-                  className="inline-flex items-center justify-center gap-3 rounded-full bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#0a0d12]"
+                  className="inline-flex min-h-11 w-full max-w-[15rem] items-center justify-center gap-2 rounded-full bg-[#071421] px-5 py-2.5 text-sm font-medium text-white shadow-[0_16px_36px_rgba(7,20,33,0.28)] transition hover:-translate-y-0.5 hover:bg-[#132236] sm:w-auto sm:max-w-none"
                 >
                   {copy.home.primaryCta}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link
                   href="/about"
-                  className="inline-flex items-center justify-center rounded-full border border-[rgba(31,53,43,0.12)] bg-[rgba(255,255,255,0.74)] px-6 py-4 text-sm font-black uppercase tracking-[0.14em] text-[#1f352b]"
+                  className="inline-flex min-h-11 w-full max-w-[15rem] items-center justify-center rounded-full border border-white/26 bg-white/14 px-5 py-2.5 text-sm font-medium text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/22 sm:w-auto sm:max-w-none"
                 >
                   {copy.home.secondaryCta}
                 </Link>
               </div>
+            </div>
 
-              <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <HeroStat value="30+" label={copy.home.stats[0]} />
-                <HeroStat value="25000+" label={copy.home.stats[1]} />
-                <HeroStat value="100%" label={copy.home.stats[2]} />
-                <HeroStat value="NIRDPR" label={copy.home.stats[3]} />
+            <div className="mt-auto flex w-full flex-col gap-4 pt-12 sm:flex-row sm:items-end sm:justify-between sm:pt-14">
+              <div className="mx-auto flex max-w-full flex-wrap items-center justify-center gap-3 rounded-full border border-white/16 bg-white/12 px-3 py-2 text-left text-white shadow-[0_18px_38px_rgba(7,20,33,0.18)] backdrop-blur-md sm:mx-0 sm:justify-start">
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[11px] font-black text-[#071421]">30+</span>
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-[#f2b544] text-[10px] font-black text-[#071421]">25K</span>
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-white text-[10px] font-black text-[#071421]">100</span>
+                <span className="hidden pr-2 text-[11px] font-medium leading-4 text-white/82 min-[430px]:block">
+                  {copy.home.stats[0]}<br />
+                  {copy.home.stats[1]}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-medium text-white/84 sm:justify-end">
+                <span className="inline-flex items-center gap-2 rounded-full border border-white/16 bg-white/12 px-3 py-2 backdrop-blur-md">
+                  <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                  {copy.home.locationChip}
+                </span>
+                <span className="inline-flex items-center rounded-full border border-white/16 bg-white/12 px-3 py-2 backdrop-blur-md">
+                  {copy.home.stats[2]}
+                </span>
+                <span className="inline-flex items-center rounded-full border border-white/16 bg-white/12 px-3 py-2 backdrop-blur-md">
+                  {copy.home.stats[3]}
+                </span>
               </div>
             </div>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-[#2f473d]">
-            <span className="inline-flex items-center gap-2 rounded-full border border-[rgba(242,181,68,0.3)] bg-[linear-gradient(135deg,rgba(255,255,255,0.64),rgba(247,241,222,0.42))] px-5 py-3 font-black uppercase tracking-[0.12em] text-[#1f352b] shadow-[0_14px_34px_rgba(119,89,36,0.1),inset_0_1px_0_rgba(255,255,255,0.76)] backdrop-blur-[8px]">
-              <MapPin className="h-4 w-4 text-[#f2b544]" aria-hidden="true" />
-              {copy.home.locationChip}
-            </span>
           </div>
         </div>
       </section>
@@ -389,15 +400,5 @@ export default async function Home() {
         </div>
       </section>
     </>
-  );
-}
-
-function HeroStat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="group relative overflow-hidden rounded-[1.5rem] border border-[rgba(31,53,43,0.08)] bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,252,247,0.72))] px-5 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.92),0_18px_40px_rgba(98,73,28,0.08)] backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.96),0_24px_52px_rgba(98,73,28,0.14)]">
-      <div className="absolute inset-x-5 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(242,181,68,0.7),transparent)]" />
-      <p className="font-display text-[clamp(2.35rem,4vw,3.35rem)] leading-none tracking-[-0.04em] text-[#1f352b]">{value}</p>
-      <p className="mt-3 text-sm font-medium tracking-[0.02em] text-[#54655d]">{label}</p>
-    </div>
   );
 }
