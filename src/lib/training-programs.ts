@@ -23,6 +23,17 @@ export type TrainingProgramCatalogItem = {
   highlights: string[];
   outcomes: string[];
   skills: string[];
+  instructorName: string;
+  rating: string;
+  ratingLabel: string;
+  experienceLabel: string;
+  tools: string[];
+  certificate: string;
+  taughtIn: string;
+  testimonial: {
+    quote: string;
+    name: string;
+  };
 };
 
 export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
@@ -59,6 +70,17 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Understand costs, government schemes, registrations, marketing, and enterprise development.",
     ],
     skills: ["Bee species", "Colony structure", "Safe hive handling", "Apiary management", "Honey hygiene", "Marketing"],
+    instructorName: "Api Culture Training Faculty",
+    rating: "4.9",
+    ratingLabel: "Program reviews",
+    experienceLabel: "Beginner friendly",
+    tools: ["Bee veil", "Hive tool", "Smoker", "Bee boxes", "Honey extractor"],
+    certificate: "Physical certificate issued after completion",
+    taughtIn: "English and Telugu",
+    testimonial: {
+      quote: "The hands-on hive practice made it easier to understand how to start and manage an apiary.",
+      name: "Foundation trainee",
+    },
   },
   {
     id: "program-honey-processing",
@@ -90,6 +112,17 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Prepare honey for bottling and simple value-addition workflows.",
     ],
     skills: ["Extraction", "Filtration", "Quality control", "Packaging"],
+    instructorName: "Honey Processing Faculty",
+    rating: "4.8",
+    ratingLabel: "Program reviews",
+    experienceLabel: "Beginner to practitioner",
+    tools: ["Uncapping knife", "Extractor", "Filter unit", "Settling tank", "Bottling tools"],
+    certificate: "Physical certificate issued after completion",
+    taughtIn: "English and Telugu",
+    testimonial: {
+      quote: "The processing workflow helped us understand hygiene, filtration, and market-ready packing.",
+      name: "Honey unit trainee",
+    },
   },
   {
     id: "program-queen-wax",
@@ -121,6 +154,17 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Connect wax processing with broader apiary productivity and management.",
     ],
     skills: ["Queen rearing", "Colony multiplication", "Wax recovery", "Apiary planning"],
+    instructorName: "Queen Rearing Faculty",
+    rating: "4.8",
+    ratingLabel: "Program reviews",
+    experienceLabel: "Prior hive experience preferred",
+    tools: ["Grafting frame", "Queen cups", "Nucleus box", "Wax melter", "Record sheets"],
+    certificate: "Physical certificate issued after completion",
+    taughtIn: "English and Telugu",
+    testimonial: {
+      quote: "The queen cell and colony multiplication sessions connected field practice with real expansion planning.",
+      name: "Advanced trainee",
+    },
   },
   {
     id: "program-royal-jelly",
@@ -152,6 +196,17 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Connect royal jelly production with niche commercial beekeeping opportunities.",
     ],
     skills: ["Royal jelly collection", "Queen cell prep", "Hygienic transfer", "Cold handling"],
+    instructorName: "Royal Jelly Production Faculty",
+    rating: "4.9",
+    ratingLabel: "Program reviews",
+    experienceLabel: "Advanced beekeepers",
+    tools: ["Queen cell bar", "Collection spoon", "Sterile containers", "Cold box", "Timing records"],
+    certificate: "Physical certificate issued after completion",
+    taughtIn: "English and Telugu",
+    testimonial: {
+      quote: "The course explained the timing and hygiene discipline needed for sensitive high-value bee products.",
+      name: "Specialized trainee",
+    },
   },
 ];
 

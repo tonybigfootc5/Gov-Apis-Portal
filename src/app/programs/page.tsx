@@ -40,6 +40,17 @@ export default async function ProgramsPage() {
       imageAlt: presentation?.imageAlt ?? translatedProgram.title,
       outcomes: presentation?.outcomes ?? [],
       skills: presentation?.skills ?? [],
+      instructorName: presentation?.instructorName ?? "Api Culture Training Faculty",
+      rating: presentation?.rating ?? "4.8",
+      ratingLabel: presentation?.ratingLabel ?? "Program reviews",
+      experienceLabel: presentation?.experienceLabel ?? translatedProgram.level,
+      tools: presentation?.tools ?? [],
+      certificate: presentation?.certificate ?? "Physical certificate issued after completion",
+      taughtIn: presentation?.taughtIn ?? "English and Telugu",
+      testimonial: presentation?.testimonial ?? {
+        quote: "Field-led practice helped make the training practical and clear.",
+        name: "Program trainee",
+      },
     };
   });
 
