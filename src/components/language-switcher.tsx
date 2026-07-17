@@ -1,7 +1,6 @@
 "use client";
 
-import { startTransition } from "react";
-import { Languages } from "lucide-react";
+import { Fragment, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { SiteLanguage } from "@/lib/i18n";
 
@@ -12,10 +11,17 @@ type Props = {
   variant?: "default" | "footer" | "header";
 };
 
+const compactLanguageLabels: Record<SiteLanguage, { text: string; ariaLabel: string }> = {
+  en: { text: "EN", ariaLabel: "Switch to English" },
+  te: { text: "తె", ariaLabel: "Switch to Telugu" },
+  hi: { text: "हि", ariaLabel: "Switch to Hindi" },
+};
+
 export function LanguageSwitcher({ currentLanguage, label, options, variant = "default" }: Props) {
   const router = useRouter();
 
   function onChange(nextLanguage: SiteLanguage) {
+    // eslint-disable-next-line react-hooks/immutability -- Persist the user's language choice before refreshing server-rendered copy.
     document.cookie = `site-language=${nextLanguage}; path=/; max-age=31536000; samesite=lax`;
     startTransition(() => {
       router.refresh();
@@ -24,42 +30,51 @@ export function LanguageSwitcher({ currentLanguage, label, options, variant = "d
 
   const isFooter = variant === "footer";
   const isHeader = variant === "header";
+  const visibleOptions = options.filter((option) => option.value !== currentLanguage);
 
   return (
-    <label
-      className={`inline-flex items-center gap-2 text-xs font-bold ${
+    <div
+      className={`inline-flex items-center gap-1 text-xs font-bold ${
         isFooter
-          ? "rounded-full bg-[rgba(255,255,255,0.7)] px-2.5 py-1.5 text-[#1b3b2b] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)]"
+          ? "rounded-full border border-[rgba(7,20,33,0.12)] bg-[rgba(255,255,255,0.8)] p-1 text-[#1b3b2b] shadow-[inset_0_1px_0_rgba(255,255,255,0.86)]"
           : isHeader
-            ? "rounded-full border border-[rgba(7,20,33,0.14)] bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(246,241,230,0.88))] px-3 py-1.5 text-[#1b3b2b] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_24px_rgba(64,44,8,0.1)] backdrop-blur-xl"
-            : "text-[#516253]"
+            ? "rounded-full border border-[rgba(7,20,33,0.16)] bg-[rgba(255,255,255,0.86)] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.94),0_10px_24px_rgba(64,44,8,0.1)] backdrop-blur-xl"
+            : "rounded-full border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] p-1 text-[#516253]"
       }`}
+      aria-label={label}
+      role="group"
     >
-      {isHeader || isFooter ? (
-        <Languages className={`${isFooter ? "h-3.5 w-3.5" : "h-4 w-4"} text-[#b36b00]`} aria-hidden="true" />
-      ) : null}
-      <span className={isHeader || isFooter ? "text-[10px] font-bold tracking-[0.08em] text-[#516253]" : ""}>{label}</span>
-      <select
-        value={currentLanguage}
-        onChange={(event) => onChange(event.target.value as SiteLanguage)}
-        className={`rounded-full px-3 py-1.5 text-[11px] font-bold outline-none ring-[#ebb428] focus:ring-2 ${
-          isFooter
-            ? "min-w-[5.75rem] border border-[rgba(27,59,43,0.08)] bg-[rgba(255,255,255,0.84)] text-[#1b3b2b]"
-            : isHeader
-              ? "min-w-[6.25rem] border border-[rgba(7,20,33,0.12)] bg-[rgba(255,255,255,0.86)] text-[#1b3b2b] shadow-[inset_0_1px_0_rgba(255,255,255,0.82)]"
-              : "border border-[rgba(27,59,43,0.14)] bg-[#fffdf8] text-[#1b3b2b]"
-        }`}
-      >
-        {options.map((option) => (
-          <option
-            key={option.value}
-            value={option.value}
-            className="bg-[#fffdf8] text-[#1b3b2b]"
-          >
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
+      {visibleOptions.map((option, index) => {
+        const compact = compactLanguageLabels[option.value];
+
+        return (
+          <Fragment key={option.value}>
+            {index > 0 ? (
+              <span className="h-7 w-px rounded-full bg-[rgba(7,20,33,0.14)]" aria-hidden="true" />
+            ) : null}
+            <button
+              type="button"
+              onClick={() => onChange(option.value)}
+              aria-label={compact.ariaLabel}
+              title={option.label}
+              className={`grid shrink-0 place-items-center rounded-full border font-black leading-none outline-none ring-[#071421]/20 transition hover:-translate-y-0.5 focus:ring-2 ${
+                "border-[#071421] bg-[#071421] text-white shadow-[0_10px_20px_rgba(7,20,33,0.18)] hover:bg-[#14243a]"
+              } ${
+                isFooter
+                  ? "h-9 min-w-9 px-2.5"
+                  : isHeader
+                    ? "h-9 min-w-10 px-2.5"
+                    : "h-9 min-w-9 px-2.5"
+              }`}
+              style={{
+                fontSize: isHeader ? "18px" : "16px",
+              }}
+            >
+              {compact.text}
+            </button>
+          </Fragment>
+        );
+      })}
+    </div>
   );
 }

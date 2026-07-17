@@ -4,7 +4,6 @@ import { ArrowRight, BadgeCheck, MapPin } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { getRequestLanguage } from "@/lib/request-language";
 import { getSiteCopy } from "@/lib/site-copy";
-import { trainingProgramGallery } from "@/lib/training-programs";
 
 export const dynamic = "force-dynamic";
 
@@ -56,47 +55,24 @@ export default async function Home() {
     { value: "NIRDPR", label: "Training center" },
   ] as const;
 
-  const featureTiles = [
-    {
-      title: "Field practice",
-      text: "Hands-on sessions for colony care, honey processing, and field-ready beekeeping systems.",
-      image: trainingProgramGallery[1],
-    },
-    {
-      title: "Technology transfer",
-      text: "Practical exposure to hive products, equipment, queen rearing, and processing methods.",
-      image: trainingProgramGallery[3],
-    },
-    {
-      title: "Rural livelihood",
-      text: "Clear training pathways for farmers, trainees, women groups, and future entrepreneurs.",
-      image: trainingProgramGallery[5],
-    },
-  ] as const;
-
   return (
     <main className="bg-[#f8faf7] text-[#14241f]">
-      <section className="px-4 pt-28 sm:px-6 lg:px-8">
+      <section className="px-4 pt-0 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-[#e5e1d8] bg-[#fbfaf6] shadow-[0_24px_70px_rgba(34,45,38,0.12)]">
-          <div className="relative mx-0 overflow-hidden bg-[#0d1d18]" style={{ minHeight: "48rem" }}>
+          <div className="relative mx-0 overflow-hidden bg-[#0d1d18]" style={{ minHeight: "56rem" }}>
             <HeroBackgroundVideo />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(248,250,247,0.82)_0%,rgba(248,250,247,0.7)_28%,rgba(9,20,18,0.36)_58%,rgba(6,14,11,0.78)_100%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(248,250,247,0.2)_0%,rgba(248,250,247,0.5)_38%,rgba(248,250,247,0.16)_100%)]" />
 
-            <div className="relative z-10 px-5 pb-8 text-center sm:px-8 lg:px-12" style={{ paddingTop: "9.5rem" }}>
-              <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#dce2d6] bg-white/86 px-4 py-2 text-[11px] font-black uppercase tracking-[0.14em] text-[#1f6a4c] shadow-[0_12px_28px_rgba(7,20,33,0.08)] backdrop-blur-md">
-                <span className="h-2 w-2 rounded-full bg-[#2f9b5f]" />
-                {copy.home.portalChip}
-              </div>
-
+            <div className="relative z-10 px-5 pb-8 text-center sm:px-8 lg:px-12" style={{ paddingTop: "10.5rem" }}>
               <h1
-                className="font-display mx-auto mt-7 max-w-4xl text-[#111a17]"
+                className="font-display mx-auto max-w-4xl text-white"
                 style={{ fontSize: "clamp(2.7rem, 6vw, 5.6rem)", lineHeight: 0.96, letterSpacing: "0" }}
               >
                 {copy.home.heroTitle.filter(Boolean).join(" ")}
               </h1>
 
-              <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[#40564d]">
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white">
                 {copy.home.heroDescription}
               </p>
 
@@ -110,60 +86,92 @@ export default async function Home() {
                 </Link>
                 <Link
                   href="/about"
-                  className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#d5d7ce] bg-white/84 px-6 py-3 text-sm font-black text-[#173f33] shadow-[0_12px_28px_rgba(34,45,38,0.08)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-[#bfc8b7]"
+                  className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/70 bg-white/18 px-6 py-3 text-sm font-black text-white shadow-[0_12px_28px_rgba(34,45,38,0.08)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-white"
                 >
                   {copy.home.secondaryCta}
                 </Link>
               </div>
-            </div>
 
-            <div className="absolute inset-x-0 bottom-0 flex flex-col gap-4 p-5 text-white sm:p-7 lg:flex-row lg:items-end lg:justify-between lg:p-9">
-              <div>
-                <p className="max-w-md text-[clamp(1.8rem,3.2vw,3.1rem)] font-black leading-[0.96]">
-                  The journey to stronger beekeeping systems.
-                </p>
-                <p className="mt-3 max-w-md text-sm leading-6 text-white/78">
-                  Practical learning, field support, and technology exposure from Rajendranagar, Hyderabad.
-                </p>
-              </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/28 bg-[rgba(7,20,33,0.42)] px-4 py-2 text-xs font-bold text-white shadow-[0_14px_34px_rgba(7,20,33,0.22)] backdrop-blur-md">
+              <span className="mx-auto mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/28 bg-[rgba(7,20,33,0.42)] px-4 py-2 text-xs font-bold text-white shadow-[0_14px_34px_rgba(7,20,33,0.22)] backdrop-blur-md">
                 <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
                 {copy.home.locationChip}
               </span>
             </div>
-          </div>
 
-          <div className="grid border-t border-[#ebe7dd] bg-white md:grid-cols-4">
-            {stats.map((stat) => (
-              <div key={stat.value} className="border-b border-[#ebe7dd] px-7 py-6 md:border-b-0 md:border-r last:md:border-r-0">
-                <p className="text-[clamp(1.75rem,3vw,2.55rem)] font-black leading-none text-[#101a16]">{stat.value}</p>
-                <p className="mt-2 text-sm font-medium text-[#6b766e]">{stat.label}</p>
+            <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-6 lg:p-7">
+              <div
+                className="grid overflow-hidden rounded-[1.35rem] border border-white/45 shadow-[0_26px_68px_rgba(2,8,12,0.36),0_0_0_1px_rgba(255,255,255,0.24),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-1px_0_rgba(255,255,255,0.2)] backdrop-blur-[30px] backdrop-saturate-150 sm:grid-cols-2 lg:grid-cols-4"
+                style={{
+                  backgroundColor: "rgba(245, 248, 246, 0.42)",
+                  backgroundImage:
+                    "linear-gradient(135deg, rgba(255,255,255,0.62), rgba(255,255,255,0.18) 36%, rgba(230,235,232,0.24) 68%, rgba(255,255,255,0.48)), radial-gradient(ellipse at 50% 110%, rgba(255,255,255,0.72), rgba(255,255,255,0) 58%), radial-gradient(ellipse at 12% 0%, rgba(255,255,255,0.45), rgba(255,255,255,0) 42%)",
+                  backdropFilter: "blur(30px) saturate(150%)",
+                  boxShadow:
+                    "0 26px 68px rgba(2,8,12,0.36), inset 0 1px 0 rgba(255,255,255,0.72), inset 0 18px 36px rgba(255,255,255,0.18), inset 0 -26px 46px rgba(4,12,16,0.14)",
+                  WebkitBackdropFilter: "blur(30px) saturate(150%)",
+                }}
+              >
+                {stats.map((stat) => (
+                  <div
+                    key={stat.value}
+                    className="border-b px-5 py-3 last:border-b-0 sm:py-4 sm:odd:border-r sm:even:border-r-0 lg:border-b-0 lg:border-r lg:last:border-r-0"
+                    style={{
+                      borderColor: "rgba(255,255,255,0.28)",
+                      background:
+                        "linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.03) 58%, rgba(255,255,255,0.12))",
+                      boxShadow: "inset 1px 0 0 rgba(255,255,255,0.22)",
+                    }}
+                  >
+                    <p
+                      className="text-[clamp(1.55rem,2.6vw,2.25rem)] font-black leading-none text-[#071421]"
+                      style={{ textShadow: "0 1px 0 rgba(255,255,255,0.72), 0 8px 22px rgba(255,255,255,0.34)" }}
+                    >
+                      {stat.value}
+                    </p>
+                    <p
+                      className="mt-2 text-sm font-bold text-[#315849]"
+                      style={{ textShadow: "0 1px 0 rgba(255,255,255,0.68), 0 7px 18px rgba(255,255,255,0.28)" }}
+                    >
+                      {stat.label}
+                    </p>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-10 px-4 py-18 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-        <div className="text-left">
-          <p className="text-sm font-black uppercase tracking-[0.14em] text-[#b36b00]">2026</p>
-          <h2 className="font-display mt-7 max-w-xl text-[clamp(2.1rem,4vw,4.4rem)] leading-[0.98] text-[#173f33]">
-            Despite advances in agri-tech, field learning still decides confidence.
-          </h2>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {featureTiles.map((tile) => (
-            <article key={tile.title} className="overflow-hidden rounded-[1.4rem] border border-[#e3ded2] bg-white shadow-[0_18px_42px_rgba(34,45,38,0.08)]">
-              <div className="relative" style={{ aspectRatio: "4 / 3" }}>
-                <Image src={tile.image.src} alt={tile.image.alt} fill sizes="(min-width: 1024px) 24vw, 90vw" className="object-cover" />
-              </div>
-              <div className="p-5">
-                <h3 className="text-lg font-black text-[#173f33]">{tile.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#66776f]">{tile.text}</p>
-              </div>
-            </article>
-          ))}
-        </div>
+      <section className="mx-auto flex max-w-7xl justify-center px-4 pb-10 pt-12 sm:px-6 sm:pb-14 sm:pt-16 lg:px-8">
+        <figure className="relative flex w-full max-w-6xl flex-col items-center justify-center gap-6 py-8 sm:py-10 lg:flex-row lg:gap-0">
+          <p
+            className="max-w-[18rem] text-center font-display text-[clamp(1.65rem,3.4vw,3.35rem)] font-semibold leading-[0.96] text-[#173f33] lg:-mr-2 lg:text-right"
+            style={{ textShadow: "0 1px 0 rgba(255,255,255,0.95), 0 16px 28px rgba(7,20,33,0.12)" }}
+          >
+            <span className="text-[#b36b00]">&ldquo;</span>If the bee disappeared from the surface of the Earth,
+          </p>
+
+          <div className="relative z-10 lg:mx-2" style={{ aspectRatio: "2 / 3", width: "min(23rem, 78vw)" }}>
+            <Image
+              src="/hero-section-center-art.png"
+              alt="Apiculture visual accent"
+              fill
+              sizes="(min-width: 1024px) 23rem, 78vw"
+              className="object-contain drop-shadow-[0_28px_54px_rgba(7,20,33,0.16)]"
+              priority
+            />
+          </div>
+
+          <figcaption
+            className="max-w-[18rem] text-center font-display text-[clamp(1.65rem,3.4vw,3.35rem)] font-semibold leading-[0.96] text-[#173f33] lg:-ml-2 lg:text-left"
+            style={{ textShadow: "0 1px 0 rgba(255,255,255,0.95), 0 16px 28px rgba(7,20,33,0.12)" }}
+          >
+            man would have no more than four years left to live.<span className="text-[#b36b00]">&rdquo;</span>
+            <span className="mt-4 block font-sans text-xs font-black uppercase tracking-[0.18em] text-[#b36b00]">
+              Albert Einstein
+            </span>
+          </figcaption>
+        </figure>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-18 sm:px-6 lg:px-8">

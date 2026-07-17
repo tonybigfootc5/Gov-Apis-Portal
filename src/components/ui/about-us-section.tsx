@@ -439,25 +439,6 @@ function AboutEcosystemOrbit({
           <div className="absolute left-1/2 top-1/2 h-[21rem] w-[21rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6a84b]/38" />
           <div className="absolute left-1/2 top-1/2 h-[29rem] w-[29rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/48" />
           <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/22" />
-          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 960 560" aria-hidden="true">
-            {supportingCultures.map((culture, index) => {
-              const position = calculateNodePosition(index, supportingCultures.length);
-              return (
-                <line
-                  key={culture.title}
-                  x1="480"
-                  y1="280"
-                  x2={480 + position.x}
-                  y2={280 + position.y}
-                  stroke="#c7ad70"
-                  strokeWidth="1.4"
-                  strokeDasharray="7 9"
-                  opacity={activeCulture === culture.title || hoveredCulture === culture.title ? 0.68 : 0.34}
-                />
-              );
-            })}
-          </svg>
-
           <div className="absolute left-1/2 top-1/2 flex h-44 w-44 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,248,234,0.58))] text-center shadow-[0_22px_54px_rgba(99,77,26,0.14)] ring-1 ring-[#e6d2a9]/40 backdrop-blur-xl">
             <div className="absolute -inset-4 rounded-full border border-[#d6a84b]/15 opacity-70 [animation:ping_2.8s_cubic-bezier(0,0,0.2,1)_infinite]" />
             <div className="absolute -inset-8 rounded-full border border-[#f2b544]/18 opacity-50 [animation:ping_3.6s_cubic-bezier(0,0,0.2,1)_infinite]" />
