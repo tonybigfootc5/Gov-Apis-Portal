@@ -114,11 +114,11 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "event.status.UPCOMING": "Upcoming",
     "event.status.COMPLETED": "Completed",
     "event.status.CANCELLED": "Cancelled",
-    "program.slug.scientific-beekeeping-foundation.title": "Beekeeping",
+    "program.slug.scientific-beekeeping-foundation.title": "Scientific Beekeeping Training Programme",
     "program.slug.scientific-beekeeping-foundation.summary":
-      "Practical training covering colony biology, hive handling, safety, seasonal care, and honey hygiene.",
+      "A 5-day Scientific Beekeeping Training Programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad.",
     "program.slug.scientific-beekeeping-foundation.description":
-      "A field-led foundation program for farmers, self-help groups, youth entrepreneurs, and institutional trainees. Participants learn bee biology, apiary layout, hive inspection, protective practices, harvesting hygiene, and responsible colony care.",
+      "The Api Culture Technology Center conducts this 5-day programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice to help participants understand scientific beekeeping methods and develop beekeeping as a livelihood or enterprise.",
     "program.slug.queen-rearing-and-colony-multiplication.title": "Queen Rearing & Colony Multiplication",
     "program.slug.queen-rearing-and-colony-multiplication.summary":
       "Advanced instruction on selection, grafting, nucleus colonies, and sustainable apiary expansion.",
