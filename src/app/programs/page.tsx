@@ -13,20 +13,18 @@ export const metadata: Metadata = {
   description: "Apiculture training programs at API CULTURE.",
 };
 
-const courseTabs = ["Booking", "Availability", "Reminders", "Team"] as const;
-
 export default async function ProgramsPage() {
   const language = await getRequestLanguage();
   const programs = await getPrograms();
 
-  const courses: TrainingPreviewCourse[] = programs.slice(0, courseTabs.length).map((program, index) => {
+  const courses: TrainingPreviewCourse[] = programs.slice(0, 4).map((program) => {
     const translatedProgram = getTranslatedProgramContent(program, language);
     const presentation = trainingProgramCatalogBySlug[program.slug];
 
     return {
       id: program.id,
       slug: program.slug,
-      tabLabel: courseTabs[index],
+      tabLabel: translatedProgram.title,
       title: translatedProgram.title,
       summary: translatedProgram.summary,
       description: translatedProgram.description,

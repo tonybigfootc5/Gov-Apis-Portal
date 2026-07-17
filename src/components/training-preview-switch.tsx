@@ -161,7 +161,7 @@ function TabRail({
     <div
       role="tablist"
       aria-label="Training course switcher"
-      className="flex shrink-0 gap-2 overflow-x-auto [scrollbar-width:none] md:w-36 md:flex-col md:overflow-visible [&::-webkit-scrollbar]:hidden"
+      className="flex shrink-0 gap-2 overflow-x-auto [scrollbar-width:none] md:w-56 md:flex-col md:overflow-visible [&::-webkit-scrollbar]:hidden"
     >
       {courses.map((course, index) => {
         const isActive = index === active;
@@ -173,7 +173,7 @@ function TabRail({
             aria-selected={isActive}
             onClick={() => onSelect(index)}
             className={cn(
-              "whitespace-nowrap rounded-xl px-4 py-3 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b36b00] focus-visible:ring-offset-2",
+              "whitespace-nowrap rounded-xl px-4 py-3 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b36b00] focus-visible:ring-offset-2 md:whitespace-normal",
               isActive
                 ? "bg-white font-black text-[#173f33] shadow-[0_14px_34px_rgba(34,45,38,0.12)] ring-1 ring-[#e3ded2]"
                 : "font-bold text-[#6f8177] hover:bg-white/70 hover:text-[#173f33]",
