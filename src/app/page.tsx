@@ -58,7 +58,7 @@ export default async function Home() {
   });
 
   const stats = [
-    { value: "20+", label: copy.home.stats[0] },
+    { value: "25+", label: copy.home.stats[0] },
     { value: "25K+", label: copy.home.stats[1] },
     { value: "100+", label: "Learners supported" },
     { value: "NIRDPR", label: "Training center" },
@@ -88,7 +88,7 @@ export default async function Home() {
               <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
                   href="/#training-section"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#071421] px-6 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(7,20,33,0.24)] transition hover:-translate-y-0.5 hover:bg-[#132236]"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,#f2b544,#ff8a2a)] px-6 py-3 text-sm font-black text-[#071421] shadow-[0_18px_38px_rgba(179,107,0,0.28)] transition hover:-translate-y-0.5 hover:brightness-105"
                 >
                   {copy.home.primaryCta}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -101,8 +101,8 @@ export default async function Home() {
                 </Link>
               </div>
 
-              <span className="mx-auto mt-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/28 bg-[rgba(7,20,33,0.42)] px-4 py-2 text-xs font-bold text-white shadow-[0_14px_34px_rgba(7,20,33,0.22)] backdrop-blur-md">
-                <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+              <span className="mx-auto mt-5 inline-flex w-fit items-center gap-2.5 rounded-full border border-white/30 bg-[rgba(7,20,33,0.48)] px-5 py-2.5 text-sm font-black text-white shadow-[0_16px_38px_rgba(7,20,33,0.24)] backdrop-blur-md">
+                <MapPin className="h-4 w-4" aria-hidden="true" />
                 {copy.home.locationChip}
               </span>
             </div>
