@@ -107,51 +107,52 @@ export default async function Home() {
               </span>
             </div>
 
-            <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-6 lg:p-7">
-              <div
-                className="grid overflow-hidden rounded-[1.35rem] border border-white/45 shadow-[0_26px_68px_rgba(2,8,12,0.36),0_0_0_1px_rgba(255,255,255,0.24),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-1px_0_rgba(255,255,255,0.2)] backdrop-blur-[30px] backdrop-saturate-150 sm:grid-cols-2 lg:grid-cols-4"
-                style={{
-                  backgroundColor: "rgba(245, 248, 246, 0.42)",
-                  backgroundImage:
-                    "linear-gradient(135deg, rgba(255,255,255,0.62), rgba(255,255,255,0.18) 36%, rgba(230,235,232,0.24) 68%, rgba(255,255,255,0.48)), radial-gradient(ellipse at 50% 110%, rgba(255,255,255,0.72), rgba(255,255,255,0) 58%), radial-gradient(ellipse at 12% 0%, rgba(255,255,255,0.45), rgba(255,255,255,0) 42%)",
-                  backdropFilter: "blur(30px) saturate(150%)",
-                  boxShadow:
-                    "0 26px 68px rgba(2,8,12,0.36), inset 0 1px 0 rgba(255,255,255,0.72), inset 0 18px 36px rgba(255,255,255,0.18), inset 0 -26px 46px rgba(4,12,16,0.14)",
-                  WebkitBackdropFilter: "blur(30px) saturate(150%)",
-                }}
-              >
-                {stats.map((stat) => (
-                  <div
-                    key={stat.value}
-                    className="border-b px-5 py-3 last:border-b-0 sm:py-4 sm:odd:border-r sm:even:border-r-0 lg:border-b-0 lg:border-r lg:last:border-r-0"
-                    style={{
-                      borderColor: "rgba(255,255,255,0.28)",
-                      background:
-                        "linear-gradient(180deg, rgba(255,255,255,0.2), rgba(255,255,255,0.03) 58%, rgba(255,255,255,0.12))",
-                      boxShadow: "inset 1px 0 0 rgba(255,255,255,0.22)",
-                    }}
+          </div>
+
+          <div className="relative z-20 -mt-7 px-3 sm:-mt-8 sm:px-5 lg:px-7">
+            <div
+              className="grid overflow-hidden rounded-[1.35rem] border border-white/45 shadow-[0_26px_68px_rgba(2,8,12,0.28),0_0_0_1px_rgba(255,255,255,0.24),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-1px_0_rgba(255,255,255,0.2)] backdrop-blur-[30px] backdrop-saturate-150 sm:grid-cols-2 lg:grid-cols-4"
+              style={{
+                backgroundColor: "rgba(245, 248, 246, 0.68)",
+                backgroundImage:
+                  "linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0.24) 36%, rgba(230,235,232,0.34) 68%, rgba(255,255,255,0.58)), radial-gradient(ellipse at 50% 110%, rgba(255,255,255,0.72), rgba(255,255,255,0) 58%), radial-gradient(ellipse at 12% 0%, rgba(255,255,255,0.45), rgba(255,255,255,0) 42%)",
+                backdropFilter: "blur(30px) saturate(150%)",
+                boxShadow:
+                  "0 26px 68px rgba(2,8,12,0.28), inset 0 1px 0 rgba(255,255,255,0.72), inset 0 18px 36px rgba(255,255,255,0.18), inset 0 -26px 46px rgba(4,12,16,0.14)",
+                WebkitBackdropFilter: "blur(30px) saturate(150%)",
+              }}
+            >
+              {stats.map((stat) => (
+                <div
+                  key={stat.value}
+                  className="border-b px-5 py-4 last:border-b-0 sm:odd:border-r sm:even:border-r-0 lg:border-b-0 lg:border-r lg:last:border-r-0"
+                  style={{
+                    borderColor: "rgba(255,255,255,0.32)",
+                    background:
+                      "linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.05) 58%, rgba(255,255,255,0.14))",
+                    boxShadow: "inset 1px 0 0 rgba(255,255,255,0.22)",
+                  }}
+                >
+                  <p
+                    className="text-[clamp(1.55rem,2.6vw,2.25rem)] font-black leading-none text-[#071421]"
+                    style={{ textShadow: "0 1px 0 rgba(255,255,255,0.72), 0 8px 22px rgba(255,255,255,0.34)" }}
                   >
-                    <p
-                      className="text-[clamp(1.55rem,2.6vw,2.25rem)] font-black leading-none text-[#071421]"
-                      style={{ textShadow: "0 1px 0 rgba(255,255,255,0.72), 0 8px 22px rgba(255,255,255,0.34)" }}
-                    >
-                      {stat.value}
-                    </p>
-                    <p
-                      className="mt-2 text-sm font-bold text-[#315849]"
-                      style={{ textShadow: "0 1px 0 rgba(255,255,255,0.68), 0 7px 18px rgba(255,255,255,0.28)" }}
-                    >
-                      {stat.label}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                    {stat.value}
+                  </p>
+                  <p
+                    className="mt-2 text-sm font-bold text-[#315849]"
+                    style={{ textShadow: "0 1px 0 rgba(255,255,255,0.68), 0 7px 18px rgba(255,255,255,0.28)" }}
+                  >
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section id="training-section" className="scroll-mt-28 pt-8">
+      <section id="training-section" className="scroll-mt-28 pt-4">
         <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
           <p className="text-sm font-black uppercase tracking-[0.18em] text-[#b36b00]">Training</p>
           <h2 className="font-display mt-4 max-w-4xl text-[clamp(2.5rem,5vw,5.2rem)] leading-[0.92] text-[#173f33]">
