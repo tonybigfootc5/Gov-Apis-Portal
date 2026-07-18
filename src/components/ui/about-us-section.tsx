@@ -229,22 +229,12 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
 
         <motion.div className="mx-auto mt-12 grid max-w-6xl items-stretch gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)]" variants={itemVariants}>
           <div className="relative overflow-hidden rounded-[2rem] border border-[#e8eee9] bg-white p-7 shadow-[0_16px_38px_rgba(34,45,38,0.06)] md:p-9">
-            <div className="pointer-events-none absolute -right-8 bottom-2 h-[min(20rem,58vw)] w-[min(20rem,58vw)] opacity-[0.34] sm:-right-5 sm:bottom-4 sm:h-80 sm:w-80 md:opacity-[0.4] lg:-right-10 lg:h-[24rem] lg:w-[24rem]" aria-hidden="true">
-              <Image
-                src="/hero-section-center-art.png"
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 24rem, (min-width: 640px) 20rem, 58vw"
-                className="object-contain"
-              />
-            </div>
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.9)_52%,rgba(255,255,255,0.28)_100%)]" aria-hidden="true" />
-            <div className="relative z-10">
+            <div>
               <h2 className="font-display text-4xl md:text-5xl">{aboutUi.title}</h2>
               <div className="mt-4 h-1 w-24 bg-[#b97816]" />
             </div>
 
-            <div className="relative z-10 mt-7">
+            <div className="mt-7">
               {storyParagraphs.map((paragraph) => (
                 <p key={paragraph} className="mb-4 text-base font-medium leading-8 text-[#40564d] last:mb-0">
                   {paragraph}
@@ -253,10 +243,24 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-            {aboutStats.map((stat) => (
-              <FactStat key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
-            ))}
+          <div className="relative isolate overflow-hidden rounded-[2rem] border border-white/60 bg-white/[0.08] p-3 shadow-[0_24px_60px_rgba(34,45,38,0.12)] backdrop-blur-2xl">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(255,255,255,0.82),rgba(255,255,255,0.14)_33%,rgba(255,255,255,0.02)_68%)]" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.88]" aria-hidden="true">
+              <Image
+                src="/hero-section-center-art.png"
+                alt=""
+                width={620}
+                height={620}
+                sizes="(min-width: 1280px) 32rem, (min-width: 1024px) 38vw, 92vw"
+                className="h-auto w-[min(118%,38rem)] max-w-none"
+              />
+            </div>
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(145deg,rgba(255,255,255,0.38)_0%,rgba(255,255,255,0.08)_42%,rgba(18,36,28,0.12)_100%)]" aria-hidden="true" />
+            <div className="relative z-10 grid grid-cols-2 gap-3">
+              {aboutStats.map((stat) => (
+                <FactStat key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
+              ))}
+            </div>
           </div>
         </motion.div>
 
@@ -678,12 +682,14 @@ function FactStat({
 }) {
   return (
     <div
-      className="flex min-h-40 flex-col justify-between rounded-[1.65rem] border border-[#e8eee9] bg-white p-6 shadow-[0_12px_30px_rgba(34,45,38,0.05)]"
+      className="relative flex aspect-[1.06/1] min-h-[8.7rem] flex-col justify-between overflow-hidden rounded-[1.35rem] border border-white/55 bg-white/[0.12] p-4 shadow-[0_18px_42px_rgba(31,45,38,0.14),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-20px_38px_rgba(255,255,255,0.1)] backdrop-blur-[22px] backdrop-saturate-150 sm:min-h-[9.6rem] sm:p-5"
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f8f1e1] text-[#b97816]">{icon}</div>
-      <div>
-        <p className="mt-5 text-[clamp(1.75rem,3vw,2.6rem)] font-bold leading-none text-[#173f33]">{value}</p>
-        <p className="mt-3 text-sm font-semibold leading-6 text-[#6a7771]">{label}</p>
+      <div className="pointer-events-none absolute inset-x-3 top-2 h-px bg-white/70" aria-hidden="true" />
+      <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-white/35 blur-2xl" aria-hidden="true" />
+      <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/55 bg-white/25 text-[#a96a12] shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] sm:h-12 sm:w-12">{icon}</div>
+      <div className="relative z-10">
+        <p className="mt-4 text-[clamp(1.32rem,3.8vw,2.15rem)] font-bold leading-none text-[#173f33] [text-shadow:0_1px_12px_rgba(255,255,255,0.82)]">{value}</p>
+        <p className="mt-2 text-[0.72rem] font-semibold leading-5 text-[#40564d] [text-shadow:0_1px_10px_rgba(255,255,255,0.9)] sm:text-sm sm:leading-6">{label}</p>
       </div>
     </div>
   );
