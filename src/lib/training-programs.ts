@@ -39,7 +39,7 @@ export type TrainingProgramCatalogItem = {
 export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
   {
     id: "program-beekeeping",
-    title: "Scientific Beekeeping Training Programme",
+    title: "Beekeeping",
     slug: "scientific-beekeeping-foundation",
     summary:
       "A 5-day Scientific Beekeeping Training Programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad.",
@@ -58,8 +58,8 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     targetAudience:
       "Farmers, rural youth, women, tribal communities, landless individuals, existing beekeepers, aspiring beekeeping entrepreneurs, agriculture and horticulture workers, and anyone interested in starting an apiary.",
     detailBadge: "Scientific Beekeeping Training",
-    imageSrc: "/scientific-foundation-bg.jpg",
-    imageAlt: "A beekeeper inspecting a honey bee frame during practical field training.",
+    imageSrc: "/beekeeping-training-program.png",
+    imageAlt: "A beekeeper inspecting a honey bee frame in a sunlit apiary.",
     highlights: ["Scientific methods", "Hands-on practice", "Apiary enterprise"],
     outcomes: [
       "Understand scientific beekeeping methods, bee species, castes, and colony structure.",
@@ -102,8 +102,8 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     focusText: "Honey filtration, hygiene standards, quality control, and bottling machinery workflow.",
     targetAudience: "Existing beekeepers, producer groups, honey units, and value-addition trainees.",
     detailBadge: "Processing module",
-    imageSrc: "/honey-house-signboard.jpg",
-    imageAlt: "Hands uncapping a honey frame during honey extraction and processing.",
+    imageSrc: "/honey-processing-training-program.png",
+    imageAlt: "Honey frames arranged inside a stainless steel honey extractor.",
     highlights: ["Filtering", "Hygiene", "Bottling"],
     outcomes: [
       "Follow the practical flow from uncapping to extraction and filtration.",
@@ -144,8 +144,8 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     focusText: "Queen rearing, colony multiplication, grafting basics, and practical beeswax processing.",
     targetAudience: "Experienced trainees, extension staff, progressive beekeepers, and trainers.",
     detailBadge: "Advanced queen and wax",
-    imageSrc: "/queen-rearing-bg.jpg",
-    imageAlt: "A beekeeper working on queen rearing in a practical training setting.",
+    imageSrc: "/queen-rearing-colony-multiplication.png",
+    imageAlt: "A marked queen bee surrounded by worker bees during queen rearing.",
     highlights: ["Queen cells", "Colony split", "Wax recovery"],
     outcomes: [
       "Understand the practical steps involved in colony multiplication planning.",
@@ -186,8 +186,8 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     focusText: "High-value commercial harvesting and collection of royal jelly from prepared queen cells.",
     targetAudience: "Advanced beekeepers, entrepreneurs, product-focused units, and specialized trainees.",
     detailBadge: "High-value production",
-    imageSrc: "/field-beekeeping.jpg",
-    imageAlt: "Opened queen cells showing larvae in royal jelly during production training.",
+    imageSrc: "/royal-jelly-production-training.png",
+    imageAlt: "Royal jelly being collected from prepared queen cells with hygienic tools.",
     highlights: ["Queen cell prep", "Collection timing", "Cold handling"],
     outcomes: [
       "Understand how queen cells are prepared for royal jelly production work.",

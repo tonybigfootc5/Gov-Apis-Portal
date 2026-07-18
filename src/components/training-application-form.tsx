@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   BriefcaseBusiness,
   Camera,
@@ -20,9 +20,14 @@ type FormState = {
   applicationDate: string;
   candidateName: string;
   guardianName: string;
+  aadhaarNo: string;
   email: string;
   gender: "male" | "female" | "";
   dateOfBirth: string;
+  houseNo: string;
+  street: string;
+  village: string;
+  post: string;
   addressLine: string;
   mandal: string;
   district: string;
@@ -61,9 +66,14 @@ const INITIAL_FORM: FormState = {
   applicationDate: new Date().toISOString().slice(0, 10),
   candidateName: "",
   guardianName: "",
+  aadhaarNo: "",
   email: "",
   gender: "",
   dateOfBirth: "",
+  houseNo: "",
+  street: "",
+  village: "",
+  post: "",
   addressLine: "",
   mandal: "",
   district: "",
@@ -88,10 +98,32 @@ const STEPS = [
   { id: "photo", title: "Finish", subtitle: "Photo and final check", icon: Camera },
 ] as const;
 
+const physicalFormCopy = {
+  aadhaarNo: "Aadhaar number",
+  aadhaarPlaceholder: "12-digit Aadhaar number",
+  houseNo: "H. No.",
+  street: "Street",
+  village: "Village",
+  post: "Post",
+  additionalAddress: "Additional address details",
+};
+
+function buildAddressLine(data: Pick<FormState, "houseNo" | "street" | "village" | "post" | "addressLine">) {
+  return [
+    data.houseNo ? `H. No. ${data.houseNo}` : "",
+    data.street ? `Street: ${data.street}` : "",
+    data.village ? `Village: ${data.village}` : "",
+    data.post ? `Post: ${data.post}` : "",
+    data.addressLine,
+  ]
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .join(", ");
+}
+
 function requiredStepFields(stepIndex: number, data: FormState) {
   if (stepIndex === 0) {
     return Boolean(
-      data.applicationDate &&
         data.candidateName &&
         data.guardianName &&
         data.gender &&
@@ -101,8 +133,7 @@ function requiredStepFields(stepIndex: number, data: FormState) {
 
   if (stepIndex === 1) {
     return Boolean(
-      data.addressLine &&
-        data.mandal &&
+        buildAddressLine(data) &&
         data.district &&
         data.state &&
         /^\d{6}$/.test(data.pinCode) &&
@@ -145,9 +176,15 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       emailAddress: "Email address",
       optional: "Optional",
       residencePhone: "Residence phone",
+      aadhaarNo: "Aadhaar number",
+      aadhaarPlaceholder: "12-digit Aadhaar number",
       address: "Address",
-      addressPlaceholder: "House, street, village or locality",
-      mandal: "Mandal / block",
+      addressPlaceholder: "Additional address details",
+      houseNo: "H. No.",
+      street: "Street",
+      village: "Village",
+      post: "Post",
+      mandal: "Revenue mandal",
       district: "District",
       state: "State",
       pinCode: "Pin code",
@@ -294,13 +331,20 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const lockedService =
     normalizedServiceOptions.find((service) => service.title === selectedServiceTitle) ?? null;
   const initialServiceName = lockedService?.title ?? normalizedServiceOptions[0].title;
-  const [form, setForm] = useState<FormState>({ ...INITIAL_FORM, serviceName: initialServiceName });
+  const [form, setForm] = useState<FormState>({
+    ...INITIAL_FORM,
+    mandal: "Not provided",
+    serviceName: initialServiceName,
+  });
   const [step, setStep] = useState(0);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [photoUploadState, setPhotoUploadState] = useState<PhotoUploadState>("idle");
   const [message, setMessage] = useState("");
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [photoStatus, setPhotoStatus] = useState(copy.photoHelp);
+  const [showPreview, setShowPreview] = useState(false);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const hasUploadedPhoto = Boolean(form.photoUrl && form.photoName);
 
   const progress = ((step + 1) / STEPS.length) * 100;
@@ -372,7 +416,10 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       const response = await fetch("/api/training-application", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          addressLine: buildAddressLine(form),
+        }),
       });
 
       if (!response.ok) {
@@ -395,15 +442,33 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
     }
   }
 
+  function openPreview() {
+    if (photoUploadState === "uploading" || submitState === "compressing") {
+      setMessage(copy.waitUpload);
+      setSubmitState("error");
+      return;
+    }
+
+    if (!requiredStepFields(3, form)) {
+      setMessage(copy.uploadBeforeSubmit);
+      setSubmitState("error");
+      return;
+    }
+
+    setMessage("");
+    setSubmitState("idle");
+    setShowPreview(true);
+  }
+
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="neo-shell rounded-[2rem] p-5 sm:p-7 lg:p-8">
+      <div className="rounded-[2rem] border border-[#e3ded2] bg-[#fffdf8] p-4 shadow-[0_24px_70px_rgba(34,45,38,0.1)] sm:p-6 lg:p-7">
         <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,16rem)_1fr]">
-          <aside className="section-frame rounded-[1.7rem] p-5">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#8ec5ff]">{copy.enrollmentFlow}</p>
-            <h2 className="font-display mt-4 text-3xl text-bright">{copy.applyLead}</h2>
-            <div className="mt-6 h-2 overflow-hidden rounded-full bg-[rgba(41,56,49,0.08)]">
-              <div className="h-full rounded-full bg-[linear-gradient(90deg,#f2b544,#8ec5ff)] transition-all duration-300" style={{ width: `${progress}%` }} />
+          <aside className="rounded-[1.5rem] border border-[#e3ded2] bg-[#f7f3ea] p-4 sm:p-5">
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{copy.enrollmentFlow}</p>
+            <h2 className="mt-3 text-2xl font-black leading-tight text-[#173f33]">{copy.applyLead}</h2>
+            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white">
+              <div className="h-full rounded-full bg-[#b36b00] transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
             <div className="mt-6 grid gap-3">
               {STEPS.map((item, index) => {
@@ -416,34 +481,34 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     key={item.id}
                     type="button"
                     onClick={() => setStep(index)}
-                    className={`rounded-[1.2rem] border px-4 py-4 text-left transition ${
+                    className={`rounded-[1.05rem] border px-3 py-3 text-left transition ${
                       active
-                        ? "border-[#f2b544]/40 bg-[#f2b544]/10"
+                        ? "border-[#173f33] bg-white shadow-[0_12px_28px_rgba(34,45,38,0.08)]"
                         : passed
-                          ? "border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.76)]"
-                          : "border-[rgba(41,56,49,0.08)] bg-transparent"
+                          ? "border-[#e3ded2] bg-white/70"
+                          : "border-[#e3ded2] bg-transparent"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className={`flex h-10 w-10 items-center justify-center rounded-full ${active ? "bg-[#f2b544] text-[#0a0d12]" : "bg-[rgba(41,56,49,0.08)] text-[#1f352b]"}`}>
+                      <span className={`flex h-9 w-9 items-center justify-center rounded-full ${active ? "bg-[#173f33] text-white" : "bg-white text-[#b36b00]"}`}>
                         <Icon className="h-4 w-4" aria-hidden="true" />
                       </span>
                       <div>
-                        <p className="text-sm font-semibold text-bright">{copy.steps[index].title}</p>
-                        <p className="text-xs text-dim">{copy.steps[index].subtitle}</p>
+                        <p className="text-sm font-black text-[#173f33]">{copy.steps[index].title}</p>
+                        <p className="text-xs font-semibold text-[#66776f]">{copy.steps[index].subtitle}</p>
                       </div>
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="mt-6 rounded-[1.3rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-4 text-sm leading-7 text-dim">
+            <div className="mt-5 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm leading-7 text-[#5c6d63]">
               {copy.sidebarNote}
             </div>
           </aside>
 
-          <section className="section-frame rounded-[1.7rem] p-5 sm:p-6">
-            <div className="border-b border-[rgba(41,56,49,0.1)] pb-5">
+          <section className="rounded-[1.5rem] border border-[#e3ded2] bg-white p-5 sm:p-6">
+            <div className="border-b border-[#e3ded2] pb-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{copy.steps[step].title}</p>
@@ -476,24 +541,14 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     </label>
                   )}
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label={copy.applicationDate}>
-                      <input
-                        type="date"
-                        value={form.applicationDate}
-                        onChange={(event) => updateField("applicationDate", event.target.value)}
-                        className={inputClassName}
-                      />
-                    </Field>
-                    <Field label={copy.dateOfBirth}>
-                      <input
-                        type="date"
-                        value={form.dateOfBirth}
-                        onChange={(event) => updateField("dateOfBirth", event.target.value)}
-                        className={inputClassName}
-                      />
-                    </Field>
-                  </div>
+                  <Field label={copy.dateOfBirth}>
+                    <input
+                      type="date"
+                      value={form.dateOfBirth}
+                      onChange={(event) => updateField("dateOfBirth", event.target.value)}
+                      className={inputClassName}
+                    />
+                  </Field>
 
                   <Field label={copy.applicantName}>
                     <input
@@ -509,6 +564,16 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                       value={form.guardianName}
                       onChange={(event) => updateField("guardianName", event.target.value)}
                       placeholder={copy.guardianPlaceholder}
+                      className={inputClassName}
+                    />
+                  </Field>
+
+                  <Field label={physicalFormCopy.aadhaarNo}>
+                    <input
+                      value={form.aadhaarNo}
+                      onChange={(event) => updateField("aadhaarNo", event.target.value.replace(/\D/g, "").slice(0, 12))}
+                      placeholder={physicalFormCopy.aadhaarPlaceholder}
+                      inputMode="numeric"
                       className={inputClassName}
                     />
                   </Field>
@@ -561,33 +626,51 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     </Field>
                   </div>
 
-                  <Field label={copy.residencePhone}>
-                    <input
-                      value={form.residencePhone}
-                      onChange={(event) => updateField("residencePhone", event.target.value)}
-                      placeholder={copy.optional}
-                      className={inputClassName}
-                    />
-                  </Field>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label={physicalFormCopy.houseNo}>
+                      <input
+                        value={form.houseNo}
+                        onChange={(event) => updateField("houseNo", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                    <Field label={physicalFormCopy.street}>
+                      <input
+                        value={form.street}
+                        onChange={(event) => updateField("street", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
 
-                  <Field label={copy.address}>
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label={physicalFormCopy.village}>
+                      <input
+                        value={form.village}
+                        onChange={(event) => updateField("village", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                    <Field label={physicalFormCopy.post}>
+                      <input
+                        value={form.post}
+                        onChange={(event) => updateField("post", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
+
+                  <Field label={physicalFormCopy.additionalAddress}>
                     <textarea
                       value={form.addressLine}
                       onChange={(event) => updateField("addressLine", event.target.value)}
-                      rows={4}
+                      rows={3}
                       placeholder={copy.addressPlaceholder}
                       className={textareaClassName}
                     />
                   </Field>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label={copy.mandal}>
-                      <input
-                        value={form.mandal}
-                        onChange={(event) => updateField("mandal", event.target.value)}
-                        className={inputClassName}
-                      />
-                    </Field>
+                  <div className="grid gap-5 sm:grid-cols-3">
                     <Field label={copy.district}>
                       <input
                         value={form.district}
@@ -595,9 +678,6 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                         className={inputClassName}
                       />
                     </Field>
-                  </div>
-
-                  <div className="grid gap-5 sm:grid-cols-2">
                     <Field label={copy.state}>
                       <input
                         value={form.state}
@@ -667,11 +747,38 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   <Field label={copy.photo}>
                     <div className="rounded-[1.5rem] border border-dashed border-[rgba(41,56,49,0.16)] bg-[#fffdf8] p-5">
                       <input
+                        ref={galleryInputRef}
                         type="file"
                         accept="image/*"
                         onChange={(event) => void onPhotoChange(event.target.files?.[0] ?? null)}
-                        className="block w-full text-sm text-dim file:mr-4 file:rounded-full file:border-0 file:bg-[#f2b544] file:px-4 file:py-2 file:text-sm file:font-black file:uppercase file:tracking-[0.12em] file:text-[#0a0d12]"
+                        className="sr-only"
                       />
+                      <input
+                        ref={cameraInputRef}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={(event) => void onPhotoChange(event.target.files?.[0] ?? null)}
+                        className="sr-only"
+                      />
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <button
+                          type="button"
+                          onClick={() => galleryInputRef.current?.click()}
+                          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#f2b544] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12]"
+                        >
+                          <Camera className="h-4 w-4" aria-hidden="true" />
+                          Choose photo
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => cameraInputRef.current?.click()}
+                          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#173f33]/14 bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#173f33]"
+                        >
+                          <Camera className="h-4 w-4" aria-hidden="true" />
+                          Open camera
+                        </button>
+                      </div>
                       <p className="mt-3 text-sm text-dim">{photoStatus}</p>
                       {hasUploadedPhoto ? (
                         <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[#2a8d5f]">
@@ -728,10 +835,10 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                         photoUploadState === "uploading" ||
                         !hasUploadedPhoto
                       }
-                      onClick={() => void handleSubmit()}
+                      onClick={openPreview}
                       className="inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] shadow-[0_16px_40px_rgba(242,181,68,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {submitState === "submitting" ? copy.submitting : copy.submitApplication}
+                      Review application
                       <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     </button>
                   )}
@@ -746,6 +853,15 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
             </div>
           </section>
         </div>
+        {showPreview ? (
+          <ApplicationPreview
+            form={form}
+            photoPreviewUrl={photoPreviewUrl}
+            submitting={submitState === "submitting"}
+            onEdit={() => setShowPreview(false)}
+            onConfirm={() => void handleSubmit()}
+          />
+        ) : null}
       </div>
     </div>
   );
@@ -765,6 +881,107 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
     <div className="section-frame rounded-[1.4rem] p-4">
       <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{label}</p>
       <p className="mt-3 text-base font-semibold text-bright">{value}</p>
+    </div>
+  );
+}
+
+function ApplicationPreview({
+  form,
+  photoPreviewUrl,
+  submitting,
+  onEdit,
+  onConfirm,
+}: {
+  form: FormState;
+  photoPreviewUrl: string;
+  submitting: boolean;
+  onEdit: () => void;
+  onConfirm: () => void;
+}) {
+  const address = buildAddressLine(form);
+  const rows = [
+    ["Training", form.serviceName],
+    ["Applicant name", form.candidateName],
+    ["Guardian name", form.guardianName],
+    ["Aadhaar number", form.aadhaarNo],
+    ["Gender", form.gender ? form.gender[0].toUpperCase() + form.gender.slice(1) : ""],
+    ["Date of birth", form.dateOfBirth],
+    ["Mobile number", form.phone],
+    ["Email", form.email],
+    ["Address", address],
+    ["District", form.district],
+    ["State", form.state],
+    ["Pin code", form.pinCode],
+    ["Education", form.educationQualification],
+    ["Occupation", form.occupation],
+    ["Sponsoring organization", form.sponsoringOrganization],
+  ] as const;
+
+  return (
+    <section className="mt-6 overflow-hidden rounded-[1.8rem] border border-[#dfd6c4] bg-white shadow-[0_22px_64px_rgba(34,45,38,0.12)]">
+      <div className="grid gap-5 border-b border-[#eee6d8] bg-[#173f33] p-5 text-white sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f2b544]">Cross-check before payment</p>
+          <h3 className="mt-2 text-2xl font-black leading-tight">Review application details</h3>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/78">
+            Please confirm that the details below are correct. Payment starts only after this confirmation.
+          </p>
+        </div>
+        <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white ring-1 ring-white/18">
+          <CheckCircle2 className="h-4 w-4 text-[#f2b544]" aria-hidden="true" />
+          Ready to verify
+        </span>
+      </div>
+
+      <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_14rem]">
+        <div className="grid gap-3 sm:grid-cols-2">
+          {rows.map(([label, value]) => (
+            <ReviewRow key={label} label={label} value={value} wide={label === "Address"} />
+          ))}
+        </div>
+
+        <aside className="rounded-[1.35rem] border border-[#eee6d8] bg-[#fffdf8] p-4">
+          <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#b36b00]">Applicant photo</p>
+          {photoPreviewUrl ? (
+            <div className="relative mt-3 aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#f7f3ea]">
+              <Image src={photoPreviewUrl} alt="Applicant photo preview" fill unoptimized className="object-cover" />
+            </div>
+          ) : (
+            <div className="mt-3 grid aspect-[4/5] place-items-center rounded-[1rem] bg-[#f7f3ea] text-center text-sm font-semibold text-[#66776f]">
+              Photo not uploaded
+            </div>
+          )}
+        </aside>
+      </div>
+
+      <div className="flex flex-col gap-3 border-t border-[#eee6d8] bg-[#fffdf8] p-5 sm:flex-row sm:justify-end sm:p-6">
+        <button
+          type="button"
+          onClick={onEdit}
+          disabled={submitting}
+          className="inline-flex items-center justify-center rounded-full border border-[rgba(41,56,49,0.16)] bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#173f33] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Edit details
+        </button>
+        <button
+          type="button"
+          onClick={onConfirm}
+          disabled={submitting}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#173f33,#0d261f)] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-white shadow-[0_18px_44px_rgba(23,63,51,0.24)] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {submitting ? "Sending..." : "Confirm and continue to payment"}
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function ReviewRow({ label, value, wide = false }: { label: string; value?: string; wide?: boolean }) {
+  return (
+    <div className={`rounded-[1.05rem] border border-[#eee6d8] bg-[#fffdf8] px-4 py-3 ${wide ? "sm:col-span-2" : ""}`}>
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8b7d6b]">{label}</p>
+      <p className="mt-1 text-sm font-semibold leading-6 text-[#173f33]">{value?.trim() || "Not provided"}</p>
     </div>
   );
 }

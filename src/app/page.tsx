@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, BadgeCheck, MapPin } from "lucide-react";
+import { ArrowRight, MapPin } from "lucide-react";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { getRequestLanguage } from "@/lib/request-language";
 import { getSiteCopy } from "@/lib/site-copy";
@@ -57,14 +57,14 @@ export default async function Home() {
 
   return (
     <main className="bg-[#f8faf7] text-[#14241f]">
-      <section className="px-4 pt-0 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-[#e5e1d8] bg-[#fbfaf6] shadow-[0_24px_70px_rgba(34,45,38,0.12)]">
-          <div className="relative mx-0 overflow-hidden bg-[#0d1d18]" style={{ minHeight: "56rem" }}>
+      <section className="px-4 pt-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl pt-[4.65rem]">
+          <div className="relative mx-0 overflow-hidden rounded-[1.85rem] bg-[#0d1d18]" style={{ minHeight: "50rem" }}>
             <HeroBackgroundVideo />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(248,250,247,0.82)_0%,rgba(248,250,247,0.7)_28%,rgba(9,20,18,0.36)_58%,rgba(6,14,11,0.78)_100%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(248,250,247,0.2)_0%,rgba(248,250,247,0.5)_38%,rgba(248,250,247,0.16)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,18,0.18)_0%,rgba(7,20,18,0.06)_28%,rgba(9,20,18,0.34)_58%,rgba(6,14,11,0.78)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,20,18,0.24)_0%,rgba(7,20,18,0.1)_38%,rgba(7,20,18,0.22)_100%)]" />
 
-            <div className="relative z-10 px-5 pb-8 text-center sm:px-8 lg:px-12" style={{ paddingTop: "10.5rem" }}>
+            <div className="relative z-10 px-5 pb-8 text-center sm:px-8 lg:px-12" style={{ paddingTop: "8.5rem" }}>
               <h1
                 className="font-display mx-auto max-w-4xl text-white"
                 style={{ fontSize: "clamp(2.7rem, 6vw, 5.6rem)", lineHeight: 0.96, letterSpacing: "0" }}
@@ -142,32 +142,37 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto flex max-w-7xl justify-center px-4 pb-10 pt-12 sm:px-6 sm:pb-14 sm:pt-16 lg:px-8">
-        <figure className="relative flex w-full max-w-6xl flex-col items-center justify-center gap-6 py-8 sm:py-10 lg:flex-row lg:gap-0">
-          <p
-            className="max-w-[18rem] text-center font-display text-[clamp(1.65rem,3.4vw,3.35rem)] font-semibold leading-[0.96] text-[#173f33] lg:-mr-2 lg:text-right"
-            style={{ textShadow: "0 1px 0 rgba(255,255,255,0.95), 0 16px 28px rgba(7,20,33,0.12)" }}
-          >
-            <span className="text-[#b36b00]">&ldquo;</span>If the bee disappeared from the surface of the Earth,
-          </p>
+      <section className="mx-auto max-w-7xl px-4 pb-10 pt-12 sm:px-6 sm:pb-14 sm:pt-16 lg:px-8">
+        <figure className="relative grid min-h-[29rem] items-center overflow-visible py-10 lg:grid-cols-[1fr_0.82fr_1fr] lg:py-14">
+          <div className="pointer-events-none absolute inset-x-10 top-1/2 hidden h-px bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.34),rgba(179,107,0,0))] lg:block" aria-hidden="true" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6c27d]/35 lg:block" aria-hidden="true" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[16rem] w-[16rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#173f33]/10 lg:block" aria-hidden="true" />
 
-          <div className="relative z-10 lg:mx-2" style={{ aspectRatio: "2 / 3", width: "min(23rem, 78vw)" }}>
+          <blockquote
+            className="relative z-10 mx-auto max-w-[30rem] text-center font-display text-[clamp(2.25rem,4.8vw,5.15rem)] font-semibold leading-[0.9] text-[#073f37] lg:mx-0 lg:max-w-[35rem] lg:text-right"
+            style={{ textShadow: "0 1px 0 rgba(255,255,255,0.96), 0 18px 34px rgba(7,20,33,0.1)" }}
+          >
+            <span className="mr-2 align-top text-[0.58em] leading-none text-[#b36b00]">&ldquo;</span>If the honey bee disappeared from the surface of the globe the man would only have four years of life left.
+          </blockquote>
+
+          <div className="relative z-20 mx-auto -my-4 w-[min(27rem,78vw)] lg:-mx-8 lg:-my-10 lg:w-[34rem]" style={{ aspectRatio: "2 / 3" }}>
+            <div className="absolute left-1/2 top-1/2 h-[76%] w-[76%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,210,92,0.26),rgba(255,210,92,0)_66%)] blur-2xl" aria-hidden="true" />
             <Image
               src="/hero-section-center-art.png"
               alt="Apiculture visual accent"
               fill
-              sizes="(min-width: 1024px) 23rem, 78vw"
-              className="object-contain drop-shadow-[0_28px_54px_rgba(7,20,33,0.16)]"
+              sizes="(min-width: 1024px) 34rem, 78vw"
+              className="object-contain drop-shadow-[0_34px_62px_rgba(7,20,33,0.18)]"
               priority
             />
           </div>
 
           <figcaption
-            className="max-w-[18rem] text-center font-display text-[clamp(1.65rem,3.4vw,3.35rem)] font-semibold leading-[0.96] text-[#173f33] lg:-ml-2 lg:text-left"
-            style={{ textShadow: "0 1px 0 rgba(255,255,255,0.95), 0 16px 28px rgba(7,20,33,0.12)" }}
+            className="relative z-10 mx-auto max-w-[30rem] text-center font-display text-[clamp(2.25rem,4.8vw,5.15rem)] font-semibold leading-[0.9] text-[#073f37] lg:mx-0 lg:max-w-[35rem] lg:text-left"
+            style={{ textShadow: "0 1px 0 rgba(255,255,255,0.96), 0 18px 34px rgba(7,20,33,0.1)" }}
           >
-            man would have no more than four years left to live.<span className="text-[#b36b00]">&rdquo;</span>
-            <span className="mt-4 block font-sans text-xs font-black uppercase tracking-[0.18em] text-[#b36b00]">
+            No more bees, No more pollination, No more plants, No more animals, No more man.<span className="ml-2 text-[#b36b00]">&rdquo;</span>
+            <span className="mt-6 block font-sans text-[0.78rem] font-black uppercase leading-none tracking-[0.42em] text-[#b36b00]">
               Albert Einstein
             </span>
           </figcaption>
@@ -198,38 +203,6 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <div className="grid overflow-hidden rounded-[1.8rem] border border-[#e3ded2] bg-white shadow-[0_20px_54px_rgba(34,45,38,0.1)] lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="relative min-h-[21rem]">
-            <Image
-              src="/training-field-visuals/image7.jpeg"
-              alt="Training field visual"
-              fill
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,20,33,0.42),rgba(7,20,33,0.04))]" />
-            <div className="absolute left-6 top-6 inline-flex items-center gap-2 rounded-full border border-white/28 bg-white/18 px-4 py-2 text-xs font-bold text-white backdrop-blur-md">
-              <BadgeCheck className="h-4 w-4" aria-hidden="true" />
-              NIRDPR Training Center
-            </div>
-          </div>
-          <div className="flex flex-col justify-center p-7 sm:p-9">
-            <p className="text-sm font-black uppercase tracking-[0.14em] text-[#b36b00]">{copy.home.whyEyebrow}</p>
-            <h2 className="font-display mt-5 text-[clamp(2rem,3.6vw,3.5rem)] leading-[0.98] text-[#173f33]">
-              {copy.home.whyTitle}
-            </h2>
-            <p className="mt-5 text-base leading-7 text-[#66776f]">{copy.home.whyBody}</p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              {copy.home.values.map((item) => (
-                <span key={item.title} className="rounded-full border border-[#d9dfd2] bg-[#f8faf7] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#315849]">
-                  {item.title}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
   );
 }

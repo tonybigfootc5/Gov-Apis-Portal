@@ -4,8 +4,8 @@ import type React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Award, BriefcaseBusiness, Calendar, CheckCircle2, GraduationCap, ShieldCheck, Users } from "lucide-react";
-import { motion, useInView, useScroll, useSpring, useTransform } from "framer-motion";
+import { ArrowRight, Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users } from "lucide-react";
+import { motion, useInView } from "framer-motion";
 import { getSiteCopy } from "@/lib/site-copy";
 import type { SiteLanguage } from "@/lib/i18n";
 
@@ -17,7 +17,7 @@ const apiCultureFormation = {
 const supportingCultures = [
   {
     title: "Kavuri",
-    logo: "/kavuri-extract-3.png",
+    logo: "/kavuri-logo.png",
     eyebrow: "Technical support partner",
     description:
       "The source profile names Kavuri Bee Hive 'n' Natural Products as one of the supporting cultures behind the formation of API CULTURE.",
@@ -67,7 +67,7 @@ const supportingCultures = [
   },
   {
     title: "NIRDPR",
-    logo: "/nirdpr-logo.jpeg",
+    logo: "/nirdpr-orbit-logo.jpeg",
     eyebrow: "Institutional association",
     description:
       "NIRDPR is the institutional anchor named in the source text, linking the center's formation to Rural Technology Park and a broader public-sector development context.",
@@ -92,11 +92,40 @@ const supportingCultures = [
   },
 ];
 
+const aboutStats = [
+  {
+    icon: <Award className="h-5 w-5" />,
+    value: "20-80%",
+    label: "Crop Yield Potential",
+  },
+  {
+    icon: <Calendar className="h-5 w-5" />,
+    value: "5-Day",
+    label: "Scientific Beekeeping Training",
+  },
+  {
+    icon: <Users className="h-5 w-5" />,
+    value: "130+ Years",
+    label: "Combined Faculty Experience",
+  },
+  {
+    icon: <ShieldCheck className="h-5 w-5" />,
+    value: "Pan-India",
+    label: "Training & Technical Reach",
+  },
+];
+
 export default function AboutUsSection({ language }: { language: SiteLanguage }) {
   const copy = getSiteCopy(language);
   const storyParagraphs = copy.about.storyParagraphs;
   const peopleGroups = copy.about.peopleGroups;
   const moreCards = copy.about.moreCards;
+  const missionMembers = peopleGroups.flatMap((group) =>
+    group.members.map((member) => ({
+      ...member,
+      groupEyebrow: group.eyebrow,
+    })),
+  );
   const aboutUi = {
     en: {
       eyebrow: "Discover our story",
@@ -154,22 +183,11 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
     },
   }[language];
 
-  const [activeCulture, setActiveCulture] = useState("Kavuri");
+  const [activeCulture, setActiveCulture] = useState<string | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const statsRef = useRef<HTMLDivElement>(null);
   const peopleRef = useRef<HTMLDivElement>(null);
 
-  const isInView = useInView(sectionRef, { once: false, amount: 0.08 });
-  const isStatsInView = useInView(statsRef, { once: false, amount: 0.3 });
   const isPeopleInView = useInView(peopleRef, { once: true, amount: 0.15 });
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, -30]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 34]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -195,108 +213,64 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
     <section
       id="about-section"
       ref={sectionRef}
-      className="relative overflow-hidden bg-[radial-gradient(circle_at_top,rgba(255,251,243,0.96),rgba(248,240,225,0.92)_36%,rgba(241,232,216,0.94)_70%,rgba(236,225,205,0.98)_100%)] px-4 py-24 text-[#173f33]"
+      className="relative min-h-screen overflow-hidden bg-white px-4 py-24 text-[#173f33]"
     >
-      <motion.div className="absolute left-10 top-20 h-60 w-60 rounded-full bg-[#f0c76d]/10 blur-3xl" style={{ y: y1 }} />
-      <motion.div className="absolute bottom-16 right-12 h-72 w-72 rounded-full bg-[#90a882]/10 blur-3xl" style={{ y: y2 }} />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.34),transparent_22%,transparent_78%,rgba(255,240,206,0.22))]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_1px_1px,#9c7a36_1px,transparent_0)] [background-size:18px_18px]" />
-
       <motion.div
         className="relative z-10 mx-auto max-w-7xl"
-        initial="hidden"
-        animate={isInView ? "visible" : "hidden"}
+        initial="visible"
+        animate="visible"
         variants={containerVariants}
       >
-        <motion.div className="mb-6 flex flex-col items-center" variants={itemVariants}>
-          <h2 className="font-display text-center text-4xl md:text-5xl">{aboutUi.title}</h2>
-          <div className="mt-4 h-1 w-24 bg-[#b97816]" />
-        </motion.div>
-
-        <motion.div className="mx-auto max-w-4xl text-center" variants={itemVariants}>
-          {storyParagraphs.map((paragraph) => (
-            <p key={paragraph} className="mx-auto mb-4 text-base leading-8 text-[#5f6e67] last:mb-0">
-              {paragraph}
-            </p>
-          ))}
-        </motion.div>
-
-        <motion.div className="mx-auto mt-14 max-w-6xl" variants={itemVariants}>
+        <motion.div className="mx-auto max-w-6xl" variants={itemVariants}>
           <AboutEcosystemOrbit
             activeCulture={activeCulture}
             onSelectCulture={setActiveCulture}
-            explorePrograms={aboutUi.explorePrograms}
           />
         </motion.div>
 
-        <motion.div
-          ref={statsRef}
-          className="mt-12 grid gap-4 md:grid-cols-4"
-          initial="hidden"
-          animate={isStatsInView ? "visible" : "hidden"}
-          variants={containerVariants}
-        >
-          <FactStat icon={<Calendar className="h-5 w-5" />} value={2004} suffix="" label={aboutUi.established} delay={0} />
-          <FactStat icon={<Users className="h-5 w-5" />} value={3} suffix="" label={aboutUi.supportingCultures} delay={0.08} />
-          <FactStat icon={<Award className="h-5 w-5" />} value={4} suffix="+" label={aboutUi.coreThemes} delay={0.16} />
-          <FactStat icon={<ShieldCheck className="h-5 w-5" />} value={2} suffix="" label={aboutUi.leadershipShown} delay={0.24} />
+        <motion.div className="mx-auto mt-12 grid max-w-6xl items-stretch gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)]" variants={itemVariants}>
+          <div className="rounded-[2rem] border border-[#e8eee9] bg-white p-7 shadow-[0_16px_38px_rgba(34,45,38,0.06)] md:p-9">
+            <div>
+              <h2 className="font-display text-4xl md:text-5xl">{aboutUi.title}</h2>
+              <div className="mt-4 h-1 w-24 bg-[#b97816]" />
+            </div>
+
+            <div className="mt-7">
+              {storyParagraphs.map((paragraph) => (
+                <p key={paragraph} className="mb-4 text-base font-medium leading-8 text-[#40564d] last:mb-0">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+            {aboutStats.map((stat) => (
+              <FactStat key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
+            ))}
+          </div>
         </motion.div>
 
         <motion.div
           ref={peopleRef}
-          className="mt-14 rounded-[2.2rem] border border-white/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.52),rgba(255,249,239,0.3))] p-8 shadow-[0_28px_70px_rgba(99,77,26,0.1)] ring-1 ring-[#e4cc9d]/32 backdrop-blur-2xl"
+          className="mx-auto mt-20 max-w-7xl"
           initial="hidden"
           animate={isPeopleInView ? "visible" : "hidden"}
           variants={containerVariants}
         >
-          <motion.div className="max-w-3xl" variants={itemVariants}>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#b97816]">{aboutUi.missionPeople}</p>
-            <h3 className="mt-3 text-3xl font-semibold">{aboutUi.missionLead}</h3>
-            <p className="mt-4 text-sm leading-8 text-[#5f6e67]">
+          <motion.div className="mx-auto max-w-3xl text-center" variants={itemVariants}>
+            <p className="font-display text-sm italic text-[#8a978f]">{aboutUi.missionPeople}</p>
+            <h3 className="mt-3 text-[clamp(2.25rem,4.2vw,4.4rem)] font-black leading-[0.92] tracking-[-0.03em] text-[#101713]">
+              {aboutUi.missionLead}
+            </h3>
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[#6a7771]">
               {aboutUi.missionBody}
             </p>
           </motion.div>
 
-          <div className="mt-10 grid gap-8 xl:grid-cols-2">
-            {peopleGroups.map((group) => (
-              <motion.div
-                key={group.title}
-                className="rounded-[1.8rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.68),rgba(255,250,243,0.42))] p-6 shadow-[0_18px_44px_rgba(99,77,26,0.08)] backdrop-blur-xl"
-                variants={itemVariants}
-              >
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#b97816]">{group.eyebrow}</p>
-                <h4 className="mt-3 text-2xl font-semibold">{group.title}</h4>
-                <div className="mt-6 space-y-5">
-                  {group.members.map((member) => (
-                    <div
-                      key={member.name}
-                      className="rounded-[1.35rem] border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.74),rgba(255,251,245,0.48))] p-5 shadow-[0_12px_34px_rgba(99,77,26,0.06)] backdrop-blur-lg"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h5 className="text-lg font-semibold text-[#173f33]">{member.name}</h5>
-                          <p className="mt-1 text-sm leading-6 text-[#6a7771]">{member.designation}</p>
-                        </div>
-                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#f8f1e1] px-3 py-1 text-xs font-semibold text-[#b97816]">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          Profile
-                        </span>
-                      </div>
-                      <p className="mt-4 text-sm leading-7 text-[#5f6e67]">{member.role}</p>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {member.highlights.map((highlight) => (
-                          <span
-                            key={highlight}
-                            className="rounded-full border border-[#efe3cd] bg-[#fff8ec] px-3 py-1 text-xs font-medium text-[#7a6641]"
-                          >
-                            {highlight}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {missionMembers.map((member, index) => (
+              <TeamMemberTile key={member.name} member={member} index={index} />
             ))}
           </div>
         </motion.div>
@@ -305,7 +279,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
           {moreCards.map((card) => (
             <motion.div
               key={card.title}
-              className="rounded-[1.55rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,249,239,0.36))] p-5 shadow-[0_18px_40px_rgba(99,77,26,0.08)] backdrop-blur-xl"
+              className="rounded-[1.55rem] border border-[#e8eee9] bg-white p-5 shadow-[0_12px_30px_rgba(34,45,38,0.05)]"
               variants={itemVariants}
             >
               <p className="text-lg font-semibold text-[#173f33]">{card.title}</p>
@@ -315,7 +289,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
         </motion.div>
 
         <motion.div
-          className="mt-20 flex flex-col items-center justify-between gap-6 rounded-[2rem] border border-white/14 bg-[linear-gradient(135deg,rgba(17,59,49,0.9),rgba(24,73,60,0.72))] p-8 text-white shadow-[0_24px_60px_rgba(23,63,51,0.24)] backdrop-blur-xl md:flex-row"
+          className="mt-20 flex flex-col items-center justify-between gap-6 rounded-[2rem] border border-[#173f33] bg-[#173f33] p-8 text-white shadow-[0_18px_44px_rgba(23,63,51,0.18)] md:flex-row"
           initial={{ opacity: 0, y: 24 }}
           animate={isPeopleInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
           transition={{ duration: 0.6, delay: 0.25 }}
@@ -347,19 +321,19 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
 function AboutEcosystemOrbit({
   activeCulture,
   onSelectCulture,
-  explorePrograms,
 }: {
-  activeCulture: string;
-  onSelectCulture: (culture: string) => void;
-  explorePrograms: string;
+  activeCulture: string | null;
+  onSelectCulture: (culture: string | null) => void;
 }) {
   const [rotationAngle, setRotationAngle] = useState(0);
   const [hoveredCulture, setHoveredCulture] = useState<string | null>(null);
   const [autoRotate, setAutoRotate] = useState(true);
-  const activeDetails = supportingCultures.find((culture) => culture.title === activeCulture) ?? supportingCultures[0];
+  const orbitRef = useRef<HTMLDivElement>(null);
+  const selectedCulture = supportingCultures.find((culture) => culture.title === activeCulture) ?? null;
+  const selectedCultureIndex = supportingCultures.findIndex((culture) => culture.title === activeCulture);
 
   useEffect(() => {
-    if (!autoRotate) {
+    if (!autoRotate || activeCulture) {
       return;
     }
 
@@ -368,7 +342,27 @@ function AboutEcosystemOrbit({
     }, 50);
 
     return () => window.clearInterval(rotationTimer);
-  }, [autoRotate]);
+  }, [activeCulture, autoRotate]);
+
+  useEffect(() => {
+    if (!activeCulture) {
+      return;
+    }
+
+    const closeOnOutsideClick = (event: PointerEvent) => {
+      const target = event.target as HTMLElement;
+
+      if (target.closest("[data-orbit-card]")) {
+        return;
+      }
+
+      onSelectCulture(null);
+      setAutoRotate(true);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
+  }, [activeCulture, onSelectCulture]);
 
   const calculateNodePosition = (index: number, total: number) => {
     const angle = ((index / total) * 360 + rotationAngle) % 360;
@@ -390,14 +384,21 @@ function AboutEcosystemOrbit({
       return;
     }
 
-    const targetAngle = (nodeIndex / supportingCultures.length) * 360;
-    setRotationAngle(270 - targetAngle);
+    setAutoRotate(false);
     onSelectCulture(cultureTitle);
   };
 
+  const selectedPosition = selectedCultureIndex >= 0 ? calculateNodePosition(selectedCultureIndex, supportingCultures.length) : null;
+  const summaryOnRight = selectedPosition ? selectedPosition.x < 90 : true;
+  const summaryX = selectedPosition ? selectedPosition.x + (summaryOnRight ? 156 : -444) : 0;
+  const summaryY = selectedPosition ? selectedPosition.y - 70 : 0;
+  const lineStartX = selectedPosition ? selectedPosition.x + (summaryOnRight ? 128 : -128) : 0;
+  const lineEndX = selectedPosition ? selectedPosition.x + (summaryOnRight ? 156 : -156) : 0;
+  const lineLeft = Math.min(lineStartX, lineEndX);
+  const lineWidth = Math.abs(lineEndX - lineStartX);
+
   return (
-    <div className="relative overflow-hidden rounded-[2.8rem] border border-white/45 bg-[linear-gradient(145deg,rgba(255,255,255,0.58),rgba(255,249,239,0.28))] p-4 shadow-[0_30px_90px_rgba(82,57,13,0.12)] ring-1 ring-[#d7be90]/28 backdrop-blur-2xl md:p-7">
-      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.42),transparent_26%,transparent_74%,rgba(242,181,68,0.1))]" />
+    <div ref={orbitRef} className="relative overflow-visible px-1 py-2 md:px-4">
       <div className="absolute left-1/2 top-8 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full border border-[#d7be90]/26" />
       <div className="absolute left-1/2 top-20 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full border border-[#d6a84b]/24" />
 
@@ -405,187 +406,301 @@ function AboutEcosystemOrbit({
         <div className="grid gap-3 lg:hidden">
           {supportingCultures.map((culture) => {
             const isActive = activeCulture === culture.title;
+            const isLogoOnly = culture.title === "Kavuri" || culture.title === "NIRDPR";
             return (
-              <button
-                type="button"
-                key={culture.title}
-                onClick={() => centerNode(culture.title)}
-                className={`rounded-[1.35rem] border p-4 text-left transition ${
-                  isActive ? "border-[#d6a84b] bg-white/78 shadow-[0_16px_34px_rgba(184,120,22,0.14)]" : "border-white/60 bg-white/48"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/75 bg-white/85">
-                    <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="48px" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-semibold leading-tight text-[#173f33]">{culture.title}</h4>
-                  </div>
-                </div>
-              </button>
+              <div key={culture.title} className="grid gap-3">
+                <button
+                  type="button"
+                  onClick={() => centerNode(culture.title)}
+                  data-orbit-card
+                  className={`flex h-28 w-full items-center justify-center rounded-[1.35rem] border bg-white p-4 transition ${
+                    isActive ? "border-[#d6a84b] bg-white shadow-[0_12px_28px_rgba(34,45,38,0.08)]" : "border-[#e8eee9] bg-white"
+                  }`}
+                  aria-label={culture.title}
+                >
+                  {isLogoOnly ? (
+                    <div className="relative h-20 w-44">
+                      <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain" sizes="176px" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 text-left">
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/75 bg-white/85">
+                        <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="48px" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-semibold leading-tight text-[#173f33]">{culture.title}</h4>
+                      </div>
+                    </div>
+                  )}
+                </button>
+                {isActive ? <CultureInfoCard culture={culture} /> : null}
+              </div>
             );
           })}
         </div>
 
         <div
-          className="relative hidden min-h-[35rem] overflow-hidden rounded-[2.2rem] border border-white/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.38),rgba(255,250,242,0.22))] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] lg:block"
+          className="relative hidden min-h-[35rem] overflow-visible bg-white lg:block"
           onMouseEnter={() => setAutoRotate(false)}
           onMouseLeave={() => {
             setHoveredCulture(null);
-            setAutoRotate(true);
+            if (!activeCulture) {
+              setAutoRotate(true);
+            }
           }}
         >
-          <div className="absolute left-1/2 top-1/2 h-[18rem] w-[18rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f5c15f]/24 blur-sm" />
           <div className="absolute left-1/2 top-1/2 h-[21rem] w-[21rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6a84b]/38" />
           <div className="absolute left-1/2 top-1/2 h-[29rem] w-[29rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/48" />
           <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/22" />
-          <div className="absolute left-1/2 top-1/2 flex h-44 w-44 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,248,234,0.58))] text-center shadow-[0_22px_54px_rgba(99,77,26,0.14)] ring-1 ring-[#e6d2a9]/40 backdrop-blur-xl">
+          <div className="absolute left-1/2 top-1/2 flex h-40 w-40 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#e8eee9] bg-white text-center shadow-[0_14px_32px_rgba(34,45,38,0.06)]">
             <div className="absolute -inset-4 rounded-full border border-[#d6a84b]/15 opacity-70 [animation:ping_2.8s_cubic-bezier(0,0,0.2,1)_infinite]" />
             <div className="absolute -inset-8 rounded-full border border-[#f2b544]/18 opacity-50 [animation:ping_3.6s_cubic-bezier(0,0,0.2,1)_infinite]" />
-            <div className="relative h-16 w-20">
+            <div className="relative h-20 w-24">
               <Image src={apiCultureFormation.logo} alt="API CULTURE logo" fill className="object-contain" sizes="80px" />
             </div>
-            <p className="mt-2 text-[10px] font-black uppercase tracking-[0.24em] text-[#b97816]">{apiCultureFormation.title}</p>
-            <p className="mt-1 px-4 text-xs leading-5 text-[#61716a]">Shared apiculture ecosystem</p>
+            <p className="mt-1 text-[10px] font-black uppercase tracking-[0.24em] text-[#b97816]">{apiCultureFormation.title}</p>
           </div>
 
           {supportingCultures.map((culture, index) => {
             const isActive = activeCulture === culture.title;
             const isHovered = hoveredCulture === culture.title;
+            const isLogoOnly = culture.title === "Kavuri" || culture.title === "NIRDPR";
             const position = calculateNodePosition(index, supportingCultures.length);
             return (
-              <button
-                type="button"
+              <div
                 key={culture.title}
-                onClick={() => centerNode(culture.title)}
-                onMouseEnter={() => setHoveredCulture(culture.title)}
-                onMouseLeave={() => setHoveredCulture(null)}
-                className={`absolute left-1/2 top-1/2 ${culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.55rem] border p-4 text-left backdrop-blur-xl transition-all duration-700 ${
-                  isActive
-                    ? "border-[#d6a84b] bg-[linear-gradient(180deg,rgba(255,249,235,0.9),rgba(255,255,255,0.58))] shadow-[0_28px_60px_rgba(184,120,22,0.2)]"
-                    : isHovered
-                      ? "border-[#d6a84b]/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(255,250,242,0.5))] shadow-[0_22px_46px_rgba(99,77,26,0.12)]"
-                      : "border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.64),rgba(255,250,242,0.38))] shadow-[0_14px_34px_rgba(99,77,26,0.08)]"
-                }`}
+                className="absolute left-1/2 top-1/2 transition-all duration-700"
                 style={{
                   opacity: isActive || isHovered ? 1 : position.opacity,
-                  transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${isActive || isHovered ? 1.08 : position.scale})`,
+                  transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${isActive ? 1.1 : isHovered ? 1.16 : position.scale})`,
                   zIndex: isActive || isHovered ? 140 : position.zIndex,
                 }}
               >
-                <span
-                  className={`pointer-events-none absolute rounded-full transition-opacity duration-300 ${
-                    isActive || isHovered ? "opacity-100" : "opacity-0"
+                <button
+                  type="button"
+                  onClick={() => centerNode(culture.title)}
+                  onMouseEnter={() => setHoveredCulture(culture.title)}
+                  onMouseLeave={() => setHoveredCulture(null)}
+                  data-orbit-card
+                  className={`flex h-28 w-64 items-center justify-center rounded-[1.55rem] border bg-white p-4 transition-all duration-300 ${
+                    isActive
+                      ? "border-[#d6a84b] shadow-[0_18px_42px_rgba(34,45,38,0.08)]"
+                      : isHovered
+                        ? "border-[#d6a84b]/75 shadow-[0_14px_34px_rgba(34,45,38,0.07)]"
+                        : "border-[#e8eee9] shadow-[0_10px_26px_rgba(34,45,38,0.04)]"
                   }`}
-                  style={{
-                    background: "radial-gradient(circle, rgba(214,168,75,0.2) 0%, rgba(214,168,75,0) 72%)",
-                    height: "104px",
-                    left: "-18px",
-                    top: "-18px",
-                    width: "104px",
-                  }}
-                />
-                <div className="flex items-center gap-3">
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/75 bg-white/85 shadow-[0_8px_22px_rgba(99,77,26,0.08)]">
-                    <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="48px" />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className={`${culture.title === "API Bee Keeper's Association" ? "text-[1.05rem]" : "text-lg"} font-semibold leading-snug text-[#173f33]`}>
-                      {culture.title}
-                    </h4>
-                    {isHovered ? <p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#b97816]">Click to view</p> : null}
-                  </div>
-                </div>
-              </button>
+                  aria-label={culture.title}
+                >
+                  {isLogoOnly ? (
+                    <div className="relative h-20 w-48">
+                      <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain" sizes="192px" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 text-left">
+                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/75 bg-white/85 shadow-[0_8px_22px_rgba(99,77,26,0.08)]">
+                        <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="48px" />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className={`${culture.title === "API Bee Keeper's Association" ? "text-[1.05rem]" : "text-lg"} font-semibold leading-snug text-[#173f33]`}>
+                          {culture.title}
+                        </h4>
+                      </div>
+                    </div>
+                  )}
+                </button>
+              </div>
             );
           })}
-        </div>
-
-        <div className="grid gap-5">
-          <motion.div
-            key={activeDetails.title}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="relative overflow-hidden rounded-[2.25rem] border border-[#d7be90]/38 bg-[linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,249,239,0.42))] p-5 shadow-[0_22px_54px_rgba(99,77,26,0.1)] backdrop-blur-2xl md:p-6"
-          >
-            <div className="absolute right-0 top-0 h-36 w-36 rounded-bl-full bg-[#f5c15f]/18" />
-            <div className="relative grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:items-stretch">
-              <div>
-                <div className="flex items-center gap-4">
-                  <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-[1.15rem] border border-white/70 bg-white/85 shadow-[0_10px_24px_rgba(99,77,26,0.08)]">
-                    <Image src={activeDetails.logo} alt={`${activeDetails.title} logo`} fill className="object-contain p-2" sizes="64px" />
-                  </div>
-                  <div>
-                    <h3 className="text-[clamp(2rem,3vw,3.1rem)] font-semibold leading-[1.03] text-[#173f33]">{activeDetails.title}</h3>
-                    <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#7d8b84]">{activeDetails.eyebrow}</p>
-                  </div>
-                </div>
-                <p className="mt-6 text-[15px] leading-8 text-[#5f6e67]">{activeDetails.description}</p>
-                <Link href="/programs" className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-[#f2b544] px-5 py-2.5 text-sm font-semibold text-[#173f33]">
-                  {explorePrograms} <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {activeDetails.details.map((detail) => (
-                  <div key={detail.title} className="rounded-[1.25rem] border border-white/65 bg-white/58 p-4 shadow-[0_10px_24px_rgba(99,77,26,0.05)]">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-[#f8f1e1] p-2 text-[#b97816]">{detail.icon}</div>
-                      <h4 className="text-base font-semibold text-[#173f33]">{detail.title}</h4>
-                    </div>
-                    <p className="mt-3 text-sm leading-7 text-[#62706a]">{detail.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+          {selectedCulture && selectedPosition ? (
+            <>
+              <motion.div
+                className="pointer-events-none absolute z-[300] h-px bg-[#d6a84b]/60"
+                initial={{ opacity: 0, scaleX: 0 }}
+                animate={{ opacity: 1, scaleX: 1 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+                style={{
+                  left: `calc(50% + ${lineLeft}px)`,
+                  top: `calc(50% + ${selectedPosition.y}px)`,
+                  transformOrigin: summaryOnRight ? "left center" : "right center",
+                  width: `${lineWidth}px`,
+                }}
+              />
+              <CultureInfoCard
+                culture={selectedCulture}
+                className="absolute w-72"
+                style={{
+                  left: `calc(50% + ${summaryX}px)`,
+                  top: `calc(50% + ${summaryY}px)`,
+                }}
+              />
+            </>
+          ) : null}
         </div>
       </div>
     </div>
   );
 }
 
-function FactStat({
-  icon,
-  value,
-  suffix,
-  label,
-  delay,
+function CultureInfoCard({
+  culture,
+  className = "",
+  style,
 }: {
-  icon: React.ReactNode;
-  value: number;
-  suffix: string;
-  label: string;
-  delay: number;
+  culture: (typeof supportingCultures)[number];
+  className?: string;
+  style?: React.CSSProperties;
 }) {
-  const countRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(countRef, { once: false, amount: 0.5 });
-  const springValue = useSpring(0, { stiffness: 55, damping: 14 });
-
-  useEffect(() => {
-    springValue.set(isInView ? value : 0);
-  }, [isInView, springValue, value]);
-
-  const displayValue = useTransform(springValue, (latest) => Math.floor(latest));
-
   return (
     <motion.div
-      className="rounded-[1.65rem] border border-white/55 bg-[linear-gradient(180deg,rgba(255,255,255,0.58),rgba(255,249,239,0.34))] p-6 text-center shadow-[0_18px_44px_rgba(99,77,26,0.08)] ring-1 ring-[#e4cc9d]/28 backdrop-blur-xl"
+      key={culture.title}
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className={`z-[320] rounded-[1.25rem] border border-[#d6a84b]/45 bg-white p-4 text-left shadow-[0_18px_38px_rgba(34,45,38,0.12)] ${className}`}
+      style={style}
+    >
+      <div className="mb-3 h-px w-full bg-[#d6a84b]/45" />
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#b97816]">{culture.eyebrow}</p>
+      <p className="mt-2 text-sm leading-6 text-[#40564d]">{culture.description}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {culture.points.slice(0, 2).map((point) => (
+          <span key={point} className="rounded-full border border-[#e8eee9] bg-white px-3 py-1 text-[11px] font-semibold text-[#61716a]">
+            {point}
+          </span>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+function TeamMemberTile({
+  member,
+  index,
+}: {
+  member: {
+    name: string;
+    designation: string;
+    role: string;
+    highlights: string[];
+    groupEyebrow: string;
+  };
+  index: number;
+}) {
+  const splitName = member.name.replace(/\. /g, ".\n");
+  const toneClasses = [
+    "from-[#f6f8f3] to-[#eef3ee]",
+    "from-[#f8f5ef] to-[#eff4f0]",
+    "from-[#f4f7f8] to-[#eef3ef]",
+    "from-[#f7f4ef] to-[#f0f4ef]",
+  ];
+  const portraitTones = [
+    {
+      skin: "#d7b08a",
+      hair: "#59655f",
+      shirt: "#ffffff",
+      accent: "#f2b544",
+    },
+    {
+      skin: "#c99773",
+      hair: "#3d4742",
+      shirt: "#f8faf7",
+      accent: "#8aa392",
+    },
+    {
+      skin: "#b98567",
+      hair: "#2d3833",
+      shirt: "#ffffff",
+      accent: "#d6a84b",
+    },
+    {
+      skin: "#e0b991",
+      hair: "#4b554f",
+      shirt: "#f5f7f4",
+      accent: "#9fb6a7",
+    },
+  ];
+  const portrait = portraitTones[index % portraitTones.length];
+
+  return (
+    <motion.article
+      className={`group relative flex min-h-[25rem] overflow-hidden rounded-[1.35rem] bg-gradient-to-b ${toneClasses[index % toneClasses.length]} p-5`}
       variants={{
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: 24 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.5, delay },
+          transition: { duration: 0.5, delay: index * 0.06 },
         },
       }}
     >
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#f8f1e1] text-[#b97816]">{icon}</div>
-      <div ref={countRef} className="mt-4 flex items-center justify-center text-3xl font-bold text-[#173f33]">
-        <motion.span>{displayValue}</motion.span>
-        <span>{suffix}</span>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%]" aria-hidden="true">
+        <div
+          className="absolute bottom-[-1.2rem] right-[-0.8rem] h-56 w-44 rounded-t-[5rem] transition duration-500 group-hover:-translate-y-1 group-hover:scale-[1.03]"
+          style={{ backgroundColor: portrait.shirt }}
+        />
+        <div
+          className="absolute bottom-[9.2rem] right-[3.2rem] h-20 w-20 rounded-full shadow-[inset_-10px_-8px_0_rgba(70,55,42,0.08)] transition duration-500 group-hover:-translate-y-1"
+          style={{ backgroundColor: portrait.skin }}
+        />
+        <div
+          className="absolute bottom-[13.8rem] right-[2.75rem] h-12 w-24 rounded-t-full transition duration-500 group-hover:-translate-y-1"
+          style={{ backgroundColor: portrait.hair }}
+        />
+        <div
+          className="absolute bottom-[13.1rem] right-[4.75rem] h-7 w-12 rounded-b-full"
+          style={{ backgroundColor: portrait.hair }}
+        />
+        <div className="absolute bottom-[11.2rem] right-[4.55rem] h-2 w-2 rounded-full bg-[#173f33]/55" />
+        <div className="absolute bottom-[11.2rem] right-[6.2rem] h-2 w-2 rounded-full bg-[#173f33]/55" />
+        <div className="absolute bottom-[10.2rem] right-[5.08rem] h-1.5 w-5 rounded-full bg-[#173f33]/30" />
+        <div
+          className="absolute bottom-[4.3rem] right-[1.6rem] h-10 w-40 rounded-full opacity-80"
+          style={{ backgroundColor: portrait.accent }}
+        />
+        <div className="absolute bottom-0 right-0 h-40 w-40 rounded-full bg-white/42 blur-2xl" />
       </div>
-      <p className="mt-2 text-sm text-[#6a7771]">{label}</p>
-    </motion.div>
+      <div className="relative z-10 flex min-h-full w-full flex-col">
+        <div>
+          <h4 className="whitespace-pre-line text-[clamp(1.65rem,2.2vw,2.35rem)] font-black leading-[0.88] tracking-[-0.04em] text-[#111813]">
+            {splitName}
+          </h4>
+          <p className="mt-3 font-display text-sm italic text-[#7f8d85]">{member.groupEyebrow}</p>
+          <p className="mt-2 text-xs font-bold uppercase leading-5 tracking-[0.08em] text-[#b97816]">{member.designation}</p>
+        </div>
+
+        <div className="relative mt-auto pt-8">
+          <p className="relative z-10 max-w-[13.5rem] text-sm font-medium leading-6 text-[#4f6058]">{member.role}</p>
+          <div className="relative z-10 mt-4 flex flex-wrap gap-2">
+            {member.highlights.slice(0, 2).map((highlight) => (
+              <span key={highlight} className="rounded-full bg-white/76 px-3 py-1 text-[11px] font-bold text-[#61716a]">
+                {highlight}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+function FactStat({
+  icon,
+  value,
+  label,
+}: {
+  icon: React.ReactNode;
+  value: string;
+  label: string;
+}) {
+  return (
+    <div
+      className="flex min-h-40 flex-col justify-between rounded-[1.65rem] border border-[#e8eee9] bg-white p-6 shadow-[0_12px_30px_rgba(34,45,38,0.05)]"
+    >
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f8f1e1] text-[#b97816]">{icon}</div>
+      <div>
+        <p className="mt-5 text-[clamp(1.75rem,3vw,2.6rem)] font-bold leading-none text-[#173f33]">{value}</p>
+        <p className="mt-3 text-sm font-semibold leading-6 text-[#6a7771]">{label}</p>
+      </div>
+    </div>
   );
 }

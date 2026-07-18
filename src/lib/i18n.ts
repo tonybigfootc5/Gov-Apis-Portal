@@ -114,7 +114,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "event.status.UPCOMING": "Upcoming",
     "event.status.COMPLETED": "Completed",
     "event.status.CANCELLED": "Cancelled",
-    "program.slug.scientific-beekeeping-foundation.title": "Scientific Beekeeping Training Programme",
+    "program.slug.scientific-beekeeping-foundation.title": "Beekeeping",
     "program.slug.scientific-beekeeping-foundation.summary":
       "A 5-day Scientific Beekeeping Training Programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad.",
     "program.slug.scientific-beekeeping-foundation.description":

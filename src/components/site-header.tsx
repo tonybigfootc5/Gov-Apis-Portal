@@ -18,11 +18,9 @@ type SiteHeaderProps = {
   languageLabel: string;
   languageOptions: Array<{ value: SiteLanguage; label: string }>;
   navItems: NavItem[];
-  trainingItems: NavItem[];
   exploreItems: NavItem[];
   trainingLabel: string;
   exploreLabel: string;
-  allTrainingLabel: string;
   techCenterLabel: string;
   sandboxMode: boolean;
 };
@@ -32,11 +30,9 @@ export function SiteHeader({
   languageLabel,
   languageOptions,
   navItems,
-  trainingItems,
   exploreItems,
   trainingLabel,
   exploreLabel,
-  allTrainingLabel,
   techCenterLabel,
   sandboxMode,
 }: SiteHeaderProps) {
@@ -145,15 +141,9 @@ export function SiteHeader({
                 </NavLink>
               ))}
 
-              <DesktopDropdown
-                label={trainingLabel}
-                href="/programs"
-                items={trainingItems}
-                active={isActive("/programs")}
-                isItemActive={isActive}
-                dark={isAdminRoute}
-                homeStyle={isHomeRoute}
-              />
+              <NavLink href="/programs" active={isActive("/programs")} dark={isAdminRoute} homeStyle={isHomeRoute}>
+                {trainingLabel}
+              </NavLink>
 
               <DesktopDropdown
                 label={exploreLabel}
@@ -216,15 +206,9 @@ export function SiteHeader({
               </div>
               {homeItem ? <MobileLink href={homeItem.href} active={isActive(homeItem.href)} dark={isAdminRoute}>{homeItem.label}</MobileLink> : null}
               {aboutItem ? <MobileLink href={aboutItem.href} active={isActive(aboutItem.href)} dark={isAdminRoute}>{aboutItem.label}</MobileLink> : null}
-              <MobileDropdown
-                key="mobile-training"
-                label={trainingLabel}
-                href="/programs"
-                allLabel={allTrainingLabel}
-                items={trainingItems}
-                isItemActive={isActive}
-                dark={isAdminRoute}
-              />
+              <MobileLink href="/programs" active={isActive("/programs")} dark={isAdminRoute}>
+                {trainingLabel}
+              </MobileLink>
               <MobileDropdown label={exploreLabel} items={exploreItems} isItemActive={isActive} dark={isAdminRoute} />
               {contactItem ? <MobileLink href={contactItem.href} active={isActive(contactItem.href)} dark={isAdminRoute}>{contactItem.label}</MobileLink> : null}
             </nav>

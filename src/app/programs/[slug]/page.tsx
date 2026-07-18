@@ -176,7 +176,7 @@ export default async function ProgramDetailPage({ params }: Props) {
               </div>
             </section>
 
-            <section id="training-application-form" className="section-frame rounded-[1.8rem] p-5 sm:p-6">
+            <section id="training-application-form" className="section-frame scroll-mt-28 rounded-[1.8rem] p-5 sm:p-6">
               <div className="mb-6 rounded-[1.5rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] p-5">
                 <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{pageCopy.applicationEyebrow}</p>
                 <h2 className="font-display mt-3 text-4xl text-bright">{pageCopy.applyFor} {translatedProgram.title}</h2>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fffcf6;
+  --background: #ffffff;
   --foreground: #1f352b;
   --surface: rgba(255, 255, 255, 0.54);
   --surface-high: rgba(255, 255, 255, 0.76);
@@ -34,42 +34,14 @@ body {
   overflow-x: hidden;
   user-select: text;
   -webkit-user-select: text;
-  background-image:
-    linear-gradient(180deg, rgba(248, 246, 239, 0.26) 0%, rgba(240, 236, 223, 0.18) 28%, rgba(233, 229, 211, 0.24) 100%),
-    radial-gradient(circle at top left, rgba(255, 196, 120, 0.08), transparent 24rem),
-    radial-gradient(circle at top right, rgba(160, 193, 173, 0.08), transparent 28rem),
-    radial-gradient(circle at bottom center, rgba(95, 120, 72, 0.1), transparent 34rem),
-    url("/site-backdrops/global-moss-rain-v1.jpg");
-  background-size: auto, auto, auto, auto, cover;
-  background-position: center, top left, top right, bottom center, center center;
-  background-attachment: fixed;
 }
 
 body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.12;
-  background-image:
-    linear-gradient(180deg, rgba(255, 252, 246, 0.2), rgba(244, 239, 227, 0.08) 24%, rgba(234, 229, 214, 0.04) 52%, rgba(249, 246, 238, 0.16) 100%),
-    linear-gradient(rgba(41, 56, 49, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(41, 56, 49, 0.028) 1px, transparent 1px);
-  background-size: 100% 100%, 36px 36px, 36px 36px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.84));
+  content: none;
 }
 
 body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.1;
-  background-image:
-    radial-gradient(circle at 18% 18%, rgba(255, 245, 220, 0.24) 0%, rgba(255, 245, 220, 0) 22rem),
-    radial-gradient(circle at 82% 22%, rgba(146, 170, 126, 0.12) 0%, rgba(146, 170, 126, 0) 18rem),
-    radial-gradient(circle at 50% 100%, rgba(47, 77, 42, 0.14) 0%, rgba(47, 77, 42, 0) 20rem);
-  background-size: auto, auto, auto;
+  content: none;
 }
 
 body.sandbox-shell {
@@ -80,6 +52,24 @@ body.sandbox-shell {
     radial-gradient(circle at top left, rgba(214, 84, 69, 0.18), transparent 24rem),
     radial-gradient(circle at top right, rgba(255, 214, 167, 0.12), transparent 22rem),
     linear-gradient(180deg, #120b0a 0%, #17100f 100%);
+}
+
+.site-page-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+.site-page-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background: #ffffff;
+}
+
+.site-page-shell::after {
+  content: none;
 }
 
 img,
