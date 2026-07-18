@@ -162,34 +162,34 @@ export default async function Home() {
         <TrainingPreviewSwitch courses={courses} language={language} />
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-24">
-        <div className="mb-10 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.35),rgba(23,63,51,0.12),rgba(179,107,0,0))]" />
-        <figure className="relative grid items-center gap-8 overflow-hidden rounded-[1.5rem] border border-[#e2dccd] bg-[linear-gradient(135deg,rgba(255,255,255,0.84),rgba(244,241,233,0.74))] p-5 shadow-[0_26px_74px_rgba(23,63,51,0.08)] sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(15rem,0.46fr)] lg:gap-10 lg:p-10">
+      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+        <div className="mb-7 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.35),rgba(23,63,51,0.12),rgba(179,107,0,0))]" />
+        <figure className="relative mx-auto grid max-w-[46rem] items-center gap-5 overflow-hidden rounded-[1.25rem] border border-[#e2dccd] bg-[linear-gradient(135deg,rgba(255,255,255,0.84),rgba(244,241,233,0.74))] p-4 shadow-[0_20px_54px_rgba(23,63,51,0.07)] sm:p-5 md:max-w-[52rem] md:grid-cols-[minmax(0,1fr)_minmax(10rem,0.34fr)] lg:max-w-[58rem] lg:gap-7 lg:p-7">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.38),rgba(179,107,0,0))]" aria-hidden="true" />
           <blockquote
-            className="relative z-10 text-left font-display text-[clamp(1.72rem,7.2vw,2.9rem)] font-semibold leading-[1.06] text-[#073f37] sm:text-[clamp(2.35rem,5.8vw,4rem)] md:text-[clamp(2.35rem,4.8vw,4rem)] lg:text-[clamp(3rem,4.7vw,5.15rem)]"
+            className="relative z-10 text-left font-display text-[clamp(1.22rem,5vw,2rem)] font-semibold leading-[1.08] text-[#073f37] sm:text-[clamp(1.55rem,4vw,2.55rem)] md:text-[clamp(1.65rem,3.4vw,2.65rem)] lg:text-[clamp(1.9rem,3vw,3rem)]"
             style={{ textShadow: "0 1px 0 rgba(255,255,255,0.96), 0 18px 34px rgba(7,20,33,0.08)" }}
           >
             <span className="mr-2 align-top text-[0.58em] leading-none text-[#b36b00]">&ldquo;</span>
             If the honey bee disappeared from the surface of the globe the man would only have four years of life left. No more bees, No more pollination, No more plants, No more animals, No more man.
             <span className="ml-2 text-[#b36b00]">&rdquo;</span>
-            <span className="mt-5 block font-sans text-[0.72rem] font-black uppercase leading-none tracking-[0.34em] text-[#b36b00] sm:text-[0.78rem]">
+            <span className="mt-4 block font-sans text-[0.62rem] font-black uppercase leading-none tracking-[0.3em] text-[#b36b00] sm:text-[0.68rem]">
               Albert Einstein
             </span>
           </blockquote>
 
-          <div className="relative z-10 mx-auto w-[min(18rem,74vw)] self-center md:w-full md:max-w-[23rem] lg:max-w-[28rem]" style={{ aspectRatio: "1 / 1.18" }}>
+          <div className="relative z-10 mx-auto w-[min(12rem,54vw)] self-center md:w-full md:max-w-[13rem] lg:max-w-[15rem]" style={{ aspectRatio: "1 / 1.08" }}>
             <div className="absolute left-1/2 top-1/2 h-[86%] w-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,210,92,0.28),rgba(255,210,92,0)_66%)] blur-2xl" aria-hidden="true" />
             <Image
               src="/hero-section-center-art.png"
               alt="Apiculture visual accent"
               fill
-              sizes="(min-width: 1024px) 28rem, (min-width: 768px) 23rem, 74vw"
-              className="object-contain drop-shadow-[0_28px_52px_rgba(7,20,33,0.16)]"
+              sizes="(min-width: 1024px) 15rem, (min-width: 768px) 13rem, 54vw"
+              className="object-contain drop-shadow-[0_20px_38px_rgba(7,20,33,0.14)]"
             />
           </div>
         </figure>
-        <div className="mt-10 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(23,63,51,0.12),rgba(179,107,0,0.35),rgba(179,107,0,0))]" />
+        <div className="mt-7 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(23,63,51,0.12),rgba(179,107,0,0.35),rgba(179,107,0,0))]" />
       </section>
 
       <AboutUsSection language={language} />
