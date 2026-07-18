@@ -52,7 +52,7 @@ export function SiteHeader({
   };
 
   const frameClass = isHomeRoute
-    ? "border-transparent bg-transparent"
+    ? "border-transparent bg-[rgba(248,250,247,0.88)] shadow-[0_14px_36px_rgba(7,20,33,0.06)] backdrop-blur-xl"
     : isAdminRoute
     ? "border-[rgba(255,240,214,0.08)] bg-[linear-gradient(180deg,rgba(10,8,8,0.94),rgba(19,14,12,0.9))]"
     : "border-transparent bg-transparent";
@@ -71,7 +71,7 @@ export function SiteHeader({
     <header
       className={`${
         isHomeRoute
-          ? "absolute inset-x-0 top-0 overflow-x-clip px-4 pt-4 sm:px-6 lg:px-8"
+          ? "fixed inset-x-0 top-0 overflow-x-clip px-4 pt-4 sm:px-6 lg:px-8"
           : isAdminRoute
             ? "sticky top-0 border-b backdrop-blur-2xl"
             : "sticky top-0 overflow-x-clip px-4 py-4 sm:px-6 lg:px-8"
