@@ -228,13 +228,23 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
         </motion.div>
 
         <motion.div className="mx-auto mt-12 grid max-w-6xl items-stretch gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)]" variants={itemVariants}>
-          <div className="rounded-[2rem] border border-[#e8eee9] bg-white p-7 shadow-[0_16px_38px_rgba(34,45,38,0.06)] md:p-9">
-            <div>
+          <div className="relative overflow-hidden rounded-[2rem] border border-[#e8eee9] bg-white p-7 shadow-[0_16px_38px_rgba(34,45,38,0.06)] md:p-9">
+            <div className="pointer-events-none absolute -right-8 bottom-2 h-[min(20rem,58vw)] w-[min(20rem,58vw)] opacity-[0.13] sm:-right-5 sm:bottom-4 sm:h-80 sm:w-80 md:opacity-[0.16] lg:-right-10 lg:h-[24rem] lg:w-[24rem]" aria-hidden="true">
+              <Image
+                src="/hero-section-center-art.png"
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 24rem, (min-width: 640px) 20rem, 58vw"
+                className="object-contain"
+              />
+            </div>
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.94)_58%,rgba(255,255,255,0.76)_100%)]" aria-hidden="true" />
+            <div className="relative z-10">
               <h2 className="font-display text-4xl md:text-5xl">{aboutUi.title}</h2>
               <div className="mt-4 h-1 w-24 bg-[#b97816]" />
             </div>
 
-            <div className="mt-7">
+            <div className="relative z-10 mt-7">
               {storyParagraphs.map((paragraph) => (
                 <p key={paragraph} className="mb-4 text-base font-medium leading-8 text-[#40564d] last:mb-0">
                   {paragraph}
