@@ -243,20 +243,20 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
             </div>
           </div>
 
-          <div className="relative isolate overflow-hidden rounded-[2rem] border border-white/60 bg-white/[0.08] p-3 shadow-[0_24px_60px_rgba(34,45,38,0.12)] backdrop-blur-2xl">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(255,255,255,0.82),rgba(255,255,255,0.14)_33%,rgba(255,255,255,0.02)_68%)]" aria-hidden="true" />
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.88]" aria-hidden="true">
+          <div className="relative isolate min-h-full overflow-hidden rounded-[2rem] border border-[#e6eee6] bg-[#edf3ed] p-2.5 shadow-[0_22px_58px_rgba(34,45,38,0.12)] sm:p-3">
+            <div className="pointer-events-none absolute inset-0 opacity-[0.68]" aria-hidden="true">
               <Image
                 src="/hero-section-center-art.png"
                 alt=""
                 width={620}
                 height={620}
-                sizes="(min-width: 1280px) 32rem, (min-width: 1024px) 38vw, 92vw"
-                className="h-auto w-[min(118%,38rem)] max-w-none"
+                sizes="(min-width: 1280px) 34rem, (min-width: 1024px) 42vw, 94vw"
+                className="absolute left-1/2 top-1/2 h-[112%] w-[112%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
               />
             </div>
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(145deg,rgba(255,255,255,0.38)_0%,rgba(255,255,255,0.08)_42%,rgba(18,36,28,0.12)_100%)]" aria-hidden="true" />
-            <div className="relative z-10 grid grid-cols-2 gap-3">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_12%,rgba(255,255,255,0.74),rgba(255,255,255,0.22)_34%,rgba(255,255,255,0.04)_64%),linear-gradient(145deg,rgba(255,255,255,0.46)_0%,rgba(255,255,255,0.08)_44%,rgba(35,55,42,0.18)_100%)]" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-[1px] rounded-[1.9rem] border border-white/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]" aria-hidden="true" />
+            <div className="relative z-10 grid h-full grid-cols-2 gap-2.5 sm:gap-3">
               {aboutStats.map((stat) => (
                 <FactStat key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
               ))}
@@ -682,14 +682,14 @@ function FactStat({
 }) {
   return (
     <div
-      className="relative flex aspect-[1.06/1] min-h-[8.7rem] flex-col justify-between overflow-hidden rounded-[1.35rem] border border-white/55 bg-white/[0.12] p-4 shadow-[0_18px_42px_rgba(31,45,38,0.14),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-20px_38px_rgba(255,255,255,0.1)] backdrop-blur-[22px] backdrop-saturate-150 sm:min-h-[9.6rem] sm:p-5"
+      className="relative flex aspect-[1.05/1] min-h-[8.5rem] flex-col justify-between overflow-hidden rounded-[1.35rem] border border-white/45 bg-white/[0.24] p-3.5 shadow-[0_14px_34px_rgba(31,45,38,0.11),inset_0_1px_0_rgba(255,255,255,0.62),inset_0_-18px_34px_rgba(255,255,255,0.08)] backdrop-blur-[18px] backdrop-saturate-150 sm:min-h-[9.4rem] sm:p-5"
     >
-      <div className="pointer-events-none absolute inset-x-3 top-2 h-px bg-white/70" aria-hidden="true" />
-      <div className="pointer-events-none absolute -right-8 -top-10 h-24 w-24 rounded-full bg-white/35 blur-2xl" aria-hidden="true" />
-      <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/55 bg-white/25 text-[#a96a12] shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] sm:h-12 sm:w-12">{icon}</div>
+      <div className="pointer-events-none absolute inset-x-4 top-2 h-px bg-white/55" aria-hidden="true" />
+      <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-white/24 blur-2xl" aria-hidden="true" />
+      <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/45 bg-white/18 text-[#a96a12] shadow-[inset_0_1px_0_rgba(255,255,255,0.62)] sm:h-11 sm:w-11">{icon}</div>
       <div className="relative z-10">
-        <p className="mt-4 text-[clamp(1.32rem,3.8vw,2.15rem)] font-bold leading-none text-[#173f33] [text-shadow:0_1px_12px_rgba(255,255,255,0.82)]">{value}</p>
-        <p className="mt-2 text-[0.72rem] font-semibold leading-5 text-[#40564d] [text-shadow:0_1px_10px_rgba(255,255,255,0.9)] sm:text-sm sm:leading-6">{label}</p>
+        <p className="text-[clamp(1.25rem,3.45vw,2.05rem)] font-bold leading-[0.95] text-[#123d32] [text-shadow:0_1px_16px_rgba(255,255,255,0.92)]">{value}</p>
+        <p className="mt-2 max-w-[11rem] text-[0.7rem] font-bold leading-5 text-[#3d554b] [text-shadow:0_1px_12px_rgba(255,255,255,0.94)] sm:text-[0.86rem] sm:leading-6">{label}</p>
       </div>
     </div>
   );
