@@ -221,13 +221,10 @@ export function TrainingAnnouncementPopup({
                   <BellRing className="h-5 w-5" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#b8842a]">Apply in minutes</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#b8842a]">Training programs</p>
                   <h2 className="mt-1 font-display text-[1.55rem] leading-none font-semibold text-[#1f352b]">
-                    Choose a course
+                    Current batches
                   </h2>
-                  <p className="mt-1 text-xs font-semibold leading-5 text-[#5e7064]">
-                    Pick one program and continue to application.
-                  </p>
                 </div>
               </div>
               <div

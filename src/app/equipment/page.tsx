@@ -47,7 +47,7 @@ const equipmentTools = [
   {
     title: "Queen excluders",
     category: "Hive management",
-    body: "Partitions that help organize brood and honey areas in the hive.",
+    body: "Partitions for brood and honey areas in the hive.",
     imageSrc: "/equipment/queen-excluders.jpg",
     imageAlt: "Queen excluder equipment for hive management",
     imageSlides: [
@@ -170,7 +170,7 @@ const supportCards = [
   {
     icon: Wrench,
     title: "Training readiness",
-    body: "Helping trainees understand the purpose, handling, and maintenance of each tool.",
+    body: "Tool handling, maintenance, and field use.",
   },
 ] as const;
 
@@ -249,29 +249,12 @@ export default function EquipmentPage() {
           ))}
         </div>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.25fr]">
+        <div className="mt-8">
           <section className="rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(135deg,#113f32,#0f5d47)] p-6 text-[#fff9ef] shadow-[0_24px_70px_rgba(22,57,46,0.18)] sm:p-8">
             <Sparkles className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />
             <h2 className="mt-5 font-display text-4xl leading-tight">From equipment supply to farmer confidence.</h2>
             <p className="mt-5 text-sm leading-7 text-white/76">
-              The Technology Center supports the development of the beekeeping industry by helping farmers access essential equipment and by encouraging local manufacturing units that can serve apiarists closer to their fields.
-            </p>
-          </section>
-
-          <section className="rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-white/78 p-5 shadow-[0_20px_60px_rgba(121,105,70,0.11)] sm:p-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#b36b00]">Equipment workflow</p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
-              {["Identify colony need", "Select proper tool", "Practice in field"].map((step, index) => (
-                <div key={step} className="rounded-[1.2rem] border border-[rgba(41,56,49,0.09)] bg-[#fffaf1] p-4">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#dcefe8] text-sm font-black text-[#0f5d47]">
-                    {index + 1}
-                  </span>
-                  <p className="mt-4 text-sm font-black uppercase tracking-[0.12em] text-[#133226]">{step}</p>
-                </div>
-              ))}
-            </div>
-            <p className="mt-5 text-sm leading-7 text-[#65756c]">
-              This page uses representative imagery from API CULTURE field visuals and Wikimedia Commons to describe equipment support.
+              The Technology Center supports the development of the beekeeping industry through equipment access and local manufacturing units that serve apiarists closer to their fields.
             </p>
           </section>
         </div>

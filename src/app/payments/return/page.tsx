@@ -23,7 +23,7 @@ export default async function PaymentReturnPage({ searchParams }: Props) {
   const copy = {
     en: {
       missingTitle: "Missing payment reference",
-      missingMessage: "This return link does not include a valid order reference. Please start again from the training program you selected.",
+      missingMessage: "This return link does not include a valid order reference.",
       notFoundTitle: "Payment not found",
       notFoundMessage: "We could not match this transaction to an application record. If you completed payment, contact the center with your phone number and application details.",
     },

@@ -11,7 +11,7 @@ import { contactSchema } from "@/lib/validators";
 export async function POST(request: Request) {
   const parsed = contactSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return badRequest("Please check the form fields and try again.");
+    return badRequest("Contact form fields could not be submitted.");
   }
 
   const headerStore = await headers();
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   const limit = rateLimit("contact-form", ip, 5, 10 * 60 * 1000);
   if (!limit.allowed) {
     const retryAfterSeconds = Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000));
-    return tooManyRequests("Too many messages were submitted from this connection. Please wait and try again.", retryAfterSeconds);
+    return tooManyRequests("Too many messages were submitted from this connection.", retryAfterSeconds);
   }
 
   try {

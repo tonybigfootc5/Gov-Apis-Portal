@@ -44,7 +44,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     summary:
       "A 5-day Scientific Beekeeping Training Programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad.",
     description:
-      "The Api Culture Technology Center conducts this 5-day programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice to help participants understand scientific beekeeping methods and develop beekeeping as a livelihood or enterprise.",
+      "The Api Culture Technology Center conducts this 5-day programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around scientific beekeeping methods and beekeeping as a livelihood or enterprise.",
     duration: "5 days",
     level: "FOUNDATION",
     fee: "INR 5,000",
@@ -120,7 +120,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     certificate: "Physical certificate issued after completion",
     taughtIn: "English and Telugu",
     testimonial: {
-      quote: "The processing workflow helped us understand hygiene, filtration, and market-ready packing.",
+      quote: "The processing workflow made hygiene, filtration, and market-ready packing clear.",
       name: "Honey unit trainee",
     },
   },
@@ -227,8 +227,8 @@ export const trainingProgramGallery = [
   },
   {
     src: "/training-field-visuals/image3.jpeg",
-    alt: "Trainees receiving step-by-step guidance near the apiary field setup.",
-    label: "Live guidance",
+    alt: "Trainees working near the apiary field setup.",
+    label: "Live field session",
   },
   {
     src: "/training-field-visuals/image4.jpeg",

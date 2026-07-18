@@ -48,7 +48,7 @@ export default async function ProgramsPage() {
       certificate: presentation?.certificate ?? "Physical certificate issued after completion",
       taughtIn: presentation?.taughtIn ?? "English and Telugu",
       testimonial: presentation?.testimonial ?? {
-        quote: "Field-led practice helped make the training practical and clear.",
+        quote: "Field-led practice made the training practical and clear.",
         name: "Program trainee",
       },
     };

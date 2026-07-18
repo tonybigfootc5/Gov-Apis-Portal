@@ -79,7 +79,7 @@ export function ContactForm({ language, variant = "default" }: { language: SiteL
           name="message"
           required
           rows={isContactPage ? 5 : 6}
-          placeholder="Tell us how we can help."
+          placeholder="Message"
           className={
             isContactPage
               ? "min-w-0 resize-none rounded-[1.15rem] border border-transparent bg-[#ecebe6] px-4 py-3.5 text-[#181b18] outline-none ring-[#1a1a1a]/15 transition placeholder:text-[#77786f] focus:bg-white focus:ring-2"

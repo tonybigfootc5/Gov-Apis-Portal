@@ -100,7 +100,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "contact.form.submitting": "Submitting",
     "contact.form.success":
       "Your message has been recorded. The center team will respond through the provided contact details.",
-    "contact.form.error": "Unable to submit the form right now. Please try again.",
+    "contact.form.error": "Unable to submit the form right now.",
     "footer.programs": "Training programs",
     "footer.events": "Events and workshops",
     "footer.contact": "Contact the center",
@@ -118,7 +118,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "program.slug.scientific-beekeeping-foundation.summary":
       "A 5-day Scientific Beekeeping Training Programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad.",
     "program.slug.scientific-beekeeping-foundation.description":
-      "The Api Culture Technology Center conducts this 5-day programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice to help participants understand scientific beekeeping methods and develop beekeeping as a livelihood or enterprise.",
+      "The Api Culture Technology Center conducts this 5-day programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around scientific beekeeping methods and beekeeping as a livelihood or enterprise.",
     "program.slug.queen-rearing-and-colony-multiplication.title": "Queen Rearing & Colony Multiplication",
     "program.slug.queen-rearing-and-colony-multiplication.summary":
       "Advanced instruction on selection, grafting, nucleus colonies, and sustainable apiary expansion.",
@@ -128,7 +128,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "event.slug.apiculture-technology-orientation.summary":
       "Open orientation on modern beekeeping, honey value chains, and rural enterprise opportunities.",
     "event.slug.apiculture-technology-orientation.description":
-      "A public orientation for prospective trainees, farmer groups, and partner institutions. Sessions include center briefing, equipment demonstrations, and guidance on training enrollment.",
+      "A public orientation for prospective trainees, farmer groups, and partner institutions. Sessions include center briefing, equipment demonstrations, and training enrollment details.",
   },
   te: {
     "lang.label": "భాష",
@@ -223,7 +223,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "contact.form.submitting": "పంపుతోంది",
     "contact.form.success":
       "మీ సందేశం నమోదు చేయబడింది. కేంద్ర బృందం మీరు ఇచ్చిన సంప్రదింపు వివరాల ద్వారా స్పందిస్తుంది.",
-    "contact.form.error": "ప్రస్తుతం ఫారమ్ పంపడం సాధ్యపడలేదు. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    "contact.form.error": "ప్రస్తుతం ఫారమ్ పంపడం సాధ్యపడలేదు.",
     "footer.programs": "శిక్షణ కార్యక్రమాలు",
     "footer.events": "ఈవెంట్లు మరియు వర్క్‌షాపులు",
     "footer.contact": "కేంద్రాన్ని సంప్రదించండి",
@@ -346,7 +346,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "contact.form.submitting": "भेजा जा रहा है",
     "contact.form.success":
       "आपका संदेश दर्ज कर लिया गया है। केंद्र की टीम दिए गए संपर्क विवरणों पर उत्तर देगी।",
-    "contact.form.error": "अभी फ़ॉर्म जमा नहीं हो सका। कृपया फिर से प्रयास करें।",
+    "contact.form.error": "अभी फ़ॉर्म जमा नहीं हो सका।",
     "footer.programs": "प्रशिक्षण कार्यक्रम",
     "footer.events": "कार्यक्रम और कार्यशालाएँ",
     "footer.contact": "केंद्र से संपर्क करें",

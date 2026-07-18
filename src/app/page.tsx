@@ -1,52 +1,61 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MapPin } from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ContactForm } from "@/components/contact-form";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
+import { TrainingPreviewSwitch, type TrainingPreviewCourse } from "@/components/training-preview-switch";
+import AboutUsSection from "@/components/ui/about-us-section";
+import { getPrograms } from "@/lib/data";
+import { institute } from "@/lib/fallback-data";
+import { getTranslatedProgramContent, t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { getSiteCopy } from "@/lib/site-copy";
+import { trainingProgramCatalogBySlug } from "@/lib/training-programs";
+import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const language = await getRequestLanguage();
   const copy = getSiteCopy(language);
+  const programs = await getPrograms();
+  const courses: TrainingPreviewCourse[] = programs.slice(0, 4).map((program) => {
+    const translatedProgram = getTranslatedProgramContent(program, language);
+    const presentation = trainingProgramCatalogBySlug[program.slug];
 
-  const cards: ReadonlyArray<{
-    label: string;
-    title: string;
-    text: string;
-    href: string;
-    backgroundSrc: string;
-  }> = [
-    {
-      label: copy.home.cards[0].title,
-      title: copy.home.cards[0].title,
-      text: copy.home.cards[0].text,
-      href: "/products",
-      backgroundSrc: "/card-backgrounds/honey-bee-hive.jpg",
-    },
-    {
-      label: "Training",
-      title: copy.home.cards[1].title,
-      text: copy.home.cards[1].text,
-      href: "/programs",
-      backgroundSrc: "/training-field-visuals/image2.jpeg",
-    },
-    {
-      label: copy.home.cards[2].title,
-      title: copy.home.cards[2].title,
-      text: copy.home.cards[2].text,
-      href: "/equipment",
-      backgroundSrc: "/card-backgrounds/equipment-support-tools.png",
-    },
-    {
-      label: copy.home.cards[3].title,
-      title: copy.home.cards[3].title,
-      text: copy.home.cards[3].text,
-      href: "/events",
-      backgroundSrc: "/card-backgrounds/events-and-workshops.png",
-    },
-  ] as const;
+    return {
+      id: program.id,
+      slug: program.slug,
+      tabLabel: translatedProgram.title,
+      title: translatedProgram.title,
+      summary: translatedProgram.summary,
+      description: translatedProgram.description,
+      duration: translatedProgram.duration,
+      level: translatedProgram.level,
+      fee: translatedProgram.fee ?? t(language, "programs.detail.fallbackFee"),
+      capacity: `${translatedProgram.capacity} ${t(language, "programs.seats")}`,
+      batchDate: translatedProgram.batchStartsAt ? formatDate(translatedProgram.batchStartsAt) : "Contact the center for start date",
+      focusLabel: presentation?.focusLabel ?? translatedProgram.level,
+      focusText: presentation?.focusText ?? translatedProgram.summary,
+      targetAudience: presentation?.targetAudience ?? "Eligible applicants interested in beekeeping training.",
+      imageSrc: presentation?.imageSrc ?? "/training-field-visuals/image2.jpeg",
+      imageAlt: presentation?.imageAlt ?? translatedProgram.title,
+      outcomes: presentation?.outcomes ?? [],
+      skills: presentation?.skills ?? [],
+      instructorName: presentation?.instructorName ?? "Api Culture Training Faculty",
+      rating: presentation?.rating ?? "4.8",
+      ratingLabel: presentation?.ratingLabel ?? "Program reviews",
+      experienceLabel: presentation?.experienceLabel ?? translatedProgram.level,
+      tools: presentation?.tools ?? [],
+      certificate: presentation?.certificate ?? "Physical certificate issued after completion",
+      taughtIn: presentation?.taughtIn ?? "English and Telugu",
+      testimonial: presentation?.testimonial ?? {
+        quote: "Field-led practice made the training practical and clear.",
+        name: "Program trainee",
+      },
+    };
+  });
 
   const stats = [
     { value: "20+", label: copy.home.stats[0] },
@@ -78,14 +87,14 @@ export default async function Home() {
 
               <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Link
-                  href="/programs"
+                  href="/#training-section"
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#071421] px-6 py-3 text-sm font-black text-white shadow-[0_18px_38px_rgba(7,20,33,0.24)] transition hover:-translate-y-0.5 hover:bg-[#132236]"
                 >
                   {copy.home.primaryCta}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </Link>
                 <Link
-                  href="/about"
+                  href="/#about-section"
                   className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/70 bg-white/18 px-6 py-3 text-sm font-black text-white shadow-[0_12px_28px_rgba(34,45,38,0.08)] backdrop-blur-md transition hover:-translate-y-0.5 hover:border-white"
                 >
                   {copy.home.secondaryCta}
@@ -142,8 +151,19 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-10 pt-12 sm:px-6 sm:pb-14 sm:pt-16 lg:px-8">
-        <figure className="relative grid min-h-[29rem] items-center overflow-visible py-10 lg:grid-cols-[1fr_0.82fr_1fr] lg:py-14">
+      <section id="training-section" className="scroll-mt-28 pt-8">
+        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+          <p className="text-sm font-black uppercase tracking-[0.18em] text-[#b36b00]">Training</p>
+          <h2 className="font-display mt-4 max-w-4xl text-[clamp(2.5rem,5vw,5.2rem)] leading-[0.92] text-[#173f33]">
+            Training programs
+          </h2>
+        </div>
+        <TrainingPreviewSwitch courses={courses} language={language} />
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
+        <div className="mb-14 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.35),rgba(23,63,51,0.12),rgba(179,107,0,0))]" />
+        <figure className="relative grid min-h-[29rem] items-center overflow-visible py-6 lg:grid-cols-[1fr_0.82fr_1fr]">
           <div className="pointer-events-none absolute inset-x-10 top-1/2 hidden h-px bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.34),rgba(179,107,0,0))] lg:block" aria-hidden="true" />
           <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6c27d]/35 lg:block" aria-hidden="true" />
           <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[16rem] w-[16rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#173f33]/10 lg:block" aria-hidden="true" />
@@ -177,32 +197,65 @@ export default async function Home() {
             </span>
           </figcaption>
         </figure>
+        <div className="mt-14 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(23,63,51,0.12),rgba(179,107,0,0.35),rgba(179,107,0,0))]" />
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-18 sm:px-6 lg:px-8">
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {cards.map((card, index) => (
-            <Link
-              key={card.title}
-              href={card.href}
-              className="group overflow-hidden rounded-[1.55rem] border border-[#e3ded2] bg-white shadow-[0_18px_42px_rgba(34,45,38,0.08)] transition hover:-translate-y-1 hover:shadow-[0_24px_56px_rgba(34,45,38,0.12)]"
-            >
-              <div className="relative" style={{ aspectRatio: "1.18 / 0.84" }}>
-                <Image src={card.backgroundSrc} alt="" fill sizes="(min-width: 1280px) 18rem, (min-width: 768px) 45vw, 100vw" className="object-cover transition duration-500 group-hover:scale-[1.04]" />
-                <div className="absolute left-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-white text-xs font-black text-[#173f33]">
-                  {String(index + 1).padStart(2, "0")}
-                </div>
-              </div>
-              <div className="p-6">
-                <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#b36b00]">{card.label}</p>
-                <h3 className="font-display mt-4 text-3xl leading-none text-[#173f33]">{card.title}</h3>
-                <p className="mt-4 text-sm leading-6 text-[#66776f]">{card.text}</p>
-              </div>
-            </Link>
-          ))}
+      <AboutUsSection language={language} />
+
+      <section id="contact-section" className="scroll-mt-28 px-4 py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto mb-14 h-px max-w-7xl bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(23,63,51,0.18),rgba(179,107,0,0))]" />
+        <div className="mx-auto grid max-w-7xl gap-8 rounded-[2rem] border border-[#ece8de] bg-[#f4f3ee] p-6 shadow-[0_28px_80px_rgba(30,34,28,0.12)] lg:grid-cols-[0.92fr_1.08fr] lg:p-10">
+          <div className="grid content-between gap-10">
+            <div>
+              <span className="inline-flex items-center gap-2 rounded-full bg-[#ecebe6] px-3 py-2 text-sm font-semibold text-[#171a16]">
+                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                {t(language, "contact.eyebrow")}
+              </span>
+              <h2 className="mt-6 text-[clamp(3rem,6vw,5.4rem)] font-black leading-[0.86] tracking-[-0.06em] text-[#121512]">
+                {t(language, "contact.title")}
+              </h2>
+            </div>
+
+            <div className="grid gap-5 text-[#171a16]">
+              <ContactLine icon={<MapPin className="h-5 w-5" aria-hidden="true" />} title="Center location">
+                {institute.address}
+              </ContactLine>
+              <ContactLine icon={<Phone className="h-5 w-5" aria-hidden="true" />} title={t(language, "contact.phone")}>
+                {institute.phone.join(" / ")}
+              </ContactLine>
+              <ContactLine icon={<Mail className="h-5 w-5" aria-hidden="true" />} title={t(language, "contact.email")}>
+                {institute.email}
+              </ContactLine>
+            </div>
+          </div>
+
+          <div className="self-start">
+            <ContactForm language={language} variant="contactPage" />
+          </div>
         </div>
       </section>
-
     </main>
+  );
+}
+
+function ContactLine({
+  icon,
+  title,
+  children,
+}: {
+  icon: ReactNode;
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex gap-4">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#ecebe6] text-[#171a16]">
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-base font-black">{title}</span>
+        <span className="mt-1 block break-words text-base leading-6 text-[#464942]">{children}</span>
+      </span>
+    </div>
   );
 }

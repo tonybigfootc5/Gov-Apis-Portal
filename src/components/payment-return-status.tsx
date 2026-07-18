@@ -54,8 +54,8 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       notCompleted: "Payment not completed",
       progress: "Confirmation in progress",
       receivedMessage: (name: string) => `Your payment for ${name} has been captured successfully. The training application is now in the confirmed payment state.`,
-      notCompletedMessage: "The gateway did not confirm this transaction. Please retry from the application flow or contact the center if the amount was already debited.",
-      progressMessage: "Your application is saved. We are waiting for the payment gateway to finalize the transaction and this page will keep checking automatically.",
+      notCompletedMessage: "The gateway did not confirm this transaction.",
+      progressMessage: "Your application is saved. Payment confirmation is in progress.",
     },
     te: {
       program: "కార్యక్రమం",

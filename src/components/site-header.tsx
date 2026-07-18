@@ -41,11 +41,13 @@ export function SiteHeader({
   const isHomeRoute = pathname === "/";
   const isPublicRoute = !isAdminRoute;
   const homeItem = navItems.find((item) => item.href === "/");
-  const aboutItem = navItems.find((item) => item.href === "/about");
-  const contactItem = navItems.find((item) => item.href === "/contact");
+  const aboutItem = navItems.find((item) => item.href === "/about" || item.href.includes("about-section"));
+  const trainingItem = navItems.find((item) => item.href === "/programs" || item.href.includes("training-section"));
+  const contactItem = navItems.find((item) => item.href === "/contact" || item.href.includes("contact-section"));
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
+    if (href.includes("#")) return false;
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
@@ -141,9 +143,15 @@ export function SiteHeader({
                 </NavLink>
               ))}
 
-              <NavLink href="/programs" active={isActive("/programs")} dark={isAdminRoute} homeStyle={isHomeRoute}>
-                {trainingLabel}
-              </NavLink>
+              {trainingItem ? (
+                <NavLink href={trainingItem.href} active={isActive(trainingItem.href)} dark={isAdminRoute} homeStyle={isHomeRoute}>
+                  {trainingItem.label}
+                </NavLink>
+              ) : (
+                <NavLink href="/programs" active={isActive("/programs")} dark={isAdminRoute} homeStyle={isHomeRoute}>
+                  {trainingLabel}
+                </NavLink>
+              )}
 
               <DesktopDropdown
                 label={exploreLabel}
@@ -206,9 +214,15 @@ export function SiteHeader({
               </div>
               {homeItem ? <MobileLink href={homeItem.href} active={isActive(homeItem.href)} dark={isAdminRoute}>{homeItem.label}</MobileLink> : null}
               {aboutItem ? <MobileLink href={aboutItem.href} active={isActive(aboutItem.href)} dark={isAdminRoute}>{aboutItem.label}</MobileLink> : null}
-              <MobileLink href="/programs" active={isActive("/programs")} dark={isAdminRoute}>
-                {trainingLabel}
-              </MobileLink>
+              {trainingItem ? (
+                <MobileLink href={trainingItem.href} active={isActive(trainingItem.href)} dark={isAdminRoute}>
+                  {trainingItem.label}
+                </MobileLink>
+              ) : (
+                <MobileLink href="/programs" active={isActive("/programs")} dark={isAdminRoute}>
+                  {trainingLabel}
+                </MobileLink>
+              )}
               <MobileDropdown label={exploreLabel} items={exploreItems} isItemActive={isActive} dark={isAdminRoute} />
               {contactItem ? <MobileLink href={contactItem.href} active={isActive(contactItem.href)} dark={isAdminRoute}>{contactItem.label}</MobileLink> : null}
             </nav>

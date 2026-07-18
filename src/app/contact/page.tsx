@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { ExternalLink, HelpCircle, Mail, MapPin, MessageCircle, Phone, Plus } from "lucide-react";
+import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { institute } from "@/lib/fallback-data";
 import { t } from "@/lib/i18n";
@@ -12,12 +12,6 @@ export const metadata: Metadata = {
   title: "Contact",
   description: "Contact API CULTURE Technology Center.",
 };
-
-const supportItems = [
-  "How do I apply for beekeeping training?",
-  "Can I speak with the center before visiting?",
-  "Where is API CULTURE Technology Center located?",
-] as const;
 
 export default async function ContactPage() {
   const language = await getRequestLanguage();
@@ -37,9 +31,6 @@ export default async function ContactPage() {
               <h1 className="mt-6 text-[clamp(3rem,6vw,5.6rem)] font-black leading-[0.86] tracking-[-0.06em] text-[#121512]">
                 {t(language, "contact.title")}
               </h1>
-              <p className="mt-5 max-w-xl text-xl leading-8 text-[#464942]">
-                {t(language, "contact.body")}
-              </p>
             </div>
 
             <div className="grid gap-5 text-[#171a16]">
@@ -73,50 +64,7 @@ export default async function ContactPage() {
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,22,16,0.04),rgba(10,22,16,0.32))]" />
             <div className="absolute bottom-6 left-6 max-w-md rounded-[1.2rem] border border-white/25 bg-white/18 p-5 text-white shadow-[0_20px_44px_rgba(0,0,0,0.18)] backdrop-blur-xl">
               <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f6cf74]">{legalName}</p>
-              <p className="mt-3 text-2xl font-black leading-tight">Visit, call, or write to the center for training guidance.</p>
             </div>
-          </div>
-        </div>
-
-        <div className="grid gap-10 px-8 pb-20 lg:grid-cols-[0.72fr_1.28fr] lg:px-10">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#ecebe6] px-3 py-2 text-sm font-semibold text-[#171a16]">
-              <HelpCircle className="h-4 w-4" aria-hidden="true" />
-              Help Center
-            </span>
-            <h2 className="mt-5 text-[clamp(2.2rem,4vw,4.2rem)] font-black leading-[0.9] tracking-[-0.055em] text-[#121512]">
-              Support and Guidance
-            </h2>
-            <p className="mt-4 max-w-md text-lg leading-7 text-[#50544c]">
-              Quick answers about visits, training applications, and center communication.
-            </p>
-          </div>
-
-          <div className="grid gap-4">
-            <a
-              href={institute.website}
-              target="_blank"
-              rel="noreferrer"
-              className="group flex min-h-24 items-center justify-between rounded-[1.35rem] bg-[#1f392d] p-6 text-white shadow-[0_22px_46px_rgba(28,50,39,0.16)]"
-            >
-              <span>
-                <span className="block text-lg font-black">Official website</span>
-                <span className="mt-2 block text-sm text-white/72">{institute.website.replace("https://", "")}</span>
-              </span>
-              <ExternalLink className="h-5 w-5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
-            </a>
-            {supportItems.map((item) => (
-              <button
-                key={item}
-                type="button"
-                className="flex min-h-16 items-center justify-between rounded-[1.2rem] bg-white px-6 py-4 text-left text-base font-semibold text-[#171a16] shadow-[0_16px_36px_rgba(30,34,28,0.07)] transition hover:-translate-y-0.5"
-              >
-                {item}
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-[#f1efe9]">
-                  <Plus className="h-5 w-5" aria-hidden="true" />
-                </span>
-              </button>
-            ))}
           </div>
         </div>
       </div>

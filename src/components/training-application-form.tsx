@@ -158,8 +158,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
         { title: "Finish", subtitle: "Photo and final check" },
       ],
       enrollmentFlow: "Enrollment flow",
-      applyLead: "Apply in four clean steps.",
-      sidebarNote: "Review the program, fill the details, upload the photo, and finish payment in one flow.",
+      applyLead: "Application",
+      sidebarNote: "",
       selectedTraining: "Selected training",
       selectTraining: "Select training",
       applicationDate: "Application date",
@@ -192,10 +192,10 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       education: "Education qualification",
       occupation: "Occupation",
       sponsor: "Sponsoring organization",
-      keepExactTitle: "Keep it exact.",
-      keepExactBody: "These details are used to identify the applicant during payment review and admission follow-up.",
+      keepExactTitle: "",
+      keepExactBody: "",
       photo: "Applicant photo",
-      photoHelp: "Upload one clear face photo. We compress it automatically before sending.",
+      photoHelp: "",
       photoUploaded: "Uploaded and ready",
       applicant: "Applicant",
       phone: "Phone",
@@ -205,12 +205,12 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       next: "Next",
       submitting: "Submitting",
       submitApplication: "Submit application",
-      waitUpload: "Wait for the photo upload to finish before submitting.",
-      uploadBeforeSubmit: "Upload the applicant photo before submitting.",
+      waitUpload: "Photo upload is in progress.",
+      uploadBeforeSubmit: "Applicant photo is required.",
       redirecting: "Application saved. Redirecting to secure payment...",
       saved: "Application saved successfully.",
       uploadReady: "Photo prepared and ready.",
-      uploadFail: "Photo upload failed. Please choose the image again.",
+      uploadFail: "Photo upload failed.",
     },
     te: {
       steps: [
@@ -220,8 +220,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
         { title: "ముగింపు", subtitle: "ఫోటో మరియు చివరి తనిఖీ" },
       ],
       enrollmentFlow: "నమోదు ప్రవాహం",
-      applyLead: "నాలుగు స్పష్టమైన దశల్లో దరఖాస్తు పూర్తి చేయండి.",
-      sidebarNote: "కార్యక్రమాన్ని పరిశీలించండి, వివరాలు నమోదు చేయండి, ఫోటో అప్లోడ్ చేయండి, తరువాత ఒకే ప్రవాహంలో చెల్లింపు పూర్తి చేయండి.",
+      applyLead: "దరఖాస్తు",
+      sidebarNote: "",
       selectedTraining: "ఎంచుకున్న శిక్షణ",
       selectTraining: "శిక్షణను ఎంచుకోండి",
       applicationDate: "దరఖాస్తు తేదీ",
@@ -248,10 +248,10 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       education: "విద్యార్హత",
       occupation: "వృత్తి",
       sponsor: "ప్రాయోజక సంస్థ",
-      keepExactTitle: "సరిగ్గా నమోదు చేయండి.",
-      keepExactBody: "చెల్లింపు నిర్ధారణ మరియు అడ్మిషన్ ఫాలో-అప్ సమయంలో దరఖాస్తుదారుని గుర్తించడానికి ఈ వివరాలు ఉపయోగిస్తారు.",
+      keepExactTitle: "",
+      keepExactBody: "",
       photo: "దరఖాస్తుదారు ఫోటో",
-      photoHelp: "ఒక స్పష్టమైన ముఖ ఫోటో అప్లోడ్ చేయండి. పంపించే ముందు దాన్ని ఆటోమేటిక్‌గా కుదిస్తాము.",
+      photoHelp: "",
       photoUploaded: "అప్లోడ్ అయి సిద్ధంగా ఉంది",
       applicant: "దరఖాస్తుదారు",
       phone: "ఫోన్",
@@ -261,12 +261,12 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       next: "తదుపరి",
       submitting: "సమర్పిస్తోంది",
       submitApplication: "దరఖాస్తు సమర్పించండి",
-      waitUpload: "సమర్పించే ముందు ఫోటో అప్లోడ్ పూర్తయ్యే వరకు వేచి ఉండండి.",
-      uploadBeforeSubmit: "సమర్పించే ముందు దరఖాస్తుదారు ఫోటోను అప్లోడ్ చేయండి.",
+      waitUpload: "ఫోటో అప్లోడ్ జరుగుతోంది.",
+      uploadBeforeSubmit: "దరఖాస్తుదారు ఫోటో అవసరం.",
       redirecting: "దరఖాస్తు సేవ్ అయింది. సురక్షిత చెల్లింపు గేట్‌వేకు తీసుకెళ్తున్నాం...",
       saved: "దరఖాస్తు విజయవంతంగా సేవ్ అయింది.",
       uploadReady: "ఫోటో అప్లోడ్ అయి సిద్ధంగా ఉంది.",
-      uploadFail: "ఫోటో అప్లోడ్ విఫలమైంది. దయచేసి మళ్లీ చిత్రం ఎంచుకోండి.",
+      uploadFail: "ఫోటో అప్లోడ్ విఫలమైంది.",
     },
     hi: {
       steps: [
@@ -276,8 +276,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
         { title: "समाप्ति", subtitle: "फोटो और अंतिम जांच" },
       ],
       enrollmentFlow: "नामांकन प्रवाह",
-      applyLead: "चार साफ चरणों में आवेदन पूरा करें।",
-      sidebarNote: "कार्यक्रम देखें, विवरण भरें, फोटो अपलोड करें और एक ही प्रवाह में भुगतान पूरा करें।",
+      applyLead: "आवेदन",
+      sidebarNote: "",
       selectedTraining: "चयनित प्रशिक्षण",
       selectTraining: "प्रशिक्षण चुनें",
       applicationDate: "आवेदन तिथि",
@@ -304,10 +304,10 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       education: "शैक्षिक योग्यता",
       occupation: "व्यवसाय",
       sponsor: "प्रायोजक संस्था",
-      keepExactTitle: "सही जानकारी दें।",
-      keepExactBody: "भुगतान समीक्षा और प्रवेश फॉलो-अप के दौरान आवेदक की पहचान के लिए इन विवरणों का उपयोग किया जाता है।",
+      keepExactTitle: "",
+      keepExactBody: "",
       photo: "आवेदक का फोटो",
-      photoHelp: "एक स्पष्ट चेहरा फोटो अपलोड करें। भेजने से पहले हम इसे अपने आप कंप्रेस करते हैं।",
+      photoHelp: "",
       photoUploaded: "अपलोड हो गया और तैयार है",
       applicant: "आवेदक",
       phone: "फोन",
@@ -317,12 +317,12 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       next: "अगला",
       submitting: "भेजा जा रहा है",
       submitApplication: "आवेदन जमा करें",
-      waitUpload: "सबमिट करने से पहले फोटो अपलोड पूरा होने तक प्रतीक्षा करें।",
-      uploadBeforeSubmit: "सबमिट करने से पहले आवेदक का फोटो अपलोड करें।",
+      waitUpload: "फोटो अपलोड जारी है।",
+      uploadBeforeSubmit: "आवेदक का फोटो आवश्यक है।",
       redirecting: "आवेदन सहेजा गया। सुरक्षित भुगतान गेटवे पर ले जाया जा रहा है...",
       saved: "आवेदन सफलतापूर्वक सहेजा गया।",
       uploadReady: "फोटो अपलोड होकर तैयार है।",
-      uploadFail: "फोटो अपलोड विफल हुआ। कृपया फिर से छवि चुनें।",
+      uploadFail: "फोटो अपलोड विफल हुआ।",
     },
   }[language];
   const normalizedServiceOptions = serviceOptions.length
@@ -502,9 +502,11 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                 );
               })}
             </div>
-            <div className="mt-5 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm leading-7 text-[#5c6d63]">
-              {copy.sidebarNote}
-            </div>
+            {copy.sidebarNote ? (
+              <div className="mt-5 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm leading-7 text-[#5c6d63]">
+                {copy.sidebarNote}
+              </div>
+            ) : null}
           </aside>
 
           <section className="rounded-[1.5rem] border border-[#e3ded2] bg-white p-5 sm:p-6">
@@ -728,17 +730,19 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     />
                   </Field>
 
-                  <div className="section-frame rounded-[1.4rem] p-4">
-                    <div className="flex items-start gap-3">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#8ec5ff]/12 text-[#8ec5ff]">
-                        <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-                      </span>
-                      <div className="text-sm leading-7 text-dim">
-                        <p className="font-semibold text-bright">{copy.keepExactTitle}</p>
-                        <p>{copy.keepExactBody}</p>
+                  {copy.keepExactTitle || copy.keepExactBody ? (
+                    <div className="section-frame rounded-[1.4rem] p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#8ec5ff]/12 text-[#8ec5ff]">
+                          <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+                        </span>
+                        <div className="text-sm leading-7 text-dim">
+                          {copy.keepExactTitle ? <p className="font-semibold text-bright">{copy.keepExactTitle}</p> : null}
+                          {copy.keepExactBody ? <p>{copy.keepExactBody}</p> : null}
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -779,7 +783,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                           Open camera
                         </button>
                       </div>
-                      <p className="mt-3 text-sm text-dim">{photoStatus}</p>
+                      {photoStatus ? <p className="mt-3 text-sm text-dim">{photoStatus}</p> : null}
                       {hasUploadedPhoto ? (
                         <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[#2a8d5f]">
                           {copy.photoUploaded}
@@ -923,14 +927,7 @@ function ApplicationPreview({
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f2b544]">Cross-check before payment</p>
           <h3 className="mt-2 text-2xl font-black leading-tight">Review application details</h3>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-white/78">
-            Please confirm that the details below are correct. Payment starts only after this confirmation.
-          </p>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white ring-1 ring-white/18">
-          <CheckCircle2 className="h-4 w-4 text-[#f2b544]" aria-hidden="true" />
-          Ready to verify
-        </span>
       </div>
 
       <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_14rem]">

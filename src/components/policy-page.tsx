@@ -72,7 +72,7 @@ export function PolicyPage({ document }: PolicyPageProps) {
 
           <aside className="space-y-6">
             <div className="rounded-[1.8rem] border border-[rgba(27,59,43,0.1)] bg-[#173f33] p-6 text-white shadow-[0_16px_40px_rgba(23,63,51,0.18)]">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#f6cf74]">Need help</p>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#f6cf74]">Center contact</p>
               <h2 className="font-display mt-3 text-3xl text-[#fff8ea]">Contact the center</h2>
               <div className="mt-5 space-y-3 text-sm leading-7 text-[#d9dfd8]">
                 <p className="flex gap-3">

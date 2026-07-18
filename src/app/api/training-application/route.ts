@@ -18,7 +18,7 @@ import { trainingApplicationSchema } from "@/lib/validators";
 export async function POST(request: Request) {
   const parsed = trainingApplicationSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return badRequest("Please check the application details and try again.");
+    return badRequest("Application details could not be submitted.");
   }
 
   const headerStore = await headers();
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const limit = rateLimit("training-application-form", ip, 3, 30 * 60 * 1000);
   if (!limit.allowed) {
     const retryAfterSeconds = Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000));
-    return tooManyRequests("Too many applications were submitted from this connection. Please wait and try again.", retryAfterSeconds);
+    return tooManyRequests("Too many applications were submitted from this connection.", retryAfterSeconds);
   }
 
   try {

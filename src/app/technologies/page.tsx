@@ -151,13 +151,6 @@ export default function TechnologiesPage() {
           </Link>
         </div>
 
-        <div className="mt-8 rounded-[1.6rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.72)] p-5 text-sm leading-7 text-dim">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">Representative references</p>
-          <p className="mt-3">
-            The technology descriptions on this page were organized using standard beekeeping and value-addition references, including FAO&apos;s
-            value-added products from beekeeping material and USDA/NAL beekeeping references, and the representative imagery includes Wikimedia Commons files related to beekeeping, honey extraction, queen rearing, and wax foundation.
-          </p>
-        </div>
       </div>
     </section>
   );

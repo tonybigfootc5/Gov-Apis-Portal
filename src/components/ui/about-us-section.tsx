@@ -2,9 +2,8 @@
 
 import type React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users } from "lucide-react";
+import { Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { getSiteCopy } from "@/lib/site-copy";
 import type { SiteLanguage } from "@/lib/i18n";
@@ -137,13 +136,13 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
       coreThemes: "Core training themes",
       leadershipShown: "Leadership profiles shown",
       missionPeople: "People Behind The Mission",
-      missionLead: "Leadership, committee, and technical guidance",
+      missionLead: "Leadership, committee, and technical faculty",
       missionBody:
         "The older profile information is restored below on the same About page so the center's directors, committee members, and technical or faculty members remain visible within the current design.",
-      readyTitle: "Ready to learn beekeeping with real field grounding?",
-      readyBody: "Current batches and center contact support are available for learners planning practical beekeeping training.",
-      viewPrograms: "View programs",
-      contactUs: "Contact us",
+      readyTitle: "",
+      readyBody: "",
+      viewPrograms: "",
+      contactUs: "",
     },
     te: {
       eyebrow: "మా కథను తెలుసుకోండి",
@@ -158,10 +157,10 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
       missionLead: "నాయకత్వం, కమిటీ మరియు సాంకేతిక మార్గదర్శకం",
       missionBody:
         "కేంద్రానికి చెందిన డైరెక్టర్లు, కమిటీ సభ్యులు, సాంకేతిక మరియు ఫ్యాకల్టీ సభ్యులు ప్రస్తుత రూపకల్పనలో కూడా స్పష్టంగా కనిపించేలా ఈ పాత ప్రొఫైల్ సమాచారాన్ని ఇదే About పేజీలో కొనసాగించాము.",
-      readyTitle: "ప్రాక్టికల్ ఫీల్డ్ అనుభవంతో తేనెటీగల పెంపకం నేర్చుకోవడానికి సిద్ధమేనా?",
-      readyBody: "ప్రస్తుత బ్యాచ్‌లను చూడండి లేదా శిక్షణ మార్గదర్శకత్వం కోసం కేంద్రాన్ని సంప్రదించండి.",
-      viewPrograms: "కార్యక్రమాలు చూడండి",
-      contactUs: "సంప్రదించండి",
+      readyTitle: "",
+      readyBody: "",
+      viewPrograms: "",
+      contactUs: "",
     },
     hi: {
       eyebrow: "हमारी कहानी जानें",
@@ -176,10 +175,10 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
       missionLead: "नेतृत्व, समिति और तकनीकी मार्गदर्शन",
       missionBody:
         "केंद्र के निदेशकों, समिति सदस्यों और तकनीकी या फैकल्टी प्रोफाइल्स को वर्तमान डिजाइन में भी स्पष्ट रखने के लिए पुरानी प्रोफाइल जानकारी इसी About पेज में रखी गई है।",
-      readyTitle: "क्या आप वास्तविक फील्ड अनुभव के साथ मधुमक्खी पालन सीखने के लिए तैयार हैं?",
-      readyBody: "वर्तमान बैच देखें या प्रशिक्षण मार्गदर्शन के लिए केंद्र से संपर्क करें।",
-      viewPrograms: "कार्यक्रम देखें",
-      contactUs: "संपर्क करें",
+      readyTitle: "",
+      readyBody: "",
+      viewPrograms: "",
+      contactUs: "",
     },
   }[language];
 
@@ -213,7 +212,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
     <section
       id="about-section"
       ref={sectionRef}
-      className="relative min-h-screen overflow-hidden bg-white px-4 py-24 text-[#173f33]"
+      className="relative min-h-screen scroll-mt-28 overflow-hidden bg-white px-4 py-24 text-[#173f33]"
     >
       <motion.div
         className="relative z-10 mx-auto max-w-7xl"
@@ -288,31 +287,6 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
           ))}
         </motion.div>
 
-        <motion.div
-          className="mt-20 flex flex-col items-center justify-between gap-6 rounded-[2rem] border border-[#173f33] bg-[#173f33] p-8 text-white shadow-[0_18px_44px_rgba(23,63,51,0.18)] md:flex-row"
-          initial={{ opacity: 0, y: 24 }}
-          animate={isPeopleInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-          transition={{ duration: 0.6, delay: 0.25 }}
-        >
-          <div className="flex-1">
-            <h3 className="text-2xl font-medium">{aboutUi.readyTitle}</h3>
-            <p className="mt-2 text-white/80">{aboutUi.readyBody}</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/programs"
-              className="inline-flex items-center gap-2 rounded-lg bg-[#f2b544] px-6 py-3 font-medium text-[#173f33] transition-colors hover:bg-[#f5c15f]"
-            >
-              {aboutUi.viewPrograms} <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-6 py-3 font-medium text-white transition-colors hover:bg-white/8"
-            >
-              {aboutUi.contactUs} <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </motion.div>
       </motion.div>
     </section>
   );

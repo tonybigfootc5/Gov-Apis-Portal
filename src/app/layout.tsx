@@ -97,9 +97,9 @@ export default async function RootLayout({
   const navCopy = sharedNavCopy[language];
   const navItems = [
     { label: t(language, "nav.home"), href: "/" },
-    { label: t(language, "nav.about"), href: "/about" },
-    { label: t(language, "nav.training"), href: "/programs" },
-    { label: t(language, "nav.contact"), href: "/contact" },
+    { label: t(language, "nav.about"), href: "/#about-section" },
+    { label: t(language, "nav.training"), href: "/#training-section" },
+    { label: t(language, "nav.contact"), href: "/#contact-section" },
   ];
   const exploreItems = [
     { label: navCopy.articles, href: "/articles" },

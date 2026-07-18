@@ -162,7 +162,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       ],
     },
     about: {
-      heroTitle: "We help honey farming grow through learning, technology, and field support.",
+      heroTitle: "Honey farming grows through learning, technology, and field support.",
       heroBody:
         "API Culture Technology Center operates in Rajendranagar, Hyderabad as a practical beekeeping mission built around training, technology transfer, pollination awareness, and rural livelihood support.",
       badges: ["Established in 2004", "NIRDPR-linked mission", "Field-first apiculture"],
@@ -182,7 +182,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
         },
         {
           title: "Training must stay practical",
-          text: "The center combines field demonstrations, technology transfer, colony care, processing awareness, and guided learning.",
+          text: "The center combines field demonstrations, technology transfer, colony care, processing awareness, and practical learning.",
         },
         {
           title: "Institutional support builds trust",
@@ -197,13 +197,13 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       missionVoiceNote: "Drawn from the center's 2025 profile and institutional mission narrative.",
       joinTitle: "Join the community and start learning today",
       joinBody:
-        "Explore the center's training pathways, technology guidance, and rural support mission through API CULTURE.",
+        "Explore the center's training pathways, technology work, and rural support mission through API CULTURE.",
       joinPrimaryCta: "View training",
       joinSecondaryCta: "Contact the center",
       storyTitle: "Our story",
       storyParagraphs: [
         "Api Culture Technology Center was established in 2004 at Rural Technology Park in association with NIRDPR, with technical support from the Bee Keepers Association and Kavuri. The center presents itself as a practical mission for training, technology transfer, pollination, and livelihood support across rural communities.",
-        "The mission grows through scientific beekeeping, honey processing, queen rearing, hive product awareness, equipment access, and public-facing apiculture education. It is designed to help farmers and future beekeeping entrepreneurs build more confident and sustainable pathways.",
+        "The mission grows through scientific beekeeping, honey processing, queen rearing, hive product awareness, equipment access, and public-facing apiculture education for farmers and future beekeeping entrepreneurs.",
       ],
       storyFacts: [
         { label: "Established", value: "2004" },
@@ -211,9 +211,9 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
         { label: "Focus", value: "Training, pollination, technology transfer" },
       ],
       peopleEyebrow: "People Behind the Mission",
-      peopleTitle: "Leadership, faculty, and technical guidance",
+      peopleTitle: "Leadership, faculty, and technical team",
       peopleBody:
-        "The center's mission is backed by experienced beekeeping leaders, faculty members, and senior technical advisors who guide training, field practice, and institutional continuity.",
+        "The center's mission is backed by experienced beekeeping leaders, faculty members, and senior technical advisors across training, field practice, and institutional continuity.",
       peopleGroups: [
         {
           title: "Leadership and committee",
