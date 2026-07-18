@@ -91,7 +91,7 @@ export function SiteHeader({
         ) : null}
 
         <div
-          className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] ${
+          className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] ${
             isPublicRoute
               ? "px-8 py-4"
               : "rounded-[1.6rem] px-3 py-3"
@@ -132,7 +132,7 @@ export function SiteHeader({
             </span>
           </Link>
 
-          <nav className="hidden items-center justify-center px-3 md:flex" aria-label="Main navigation">
+          <nav className="hidden items-center justify-center px-3 lg:flex" aria-label="Main navigation">
             <div
               className={`flex items-center gap-5 rounded-full border p-0 ${navWrapClass}`}
               style={isPublicRoute ? { backgroundColor: "transparent" } : undefined}
@@ -170,7 +170,7 @@ export function SiteHeader({
             </div>
           </nav>
 
-          <div className="hidden items-center justify-end gap-3 md:flex">
+          <div className="hidden items-center justify-end gap-3 lg:flex">
             <LanguageSwitcher
               currentLanguage={currentLanguage}
               label={languageLabel}
@@ -179,7 +179,7 @@ export function SiteHeader({
             />
           </div>
 
-          <details className="relative shrink-0 justify-self-end md:hidden">
+          <details className="relative shrink-0 justify-self-end lg:hidden">
             <summary
               className={`grid h-10 w-10 cursor-pointer list-none place-items-center rounded-full border ${
                 isHomeRoute
