@@ -229,7 +229,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
 
         <motion.div className="mx-auto mt-12 grid max-w-6xl items-stretch gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)]" variants={itemVariants}>
           <div className="relative overflow-hidden rounded-[2rem] border border-[#e8eee9] bg-white p-7 shadow-[0_16px_38px_rgba(34,45,38,0.06)] md:p-9">
-            <div className="pointer-events-none absolute -right-8 bottom-2 h-[min(20rem,58vw)] w-[min(20rem,58vw)] opacity-[0.13] sm:-right-5 sm:bottom-4 sm:h-80 sm:w-80 md:opacity-[0.16] lg:-right-10 lg:h-[24rem] lg:w-[24rem]" aria-hidden="true">
+            <div className="pointer-events-none absolute -right-8 bottom-2 h-[min(20rem,58vw)] w-[min(20rem,58vw)] opacity-[0.34] sm:-right-5 sm:bottom-4 sm:h-80 sm:w-80 md:opacity-[0.4] lg:-right-10 lg:h-[24rem] lg:w-[24rem]" aria-hidden="true">
               <Image
                 src="/hero-section-center-art.png"
                 alt=""
@@ -238,7 +238,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
                 className="object-contain"
               />
             </div>
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.94)_58%,rgba(255,255,255,0.76)_100%)]" aria-hidden="true" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.9)_52%,rgba(255,255,255,0.28)_100%)]" aria-hidden="true" />
             <div className="relative z-10">
               <h2 className="font-display text-4xl md:text-5xl">{aboutUi.title}</h2>
               <div className="mt-4 h-1 w-24 bg-[#b97816]" />
