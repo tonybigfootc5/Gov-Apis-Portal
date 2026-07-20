@@ -15,7 +15,6 @@ import {
   FileBadge2,
   GraduationCap,
   HandHeart,
-  Hexagon,
   Info,
   Languages,
   Landmark,
@@ -139,7 +138,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
         <TrainingHeader />
 
         <div className="mt-6 rounded-lg border border-[#efe7da] bg-white/82 p-3 shadow-[0_28px_80px_rgba(36,41,34,0.1)] backdrop-blur sm:p-4 lg:p-5">
-          <div className="grid gap-4 xl:grid-cols-[20rem_minmax(0,1.25fr)_minmax(21rem,0.95fr)]">
+          <div className="training-program-layout">
             <TrainingRail courses={courses} active={active} onSelect={selectCourse} />
             <CourseOverview course={course} overviewRef={courseOverviewRef} onEnroll={() => setApplicationCourse(course)} />
             <CourseDetailTabs course={course} active={activeDetail} onSelect={setActiveDetail} onEnroll={() => setApplicationCourse(course)} />
@@ -165,22 +164,21 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
 
 function TrainingHeader() {
   return (
-    <header className="mx-auto max-w-7xl text-center">
-      <div className="flex items-center justify-center gap-3 text-[#efa500]">
-        <span className="h-px w-11 bg-gradient-to-r from-transparent to-[#efa500]" />
-        <Hexagon className="h-3.5 w-3.5 fill-[#efa500]/20" aria-hidden="true" />
-        <p className="text-sm font-black text-[#efa500] sm:text-base">Training Programs</p>
-        <Hexagon className="h-3.5 w-3.5 fill-[#efa500]/20" aria-hidden="true" />
-        <span className="h-px w-11 bg-gradient-to-l from-transparent to-[#efa500]" />
-      </div>
-      <h1 className="mx-auto mt-2 max-w-[22rem] text-5xl font-black leading-[0.96] text-[#063f2e] sm:max-w-none sm:text-6xl lg:text-7xl 2xl:text-8xl">
+    <header className="mx-auto max-w-7xl text-left">
+      <h1
+        className="max-w-[22rem] text-5xl font-black leading-[0.96] text-[#063f2e] sm:max-w-4xl sm:text-6xl lg:text-7xl 2xl:text-8xl"
+        style={{
+          textShadow:
+            "1px 1px 0 #f5b300, 2px 2px 0 rgba(245,179,0,0.64), 5px 8px 18px rgba(6,63,46,0.18)",
+        }}
+      >
         <span className="block sm:inline">Our Training</span>{" "}
         <span className="block sm:inline">Programs</span>
       </h1>
-      <p className="mx-auto mt-4 max-w-3xl text-base font-medium leading-7 text-[#26332f] sm:text-lg">
+      <p className="mt-5 max-w-3xl text-base font-medium leading-7 text-[#26332f] sm:text-lg">
         Learn. Practice. Grow. Empowering beekeepers for a better tomorrow.
       </p>
-      <span className="mx-auto mt-4 block h-1 w-14 rounded-full bg-[#063f2e]" />
+      <span className="mt-5 block h-1 w-16 rounded-full bg-[#063f2e] shadow-[2px_2px_0_#f5b300]" />
     </header>
   );
 }
@@ -195,11 +193,11 @@ function TrainingRail({
   onSelect: (index: number) => void;
 }) {
   return (
-    <aside className="grid gap-4 xl:content-between">
+    <aside className="grid gap-4 lg:content-between">
       <div
         role="tablist"
         aria-label="Training course switcher"
-        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1"
+        className="training-program-rail-list"
       >
         {courses.map((course, index) => {
           const isActive = index === active;
@@ -355,8 +353,8 @@ function CourseDetailTabs({
               )}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              <span className="sm:hidden">{tab.shortLabel}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden lg:inline 2xl:hidden">{tab.shortLabel}</span>
+              <span className="hidden sm:inline lg:hidden 2xl:inline">{tab.label}</span>
             </button>
           );
         })}
@@ -393,7 +391,7 @@ function CourseDetailTabs({
 
       <section className="rounded-lg border border-[#ece4d8] bg-[#f3f3ec] p-4">
         <h3 className="text-sm font-black uppercase tracking-[0.04em] text-[#06432f]">Who can attend?</h3>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {audience.map((item) => (
             <p key={item} className="flex min-h-11 items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#26332f]">
               <UsersRound className="h-4 w-4 shrink-0 fill-[#06432f] text-white" aria-hidden="true" />
@@ -404,7 +402,7 @@ function CourseDetailTabs({
       </section>
 
       <section className="rounded-lg bg-[#06432f] p-4 text-white shadow-[0_18px_40px_rgba(6,67,47,0.2)]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between xl:flex-col xl:items-stretch 2xl:flex-row 2xl:items-center">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch 2xl:flex-row 2xl:items-center">
           <div className="flex items-center gap-3">
             <span className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-[#f5b300] text-[#062f24]">
               <CalendarDays className="h-7 w-7" aria-hidden="true" />

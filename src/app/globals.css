@@ -274,6 +274,32 @@ canvas {
   overflow: hidden;
 }
 
+.training-program-layout {
+  display: grid;
+  gap: 1rem;
+}
+
+.training-program-rail-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .training-program-rail-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .training-program-layout {
+    grid-template-columns: 20rem minmax(0, 1fr) 24rem;
+  }
+
+  .training-program-rail-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee-track,
   .float-gentle,
