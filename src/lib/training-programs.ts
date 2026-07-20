@@ -58,7 +58,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     targetAudience:
       "Farmers, rural youth, women, tribal communities, landless individuals, existing beekeepers, aspiring beekeeping entrepreneurs, agriculture and horticulture workers, and anyone interested in starting an apiary.",
     detailBadge: "Scientific Beekeeping Training",
-    imageSrc: "/beekeeping-training-program.png",
+    imageSrc: "/beekeeping-program-updated.png",
     imageAlt: "A beekeeper inspecting a honey bee frame in a sunlit apiary.",
     highlights: ["Scientific methods", "Hands-on practice", "Apiary enterprise"],
     outcomes: [
