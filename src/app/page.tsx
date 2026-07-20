@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, Mail, MapPin, MessageCircle, Mouse, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingPreviewSwitch, type TrainingPreviewCourse } from "@/components/training-preview-switch";
@@ -67,12 +67,12 @@ export default async function Home() {
     <main className="bg-[#f8faf7] text-[#14241f]">
       <section className="px-4 pt-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl pt-[4.65rem]">
-          <div className="relative mx-0 overflow-hidden rounded-[1.85rem] bg-[#0d1d18]" style={{ minHeight: "50rem" }}>
+          <div className="relative mx-0 overflow-hidden rounded-[1.85rem] bg-[#0d1d18]" style={{ minHeight: "51rem" }}>
             <HeroBackgroundVideo />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,18,0.18)_0%,rgba(7,20,18,0.06)_28%,rgba(9,20,18,0.34)_58%,rgba(6,14,11,0.78)_100%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,20,18,0.24)_0%,rgba(7,20,18,0.1)_38%,rgba(7,20,18,0.22)_100%)]" />
 
-            <div className="relative z-10 px-5 pb-8 text-center sm:px-8 lg:px-12" style={{ paddingTop: "8.5rem" }}>
+            <div className="relative z-10 px-5 pb-48 text-center sm:px-8 lg:px-12" style={{ paddingTop: "8.5rem" }}>
               <h1
                 className="font-display mx-auto max-w-4xl text-white"
                 style={{ fontSize: "clamp(2.7rem, 6vw, 5.6rem)", lineHeight: 0.96, letterSpacing: "0" }}
@@ -106,46 +106,49 @@ export default async function Home() {
               </span>
             </div>
 
-          </div>
-
-          <div className="relative z-20 -mt-7 px-3 sm:-mt-8 sm:px-5 lg:px-7">
-            <div
-              className="grid overflow-hidden rounded-[1.35rem] border border-white/45 shadow-[0_26px_68px_rgba(2,8,12,0.28),0_0_0_1px_rgba(255,255,255,0.24),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-1px_0_rgba(255,255,255,0.2)] backdrop-blur-[30px] backdrop-saturate-150 sm:grid-cols-2 lg:grid-cols-4"
-              style={{
-                backgroundColor: "rgba(245, 248, 246, 0.68)",
-                backgroundImage:
-                  "linear-gradient(135deg, rgba(255,255,255,0.72), rgba(255,255,255,0.24) 36%, rgba(230,235,232,0.34) 68%, rgba(255,255,255,0.58)), radial-gradient(ellipse at 50% 110%, rgba(255,255,255,0.72), rgba(255,255,255,0) 58%), radial-gradient(ellipse at 12% 0%, rgba(255,255,255,0.45), rgba(255,255,255,0) 42%)",
-                backdropFilter: "blur(30px) saturate(150%)",
-                boxShadow:
-                  "0 26px 68px rgba(2,8,12,0.28), inset 0 1px 0 rgba(255,255,255,0.72), inset 0 18px 36px rgba(255,255,255,0.18), inset 0 -26px 46px rgba(4,12,16,0.14)",
-                WebkitBackdropFilter: "blur(30px) saturate(150%)",
-              }}
+            <svg
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-14 w-full"
+              viewBox="0 0 1000 56"
+              preserveAspectRatio="none"
+              aria-hidden="true"
             >
-              {stats.map((stat) => (
-                <div
-                  key={stat.value}
-                  className="border-b px-5 py-4 last:border-b-0 sm:odd:border-r sm:even:border-r-0 lg:border-b-0 lg:border-r lg:last:border-r-0"
-                  style={{
-                    borderColor: "rgba(255,255,255,0.32)",
-                    background:
-                      "linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.05) 58%, rgba(255,255,255,0.14))",
-                    boxShadow: "inset 1px 0 0 rgba(255,255,255,0.22)",
-                  }}
-                >
-                  <p
-                    className="text-[clamp(1.55rem,2.6vw,2.25rem)] font-black leading-none text-[#071421]"
-                    style={{ textShadow: "0 1px 0 rgba(255,255,255,0.72), 0 8px 22px rgba(255,255,255,0.34)" }}
-                  >
-                    {stat.value}
-                  </p>
-                  <p
-                    className="mt-2 text-sm font-bold text-[#315849]"
-                    style={{ textShadow: "0 1px 0 rgba(255,255,255,0.68), 0 7px 18px rgba(255,255,255,0.28)" }}
-                  >
-                    {stat.label}
-                  </p>
+              <path
+                d="M0 56V26C0 12 12 0 28 0H386C430 0 454 56 500 56H0Z"
+                fill="#f8faf7"
+              />
+              <path
+                d="M500 56C546 56 570 0 614 0H972C988 0 1000 12 1000 26V56H500Z"
+                fill="#f8faf7"
+              />
+            </svg>
+
+            <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-4 pt-7 sm:px-5 lg:px-7">
+              <div
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-[8.9rem] rounded-t-[2.35rem] bg-[#f8faf7] shadow-[0_-24px_70px_rgba(7,20,18,0.18)]"
+                aria-hidden="true"
+              />
+              <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_15rem_minmax(0,1fr)] lg:items-start">
+                <div className="grid gap-3 sm:grid-cols-2 lg:col-start-1">
+                  {stats.slice(0, 2).map((stat) => (
+                    <StatCard key={stat.value} stat={stat} />
+                  ))}
                 </div>
-              ))}
+                <div className="hidden lg:block" aria-hidden="true" />
+                <div className="grid gap-3 sm:grid-cols-2 lg:col-start-3">
+                  {stats.slice(2).map((stat) => (
+                    <StatCard key={stat.value} stat={stat} />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute bottom-[6.25rem] left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/18 bg-[#071421]/28 px-2.5 py-1.5 text-white/82 shadow-[0_12px_30px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-md">
+              <span className="grid h-10 w-10 place-items-center rounded-full border border-white/35 bg-white/12 shadow-[0_12px_34px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.24)] backdrop-blur-md">
+                <Mouse className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <span className="hidden text-[0.68rem] font-black uppercase tracking-[0.36em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.28)] sm:inline">
+                Scroll Down
+              </span>
             </div>
           </div>
         </div>
@@ -231,6 +234,33 @@ function ContactLine({
         <span className="block text-base font-black">{title}</span>
         <span className="mt-1 block break-words text-base leading-6 text-[#464942]">{children}</span>
       </span>
+    </div>
+  );
+}
+
+function StatCard({ stat }: { stat: { value: string; label: string } }) {
+  return (
+    <div
+      className="min-h-24 rounded-[1.05rem] border border-white/50 px-5 py-4 shadow-[0_22px_54px_rgba(2,8,12,0.18),inset_0_1px_0_rgba(255,255,255,0.76),inset_0_-18px_34px_rgba(4,12,16,0.08)] backdrop-blur-[26px] backdrop-saturate-150"
+      style={{
+        backgroundColor: "rgba(245, 248, 246, 0.72)",
+        backgroundImage:
+          "linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.28) 42%, rgba(236,240,235,0.44)), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.56), rgba(255,255,255,0) 58%)",
+        WebkitBackdropFilter: "blur(26px) saturate(150%)",
+      }}
+    >
+      <p
+        className="text-[clamp(1.45rem,2.2vw,2.08rem)] font-black leading-none text-[#071421]"
+        style={{ textShadow: "0 1px 0 rgba(255,255,255,0.74), 0 8px 22px rgba(255,255,255,0.32)" }}
+      >
+        {stat.value}
+      </p>
+      <p
+        className="mt-2 text-sm font-bold leading-snug text-[#315849]"
+        style={{ textShadow: "0 1px 0 rgba(255,255,255,0.68)" }}
+      >
+        {stat.label}
+      </p>
     </div>
   );
 }
