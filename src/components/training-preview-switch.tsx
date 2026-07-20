@@ -459,18 +459,31 @@ function CourseDetailTabs({
         ) : null}
       </div>
 
-      <section className="rounded-lg border border-[#ece4d8] bg-[#f3f3ec] p-4">
-        <h3 className="text-sm font-black uppercase tracking-[0.04em] text-[#06432f]">Who can attend?</h3>
-        <div className="mt-4 grid gap-x-5 gap-y-1.5 rounded-lg bg-white/46 p-2 shadow-[inset_0_0_0_1px_rgba(226,223,211,0.6)] sm:grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2">
+      <section className="rounded-[1.1rem] border border-[#eadfc8] bg-[#fffefa] p-4 shadow-[0_12px_34px_rgba(36,41,34,0.05)]">
+        <div className="text-center">
+          <h3 className="text-xl font-black uppercase leading-none tracking-[0.08em] text-[#06432f]">
+            Who can attend?
+          </h3>
+          <div className="mx-auto mt-3 flex max-w-36 items-center justify-center gap-2 text-[#efa500]">
+            <span className="h-0.5 w-12 rounded-full bg-[#2f703c]" />
+            <Bug className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />
+            <span className="h-0.5 w-12 rounded-full bg-[#2f703c]" />
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3">
           {audience.map((item) => {
             const AudienceIcon = getAudienceIcon(item);
 
             return (
-              <p key={item} className="flex min-w-0 items-center gap-3 border-b border-[#dedbcd]/70 px-1 py-2.5 text-sm font-semibold leading-5 text-[#26332f] last:border-b-0 sm:text-[13px] lg:text-sm 2xl:[&:nth-last-child(2)]:border-b-0">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white text-[#efa500] shadow-[inset_0_0_0_1px_rgba(239,165,0,0.18)]">
-                  <AudienceIcon className="h-4.5 w-4.5" strokeWidth={2.2} aria-hidden="true" />
+              <p
+                key={item}
+                className="flex min-h-[5.25rem] min-w-0 items-center gap-3 rounded-lg border border-[#efdfbe] bg-white px-4 py-3 text-sm font-black capitalize leading-snug text-[#14241f] shadow-[0_8px_20px_rgba(36,41,34,0.04)] lg:text-[15px]"
+              >
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[#f2ddb5] bg-[#fffaf0] text-[#efa500] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+                  <AudienceIcon className="h-7 w-7" strokeWidth={2.2} aria-hidden="true" />
                 </span>
-                <span className="min-w-0 flex-1 capitalize [hyphens:auto] [overflow-wrap:anywhere]">{item}</span>
+                <span className="min-w-0 flex-1 [overflow-wrap:normal] [text-wrap:balance] [word-break:normal]">{item}</span>
               </p>
             );
           })}
