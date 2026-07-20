@@ -144,7 +144,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     focusText: "Queen rearing, colony multiplication, grafting basics, and practical beeswax processing.",
     targetAudience: "Experienced trainees, extension staff, progressive beekeepers, and trainers.",
     detailBadge: "Advanced queen and wax",
-    imageSrc: "/queen-rearing-colony-multiplication.png",
+    imageSrc: "/queen-rearing-program-updated.png",
     imageAlt: "A marked queen bee surrounded by worker bees during queen rearing.",
     highlights: ["Queen cells", "Colony split", "Wax recovery"],
     outcomes: [
