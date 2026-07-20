@@ -119,6 +119,11 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
 
   if (!course) return null;
 
+  function selectCourse(index: number) {
+    setActive(index);
+    setActiveDetail("about");
+  }
+
   return (
     <section className="relative isolate overflow-hidden bg-[#fffdfa] px-3 py-7 text-[#16241f] sm:px-5 lg:px-8 lg:py-10">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_5%,rgba(246,179,0,0.14),transparent_22rem),radial-gradient(circle_at_92%_2%,rgba(15,75,51,0.14),transparent_24rem),linear-gradient(180deg,#ffffff_0%,#fffaf0_56%,#ffffff_100%)]" />
@@ -132,7 +137,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
 
         <div className="mt-6 rounded-lg border border-[#efe7da] bg-white/82 p-3 shadow-[0_28px_80px_rgba(36,41,34,0.1)] backdrop-blur sm:p-4 lg:p-5">
           <div className="grid gap-4 xl:grid-cols-[20rem_minmax(0,1.25fr)_minmax(21rem,0.95fr)]">
-            <TrainingRail courses={courses} active={active} onSelect={setActive} />
+            <TrainingRail courses={courses} active={active} onSelect={selectCourse} />
             <CourseOverview course={course} onEnroll={() => setApplicationCourse(course)} />
             <CourseDetailTabs course={course} active={activeDetail} onSelect={setActiveDetail} onEnroll={() => setApplicationCourse(course)} />
           </div>
@@ -161,7 +166,7 @@ function TrainingHeader() {
       <div className="flex items-center justify-center gap-3 text-[#efa500]">
         <span className="h-px w-11 bg-gradient-to-r from-transparent to-[#efa500]" />
         <Hexagon className="h-3.5 w-3.5 fill-[#efa500]/20" aria-hidden="true" />
-        <p className="text-xs font-black uppercase tracking-[0.24em] sm:text-sm">Training Programs</p>
+        <p className="text-sm font-black text-[#efa500] sm:text-base">Training Programs</p>
         <Hexagon className="h-3.5 w-3.5 fill-[#efa500]/20" aria-hidden="true" />
         <span className="h-px w-11 bg-gradient-to-l from-transparent to-[#efa500]" />
       </div>
@@ -191,7 +196,7 @@ function TrainingRail({
       <div
         role="tablist"
         aria-label="Training course switcher"
-        className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] xl:grid xl:overflow-visible xl:pb-0 [&::-webkit-scrollbar]:hidden"
+        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1"
       >
         {courses.map((course, index) => {
           const isActive = index === active;
@@ -205,7 +210,7 @@ function TrainingRail({
               aria-selected={isActive}
               onClick={() => onSelect(index)}
               className={cn(
-                "group flex min-h-[6.6rem] min-w-[18rem] items-center gap-3 rounded-lg border px-4 py-4 text-left shadow-[0_14px_30px_rgba(36,41,34,0.06)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 xl:min-w-0",
+                "group flex min-h-[6.6rem] w-full min-w-0 items-center gap-3 rounded-lg border px-4 py-4 text-left shadow-[0_14px_30px_rgba(36,41,34,0.06)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2",
                 isActive
                   ? "border-[#06432f] bg-[#06432f] text-white shadow-[0_20px_42px_rgba(6,67,47,0.22)]"
                   : "border-[#f0e8dc] bg-white text-[#111f1a] hover:-translate-y-0.5 hover:border-[#f1c866]",
@@ -311,9 +316,9 @@ function CourseDetailTabs({
 }) {
   const audience = getAudienceItems(course);
   const tabs = [
-    { id: "about", label: "About this course", icon: Info },
-    { id: "outcomes", label: "Outcomes", icon: Target },
-    { id: "testimonials", label: "Testimonials", icon: MessageSquareQuote },
+    { id: "about", label: "About this course", shortLabel: "About", icon: Info },
+    { id: "outcomes", label: "Outcomes", shortLabel: "Outcomes", icon: Target },
+    { id: "testimonials", label: "Testimonials", shortLabel: "Reviews", icon: MessageSquareQuote },
   ] as const;
 
   return (
@@ -331,14 +336,16 @@ function CourseDetailTabs({
               aria-selected={isActive}
               aria-controls={`${course.id}-${tab.id}-panel`}
               id={`${course.id}-${tab.id}-tab`}
+              aria-label={tab.label}
               onClick={() => onSelect(tab.id)}
               className={cn(
-                "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-3 text-sm font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2",
+                "inline-flex min-h-12 items-center justify-center gap-1.5 rounded-lg px-2 text-xs font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 sm:gap-2 sm:px-3 sm:text-sm",
                 isActive ? "bg-[#06432f] text-white shadow-[0_12px_24px_rgba(6,67,47,0.18)]" : "bg-white text-[#14241f] hover:bg-[#fff4d5]",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              <span className="hidden min-[420px]:inline xl:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.shortLabel}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
             </button>
           );
         })}
