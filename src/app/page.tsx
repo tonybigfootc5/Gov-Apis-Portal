@@ -107,19 +107,14 @@ export default async function Home() {
               </span>
             </div>
 
-            <div className="pointer-events-none absolute -right-px -bottom-px z-20 h-[8.1rem] w-16 bg-[#f8faf7] sm:h-[6.7rem] sm:w-14 lg:h-[5.8rem] lg:w-12" aria-hidden="true" />
             <svg
-              className="pointer-events-none absolute -inset-x-px -bottom-px z-20 h-[8.1rem] w-[calc(100%+2px)] drop-shadow-[0_-18px_48px_rgba(7,20,18,0.13)] sm:h-[6.7rem] lg:h-[5.8rem]"
+              className="pointer-events-none absolute -inset-x-1 -bottom-px z-20 h-[8.1rem] w-[calc(100%+8px)] drop-shadow-[0_-18px_48px_rgba(7,20,18,0.13)] sm:h-[6.7rem] lg:h-[5.8rem]"
               viewBox="0 0 1000 108"
               preserveAspectRatio="none"
               aria-hidden="true"
             >
               <path
-                d="M0 108V24C0 11 13 0 31 0H404C442 0 468 28 500 28V108H0Z"
-                fill="#f8faf7"
-              />
-              <path
-                d="M500 108V28C532 28 558 0 596 0H969C987 0 1000 11 1000 24V108H500Z"
+                d="M0 108V25C0 10 15 0 38 0H404C442 0 468 28 500 28C532 28 558 0 596 0H962C985 0 1000 10 1000 25V108H0Z"
                 fill="#f8faf7"
               />
             </svg>
