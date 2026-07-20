@@ -10,7 +10,6 @@ import {
   Bug,
   ChevronRight,
   CircleCheck,
-  Crown,
   Factory,
   FileBadge2,
   GraduationCap,
@@ -20,7 +19,6 @@ import {
   Landmark,
   Lightbulb,
   MessageSquareQuote,
-  PackageCheck,
   Sprout,
   Target,
   Timer,
@@ -85,7 +83,10 @@ type TrainingPreviewSwitchProps = {
 
 type DetailTab = "about" | "outcomes";
 
-const courseIcons: LucideIcon[] = [GraduationCap, PackageCheck, Crown, Factory];
+type ProgramLogoProps = React.SVGProps<SVGSVGElement>;
+type ProgramLogo = (props: ProgramLogoProps) => React.JSX.Element;
+
+const courseIcons: ProgramLogo[] = [ApiaryCartLogo, HoneyJarLogo, QueenBeeLogo, RoyalJellyJarLogo];
 
 const audienceIconRules: Array<{ patterns: string[]; icon: LucideIcon }> = [
   { patterns: ["farmer"], icon: Tractor },
@@ -127,6 +128,53 @@ const programBenefits = [
     body: "Building stronger rural livelihoods.",
   },
 ] as const;
+
+function ApiaryCartLogo(props: ProgramLogoProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M9 17 24 8l15 9" strokeWidth="2.6" />
+      <path d="M14 18h20v18H14z" strokeWidth="2.4" />
+      <path d="M18 22h12M18 27h12" strokeWidth="2.2" />
+      <path d="M19 36v3M31 36v3M12 39h25" strokeWidth="2.4" />
+      <circle cx="19" cy="40" r="2.3" strokeWidth="2.2" />
+      <circle cx="33" cy="40" r="2.3" strokeWidth="2.2" />
+      <path d="M24 29c3.5-2.6 5.2.1 5.2 2.1 0 2.6-2.4 4.1-5.2 5.7-2.8-1.6-5.2-3.1-5.2-5.7 0-2 1.7-4.7 5.2-2.1Z" strokeWidth="2.2" />
+    </svg>
+  );
+}
+
+function HoneyJarLogo(props: ProgramLogoProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M15 7h18M14 12h20M17 17h14" strokeWidth="2.5" />
+      <path d="M16 17c-1.4 3.4-2.2 7.3-2.2 11.1V38c0 2.2 1.8 4 4 4h12.4c2.2 0 4-1.8 4-4v-9.9c0-3.8-.8-7.7-2.2-11.1" strokeWidth="2.5" />
+      <path d="m24 25 6 5-6 5-6-5 6-5Z" strokeWidth="2.3" />
+    </svg>
+  );
+}
+
+function QueenBeeLogo(props: ProgramLogoProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="m18 14-2.6-6 5.7 2.2L24 5l2.9 5.2L32.6 8 30 14H18Z" strokeWidth="2.3" />
+      <path d="M17 17h14" strokeWidth="2.3" />
+      <path d="M24 22c4 0 7.2 3.4 7.2 7.6S28 39 24 39s-7.2-5.2-7.2-9.4S20 22 24 22Z" strokeWidth="2.4" />
+      <path d="M16.8 29.8c-5.7-1.1-7.2-5.8-4.3-8.2 2.8-2.3 6.6-.1 8.2 2.4M31.2 29.8c5.7-1.1 7.2-5.8 4.3-8.2-2.8-2.3-6.6-.1-8.2 2.4" strokeWidth="2.3" />
+      <path d="M24 22v17M18.6 31h10.8" strokeWidth="2.1" />
+    </svg>
+  );
+}
+
+function RoyalJellyJarLogo(props: ProgramLogoProps) {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="m17 13-2.2-5 5 1.9L24 5l4.2 4.9 5-1.9-2.2 5H17Z" strokeWidth="2.2" />
+      <path d="M18 16h12M16 21h16" strokeWidth="2.4" />
+      <path d="M17.5 21c-1.2 2.9-1.9 6.2-1.9 9.4V38c0 2.2 1.8 4 4 4h8.8c2.2 0 4-1.8 4-4v-7.6c0-3.2-.7-6.5-1.9-9.4" strokeWidth="2.5" />
+      <path d="M20.5 30h7M20.5 35h7" strokeWidth="2.1" />
+    </svg>
+  );
+}
 
 export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwitchProps) {
   const [active, setActive] = React.useState(0);
@@ -243,7 +291,7 @@ function TrainingRail({
               <span className="grid h-12 w-12 shrink-0 place-items-center bg-[#f5b300] text-base font-black text-[#062f24] hex-clip">
                 {index + 1}
               </span>
-              <Icon className={cn("h-9 w-9 shrink-0", isActive ? "text-[#f5b300]" : "text-[#111f1a]")} strokeWidth={1.8} aria-hidden="true" />
+              <Icon className={cn("h-10 w-10 shrink-0", isActive ? "text-[#f5b300]" : "text-[#111f1a]")} aria-hidden="true" />
               <span className="min-w-0 flex-1">
                 <span className="block text-base font-black leading-5">{course.tabLabel}</span>
                 <span className={cn("mt-2 block text-sm font-medium", isActive ? "text-white/86" : "text-[#2d3935]")}>{course.duration} program</span>
