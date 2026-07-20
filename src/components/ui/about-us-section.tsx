@@ -2,191 +2,74 @@
 
 import type React from "react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users } from "lucide-react";
+import { useRef } from "react";
+import { BadgeCheck, Calendar, GraduationCap, Leaf, Map, ShieldCheck, Sprout, Users } from "lucide-react";
 import { motion, useInView } from "framer-motion";
 import { getSiteCopy } from "@/lib/site-copy";
 import type { SiteLanguage } from "@/lib/i18n";
 
-const apiCultureFormation = {
-  title: "API CULTURE",
-  logo: "/api-culture-logo-clean.png",
-};
-
-const supportingCultures = [
-  {
-    title: "Kavuri",
-    logo: "/kavuri-logo.png",
-    eyebrow: "Technical support partner",
-    description:
-      "The source profile names Kavuri Bee Hive 'n' Natural Products as one of the supporting cultures behind the formation of API CULTURE.",
-    points: [
-      "Named in the formation profile.",
-      "Linked with bee hive and natural products identity.",
-      "Part of the support ecosystem represented within API CULTURE.",
-    ],
-    details: [
-      {
-        icon: <GraduationCap className="h-4 w-4" />,
-        title: "Scientific training",
-        description: "Hands-on hive handling, colony care, and practical beekeeping instruction for trainees.",
-      },
-      {
-        icon: <Award className="h-4 w-4" />,
-        title: "Queen rearing and hive skills",
-        description: "Supports queen rearing, colony multiplication, and better management practices.",
-      },
-    ],
-    layout: "left",
-  },
-  {
-    title: "API Bee Keeper's Association",
-    logo: "/scientific-beekeeping-icon.png",
-    eyebrow: "Registered beekeeping association",
-    description:
-      "The AP Bee Keeper's Association was formed under the leadership of Sri. Kavuri Venkateshwara Rao on 27th November 1980. He was one of the leading people in the Bee Keeping development program in Andhra Pradesh since 1945.",
-    points: [
-      "Gave beekeeping training to rural people, farmers, women, and weaker sections.",
-      "Formed and registered under Act XXI of 1860.",
-      "Located at Ithahanagar, Tenali, Guntur Dist.",
-    ],
-    details: [
-      {
-        icon: <Users className="h-4 w-4" />,
-        title: "Community training",
-        description: "Built around practical beekeeping training for rural people, farmers, women, and weaker sections.",
-      },
-      {
-        icon: <Calendar className="h-4 w-4" />,
-        title: "Established in 1980",
-        description: "The association was formed on 27th November 1980 after decades of beekeeping development work in Andhra Pradesh.",
-      },
-    ],
-    layout: "right",
-  },
-  {
-    title: "NIRDPR",
-    logo: "/nirdpr-orbit-logo.jpeg",
-    eyebrow: "Institutional association",
-    description:
-      "NIRDPR is the institutional anchor named in the source text, linking the center's formation to Rural Technology Park and a broader public-sector development context.",
-    points: [
-      "Association noted at the time of establishment.",
-      "Institutional backing for continuity and mission trust.",
-      "Supports the center's positioning within a rural development ecosystem.",
-    ],
-    details: [
-      {
-        icon: <ShieldCheck className="h-4 w-4" />,
-        title: "Institutional continuity",
-        description: "Provides the clearest documented public-sector anchor in the formation profile.",
-      },
-      {
-        icon: <BriefcaseBusiness className="h-4 w-4" />,
-        title: "Development ecosystem",
-        description: "Strengthens the center's role within Rural Technology Park and rural development outreach.",
-      },
-    ],
-    layout: "bottom",
-  },
-];
-
 const aboutStats = [
   {
-    icon: <Award className="h-5 w-5" />,
+    icon: Sprout,
     value: "20-80%",
     label: "Crop Yield Potential",
+    body: "Beekeeping enhances pollination leading to 20-80% higher crop yield.",
+    tone: "green",
   },
   {
-    icon: <Calendar className="h-5 w-5" />,
+    icon: Calendar,
     value: "5-Day",
     label: "Scientific Beekeeping Training",
+    body: "Hands-on training with expert guidance and real-world applications.",
+    tone: "gold",
   },
   {
-    icon: <Users className="h-5 w-5" />,
+    icon: Users,
     value: "130+ Years",
     label: "Combined Faculty Experience",
+    body: "Learn from experienced professionals and apiculture experts.",
+    tone: "green",
   },
   {
-    icon: <ShieldCheck className="h-5 w-5" />,
+    icon: ShieldCheck,
     value: "Pan-India",
     label: "Training & Technical Reach",
+    body: "Empowering beekeepers across India with knowledge and support.",
+    tone: "gold",
   },
-];
+] as const;
+
+const impactPillars = [
+  { icon: BadgeCheck, label: "Practical Training" },
+  { icon: Leaf, label: "Sustainable Livelihoods" },
+  { icon: Users, label: "Stronger Communities" },
+  { icon: GraduationCap, label: "Better Tomorrow" },
+] as const;
 
 export default function AboutUsSection({ language }: { language: SiteLanguage }) {
   const copy = getSiteCopy(language);
-  const storyParagraphs = copy.about.storyParagraphs;
   const peopleGroups = copy.about.peopleGroups;
   const moreCards = copy.about.moreCards;
+  const peopleRef = useRef<HTMLDivElement>(null);
+  const isPeopleInView = useInView(peopleRef, { once: true, amount: 0.15 });
   const missionMembers = peopleGroups.flatMap((group) =>
     group.members.map((member) => ({
       ...member,
       groupEyebrow: group.eyebrow,
     })),
   );
-  const aboutUi = {
-    en: {
-      eyebrow: "Discover our story",
-      title: "About Us",
-      formationTitle: "API CULTURE formed by three supporting cultures",
-      explorePrograms: "Explore programs",
-      established: "Established",
-      supportingCultures: "Supporting cultures",
-      coreThemes: "Core training themes",
-      leadershipShown: "Leadership profiles shown",
-      missionPeople: "People Behind The Mission",
-      missionLead: "Leadership, committee, and technical faculty",
-      missionBody:
-        "The older profile information is restored below on the same About page so the center's directors, committee members, and technical or faculty members remain visible within the current design.",
-      readyTitle: "",
-      readyBody: "",
-      viewPrograms: "",
-      contactUs: "",
-    },
-    te: {
-      eyebrow: "మా కథను తెలుసుకోండి",
-      title: "మా గురించి",
-      formationTitle: "మూడు మద్దతు సంస్కృతులతో ఏర్పడిన API CULTURE",
-      explorePrograms: "కార్యక్రమాలు చూడండి",
-      established: "స్థాపన",
-      supportingCultures: "మద్దతు సంస్కృతులు",
-      coreThemes: "ప్రధాన శిక్షణ అంశాలు",
-      leadershipShown: "చూపించిన నాయకత్వ ప్రొఫైళ్లు",
-      missionPeople: "ఈ లక్ష్యానికి వెనుక ఉన్నవారు",
-      missionLead: "నాయకత్వం, కమిటీ మరియు సాంకేతిక మార్గదర్శకం",
-      missionBody:
-        "కేంద్రానికి చెందిన డైరెక్టర్లు, కమిటీ సభ్యులు, సాంకేతిక మరియు ఫ్యాకల్టీ సభ్యులు ప్రస్తుత రూపకల్పనలో కూడా స్పష్టంగా కనిపించేలా ఈ పాత ప్రొఫైల్ సమాచారాన్ని ఇదే About పేజీలో కొనసాగించాము.",
-      readyTitle: "",
-      readyBody: "",
-      viewPrograms: "",
-      contactUs: "",
-    },
-    hi: {
-      eyebrow: "हमारी कहानी जानें",
-      title: "हमारे बारे में",
-      formationTitle: "तीन सहयोगी संस्कृतियों से बना API CULTURE",
-      explorePrograms: "कार्यक्रम देखें",
-      established: "स्थापना",
-      supportingCultures: "सहयोगी संस्कृतियां",
-      coreThemes: "मुख्य प्रशिक्षण विषय",
-      leadershipShown: "दिखाई गई नेतृत्व प्रोफाइल",
-      missionPeople: "मिशन के पीछे के लोग",
-      missionLead: "नेतृत्व, समिति और तकनीकी मार्गदर्शन",
-      missionBody:
-        "केंद्र के निदेशकों, समिति सदस्यों और तकनीकी या फैकल्टी प्रोफाइल्स को वर्तमान डिजाइन में भी स्पष्ट रखने के लिए पुरानी प्रोफाइल जानकारी इसी About पेज में रखी गई है।",
-      readyTitle: "",
-      readyBody: "",
-      viewPrograms: "",
-      contactUs: "",
-    },
-  }[language];
 
-  const [activeCulture, setActiveCulture] = useState<string | null>(null);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const peopleRef = useRef<HTMLDivElement>(null);
-
-  const isPeopleInView = useInView(peopleRef, { once: true, amount: 0.15 });
+  const storyParagraphs = [
+    <>
+      Api Culture Technology Center was <strong>established in 2004</strong> at Rural Technology Park in association with NIRDPR, with technical support from the Bee Keepers Association and Kavuri.
+    </>,
+    <>
+      The center presents itself as a practical mission for <strong>training, technology transfer, pollination, and livelihood support</strong> across rural communities.
+    </>,
+    <>
+      The mission grows through scientific beekeeping, honey processing, queen rearing, hive product awareness, equipment access, and public-facing apiculture education for farmers and future beekeeping entrepreneurs.
+    </>,
+  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -211,57 +94,81 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
   return (
     <section
       id="about-section"
-      ref={sectionRef}
-      className="relative min-h-screen scroll-mt-28 overflow-hidden bg-white px-4 py-24 text-[#173f33]"
+      className="relative scroll-mt-28 overflow-hidden bg-[#fbfcf9] px-4 py-20 text-[#173f33] sm:py-24"
     >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_75%,rgba(164,143,45,0.20),transparent_28%),radial-gradient(circle_at_88%_16%,rgba(213,169,64,0.16),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfcf9_45%,#f5f8f1_100%)]" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#e5ead9] to-transparent" aria-hidden="true" />
+
       <motion.div
-        className="relative z-10 mx-auto max-w-7xl"
+        className="relative z-10 mx-auto max-w-[1480px]"
         initial="visible"
         animate="visible"
         variants={containerVariants}
       >
-        <motion.div className="mx-auto max-w-6xl" variants={itemVariants}>
-          <AboutEcosystemOrbit
-            activeCulture={activeCulture}
-            onSelectCulture={setActiveCulture}
-          />
-        </motion.div>
-
-        <motion.div className="mx-auto mt-12 grid max-w-6xl items-stretch gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(22rem,0.92fr)]" variants={itemVariants}>
-          <div className="relative overflow-hidden rounded-[2rem] border border-[#e8eee9] bg-white p-7 shadow-[0_16px_38px_rgba(34,45,38,0.06)] md:p-9">
-            <div>
-              <h2 className="font-display text-4xl md:text-5xl">{aboutUi.title}</h2>
-              <div className="mt-4 h-1 w-24 bg-[#b97816]" />
-            </div>
-
-            <div className="mt-7">
-              {storyParagraphs.map((paragraph) => (
-                <p key={paragraph} className="mb-4 text-base font-medium leading-8 text-[#40564d] last:mb-0">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative isolate min-h-full overflow-hidden rounded-[2rem] border border-[#e6eee6] bg-[#edf3ed] p-2.5 shadow-[0_22px_58px_rgba(34,45,38,0.12)] sm:p-3">
-            <div className="pointer-events-none absolute inset-0 opacity-[0.68]" aria-hidden="true">
+        <motion.div className="grid items-stretch gap-4 lg:grid-cols-2" variants={itemVariants}>
+          <article className="relative isolate min-h-[42rem] overflow-hidden rounded-[1.35rem] border border-[#dfe6d6] bg-white/88 p-7 shadow-[0_24px_70px_rgba(31,45,38,0.09),inset_0_1px_0_rgba(255,255,255,0.92)] sm:p-10 lg:p-12">
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[17rem]" aria-hidden="true">
               <Image
-                src="/hero-section-center-art.png"
+                src="/why-matters-bee-bloom-v2.png"
                 alt=""
-                width={620}
-                height={620}
-                sizes="(min-width: 1280px) 34rem, (min-width: 1024px) 42vw, 94vw"
-                className="absolute left-1/2 top-1/2 h-[112%] w-[112%] max-w-none -translate-x-1/2 -translate-y-1/2 object-cover"
+                fill
+                sizes="(min-width: 1024px) 48vw, 100vw"
+                className="object-cover object-[12%_67%] opacity-90"
+                priority
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/10 to-white" />
+              <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-r from-transparent to-white/70" />
             </div>
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_12%,rgba(255,255,255,0.74),rgba(255,255,255,0.22)_34%,rgba(255,255,255,0.04)_64%),linear-gradient(145deg,rgba(255,255,255,0.46)_0%,rgba(255,255,255,0.08)_44%,rgba(35,55,42,0.18)_100%)]" aria-hidden="true" />
-            <div className="pointer-events-none absolute inset-[1px] rounded-[1.9rem] border border-white/55 shadow-[inset_0_1px_0_rgba(255,255,255,0.72)]" aria-hidden="true" />
-            <div className="relative z-10 grid h-full grid-cols-2 gap-2.5 sm:gap-3">
+            <div className="pointer-events-none absolute -bottom-8 right-8 h-44 w-80 opacity-[0.18] honeycomb-bg" aria-hidden="true" />
+
+            <div className="relative z-10 max-w-2xl">
+              <div className="flex items-center gap-4 text-[#d99a00]">
+                <p className="text-xs font-black uppercase tracking-[0.42em]">About Us</p>
+                <div className="h-px w-16 bg-[#d99a00]" />
+                <Image src="/api-culture-logo-clean.png" alt="" width={42} height={42} className="h-10 w-10 object-contain" />
+                <div className="hidden h-px w-24 bg-[#d99a00] sm:block" />
+              </div>
+
+              <h1
+                aria-label="Api Culture Technology Center"
+                className="mt-7 max-w-[42rem] text-5xl font-black leading-[0.96] text-[#123f31] sm:text-6xl lg:text-7xl"
+              >
+                Api Culture
+                <span className="block">Technology Center</span>
+              </h1>
+              <div className="mt-6 h-1.5 w-24 bg-[#d99a00] shadow-[2px_2px_0_rgba(18,63,49,0.14)]" />
+
+              <div className="mt-10 space-y-7 text-lg font-medium leading-8 text-[#26362f] sm:text-xl sm:leading-9">
+                {storyParagraphs.map((paragraph, index) => (
+                  <p key={index} className="[&_strong]:font-black [&_strong]:text-[#1f6543]">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </article>
+
+          <aside className="relative isolate overflow-hidden rounded-[1.35rem] border border-[#dfe6d6] bg-[#edf3ea] p-3 shadow-[0_28px_75px_rgba(31,45,38,0.12),inset_0_1px_0_rgba(255,255,255,0.9)] sm:p-4">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(255,255,255,0.72),transparent_34%),radial-gradient(circle_at_80%_80%,rgba(216,156,0,0.14),transparent_32%)]" aria-hidden="true" />
+            <div className="relative z-10 grid gap-3 sm:grid-cols-2">
               {aboutStats.map((stat) => (
-                <FactStat key={stat.label} icon={stat.icon} value={stat.value} label={stat.label} />
+                <AboutStatCard key={stat.label} {...stat} />
               ))}
             </div>
-          </div>
+
+            <div className="relative z-10 mt-3 grid overflow-hidden rounded-[1rem] border border-[#d3c380]/42 bg-[#064a34] text-white shadow-[0_16px_34px_rgba(6,74,52,0.22),inset_0_1px_0_rgba(255,255,255,0.18)] sm:grid-cols-4">
+              {impactPillars.map((pillar, index) => {
+                const Icon = pillar.icon;
+                return (
+                  <div key={pillar.label} className="flex items-center gap-3 border-white/18 px-5 py-5 sm:border-l sm:first:border-l-0">
+                    <Icon className="h-8 w-8 shrink-0 text-[#e1a400]" strokeWidth={2.2} />
+                    <p className="text-sm font-black leading-snug">{pillar.label}</p>
+                    {index < impactPillars.length - 1 ? <span className="sr-only">,</span> : null}
+                  </div>
+                );
+              })}
+            </div>
+          </aside>
         </motion.div>
 
         <motion.div
@@ -272,12 +179,12 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
           variants={containerVariants}
         >
           <motion.div className="mx-auto max-w-3xl text-center" variants={itemVariants}>
-            <p className="font-display text-sm italic text-[#8a978f]">{aboutUi.missionPeople}</p>
-            <h3 className="mt-3 text-[clamp(2.25rem,4.2vw,4.4rem)] font-black leading-[0.92] tracking-[-0.03em] text-[#101713]">
-              {aboutUi.missionLead}
-            </h3>
+            <p className="font-display text-sm italic text-[#8a978f]">{copy.about.peopleEyebrow}</p>
+            <h2 className="mt-3 text-[clamp(2.25rem,4.2vw,4.4rem)] font-black leading-[0.92] tracking-[-0.03em] text-[#101713]">
+              {copy.about.peopleTitle}
+            </h2>
             <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[#6a7771]">
-              {aboutUi.missionBody}
+              {copy.about.peopleBody}
             </p>
           </motion.div>
 
@@ -292,7 +199,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
           {moreCards.map((card) => (
             <motion.div
               key={card.title}
-              className="rounded-[1.55rem] border border-[#e8eee9] bg-white p-5 shadow-[0_12px_30px_rgba(34,45,38,0.05)]"
+              className="rounded-[1.35rem] border border-[#e8eee9] bg-white p-5 shadow-[0_12px_30px_rgba(34,45,38,0.05)]"
               variants={itemVariants}
             >
               <p className="text-lg font-semibold text-[#173f33]">{card.title}</p>
@@ -300,264 +207,51 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
             </motion.div>
           ))}
         </motion.div>
-
       </motion.div>
     </section>
   );
 }
 
-function AboutEcosystemOrbit({
-  activeCulture,
-  onSelectCulture,
+function AboutStatCard({
+  icon: Icon,
+  value,
+  label,
+  body,
+  tone,
 }: {
-  activeCulture: string | null;
-  onSelectCulture: (culture: string | null) => void;
+  icon: React.ElementType;
+  value: string;
+  label: string;
+  body: string;
+  tone: "green" | "gold";
 }) {
-  const [rotationAngle, setRotationAngle] = useState(0);
-  const [hoveredCulture, setHoveredCulture] = useState<string | null>(null);
-  const [autoRotate, setAutoRotate] = useState(true);
-  const orbitRef = useRef<HTMLDivElement>(null);
-  const selectedCulture = supportingCultures.find((culture) => culture.title === activeCulture) ?? null;
-  const selectedCultureIndex = supportingCultures.findIndex((culture) => culture.title === activeCulture);
-
-  useEffect(() => {
-    if (!autoRotate || activeCulture) {
-      return;
-    }
-
-    const rotationTimer = window.setInterval(() => {
-      setRotationAngle((previous) => Number(((previous + 0.28) % 360).toFixed(3)));
-    }, 50);
-
-    return () => window.clearInterval(rotationTimer);
-  }, [activeCulture, autoRotate]);
-
-  useEffect(() => {
-    if (!activeCulture) {
-      return;
-    }
-
-    const closeOnOutsideClick = (event: PointerEvent) => {
-      const target = event.target as HTMLElement;
-
-      if (target.closest("[data-orbit-card]")) {
-        return;
-      }
-
-      onSelectCulture(null);
-      setAutoRotate(true);
-    };
-
-    document.addEventListener("pointerdown", closeOnOutsideClick);
-    return () => document.removeEventListener("pointerdown", closeOnOutsideClick);
-  }, [activeCulture, onSelectCulture]);
-
-  const calculateNodePosition = (index: number, total: number) => {
-    const angle = ((index / total) * 360 + rotationAngle) % 360;
-    const radian = (angle * Math.PI) / 180;
-    const radiusX = 360;
-    const radiusY = 196;
-    const x = radiusX * Math.cos(radian);
-    const y = radiusY * Math.sin(radian);
-    const zIndex = Math.round(90 + 35 * Math.sin(radian));
-    const opacity = Math.max(0.54, Math.min(1, 0.62 + 0.38 * ((1 + Math.sin(radian)) / 2)));
-    const scale = 0.92 + 0.12 * ((1 + Math.sin(radian)) / 2);
-
-    return { angle, opacity, scale, x, y, zIndex };
-  };
-
-  const centerNode = (cultureTitle: string) => {
-    const nodeIndex = supportingCultures.findIndex((culture) => culture.title === cultureTitle);
-    if (nodeIndex < 0) {
-      return;
-    }
-
-    setAutoRotate(false);
-    onSelectCulture(cultureTitle);
-  };
-
-  const selectedPosition = selectedCultureIndex >= 0 ? calculateNodePosition(selectedCultureIndex, supportingCultures.length) : null;
-  const summaryOnRight = selectedPosition ? selectedPosition.x < 90 : true;
-  const summaryX = selectedPosition ? selectedPosition.x + (summaryOnRight ? 156 : -444) : 0;
-  const summaryY = selectedPosition ? selectedPosition.y - 70 : 0;
-  const lineStartX = selectedPosition ? selectedPosition.x + (summaryOnRight ? 128 : -128) : 0;
-  const lineEndX = selectedPosition ? selectedPosition.x + (summaryOnRight ? 156 : -156) : 0;
-  const lineLeft = Math.min(lineStartX, lineEndX);
-  const lineWidth = Math.abs(lineEndX - lineStartX);
+  const isGold = tone === "gold";
 
   return (
-    <div ref={orbitRef} className="relative overflow-visible px-1 py-2 md:px-4">
-      <div className="absolute left-1/2 top-8 h-[34rem] w-[34rem] -translate-x-1/2 rounded-full border border-[#d7be90]/26" />
-      <div className="absolute left-1/2 top-20 h-[26rem] w-[26rem] -translate-x-1/2 rounded-full border border-[#d6a84b]/24" />
-
-      <div className="relative z-10 grid gap-5">
-        <div className="grid gap-3 lg:hidden">
-          {supportingCultures.map((culture) => {
-            const isActive = activeCulture === culture.title;
-            const isLogoOnly = culture.title === "Kavuri" || culture.title === "NIRDPR";
-            return (
-              <div key={culture.title} className="grid gap-3">
-                <button
-                  type="button"
-                  onClick={() => centerNode(culture.title)}
-                  data-orbit-card
-                  className={`flex h-28 w-full items-center justify-center rounded-[1.35rem] border bg-white p-4 transition ${
-                    isActive ? "border-[#d6a84b] bg-white shadow-[0_12px_28px_rgba(34,45,38,0.08)]" : "border-[#e8eee9] bg-white"
-                  }`}
-                  aria-label={culture.title}
-                >
-                  {isLogoOnly ? (
-                    <div className="relative h-20 w-44">
-                      <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain" sizes="176px" />
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3 text-left">
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/75 bg-white/85">
-                        <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="48px" />
-                      </div>
-                      <div>
-                        <h4 className="text-lg font-semibold leading-tight text-[#173f33]">{culture.title}</h4>
-                      </div>
-                    </div>
-                  )}
-                </button>
-                {isActive ? <CultureInfoCard culture={culture} /> : null}
-              </div>
-            );
-          })}
-        </div>
-
-        <div
-          className="relative hidden min-h-[35rem] overflow-visible bg-white lg:block"
-          onMouseEnter={() => setAutoRotate(false)}
-          onMouseLeave={() => {
-            setHoveredCulture(null);
-            if (!activeCulture) {
-              setAutoRotate(true);
-            }
-          }}
-        >
-          <div className="absolute left-1/2 top-1/2 h-[21rem] w-[21rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6a84b]/38" />
-          <div className="absolute left-1/2 top-1/2 h-[29rem] w-[29rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/48" />
-          <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/22" />
-          <div className="absolute left-1/2 top-1/2 flex h-40 w-40 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#e8eee9] bg-white text-center shadow-[0_14px_32px_rgba(34,45,38,0.06)]">
-            <div className="absolute -inset-4 rounded-full border border-[#d6a84b]/15 opacity-70 [animation:ping_2.8s_cubic-bezier(0,0,0.2,1)_infinite]" />
-            <div className="absolute -inset-8 rounded-full border border-[#f2b544]/18 opacity-50 [animation:ping_3.6s_cubic-bezier(0,0,0.2,1)_infinite]" />
-            <div className="relative h-20 w-24">
-              <Image src={apiCultureFormation.logo} alt="API CULTURE logo" fill className="object-contain" sizes="80px" />
-            </div>
-            <p className="mt-1 text-[10px] font-black uppercase tracking-[0.24em] text-[#b97816]">{apiCultureFormation.title}</p>
-          </div>
-
-          {supportingCultures.map((culture, index) => {
-            const isActive = activeCulture === culture.title;
-            const isHovered = hoveredCulture === culture.title;
-            const isLogoOnly = culture.title === "Kavuri" || culture.title === "NIRDPR";
-            const position = calculateNodePosition(index, supportingCultures.length);
-            return (
-              <div
-                key={culture.title}
-                className="absolute left-1/2 top-1/2 transition-all duration-700"
-                style={{
-                  opacity: isActive || isHovered ? 1 : position.opacity,
-                  transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${isActive ? 1.1 : isHovered ? 1.16 : position.scale})`,
-                  zIndex: isActive || isHovered ? 140 : position.zIndex,
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() => centerNode(culture.title)}
-                  onMouseEnter={() => setHoveredCulture(culture.title)}
-                  onMouseLeave={() => setHoveredCulture(null)}
-                  data-orbit-card
-                  className={`flex h-28 w-64 items-center justify-center rounded-[1.55rem] border bg-white p-4 transition-all duration-300 ${
-                    isActive
-                      ? "border-[#d6a84b] shadow-[0_18px_42px_rgba(34,45,38,0.08)]"
-                      : isHovered
-                        ? "border-[#d6a84b]/75 shadow-[0_14px_34px_rgba(34,45,38,0.07)]"
-                        : "border-[#e8eee9] shadow-[0_10px_26px_rgba(34,45,38,0.04)]"
-                  }`}
-                  aria-label={culture.title}
-                >
-                  {isLogoOnly ? (
-                    <div className="relative h-20 w-48">
-                      <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain" sizes="192px" />
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-3 text-left">
-                      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/75 bg-white/85 shadow-[0_8px_22px_rgba(99,77,26,0.08)]">
-                        <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="48px" />
-                      </div>
-                      <div className="min-w-0">
-                        <h4 className={`${culture.title === "API Bee Keeper's Association" ? "text-[1.05rem]" : "text-lg"} font-semibold leading-snug text-[#173f33]`}>
-                          {culture.title}
-                        </h4>
-                      </div>
-                    </div>
-                  )}
-                </button>
-              </div>
-            );
-          })}
-          {selectedCulture && selectedPosition ? (
-            <>
-              <motion.div
-                className="pointer-events-none absolute z-[300] h-px bg-[#d6a84b]/60"
-                initial={{ opacity: 0, scaleX: 0 }}
-                animate={{ opacity: 1, scaleX: 1 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
-                style={{
-                  left: `calc(50% + ${lineLeft}px)`,
-                  top: `calc(50% + ${selectedPosition.y}px)`,
-                  transformOrigin: summaryOnRight ? "left center" : "right center",
-                  width: `${lineWidth}px`,
-                }}
-              />
-              <CultureInfoCard
-                culture={selectedCulture}
-                className="absolute w-72"
-                style={{
-                  left: `calc(50% + ${summaryX}px)`,
-                  top: `calc(50% + ${summaryY}px)`,
-                }}
-              />
-            </>
-          ) : null}
-        </div>
+    <div className="group relative flex min-h-[18rem] flex-col items-center justify-center overflow-hidden rounded-[1.1rem] border border-white/72 bg-white/62 p-6 text-center shadow-[0_18px_38px_rgba(31,45,38,0.08),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-md">
+      <div
+        className={`pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100 ${
+          isGold
+            ? "bg-[radial-gradient(circle_at_50%_14%,rgba(245,179,0,0.16),transparent_44%)]"
+            : "bg-[radial-gradient(circle_at_50%_14%,rgba(108,139,43,0.16),transparent_44%)]"
+        }`}
+        aria-hidden="true"
+      />
+      <div
+        className={`grid h-20 w-20 place-items-center rounded-full border-4 border-white shadow-[0_10px_28px_rgba(31,45,38,0.13),inset_0_2px_0_rgba(255,255,255,0.36)] ${
+          isGold ? "bg-[#f2b21c] text-white ring-2 ring-[#f2b21c]/45" : "bg-[#6e8f2f] text-white ring-2 ring-[#6e8f2f]/30"
+        }`}
+      >
+        <Icon className="h-10 w-10" strokeWidth={2.2} />
+      </div>
+      <div className="my-4 h-px w-24 bg-gradient-to-r from-transparent via-[#d9c482] to-transparent" />
+      <p className="text-5xl font-black leading-none text-[#123f31] sm:text-6xl">{value}</p>
+      <h3 className="mt-3 max-w-64 text-xl font-black leading-snug text-[#123f31]">{label}</h3>
+      <p className="mt-4 max-w-72 text-base font-medium leading-6 text-[#3f4d47]">{body}</p>
+      <div className="pointer-events-none absolute -bottom-8 -right-10 text-[#123f31]/[0.045]" aria-hidden="true">
+        <Map className="h-40 w-40" strokeWidth={1.2} />
       </div>
     </div>
-  );
-}
-
-function CultureInfoCard({
-  culture,
-  className = "",
-  style,
-}: {
-  culture: (typeof supportingCultures)[number];
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  return (
-    <motion.div
-      key={culture.title}
-      initial={{ opacity: 0, y: 8, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className={`z-[320] rounded-[1.25rem] border border-[#d6a84b]/45 bg-white p-4 text-left shadow-[0_18px_38px_rgba(34,45,38,0.12)] ${className}`}
-      style={style}
-    >
-      <div className="mb-3 h-px w-full bg-[#d6a84b]/45" />
-      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#b97816]">{culture.eyebrow}</p>
-      <p className="mt-2 text-sm leading-6 text-[#40564d]">{culture.description}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {culture.points.slice(0, 2).map((point) => (
-          <span key={point} className="rounded-full border border-[#e8eee9] bg-white px-3 py-1 text-[11px] font-semibold text-[#61716a]">
-            {point}
-          </span>
-        ))}
-      </div>
-    </motion.div>
   );
 }
 
@@ -668,29 +362,5 @@ function TeamMemberTile({
         </div>
       </div>
     </motion.article>
-  );
-}
-
-function FactStat({
-  icon,
-  value,
-  label,
-}: {
-  icon: React.ReactNode;
-  value: string;
-  label: string;
-}) {
-  return (
-    <div
-      className="relative flex aspect-[1.05/1] min-h-[8.5rem] flex-col justify-between overflow-hidden rounded-[1.35rem] border border-white/45 bg-white/[0.24] p-3.5 shadow-[0_14px_34px_rgba(31,45,38,0.11),inset_0_1px_0_rgba(255,255,255,0.62),inset_0_-18px_34px_rgba(255,255,255,0.08)] backdrop-blur-[18px] backdrop-saturate-150 sm:min-h-[9.4rem] sm:p-5"
-    >
-      <div className="pointer-events-none absolute inset-x-4 top-2 h-px bg-white/55" aria-hidden="true" />
-      <div className="pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full bg-white/24 blur-2xl" aria-hidden="true" />
-      <div className="relative z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/45 bg-white/18 text-[#a96a12] shadow-[inset_0_1px_0_rgba(255,255,255,0.62)] sm:h-11 sm:w-11">{icon}</div>
-      <div className="relative z-10">
-        <p className="text-[clamp(1.25rem,3.45vw,2.05rem)] font-bold leading-[0.95] text-[#123d32] [text-shadow:0_1px_16px_rgba(255,255,255,0.92)]">{value}</p>
-        <p className="mt-2 max-w-[11rem] text-[0.7rem] font-bold leading-5 text-[#3d554b] [text-shadow:0_1px_12px_rgba(255,255,255,0.94)] sm:text-[0.86rem] sm:leading-6">{label}</p>
-      </div>
-    </div>
   );
 }
