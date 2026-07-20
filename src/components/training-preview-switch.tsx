@@ -110,6 +110,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
   const [active, setActive] = React.useState(0);
   const [activeDetail, setActiveDetail] = React.useState<DetailTab>("about");
   const [applicationCourse, setApplicationCourse] = React.useState<TrainingPreviewCourse | null>(null);
+  const courseOverviewRef = React.useRef<HTMLElement | null>(null);
   const course = courses[active] ?? courses[0];
   const serviceOptions = courses.map((item) => ({
     title: item.title,
@@ -122,6 +123,12 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
   function selectCourse(index: number) {
     setActive(index);
     setActiveDetail("about");
+
+    if (typeof window !== "undefined" && window.innerWidth < 1280) {
+      window.requestAnimationFrame(() => {
+        courseOverviewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
   }
 
   return (
@@ -138,7 +145,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
         <div className="mt-6 rounded-lg border border-[#efe7da] bg-white/82 p-3 shadow-[0_28px_80px_rgba(36,41,34,0.1)] backdrop-blur sm:p-4 lg:p-5">
           <div className="grid gap-4 xl:grid-cols-[20rem_minmax(0,1.25fr)_minmax(21rem,0.95fr)]">
             <TrainingRail courses={courses} active={active} onSelect={selectCourse} />
-            <CourseOverview course={course} onEnroll={() => setApplicationCourse(course)} />
+            <CourseOverview course={course} overviewRef={courseOverviewRef} onEnroll={() => setApplicationCourse(course)} />
             <CourseDetailTabs course={course} active={activeDetail} onSelect={setActiveDetail} onEnroll={() => setApplicationCourse(course)} />
           </div>
           <BenefitRow />
@@ -245,11 +252,19 @@ function TrainingRail({
   );
 }
 
-function CourseOverview({ course, onEnroll }: { course: TrainingPreviewCourse; onEnroll: () => void }) {
+function CourseOverview({
+  course,
+  overviewRef,
+  onEnroll,
+}: {
+  course: TrainingPreviewCourse;
+  overviewRef: React.RefObject<HTMLElement | null>;
+  onEnroll: () => void;
+}) {
   const skills = normalizeSkills(course);
 
   return (
-    <article className="overflow-hidden rounded-lg border border-[#e7dfd2] bg-white shadow-[0_18px_46px_rgba(36,41,34,0.08)]">
+    <article ref={overviewRef} className="scroll-mt-24 overflow-hidden rounded-lg border border-[#e7dfd2] bg-white shadow-[0_18px_46px_rgba(36,41,34,0.08)]">
       <div className="relative min-h-[22rem] overflow-hidden p-5 sm:p-7">
         <Image src={course.imageSrc} alt={course.imageAlt} fill sizes="(max-width: 1280px) 100vw, 46rem" className="object-cover object-right" priority />
         <div className="absolute inset-0 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,0.96)_34%,rgba(255,253,248,0.58)_58%,rgba(255,253,248,0.08)_100%)]" />
