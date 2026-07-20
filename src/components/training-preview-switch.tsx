@@ -296,9 +296,12 @@ function CourseOverview({
         <button
           type="button"
           onClick={onEnroll}
-          className="absolute bottom-5 right-5 z-20 inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[#06432f] px-5 text-sm font-black text-white shadow-[0_18px_38px_rgba(6,67,47,0.26)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          className="absolute bottom-5 right-5 z-20 inline-flex min-h-16 items-center justify-center gap-3 rounded-lg bg-[#06432f] px-5 py-2.5 text-left text-white shadow-[0_18px_38px_rgba(6,67,47,0.26)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
         >
-          Apply Now
+          <span className="grid gap-1">
+            <span className="text-sm font-black leading-none">Enroll Now</span>
+            <span className="text-[11px] font-bold leading-none text-white/78">starts at 21-Aug-26</span>
+          </span>
           <ArrowRight className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
