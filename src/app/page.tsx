@@ -151,13 +151,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="training-section" className="scroll-mt-28 pt-4">
-        <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
-          <p className="text-sm font-black uppercase tracking-[0.18em] text-[#b36b00]">Training</p>
-          <h2 className="font-display mt-4 max-w-4xl text-[clamp(2.5rem,5vw,5.2rem)] leading-[0.92] text-[#173f33]">
-            Training programs
-          </h2>
-        </div>
+      <section id="training-section" className="scroll-mt-28">
         <TrainingPreviewSwitch courses={courses} language={language} />
       </section>
 
