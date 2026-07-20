@@ -96,7 +96,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
       id="about-section"
       className="relative scroll-mt-28 overflow-hidden bg-[#fbfcf9] px-4 py-20 text-[#173f33] sm:py-24"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_75%,rgba(164,143,45,0.20),transparent_28%),radial-gradient(circle_at_88%_16%,rgba(213,169,64,0.16),transparent_28%),linear-gradient(180deg,#ffffff_0%,#fbfcf9_45%,#f5f8f1_100%)]" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,#fffaf0_0%,#fbfcf9_48%,#f5f8f1_100%)]" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-[#e5ead9] to-transparent" aria-hidden="true" />
 
       <motion.div
@@ -105,21 +105,28 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
         animate="visible"
         variants={containerVariants}
       >
-        <motion.div className="grid items-stretch gap-4 lg:grid-cols-2" variants={itemVariants}>
-          <article className="relative isolate min-h-[42rem] overflow-hidden rounded-[1.35rem] border border-[#dfe6d6] bg-white/88 p-7 shadow-[0_24px_70px_rgba(31,45,38,0.09),inset_0_1px_0_rgba(255,255,255,0.92)] sm:p-10 lg:p-12">
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[17rem]" aria-hidden="true">
-              <Image
-                src="/why-matters-bee-bloom-v2.png"
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 48vw, 100vw"
-                className="object-cover object-[12%_67%] opacity-90"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/10 to-white" />
-              <div className="absolute inset-y-0 right-0 w-1/2 bg-gradient-to-r from-transparent to-white/70" />
-            </div>
-            <div className="pointer-events-none absolute -bottom-8 right-8 h-44 w-80 opacity-[0.18] honeycomb-bg" aria-hidden="true" />
+        <motion.div
+          className="relative isolate overflow-hidden rounded-[1.6rem] border border-white/65 bg-[#f4e7b4] p-3 shadow-[0_30px_90px_rgba(76,45,5,0.16),inset_0_1px_0_rgba(255,255,255,0.58)] sm:p-4 lg:p-5"
+          style={{ minHeight: "56rem" }}
+          variants={itemVariants}
+        >
+          <Image
+            src="/about-bee-flower-background.png"
+            alt=""
+            fill
+            sizes="(min-width: 1536px) 1480px, 100vw"
+            className="object-cover object-center"
+            priority
+          />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,252,240,0.52)_0%,rgba(255,248,227,0.26)_42%,rgba(255,255,255,0.04)_100%)]" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.28),inset_0_40px_90px_rgba(255,255,255,0.08)]" aria-hidden="true" />
+
+          <div className="relative z-10 grid h-full items-stretch gap-4 xl:grid-cols-2">
+          <article
+            className="relative isolate min-h-[42rem] overflow-hidden rounded-[1.35rem] border border-white/48 bg-white/18 p-7 shadow-[0_24px_70px_rgba(74,46,6,0.13),inset_0_1px_0_rgba(255,255,255,0.7),inset_0_-24px_42px_rgba(255,255,255,0.05)] backdrop-blur-[14px] backdrop-saturate-150 sm:p-10 lg:p-12"
+          >
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(145deg,rgba(255,255,255,0.26),rgba(255,255,255,0.08)_48%,rgba(255,255,255,0.14)_100%)]" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-[1px] rounded-[1.3rem] border border-white/38" aria-hidden="true" />
 
             <div className="relative z-10 max-w-2xl">
               <div className="flex items-center gap-4 text-[#d99a00]">
@@ -138,7 +145,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
               </h1>
               <div className="mt-6 h-1.5 w-24 bg-[#d99a00] shadow-[2px_2px_0_rgba(18,63,49,0.14)]" />
 
-              <div className="mt-10 space-y-7 text-lg font-medium leading-8 text-[#26362f] sm:text-xl sm:leading-9">
+              <div className="mt-10 space-y-7 text-lg font-semibold leading-8 text-[#182a22] sm:text-xl sm:leading-9">
                 {storyParagraphs.map((paragraph, index) => (
                   <p key={index} className="[&_strong]:font-black [&_strong]:text-[#1f6543]">
                     {paragraph}
@@ -148,15 +155,16 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
             </div>
           </article>
 
-          <aside className="relative isolate overflow-hidden rounded-[1.35rem] border border-[#dfe6d6] bg-[#edf3ea] p-3 shadow-[0_28px_75px_rgba(31,45,38,0.12),inset_0_1px_0_rgba(255,255,255,0.9)] sm:p-4">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(255,255,255,0.72),transparent_34%),radial-gradient(circle_at_80%_80%,rgba(216,156,0,0.14),transparent_32%)]" aria-hidden="true" />
+          <aside className="relative isolate overflow-hidden rounded-[1.35rem] border border-white/45 bg-white/12 p-3 shadow-[0_28px_75px_rgba(74,46,6,0.15),inset_0_1px_0_rgba(255,255,255,0.68),inset_0_-24px_46px_rgba(255,255,255,0.05)] backdrop-blur-[14px] backdrop-saturate-150 sm:p-4">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_10%,rgba(255,255,255,0.24),transparent_34%),radial-gradient(circle_at_80%_80%,rgba(255,189,38,0.08),transparent_32%)]" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-[1px] rounded-[1.3rem] border border-white/32" aria-hidden="true" />
             <div className="relative z-10 grid gap-3 sm:grid-cols-2">
               {aboutStats.map((stat) => (
                 <AboutStatCard key={stat.label} {...stat} />
               ))}
             </div>
 
-            <div className="relative z-10 mt-3 grid overflow-hidden rounded-[1rem] border border-[#d3c380]/42 bg-[#064a34] text-white shadow-[0_16px_34px_rgba(6,74,52,0.22),inset_0_1px_0_rgba(255,255,255,0.18)] sm:grid-cols-4">
+            <div className="relative z-10 mt-3 grid overflow-hidden rounded-[1rem] border border-white/30 bg-[#063f2e]/42 text-white shadow-[0_16px_34px_rgba(6,67,47,0.16),inset_0_1px_0_rgba(255,255,255,0.28)] backdrop-blur-[12px] sm:grid-cols-4">
               {impactPillars.map((pillar, index) => {
                 const Icon = pillar.icon;
                 return (
@@ -169,6 +177,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
               })}
             </div>
           </aside>
+          </div>
         </motion.div>
 
         <motion.div
@@ -228,26 +237,26 @@ function AboutStatCard({
   const isGold = tone === "gold";
 
   return (
-    <div className="group relative flex min-h-[18rem] flex-col items-center justify-center overflow-hidden rounded-[1.1rem] border border-white/72 bg-white/62 p-6 text-center shadow-[0_18px_38px_rgba(31,45,38,0.08),inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-md">
+    <div className="group relative flex min-h-[18rem] flex-col items-center justify-center overflow-hidden rounded-[1.1rem] border border-white/40 bg-white/14 p-6 text-center shadow-[0_18px_38px_rgba(74,46,6,0.12),inset_0_1px_0_rgba(255,255,255,0.62),inset_0_-18px_34px_rgba(255,255,255,0.04)] backdrop-blur-[12px] backdrop-saturate-150">
       <div
-        className={`pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100 ${
+        className={`pointer-events-none absolute inset-0 opacity-48 transition duration-500 group-hover:opacity-78 ${
           isGold
-            ? "bg-[radial-gradient(circle_at_50%_14%,rgba(245,179,0,0.16),transparent_44%)]"
-            : "bg-[radial-gradient(circle_at_50%_14%,rgba(108,139,43,0.16),transparent_44%)]"
+            ? "bg-[radial-gradient(circle_at_50%_14%,rgba(255,211,81,0.18),transparent_46%),linear-gradient(145deg,rgba(255,255,255,0.15),rgba(255,255,255,0.04))]"
+            : "bg-[radial-gradient(circle_at_50%_14%,rgba(116,132,47,0.14),transparent_46%),linear-gradient(145deg,rgba(255,255,255,0.16),rgba(255,255,255,0.04))]"
         }`}
         aria-hidden="true"
       />
       <div
-        className={`grid h-20 w-20 place-items-center rounded-full border-4 border-white shadow-[0_10px_28px_rgba(31,45,38,0.13),inset_0_2px_0_rgba(255,255,255,0.36)] ${
-          isGold ? "bg-[#f2b21c] text-white ring-2 ring-[#f2b21c]/45" : "bg-[#6e8f2f] text-white ring-2 ring-[#6e8f2f]/30"
+        className={`relative z-10 grid h-20 w-20 place-items-center rounded-full border-4 border-white/58 shadow-[0_10px_28px_rgba(74,46,6,0.14),inset_0_2px_0_rgba(255,255,255,0.5)] backdrop-blur-md ${
+          isGold ? "bg-[#f2b21c]/72 text-white ring-2 ring-[#f2b21c]/35" : "bg-[#58762a]/72 text-white ring-2 ring-[#6e8f2f]/28"
         }`}
       >
         <Icon className="h-10 w-10" strokeWidth={2.2} />
       </div>
-      <div className="my-4 h-px w-24 bg-gradient-to-r from-transparent via-[#d9c482] to-transparent" />
-      <p className="text-5xl font-black leading-none text-[#123f31] sm:text-6xl">{value}</p>
-      <h3 className="mt-3 max-w-64 text-xl font-black leading-snug text-[#123f31]">{label}</h3>
-      <p className="mt-4 max-w-72 text-base font-medium leading-6 text-[#3f4d47]">{body}</p>
+      <div className="relative z-10 my-4 h-px w-24 bg-gradient-to-r from-transparent via-white/68 to-transparent" />
+      <p className="relative z-10 text-5xl font-black leading-none text-[#123f31] [text-shadow:0_1px_16px_rgba(255,255,255,0.84)] sm:text-6xl">{value}</p>
+      <h3 className="relative z-10 mt-3 max-w-64 text-xl font-black leading-snug text-[#123f31] [text-shadow:0_1px_14px_rgba(255,255,255,0.72)]">{label}</h3>
+      <p className="relative z-10 mt-4 max-w-72 text-base font-semibold leading-6 text-[#26382f] [text-shadow:0_1px_12px_rgba(255,255,255,0.72)]">{body}</p>
       <div className="pointer-events-none absolute -bottom-8 -right-10 text-[#123f31]/[0.045]" aria-hidden="true">
         <Map className="h-40 w-40" strokeWidth={1.2} />
       </div>
