@@ -466,9 +466,9 @@ function CourseDetailTabs({
             const AudienceIcon = getAudienceIcon(item);
 
             return (
-              <p key={item} className="flex min-h-11 items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#26332f]">
+              <p key={item} className="flex min-h-[5.35rem] min-w-0 flex-col items-center justify-center gap-1.5 rounded-lg bg-white px-2 py-2 text-center text-[11px] font-semibold leading-4 text-[#26332f] sm:text-xs sm:leading-5">
                 <AudienceIcon className="h-5 w-5 shrink-0 text-[#efa500]" strokeWidth={2.2} aria-hidden="true" />
-                {item}
+                <span className="block w-full min-w-0 [hyphens:auto] [overflow-wrap:anywhere]">{item}</span>
               </p>
             );
           })}
