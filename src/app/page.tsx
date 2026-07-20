@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, Mail, MapPin, MessageCircle, Mouse, Phone } from "lucide-react";
+import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingPreviewSwitch, type TrainingPreviewCourse } from "@/components/training-preview-switch";
@@ -107,44 +107,35 @@ export default async function Home() {
             </div>
 
             <svg
-              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[8.9rem] w-full drop-shadow-[0_-24px_70px_rgba(7,20,18,0.18)]"
-              viewBox="0 0 1000 142"
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[8.5rem] w-full drop-shadow-[0_-24px_70px_rgba(7,20,18,0.16)]"
+              viewBox="0 0 1000 136"
               preserveAspectRatio="none"
               aria-hidden="true"
             >
               <path
-                d="M0 142V26C0 12 12 0 28 0H386C430 0 454 68 500 68V142H0Z"
+                d="M0 136V28C0 12 13 0 31 0H402C440 0 466 32 500 32V136H0Z"
                 fill="#f8faf7"
               />
               <path
-                d="M500 142V68C546 68 570 0 614 0H972C988 0 1000 12 1000 26V142H500Z"
+                d="M500 136V32C534 32 560 0 598 0H969C987 0 1000 12 1000 28V136H500Z"
                 fill="#f8faf7"
               />
             </svg>
 
-            <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-4 pt-7 sm:px-5 lg:px-7">
-              <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_15rem_minmax(0,1fr)] lg:items-start">
-                <div className="grid gap-3 sm:grid-cols-2 lg:col-start-1">
-                  {stats.slice(0, 2).map((stat) => (
-                    <StatCard key={stat.value} stat={stat} />
-                  ))}
-                </div>
-                <div className="hidden lg:block" aria-hidden="true" />
-                <div className="grid gap-3 sm:grid-cols-2 lg:col-start-3">
-                  {stats.slice(2).map((stat) => (
-                    <StatCard key={stat.value} stat={stat} />
-                  ))}
-                </div>
+            <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-4 pt-8 sm:px-5 lg:px-7">
+              <div
+                className="relative grid overflow-hidden rounded-[1.05rem] border border-white/50 shadow-[0_22px_54px_rgba(2,8,12,0.18),inset_0_1px_0_rgba(255,255,255,0.76),inset_0_-18px_34px_rgba(4,12,16,0.08)] backdrop-blur-[26px] backdrop-saturate-150 sm:grid-cols-2 lg:grid-cols-4"
+                style={{
+                  backgroundColor: "rgba(245, 248, 246, 0.72)",
+                  backgroundImage:
+                    "linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.28) 42%, rgba(236,240,235,0.44)), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.56), rgba(255,255,255,0) 58%)",
+                  WebkitBackdropFilter: "blur(26px) saturate(150%)",
+                }}
+              >
+                {stats.map((stat) => (
+                  <StatItem key={stat.value} stat={stat} />
+                ))}
               </div>
-            </div>
-
-            <div className="absolute bottom-[6.25rem] left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-full border border-white/18 bg-[#071421]/28 px-2.5 py-1.5 text-white/82 shadow-[0_12px_30px_rgba(0,0,0,0.14),inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur-md">
-              <span className="grid h-10 w-10 place-items-center rounded-full border border-white/35 bg-white/12 shadow-[0_12px_34px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.24)] backdrop-blur-md">
-                <Mouse className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <span className="hidden text-[0.68rem] font-black uppercase tracking-[0.36em] drop-shadow-[0_2px_8px_rgba(0,0,0,0.28)] sm:inline">
-                Scroll Down
-              </span>
             </div>
           </div>
         </div>
@@ -234,16 +225,11 @@ function ContactLine({
   );
 }
 
-function StatCard({ stat }: { stat: { value: string; label: string } }) {
+function StatItem({ stat }: { stat: { value: string; label: string } }) {
   return (
     <div
-      className="min-h-24 rounded-[1.05rem] border border-white/50 px-5 py-4 shadow-[0_22px_54px_rgba(2,8,12,0.18),inset_0_1px_0_rgba(255,255,255,0.76),inset_0_-18px_34px_rgba(4,12,16,0.08)] backdrop-blur-[26px] backdrop-saturate-150"
-      style={{
-        backgroundColor: "rgba(245, 248, 246, 0.72)",
-        backgroundImage:
-          "linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.28) 42%, rgba(236,240,235,0.44)), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.56), rgba(255,255,255,0) 58%)",
-        WebkitBackdropFilter: "blur(26px) saturate(150%)",
-      }}
+      className="min-h-24 border-b border-white/35 px-5 py-4 last:border-b-0 sm:odd:border-r sm:even:border-r-0 lg:border-b-0 lg:border-r lg:last:border-r-0"
+      style={{ boxShadow: "inset 1px 0 0 rgba(255,255,255,0.22)" }}
     >
       <p
         className="text-[clamp(1.45rem,2.2vw,2.08rem)] font-black leading-none text-[#071421]"
