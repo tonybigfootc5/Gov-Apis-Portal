@@ -186,7 +186,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     focusText: "High-value commercial harvesting and collection of royal jelly from prepared queen cells.",
     targetAudience: "Advanced beekeepers, entrepreneurs, product-focused units, and specialized trainees.",
     detailBadge: "High-value production",
-    imageSrc: "/royal-jelly-production-training.png",
+    imageSrc: "/royal-jelly-program-updated.png",
     imageAlt: "Royal jelly being collected from prepared queen cells with hygienic tools.",
     highlights: ["Queen cell prep", "Collection timing", "Cold handling"],
     outcomes: [
