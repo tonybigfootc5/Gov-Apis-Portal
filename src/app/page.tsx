@@ -122,16 +122,8 @@ export default async function Home() {
               />
             </svg>
 
-            <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-4 pt-8 sm:px-5 lg:px-7">
-              <div
-                className="relative grid overflow-hidden rounded-[1.05rem] border border-white/50 shadow-[0_22px_54px_rgba(2,8,12,0.18),inset_0_1px_0_rgba(255,255,255,0.76),inset_0_-18px_34px_rgba(4,12,16,0.08)] backdrop-blur-[26px] backdrop-saturate-150 sm:grid-cols-2 lg:grid-cols-4"
-                style={{
-                  backgroundColor: "rgba(245, 248, 246, 0.72)",
-                  backgroundImage:
-                    "linear-gradient(135deg, rgba(255,255,255,0.78), rgba(255,255,255,0.28) 42%, rgba(236,240,235,0.44)), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.56), rgba(255,255,255,0) 58%)",
-                  WebkitBackdropFilter: "blur(26px) saturate(150%)",
-                }}
-              >
+            <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-7 pt-10 sm:px-8 lg:px-12">
+              <div className="relative grid gap-y-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-0">
                 {stats.map((stat) => (
                   <StatItem key={stat.value} stat={stat} />
                 ))}
@@ -228,11 +220,10 @@ function ContactLine({
 function StatItem({ stat }: { stat: { value: string; label: string } }) {
   return (
     <div
-      className="min-h-24 border-b border-white/35 px-5 py-4 last:border-b-0 sm:odd:border-r sm:even:border-r-0 lg:border-b-0 lg:border-r lg:last:border-r-0"
-      style={{ boxShadow: "inset 1px 0 0 rgba(255,255,255,0.22)" }}
+      className="min-h-16 px-3 pb-2 sm:border-r sm:border-[#dce4dd] sm:even:border-r-0 lg:border-r lg:px-7 lg:pb-0 lg:last:border-r-0"
     >
       <p
-        className="text-[clamp(1.45rem,2.2vw,2.08rem)] font-black leading-none text-[#071421]"
+        className="text-[clamp(1.45rem,2.2vw,2.15rem)] font-black leading-none text-[#071421]"
         style={{ textShadow: "0 1px 0 rgba(255,255,255,0.74), 0 8px 22px rgba(255,255,255,0.32)" }}
       >
         {stat.value}
