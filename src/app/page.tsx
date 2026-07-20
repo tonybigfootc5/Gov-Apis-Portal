@@ -107,26 +107,22 @@ export default async function Home() {
             </div>
 
             <svg
-              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-14 w-full"
-              viewBox="0 0 1000 56"
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[8.9rem] w-full drop-shadow-[0_-24px_70px_rgba(7,20,18,0.18)]"
+              viewBox="0 0 1000 142"
               preserveAspectRatio="none"
               aria-hidden="true"
             >
               <path
-                d="M0 56V26C0 12 12 0 28 0H386C430 0 454 56 500 56H0Z"
+                d="M0 142V26C0 12 12 0 28 0H386C430 0 454 68 500 68V142H0Z"
                 fill="#f8faf7"
               />
               <path
-                d="M500 56C546 56 570 0 614 0H972C988 0 1000 12 1000 26V56H500Z"
+                d="M500 142V68C546 68 570 0 614 0H972C988 0 1000 12 1000 26V142H500Z"
                 fill="#f8faf7"
               />
             </svg>
 
             <div className="absolute inset-x-0 bottom-0 z-20 px-3 pb-4 pt-7 sm:px-5 lg:px-7">
-              <div
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-[8.9rem] rounded-t-[2.35rem] bg-[#f8faf7] shadow-[0_-24px_70px_rgba(7,20,18,0.18)]"
-                aria-hidden="true"
-              />
               <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_15rem_minmax(0,1fr)] lg:items-start">
                 <div className="grid gap-3 sm:grid-cols-2 lg:col-start-1">
                   {stats.slice(0, 2).map((stat) => (
