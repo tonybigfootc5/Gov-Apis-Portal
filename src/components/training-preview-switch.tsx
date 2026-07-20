@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import {
   ArrowRight,
   BookOpenCheck,
+  Bug,
   CalendarDays,
   ChevronRight,
   CircleCheck,
@@ -18,11 +19,16 @@ import {
   Info,
   Languages,
   Landmark,
+  Lightbulb,
   MessageSquareQuote,
   PackageCheck,
+  Sprout,
   Target,
   Timer,
+  Tractor,
+  UserRound,
   UsersRound,
+  Wheat,
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -78,9 +84,27 @@ type TrainingPreviewSwitchProps = {
   language: SiteLanguage;
 };
 
-type DetailTab = "about" | "outcomes" | "testimonials";
+type DetailTab = "about" | "outcomes";
 
 const courseIcons: LucideIcon[] = [GraduationCap, PackageCheck, Crown, Factory];
+
+const audienceIconRules: Array<{ patterns: string[]; icon: LucideIcon }> = [
+  { patterns: ["farmer"], icon: Tractor },
+  { patterns: ["rural youth", "youth"], icon: UsersRound },
+  { patterns: ["women", "woman"], icon: UserRound },
+  { patterns: ["tribal", "communities", "community"], icon: UsersRound },
+  { patterns: ["landless"], icon: UserRound },
+  { patterns: ["existing beekeeper", "advanced beekeeper", "progressive beekeeper", "beekeeper"], icon: Bug },
+  { patterns: ["aspiring", "entrepreneur"], icon: Lightbulb },
+  { patterns: ["agriculture", "horticulture", "extension staff"], icon: Wheat },
+  { patterns: ["producer", "honey unit", "value-addition", "product-focused unit"], icon: Factory },
+  { patterns: ["experienced trainee", "specialized trainee", "trainee", "trainer"], icon: GraduationCap },
+];
+
+function getAudienceIcon(label: string) {
+  const normalized = label.toLowerCase();
+  return audienceIconRules.find((rule) => rule.patterns.some((pattern) => normalized.includes(pattern)))?.icon ?? Sprout;
+}
 
 const programBenefits = [
   {
@@ -166,14 +190,14 @@ function TrainingHeader() {
   return (
     <header className="mx-auto max-w-7xl text-left">
       <h1
-        className="max-w-[22rem] text-5xl font-black leading-[0.96] text-[#063f2e] sm:max-w-4xl sm:text-6xl lg:text-7xl 2xl:text-8xl"
-        style={{
-          textShadow:
-            "1px 1px 0 #f5b300, 2px 2px 0 rgba(245,179,0,0.64), 5px 8px 18px rgba(6,63,46,0.18)",
-        }}
+        aria-label="Our Training Programs"
+        className="max-w-full whitespace-nowrap font-light leading-[1.02]"
+        style={{ color: "#d8dad7", fontSize: "clamp(1.55rem, 5.8vw, 5.7rem)" }}
       >
-        <span className="block sm:inline">Our Training</span>{" "}
-        <span className="block sm:inline">Programs</span>
+        <span>Our Training </span>
+        <span className="font-semibold" style={{ color: "#111513" }}>
+          Programs
+        </span>
       </h1>
       <p className="mt-5 max-w-3xl text-base font-medium leading-7 text-[#26332f] sm:text-lg">
         Learn. Practice. Grow. Empowering beekeepers for a better tomorrow.
@@ -327,12 +351,11 @@ function CourseDetailTabs({
   const tabs = [
     { id: "about", label: "About this course", shortLabel: "About", icon: Info },
     { id: "outcomes", label: "Outcomes", shortLabel: "Outcomes", icon: Target },
-    { id: "testimonials", label: "Testimonials", shortLabel: "Reviews", icon: MessageSquareQuote },
   ] as const;
 
   return (
     <aside className="grid content-start gap-4">
-      <div role="tablist" aria-label={`${course.title} details`} className="grid gap-2 rounded-lg border border-[#ece4d8] bg-[#fbfaf5] p-2 shadow-[0_12px_28px_rgba(36,41,34,0.05)] sm:grid-cols-3 xl:grid-cols-3">
+      <div role="tablist" aria-label={`${course.title} details`} className="grid gap-2 rounded-lg border border-[#ece4d8] bg-[#fbfaf5] p-2 shadow-[0_12px_28px_rgba(36,41,34,0.05)] sm:grid-cols-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
@@ -368,23 +391,20 @@ function CourseDetailTabs({
         ) : null}
 
         {active === "outcomes" ? (
-          <section id={`${course.id}-outcomes-panel`} role="tabpanel" aria-labelledby={`${course.id}-outcomes-tab`} className="grid gap-3">
-            {course.outcomes.map((outcome, index) => (
-              <p key={outcome} className="flex gap-3 text-sm font-medium leading-6 text-[#24322d]">
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#fff0bd] text-xs font-black text-[#06432f]">{index + 1}</span>
-                {outcome}
-              </p>
-            ))}
-          </section>
-        ) : null}
-
-        {active === "testimonials" ? (
-          <section id={`${course.id}-testimonials-panel`} role="tabpanel" aria-labelledby={`${course.id}-testimonials-tab`}>
-            <MessageSquareQuote className="h-8 w-8 text-[#efa500]" aria-hidden="true" />
-            <blockquote className="mt-4 text-base font-medium leading-8 text-[#24322d]">
-              &ldquo;{course.testimonial.quote}&rdquo;
-            </blockquote>
-            <p className="mt-4 text-sm font-black text-[#06432f]">{course.testimonial.name}</p>
+          <section id={`${course.id}-outcomes-panel`} role="tabpanel" aria-labelledby={`${course.id}-outcomes-tab`}>
+            <div className="relative">
+              <div className="max-h-[16rem] overflow-y-auto pr-2 [scrollbar-color:#c9d6cc_transparent] [scrollbar-width:thin]">
+                <div className="grid gap-3">
+                  {course.outcomes.map((outcome, index) => (
+                    <p key={outcome} className="flex gap-3 rounded-lg border border-[#f0eadf] bg-[#fffdf8] p-3 text-sm font-medium leading-6 text-[#24322d]">
+                      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#fff0bd] text-xs font-black text-[#06432f]">{index + 1}</span>
+                      {outcome}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-[linear-gradient(180deg,rgba(255,255,255,0),#fff_92%)]" aria-hidden="true" />
+            </div>
           </section>
         ) : null}
       </div>
@@ -392,12 +412,16 @@ function CourseDetailTabs({
       <section className="rounded-lg border border-[#ece4d8] bg-[#f3f3ec] p-4">
         <h3 className="text-sm font-black uppercase tracking-[0.04em] text-[#06432f]">Who can attend?</h3>
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {audience.map((item) => (
-            <p key={item} className="flex min-h-11 items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#26332f]">
-              <UsersRound className="h-4 w-4 shrink-0 fill-[#06432f] text-white" aria-hidden="true" />
-              {item}
-            </p>
-          ))}
+          {audience.map((item) => {
+            const AudienceIcon = getAudienceIcon(item);
+
+            return (
+              <p key={item} className="flex min-h-11 items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#26332f]">
+                <AudienceIcon className="h-5 w-5 shrink-0 text-[#efa500]" strokeWidth={2.2} aria-hidden="true" />
+                {item}
+              </p>
+            );
+          })}
         </div>
       </section>
 

@@ -11,7 +11,7 @@ import { getTranslatedProgramContent, t } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { getSiteCopy } from "@/lib/site-copy";
 import { trainingProgramCatalogBySlug } from "@/lib/training-programs";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -72,7 +72,7 @@ export default async function Home() {
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,18,0.18)_0%,rgba(7,20,18,0.06)_28%,rgba(9,20,18,0.34)_58%,rgba(6,14,11,0.78)_100%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,20,18,0.24)_0%,rgba(7,20,18,0.1)_38%,rgba(7,20,18,0.22)_100%)]" />
 
-            <div className="relative z-10 px-5 pb-48 text-center sm:px-8 lg:px-12" style={{ paddingTop: "8.5rem" }}>
+            <div className="relative z-10 px-5 pb-36 text-center sm:px-8 lg:px-12" style={{ paddingTop: "8.5rem" }}>
               <h1
                 className="font-display mx-auto max-w-4xl text-white"
                 style={{ fontSize: "clamp(2.7rem, 6vw, 5.6rem)", lineHeight: 0.96, letterSpacing: "0" }}
@@ -107,25 +107,25 @@ export default async function Home() {
             </div>
 
             <svg
-              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[8.5rem] w-full drop-shadow-[0_-24px_70px_rgba(7,20,18,0.16)]"
-              viewBox="0 0 1000 136"
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[8.1rem] w-full drop-shadow-[0_-18px_48px_rgba(7,20,18,0.13)] sm:h-[6.7rem] lg:h-[5.8rem]"
+              viewBox="0 0 1000 108"
               preserveAspectRatio="none"
               aria-hidden="true"
             >
               <path
-                d="M0 136V28C0 12 13 0 31 0H402C440 0 466 32 500 32V136H0Z"
+                d="M0 108V24C0 11 13 0 31 0H404C442 0 468 28 500 28V108H0Z"
                 fill="#f8faf7"
               />
               <path
-                d="M500 136V32C534 32 560 0 598 0H969C987 0 1000 12 1000 28V136H500Z"
+                d="M500 108V28C532 28 558 0 596 0H969C987 0 1000 11 1000 24V108H500Z"
                 fill="#f8faf7"
               />
             </svg>
 
-            <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-7 pt-10 sm:px-8 lg:px-12">
-              <div className="relative grid gap-y-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-0">
-                {stats.map((stat) => (
-                  <StatItem key={stat.value} stat={stat} />
+            <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-4 pt-7 sm:px-8 sm:pb-4 sm:pt-6 lg:px-12 lg:pb-3 lg:pt-5">
+              <div className="relative grid grid-cols-2 gap-y-3 lg:grid-cols-4 lg:gap-y-0">
+                {stats.map((stat, index) => (
+                  <StatItem key={stat.value} stat={stat} index={index} />
                 ))}
               </div>
             </div>
@@ -217,19 +217,24 @@ function ContactLine({
   );
 }
 
-function StatItem({ stat }: { stat: { value: string; label: string } }) {
+function StatItem({ stat, index }: { stat: { value: string; label: string }; index: number }) {
   return (
     <div
-      className="min-h-16 px-3 pb-2 sm:border-r sm:border-[#dce4dd] sm:even:border-r-0 lg:border-r lg:px-7 lg:pb-0 lg:last:border-r-0"
+      className={cn(
+        "min-h-12 border-[#dce4dd] px-3 pb-2 lg:border-r lg:border-b-0 lg:px-7 lg:pb-0",
+        index % 2 === 0 ? "border-r" : "",
+        index < 2 ? "border-b" : "",
+        index === 3 ? "lg:border-r-0" : "",
+      )}
     >
       <p
-        className="text-[clamp(1.45rem,2.2vw,2.15rem)] font-black leading-none text-[#071421]"
+        className="text-[clamp(1.22rem,1.85vw,1.72rem)] font-black leading-none text-[#071421]"
         style={{ textShadow: "0 1px 0 rgba(255,255,255,0.74), 0 8px 22px rgba(255,255,255,0.32)" }}
       >
         {stat.value}
       </p>
       <p
-        className="mt-2 text-sm font-bold leading-snug text-[#315849]"
+        className="mt-1.5 text-xs font-bold leading-snug text-[#315849]"
         style={{ textShadow: "0 1px 0 rgba(255,255,255,0.68)" }}
       >
         {stat.label}
