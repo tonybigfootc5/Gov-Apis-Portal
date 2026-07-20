@@ -221,7 +221,7 @@ function StatItem({ stat, index }: { stat: { value: string; label: string }; ind
   return (
     <div
       className={cn(
-        "min-h-12 border-[#dce4dd] px-3 pb-2 lg:border-r lg:border-b-0 lg:px-7 lg:pb-0",
+        "flex min-h-12 flex-col items-center justify-center border-[#dce4dd] px-3 pb-2 text-center lg:border-r lg:border-b-0 lg:px-7 lg:pb-0",
         index % 2 === 0 ? "border-r" : "",
         index < 2 ? "border-b" : "",
         index === 3 ? "lg:border-r-0" : "",
