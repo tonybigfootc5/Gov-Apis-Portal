@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
@@ -139,7 +140,15 @@ export default async function Home() {
 
       <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
         <div className="mb-7 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.35),rgba(23,63,51,0.12),rgba(179,107,0,0))]" />
-        <figure className="relative mx-auto max-w-[46rem] overflow-hidden rounded-[1.25rem] border border-[#e2dccd] bg-[linear-gradient(135deg,rgba(255,255,255,0.84),rgba(244,241,233,0.74))] p-4 shadow-[0_20px_54px_rgba(23,63,51,0.07)] sm:p-5 md:max-w-[52rem] lg:max-w-[58rem] lg:p-7">
+        <figure className="relative mx-auto max-w-[46rem] overflow-hidden rounded-[1.25rem] border border-[#e2dccd] bg-[#f3b31f] p-4 shadow-[0_20px_54px_rgba(23,63,51,0.07)] sm:p-5 md:max-w-[52rem] lg:max-w-[58rem] lg:p-7">
+          <Image
+            src="/quote-honeycomb-background.png"
+            alt=""
+            fill
+            sizes="(min-width: 1024px) 58rem, 100vw"
+            className="scale-110 object-cover object-center opacity-80 blur-[2px] saturate-125"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,250,232,0.5),rgba(255,244,207,0.28)),radial-gradient(circle_at_20%_45%,rgba(255,255,255,0.42),transparent_24rem)]" aria-hidden="true" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.38),rgba(179,107,0,0))]" aria-hidden="true" />
           <blockquote
             className="relative z-10 text-left font-display text-[clamp(1.22rem,5vw,2rem)] font-semibold leading-[1.08] text-[#073f37] sm:text-[clamp(1.55rem,4vw,2.55rem)] md:text-[clamp(1.65rem,3.4vw,2.65rem)] lg:text-[clamp(1.9rem,3vw,3rem)]"
