@@ -8,7 +8,6 @@ import {
   ArrowRight,
   BookOpenCheck,
   Bug,
-  CalendarDays,
   ChevronRight,
   CircleCheck,
   Crown,
@@ -165,7 +164,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
           <div className="training-program-layout">
             <TrainingRail courses={courses} active={active} onSelect={selectCourse} />
             <CourseOverview course={course} overviewRef={courseOverviewRef} onEnroll={() => setApplicationCourse(course)} />
-            <CourseDetailTabs course={course} active={activeDetail} onSelect={setActiveDetail} onEnroll={() => setApplicationCourse(course)} />
+            <CourseDetailTabs course={course} active={activeDetail} onSelect={setActiveDetail} />
           </div>
           <BenefitRow />
         </div>
@@ -294,6 +293,14 @@ function CourseOverview({
           <p className="mt-3 text-lg font-black leading-6 text-[#153f32]">{course.focusLabel}</p>
           <p className="mt-4 max-w-sm text-base font-medium leading-7 text-[#24322d]">{course.focusText}</p>
         </div>
+        <button
+          type="button"
+          onClick={onEnroll}
+          className="absolute bottom-5 right-5 z-20 inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[#06432f] px-5 text-sm font-black text-white shadow-[0_18px_38px_rgba(6,67,47,0.26)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+        >
+          Apply Now
+          <ArrowRight className="h-5 w-5" aria-hidden="true" />
+        </button>
       </div>
 
       <div className="grid gap-4 border-y border-[#ece4d8] bg-[#fffdfa] p-4 sm:grid-cols-2 min-[1500px]:grid-cols-4">
@@ -322,14 +329,6 @@ function CourseOverview({
             Taught in:
           </p>
           <p className="text-sm font-semibold text-[#24322d]">{course.taughtIn}</p>
-          <button
-            type="button"
-            onClick={onEnroll}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#06432f] px-4 text-sm font-black text-white transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 sm:hidden"
-          >
-            Apply Now
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </button>
         </div>
       </div>
     </article>
@@ -340,12 +339,10 @@ function CourseDetailTabs({
   course,
   active,
   onSelect,
-  onEnroll,
 }: {
   course: TrainingPreviewCourse;
   active: DetailTab;
   onSelect: (tab: DetailTab) => void;
-  onEnroll: () => void;
 }) {
   const audience = getAudienceItems(course);
   const tabs = [
@@ -383,17 +380,19 @@ function CourseDetailTabs({
         })}
       </div>
 
-      <div className="rounded-lg border border-[#ece4d8] bg-white p-5 shadow-[0_16px_38px_rgba(36,41,34,0.06)]">
+      <div className="h-[20rem] overflow-hidden rounded-lg border border-[#ece4d8] bg-white p-5 shadow-[0_16px_38px_rgba(36,41,34,0.06)]">
         {active === "about" ? (
-          <section id={`${course.id}-about-panel`} role="tabpanel" aria-labelledby={`${course.id}-about-tab`}>
-            <p className="text-base font-medium leading-8 text-[#24322d]">{course.description}</p>
+          <section id={`${course.id}-about-panel`} role="tabpanel" aria-labelledby={`${course.id}-about-tab`} className="h-full">
+            <div className="h-full overflow-y-auto pr-2 [scrollbar-color:#c9d6cc_transparent] [scrollbar-width:thin]">
+              <p className="text-base font-medium leading-8 text-[#24322d]">{course.description}</p>
+            </div>
           </section>
         ) : null}
 
         {active === "outcomes" ? (
-          <section id={`${course.id}-outcomes-panel`} role="tabpanel" aria-labelledby={`${course.id}-outcomes-tab`}>
-            <div className="relative">
-              <div className="max-h-[16rem] overflow-y-auto pr-2 [scrollbar-color:#c9d6cc_transparent] [scrollbar-width:thin]">
+          <section id={`${course.id}-outcomes-panel`} role="tabpanel" aria-labelledby={`${course.id}-outcomes-tab`} className="h-full">
+            <div className="relative h-full">
+              <div className="h-full overflow-y-auto pr-2 [scrollbar-color:#c9d6cc_transparent] [scrollbar-width:thin]">
                 <div className="grid gap-3">
                   {course.outcomes.map((outcome, index) => (
                     <p key={outcome} className="flex gap-3 rounded-lg border border-[#f0eadf] bg-[#fffdf8] p-3 text-sm font-medium leading-6 text-[#24322d]">
@@ -425,27 +424,6 @@ function CourseDetailTabs({
         </div>
       </section>
 
-      <section className="rounded-lg bg-[#06432f] p-4 text-white shadow-[0_18px_40px_rgba(6,67,47,0.2)]">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between lg:flex-col lg:items-stretch 2xl:flex-row 2xl:items-center">
-          <div className="flex items-center gap-3">
-            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-[#f5b300] text-[#062f24]">
-              <CalendarDays className="h-7 w-7" aria-hidden="true" />
-            </span>
-            <div>
-              <h3 className="text-lg font-black leading-6">Enroll in {course.title}</h3>
-              <p className="mt-1 text-sm font-semibold text-white/82">Next batch {formatEnrollDateLabel(course.batchDate)}</p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onEnroll}
-            className="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[#f5b300] px-5 text-sm font-black text-[#062f24] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#06432f]"
-          >
-            Apply Now
-            <ArrowRight className="h-5 w-5" aria-hidden="true" />
-          </button>
-        </div>
-      </section>
     </aside>
   );
 }
@@ -571,10 +549,6 @@ function getAudienceItems(course: TrainingPreviewCourse) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
-}
-
-function formatEnrollDateLabel(batchDate: string) {
-  return batchDate.toLowerCase().includes("contact") ? batchDate : `starts ${batchDate}`;
 }
 
 function formatCertificateMetric(certificate: string) {
