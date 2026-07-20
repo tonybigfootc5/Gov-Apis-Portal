@@ -102,7 +102,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     focusText: "Honey filtration, hygiene standards, quality control, and bottling machinery workflow.",
     targetAudience: "Existing beekeepers, producer groups, honey units, and value-addition trainees.",
     detailBadge: "Processing module",
-    imageSrc: "/honey-processing-training-program.png",
+    imageSrc: "/honey-processing-program-updated.png",
     imageAlt: "Honey frames arranged inside a stainless steel honey extractor.",
     highlights: ["Filtering", "Hygiene", "Bottling"],
     outcomes: [
