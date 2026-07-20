@@ -6,15 +6,24 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import {
   ArrowRight,
-  Award,
-  BadgeCheck,
   BookOpenCheck,
-  Check,
-  Clock3,
+  CalendarDays,
+  ChevronRight,
+  CircleCheck,
+  Crown,
+  Factory,
+  FileBadge2,
+  GraduationCap,
+  HandHeart,
+  Hexagon,
+  Info,
   Languages,
+  Landmark,
   MessageSquareQuote,
+  PackageCheck,
+  Target,
+  Timer,
   UsersRound,
-  Wrench,
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -26,7 +35,7 @@ const TrainingApplicationForm = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="rounded-[1.5rem] border border-[#e3ded2] bg-white p-6 text-sm font-semibold text-[#66776f]">
+      <div className="rounded-lg border border-[#e6dfd2] bg-white p-6 text-sm font-semibold text-[#66776f]">
         Loading application form...
       </div>
     ),
@@ -70,11 +79,37 @@ type TrainingPreviewSwitchProps = {
   language: SiteLanguage;
 };
 
+type DetailTab = "about" | "outcomes" | "testimonials";
+
+const courseIcons: LucideIcon[] = [GraduationCap, PackageCheck, Crown, Factory];
+
+const programBenefits = [
+  {
+    icon: UsersRound,
+    title: "Expert Instructors",
+    body: "Learn from experienced apiculture faculty.",
+  },
+  {
+    icon: BookOpenCheck,
+    title: "Practical Approach",
+    body: "Field-led practice with classroom grounding.",
+  },
+  {
+    icon: Landmark,
+    title: "Modern Facilities",
+    body: "Apiary, labs, tools, and demonstrations.",
+  },
+  {
+    icon: HandHeart,
+    title: "Community Impact",
+    body: "Building stronger rural livelihoods.",
+  },
+] as const;
+
 export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwitchProps) {
   const [active, setActive] = React.useState(0);
-  const [activeDetail, setActiveDetail] = React.useState<"about" | "outcomes" | "testimonials">("about");
+  const [activeDetail, setActiveDetail] = React.useState<DetailTab>("about");
   const [applicationCourse, setApplicationCourse] = React.useState<TrainingPreviewCourse | null>(null);
-  const [mounted, setMounted] = React.useState(false);
   const course = courses[active] ?? courses[0];
   const serviceOptions = courses.map((item) => ({
     title: item.title,
@@ -82,39 +117,67 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
     level: item.level,
   }));
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
   if (!course) return null;
 
   return (
-    <section className="relative overflow-hidden px-4 py-8 text-[#14241f] sm:px-6 lg:px-8 lg:py-12">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(179,107,0,0.08),transparent_28%),linear-gradient(180deg,rgba(248,250,247,0.72)_0%,rgba(255,248,234,0.42)_52%,rgba(248,250,247,0.58)_100%)]" />
-      <div className="pointer-events-none absolute left-0 top-20 h-px w-full bg-[#173f33]/10" />
-      <div className="relative mx-auto max-w-[92rem]">
-        <div className="grid gap-5 lg:grid-cols-[17rem_minmax(0,1fr)]">
-          <TabRail courses={courses} active={active} onSelect={setActive} />
-          <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(22rem,0.78fr)_minmax(34rem,1.22fr)] xl:items-start">
-            <CoursePanel course={course} onEnroll={() => setApplicationCourse(course)} />
-            <CourseDetailTabs course={course} active={activeDetail} onSelect={setActiveDetail} />
+    <section className="relative isolate overflow-hidden bg-[#fffdfa] px-3 py-7 text-[#16241f] sm:px-5 lg:px-8 lg:py-10">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_5%,rgba(246,179,0,0.14),transparent_22rem),radial-gradient(circle_at_92%_2%,rgba(15,75,51,0.14),transparent_24rem),linear-gradient(180deg,#ffffff_0%,#fffaf0_56%,#ffffff_100%)]" />
+      <div className="pointer-events-none absolute right-0 top-0 -z-10 hidden h-60 w-[34rem] max-w-[48vw] overflow-hidden opacity-45 mix-blend-multiply [mask-image:linear-gradient(90deg,transparent_0%,black_34%,black_100%)] md:block">
+        <Image src="/why-matters-bee-bloom.png" alt="" fill sizes="34rem" className="object-cover object-right-top" priority />
+      </div>
+      <div className="pointer-events-none absolute right-0 top-0 -z-10 hidden h-72 w-72 opacity-[0.16] [background-image:linear-gradient(30deg,#0d3f30_12%,transparent_12.5%,transparent_87%,#0d3f30_87.5%,#0d3f30),linear-gradient(150deg,#0d3f30_12%,transparent_12.5%,transparent_87%,#0d3f30_87.5%,#0d3f30),linear-gradient(30deg,#0d3f30_12%,transparent_12.5%,transparent_87%,#0d3f30_87.5%,#0d3f30),linear-gradient(150deg,#0d3f30_12%,transparent_12.5%,transparent_87%,#0d3f30_87.5%,#0d3f30),linear-gradient(60deg,rgba(13,63,48,0.4)_25%,transparent_25.5%,transparent_75%,rgba(13,63,48,0.4)_75%,rgba(13,63,48,0.4)),linear-gradient(60deg,rgba(13,63,48,0.4)_25%,transparent_25.5%,transparent_75%,rgba(13,63,48,0.4)_75%,rgba(13,63,48,0.4))] [background-position:0_0,0_0,22px_39px,22px_39px,0_0,22px_39px] [background-size:44px_78px] md:block" />
+
+      <div className="relative mx-auto max-w-[94rem]">
+        <TrainingHeader />
+
+        <div className="mt-6 rounded-lg border border-[#efe7da] bg-white/82 p-3 shadow-[0_28px_80px_rgba(36,41,34,0.1)] backdrop-blur sm:p-4 lg:p-5">
+          <div className="grid gap-4 xl:grid-cols-[20rem_minmax(0,1.25fr)_minmax(21rem,0.95fr)]">
+            <TrainingRail courses={courses} active={active} onSelect={setActive} />
+            <CourseOverview course={course} onEnroll={() => setApplicationCourse(course)} />
+            <CourseDetailTabs course={course} active={activeDetail} onSelect={setActiveDetail} onEnroll={() => setApplicationCourse(course)} />
           </div>
+          <BenefitRow />
         </div>
       </div>
-      {applicationCourse && mounted ? createPortal(
-        <ApplicationOverlay
-          course={applicationCourse}
-          language={language}
-          serviceOptions={serviceOptions}
-          onClose={() => setApplicationCourse(null)}
-        />,
-        document.body,
-      ) : null}
+
+      {applicationCourse && typeof document !== "undefined"
+        ? createPortal(
+            <ApplicationOverlay
+              course={applicationCourse}
+              language={language}
+              serviceOptions={serviceOptions}
+              onClose={() => setApplicationCourse(null)}
+            />,
+            document.body,
+          )
+        : null}
     </section>
   );
 }
 
-function TabRail({
+function TrainingHeader() {
+  return (
+    <header className="mx-auto max-w-7xl text-center">
+      <div className="flex items-center justify-center gap-3 text-[#efa500]">
+        <span className="h-px w-11 bg-gradient-to-r from-transparent to-[#efa500]" />
+        <Hexagon className="h-3.5 w-3.5 fill-[#efa500]/20" aria-hidden="true" />
+        <p className="text-xs font-black uppercase tracking-[0.24em] sm:text-sm">Training Programs</p>
+        <Hexagon className="h-3.5 w-3.5 fill-[#efa500]/20" aria-hidden="true" />
+        <span className="h-px w-11 bg-gradient-to-l from-transparent to-[#efa500]" />
+      </div>
+      <h1 className="mx-auto mt-2 max-w-[22rem] text-5xl font-black leading-[0.96] text-[#063f2e] sm:max-w-none sm:text-6xl lg:text-7xl 2xl:text-8xl">
+        <span className="block sm:inline">Our Training</span>{" "}
+        <span className="block sm:inline">Programs</span>
+      </h1>
+      <p className="mx-auto mt-4 max-w-3xl text-base font-medium leading-7 text-[#26332f] sm:text-lg">
+        Learn. Practice. Grow. Empowering beekeepers for a better tomorrow.
+      </p>
+      <span className="mx-auto mt-4 block h-1 w-14 rounded-full bg-[#063f2e]" />
+    </header>
+  );
+}
+
+function TrainingRail({
   courses,
   active,
   onSelect,
@@ -124,42 +187,114 @@ function TabRail({
   onSelect: (index: number) => void;
 }) {
   return (
-    <div
-      role="tablist"
-      aria-label="Training course switcher"
-      className="flex gap-2 overflow-x-auto rounded-[1.4rem] border border-[#d9dfd2] bg-white/70 p-2 shadow-[0_18px_48px_rgba(34,45,38,0.08)] backdrop-blur [scrollbar-width:none] lg:sticky lg:top-6 lg:h-fit lg:flex-col lg:overflow-visible [&::-webkit-scrollbar]:hidden"
-    >
-      {courses.map((course, index) => {
-        const isActive = index === active;
-        return (
-          <button
-            key={course.id}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onSelect(index)}
-            className={cn(
-              "group flex min-w-56 items-start gap-3 rounded-2xl px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b36b00] focus-visible:ring-offset-2 lg:min-w-0",
-              isActive
-                ? "bg-[#173f33] text-white shadow-[0_14px_34px_rgba(23,63,51,0.18)]"
-                : "text-[#6f8177] hover:bg-[#fffdf8] hover:text-[#173f33]",
-            )}
-          >
-            <span
+    <aside className="grid gap-4 xl:content-between">
+      <div
+        role="tablist"
+        aria-label="Training course switcher"
+        className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] xl:grid xl:overflow-visible xl:pb-0 [&::-webkit-scrollbar]:hidden"
+      >
+        {courses.map((course, index) => {
+          const isActive = index === active;
+          const Icon = courseIcons[index % courseIcons.length] ?? GraduationCap;
+
+          return (
+            <button
+              key={course.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              onClick={() => onSelect(index)}
               className={cn(
-                "mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[11px] font-black",
-                isActive ? "bg-white text-[#173f33]" : "bg-[#f3eee5] text-[#b36b00]",
+                "group flex min-h-[6.6rem] min-w-[18rem] items-center gap-3 rounded-lg border px-4 py-4 text-left shadow-[0_14px_30px_rgba(36,41,34,0.06)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 xl:min-w-0",
+                isActive
+                  ? "border-[#06432f] bg-[#06432f] text-white shadow-[0_20px_42px_rgba(6,67,47,0.22)]"
+                  : "border-[#f0e8dc] bg-white text-[#111f1a] hover:-translate-y-0.5 hover:border-[#f1c866]",
               )}
             >
-              {index + 1}
-            </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-black leading-5">{course.tabLabel}</span>
-            </span>
+              <span className="grid h-12 w-12 shrink-0 place-items-center bg-[#f5b300] text-base font-black text-[#062f24] hex-clip">
+                {index + 1}
+              </span>
+              <Icon className={cn("h-9 w-9 shrink-0", isActive ? "text-[#f5b300]" : "text-[#111f1a]")} strokeWidth={1.8} aria-hidden="true" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-base font-black leading-5">{course.tabLabel}</span>
+                <span className={cn("mt-2 block text-sm font-medium", isActive ? "text-white/86" : "text-[#2d3935]")}>{course.duration} program</span>
+              </span>
+              <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full transition", isActive ? "bg-[#021d16] text-white" : "bg-[#f5f1eb] text-[#10251d] group-hover:bg-[#f5b300]")}>
+                <ChevronRight className="h-5 w-5" aria-hidden="true" />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <blockquote className="hidden rounded-lg border border-[#ece4d8] bg-[#f7f5ec] p-6 shadow-[0_14px_34px_rgba(36,41,34,0.05)] xl:block">
+        <MessageSquareQuote className="h-8 w-8 fill-[#06432f] text-[#06432f]" aria-hidden="true" />
+        <p className="mt-5 text-lg font-medium leading-8 text-[#173f33]">
+          Empowering rural communities through modern beekeeping education.
+        </p>
+        <div className="mt-5 h-16 opacity-20">
+          <Image src="/beekeeping-illustration.svg" alt="" width={120} height={70} className="ml-auto h-full w-auto" />
+        </div>
+      </blockquote>
+    </aside>
+  );
+}
+
+function CourseOverview({ course, onEnroll }: { course: TrainingPreviewCourse; onEnroll: () => void }) {
+  const skills = normalizeSkills(course);
+
+  return (
+    <article className="overflow-hidden rounded-lg border border-[#e7dfd2] bg-white shadow-[0_18px_46px_rgba(36,41,34,0.08)]">
+      <div className="relative min-h-[22rem] overflow-hidden p-5 sm:p-7">
+        <Image src={course.imageSrc} alt={course.imageAlt} fill sizes="(max-width: 1280px) 100vw, 46rem" className="object-cover object-right" priority />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,0.96)_34%,rgba(255,253,248,0.58)_58%,rgba(255,253,248,0.08)_100%)]" />
+        <div className="relative max-w-md">
+          <p className="inline-flex rounded-full bg-[#f5a900] px-4 py-2 text-xs font-black uppercase tracking-[0.08em] text-white">
+            {course.duration} program
+          </p>
+          <h2 className="mt-5 text-[clamp(2.25rem,5vw,3.5rem)] font-black leading-none text-[#06432f]">{course.title}</h2>
+          <p className="mt-3 text-lg font-black leading-6 text-[#153f32]">{course.focusLabel}</p>
+          <p className="mt-4 max-w-sm text-base font-medium leading-7 text-[#24322d]">{course.focusText}</p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 border-y border-[#ece4d8] bg-[#fffdfa] p-4 sm:grid-cols-2 min-[1500px]:grid-cols-4">
+        <Metric icon={GraduationCap} label="Level" value={course.experienceLabel || course.level} />
+        <Metric icon={Timer} label="Duration" value={course.duration} />
+        <Metric icon={UsersRound} label="Batch size" value={course.capacity} />
+        <Metric icon={FileBadge2} label="Certificate" value={formatCertificateMetric(course.certificate)} />
+      </div>
+
+      <div className="p-4 sm:p-5">
+        <section className="rounded-lg border border-[#ece4d8] bg-white p-4">
+          <h3 className="text-lg font-black uppercase tracking-[0.02em] text-[#06432f]">What you&apos;ll learn</h3>
+          <div className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            {skills.map((skill) => (
+              <p key={skill} className="flex items-center gap-3 text-sm font-medium text-[#24322d]">
+                <CircleCheck className="h-4 w-4 shrink-0 fill-[#06432f] text-white" aria-hidden="true" />
+                {skill}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        <div className="mt-4 flex flex-col gap-3 rounded-lg border border-[#ece4d8] bg-[#f8f6ee] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="flex items-center gap-3 text-sm font-black uppercase tracking-[0.04em] text-[#06432f]">
+            <Languages className="h-5 w-5 text-[#06432f]" aria-hidden="true" />
+            Taught in:
+          </p>
+          <p className="text-sm font-semibold text-[#24322d]">{course.taughtIn}</p>
+          <button
+            type="button"
+            onClick={onEnroll}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-[#06432f] px-4 text-sm font-black text-white transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 sm:hidden"
+          >
+            Apply Now
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
-        );
-      })}
-    </div>
+        </div>
+      </div>
+    </article>
   );
 }
 
@@ -167,32 +302,27 @@ function CourseDetailTabs({
   course,
   active,
   onSelect,
+  onEnroll,
 }: {
   course: TrainingPreviewCourse;
-  active: "about" | "outcomes" | "testimonials";
-  onSelect: (tab: "about" | "outcomes" | "testimonials") => void;
+  active: DetailTab;
+  onSelect: (tab: DetailTab) => void;
+  onEnroll: () => void;
 }) {
   const audience = getAudienceItems(course);
   const tabs = [
-    { id: "about", label: "About this course", icon: BookOpenCheck },
-    { id: "outcomes", label: "Outcomes", icon: Check },
+    { id: "about", label: "About this course", icon: Info },
+    { id: "outcomes", label: "Outcomes", icon: Target },
     { id: "testimonials", label: "Testimonials", icon: MessageSquareQuote },
   ] as const;
 
   return (
-    <div className="w-full rounded-[1.6rem] border border-[#d9dfd2] bg-[#fffdf8] p-4 text-left shadow-[0_24px_60px_rgba(34,45,38,0.1)] sm:p-5">
-      <div className="border-b border-[#e3ded2] pb-4">
-        <div className="min-w-0">
-          <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">Course details</p>
-          <h2 className="mt-1 text-[clamp(1.75rem,2.8vw,2.75rem)] font-black leading-tight text-[#173f33]">{course.title}</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66776f]">{course.summary}</p>
-        </div>
-      </div>
-
-      <div role="tablist" aria-label={`${course.title} details`} className="mt-4 rounded-[1.15rem] border border-[#e3ded2] bg-[#f3eee5] p-1.5 sm:grid sm:grid-cols-3">
+    <aside className="grid content-start gap-4">
+      <div role="tablist" aria-label={`${course.title} details`} className="grid gap-2 rounded-lg border border-[#ece4d8] bg-[#fbfaf5] p-2 shadow-[0_12px_28px_rgba(36,41,34,0.05)] sm:grid-cols-3 xl:grid-cols-3">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = active === tab.id;
+
           return (
             <button
               key={tab.id}
@@ -203,133 +333,113 @@ function CourseDetailTabs({
               id={`${course.id}-${tab.id}-tab`}
               onClick={() => onSelect(tab.id)}
               className={cn(
-                "flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b36b00] focus-visible:ring-offset-2",
-                isActive
-                  ? "bg-white text-[#173f33] shadow-[0_12px_28px_rgba(34,45,38,0.12)]"
-                  : "text-[#66776f] hover:bg-white/60 hover:text-[#173f33]",
+                "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-3 text-sm font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2",
+                isActive ? "bg-[#06432f] text-white shadow-[0_12px_24px_rgba(6,67,47,0.18)]" : "bg-white text-[#14241f] hover:bg-[#fff4d5]",
               )}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              <span>{tab.label}</span>
+              <span className="hidden min-[420px]:inline xl:inline">{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="mt-4">
+      <div className="rounded-lg border border-[#ece4d8] bg-white p-5 shadow-[0_16px_38px_rgba(36,41,34,0.06)]">
         {active === "about" ? (
           <section id={`${course.id}-about-panel`} role="tabpanel" aria-labelledby={`${course.id}-about-tab`}>
-            <div className="rounded-[1.25rem] border border-[#e3ded2] bg-white p-5">
-              <p className="max-w-4xl text-base leading-8 text-[#5c6d63]">{course.description}</p>
-            </div>
-            <div className="mt-4 rounded-[1.25rem] border border-[#e3ded2] bg-[#173f33] p-5 text-white">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#ffd485]">Who can attend</p>
-                  <p className="mt-2 text-sm font-semibold text-white/72">The programme is suitable for:</p>
-                </div>
-                <UsersRound className="h-7 w-7 text-[#ffd485]" aria-hidden="true" />
-              </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2 2xl:grid-cols-3">
-                {audience.map((item) => (
-                  <p key={item} className="flex gap-2 rounded-xl bg-white/8 px-3 py-2 text-sm leading-6 text-white/88">
-                    <Check className="mt-1 h-4 w-4 shrink-0 text-[#ffd485]" aria-hidden="true" />
-                    {item}
-                  </p>
-                ))}
-              </div>
-            </div>
+            <p className="text-base font-medium leading-8 text-[#24322d]">{course.description}</p>
           </section>
         ) : null}
 
         {active === "outcomes" ? (
-          <section id={`${course.id}-outcomes-panel`} role="tabpanel" aria-labelledby={`${course.id}-outcomes-tab`}>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {course.outcomes.map((outcome, index) => (
-                <p key={outcome} className="flex gap-3 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm leading-6 text-[#315849]">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#f3eee5] text-xs font-black text-[#b36b00]">
-                    {index + 1}
-                  </span>
-                  {outcome}
-                </p>
-              ))}
-            </div>
+          <section id={`${course.id}-outcomes-panel`} role="tabpanel" aria-labelledby={`${course.id}-outcomes-tab`} className="grid gap-3">
+            {course.outcomes.map((outcome, index) => (
+              <p key={outcome} className="flex gap-3 text-sm font-medium leading-6 text-[#24322d]">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#fff0bd] text-xs font-black text-[#06432f]">{index + 1}</span>
+                {outcome}
+              </p>
+            ))}
           </section>
         ) : null}
 
         {active === "testimonials" ? (
           <section id={`${course.id}-testimonials-panel`} role="tabpanel" aria-labelledby={`${course.id}-testimonials-tab`}>
-            <blockquote className="rounded-[1.25rem] border border-[#e3ded2] bg-white p-6 text-base leading-8 text-[#5c6d63]">
-              <MessageSquareQuote className="mb-4 h-8 w-8 text-[#b36b00]" aria-hidden="true" />
-              <p>
-                <span className="font-display text-3xl leading-none text-[#b36b00]" aria-hidden="true">&ldquo;</span>
-                {course.testimonial.quote}
-                <span className="font-display text-3xl leading-none text-[#b36b00]" aria-hidden="true">&rdquo;</span>
-              </p>
-              <footer className="mt-4 font-black text-[#173f33]">{course.testimonial.name}</footer>
+            <MessageSquareQuote className="h-8 w-8 text-[#efa500]" aria-hidden="true" />
+            <blockquote className="mt-4 text-base font-medium leading-8 text-[#24322d]">
+              &ldquo;{course.testimonial.quote}&rdquo;
             </blockquote>
+            <p className="mt-4 text-sm font-black text-[#06432f]">{course.testimonial.name}</p>
           </section>
         ) : null}
       </div>
+
+      <section className="rounded-lg border border-[#ece4d8] bg-[#f3f3ec] p-4">
+        <h3 className="text-sm font-black uppercase tracking-[0.04em] text-[#06432f]">Who can attend?</h3>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+          {audience.map((item) => (
+            <p key={item} className="flex min-h-11 items-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold leading-5 text-[#26332f]">
+              <UsersRound className="h-4 w-4 shrink-0 fill-[#06432f] text-white" aria-hidden="true" />
+              {item}
+            </p>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-lg bg-[#06432f] p-4 text-white shadow-[0_18px_40px_rgba(6,67,47,0.2)]">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between xl:flex-col xl:items-stretch 2xl:flex-row 2xl:items-center">
+          <div className="flex items-center gap-3">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-lg bg-[#f5b300] text-[#062f24]">
+              <CalendarDays className="h-7 w-7" aria-hidden="true" />
+            </span>
+            <div>
+              <h3 className="text-lg font-black leading-6">Enroll in {course.title}</h3>
+              <p className="mt-1 text-sm font-semibold text-white/82">Next batch {formatEnrollDateLabel(course.batchDate)}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onEnroll}
+            className="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[#f5b300] px-5 text-sm font-black text-[#062f24] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#06432f]"
+          >
+            Apply Now
+            <ArrowRight className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+      </section>
+    </aside>
+  );
+}
+
+function BenefitRow() {
+  return (
+    <div className="mt-5 grid gap-3 border-t border-[#ece4d8] pt-5 sm:grid-cols-2 xl:grid-cols-4">
+      {programBenefits.map((benefit) => {
+        const Icon = benefit.icon;
+
+        return (
+          <article key={benefit.title} className="flex items-center gap-4 rounded-lg bg-white px-4 py-3">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-[#06432f] text-[#f5b300] shadow-[inset_0_0_0_4px_rgba(255,255,255,0.08)]">
+              <Icon className="h-7 w-7" aria-hidden="true" />
+            </span>
+            <div>
+              <h3 className="text-sm font-black text-[#14241f]">{benefit.title}</h3>
+              <p className="mt-1 text-sm font-medium leading-6 text-[#293834]">{benefit.body}</p>
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }
 
-function CoursePanel({ course, onEnroll }: { course: TrainingPreviewCourse; onEnroll: () => void }) {
+function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
-    <div className="relative w-full min-w-0">
-      <div className="mx-auto w-full overflow-hidden rounded-[1.6rem] border border-[#d9dfd2] bg-[#fffdf8] shadow-[0_24px_60px_rgba(34,45,38,0.12)]">
-        <div className="relative h-44 overflow-hidden bg-[#d9dfd2] sm:h-52">
-          <Image src={course.imageSrc} alt={course.imageAlt} fill sizes="34rem" className="object-cover" priority />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,33,0.08)_0%,rgba(7,20,33,0.18)_40%,rgba(7,20,33,0.78)_100%)]" />
-          <div className="absolute bottom-4 left-4 right-4">
-            <p className="max-w-[24rem] text-sm font-semibold leading-6 text-white/88">{course.focusText}</p>
-          </div>
-        </div>
-
-        <div className="p-4 sm:p-5">
-          <div className="grid gap-3 rounded-[1.15rem] border border-[#e3ded2] bg-[#f7f3ea] p-3.5">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#6f8177]">Instructor</p>
-              <p className="mt-1 text-base font-black text-[#173f33]">{course.instructorName}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <MiniMetric icon={BadgeCheck} label="Level" value={course.experienceLabel} />
-              <MiniMetric icon={Clock3} label="Duration" value={course.duration} />
-            </div>
-          </div>
-
-          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-2">
-            <InfoSection title="Skills" icon={Award} compact>
-              <TagList items={course.skills} compact />
-            </InfoSection>
-
-            <InfoSection title="Tools" icon={Wrench} compact>
-              <TagList items={course.tools} compact />
-            </InfoSection>
-          </div>
-
-          <div className="mt-3 grid gap-2 rounded-[1.15rem] border border-[#e3ded2] bg-white p-3.5">
-            <CompactFact icon={Award} label="Certificate" value={course.certificate} />
-            <CompactFact icon={Languages} label="Taught in" value={course.taughtIn} />
-          </div>
-
-          <a
-            href={`/programs/${course.slug}#training-application-form`}
-            onClick={(event) => {
-              event.preventDefault();
-              onEnroll();
-            }}
-            className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#173f33] px-4 text-sm font-black text-white shadow-[0_18px_38px_rgba(23,63,51,0.18)] transition hover:-translate-y-0.5"
-          >
-            <span className="flex flex-col items-center leading-tight">
-              <span>Enroll in program</span>
-              <span className="mt-0.5 text-[11px] font-bold text-white/72">{formatEnrollDateLabel(course.batchDate)}</span>
-            </span>
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </a>
+    <div className="flex items-start gap-3">
+      <Icon className="mt-1 h-8 w-8 shrink-0 text-[#06432f]" strokeWidth={1.8} aria-hidden="true" />
+      <div className="min-w-0">
+        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#14241f]">{label}</p>
+        <p className="mt-1 break-words text-sm font-black leading-5 text-[#121f1b]">{value}</p>
       </div>
-    </div>
     </div>
   );
 }
@@ -355,7 +465,7 @@ function ApplicationOverlay({
 
   return (
     <div className="fixed inset-0 z-[90] bg-[#071421]/58 p-3 backdrop-blur-sm sm:p-5" role="dialog" aria-modal="true" aria-labelledby="training-application-title">
-      <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-[1.6rem] border border-[#e3ded2] bg-[#fbfaf6] shadow-[0_30px_90px_rgba(7,20,33,0.38)]">
+      <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg border border-[#e3ded2] bg-[#fbfaf6] shadow-[0_30px_90px_rgba(7,20,33,0.38)]">
         <div className="flex items-start justify-between gap-4 border-b border-[#e3ded2] bg-white px-4 py-4 sm:px-6">
           <div className="min-w-0">
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">Application form</p>
@@ -381,76 +491,23 @@ function ApplicationOverlay({
   );
 }
 
-function InfoSection({
-  title,
-  icon: Icon,
-  compact = false,
-  children,
-}: {
-  title: string;
-  icon: LucideIcon;
-  compact?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className={cn("rounded-[1.15rem] border border-[#e3ded2] bg-[#fffdf8]", compact ? "p-3.5" : "mt-3 p-4")}>
-      <div className="flex items-center gap-2 text-[#173f33]">
-        <Icon className="h-4 w-4 text-[#b36b00]" aria-hidden="true" />
-        <p className="text-xs font-black uppercase tracking-[0.14em]">{title}</p>
-      </div>
-      <div className={compact ? "mt-2" : "mt-3"}>{children}</div>
-    </section>
-  );
+function normalizeSkills(course: TrainingPreviewCourse) {
+  const merged = [...course.skills, ...course.outcomes.map((outcome) => summarizeOutcome(outcome))];
+  const unique = Array.from(new Set(merged.map((item) => item.trim()).filter(Boolean)));
+  return [...unique.slice(0, 9), "And more..."];
 }
 
-function TagList({ items, compact = false }: { items: string[]; compact?: boolean }) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {items.map((item) => (
-        <span
-          key={item}
-          className={cn(
-            "rounded-full border border-[#e3ded2] bg-white text-xs font-black text-[#315849]",
-            compact ? "px-2.5 py-1" : "px-3 py-1.5",
-          )}
-        >
-          {item}
-        </span>
-      ))}
-    </div>
-  );
-}
-
-function CompactFact({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
-  return (
-    <p className="flex gap-2 text-sm leading-6 text-[#315849]">
-      <Icon className="mt-1 h-4 w-4 shrink-0 text-[#b36b00]" aria-hidden="true" />
-      <span>
-        <span className="font-black text-[#173f33]">{label}: </span>
-        {value}
-      </span>
-    </p>
-  );
-}
-
-function MiniMetric({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-[#e3ded2] bg-white p-3">
-      <div className="flex items-center gap-1.5 text-[#b36b00]">
-        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-        <span className="text-[10px] font-black uppercase tracking-[0.12em] text-[#6f8177]">{label}</span>
-      </div>
-      <p className="mt-2 break-words text-sm font-black leading-5 text-[#173f33]">{value}</p>
-    </div>
-  );
+function summarizeOutcome(outcome: string) {
+  return outcome
+    .replace(/^Understand\s+/i, "")
+    .replace(/^Handle\s+/i, "")
+    .replace(/^Improve\s+/i, "")
+    .replace(/^Apply\s+/i, "")
+    .replace(/^Learn\s+/i, "")
+    .replace(/^Follow\s+/i, "")
+    .replace(/\.$/, "")
+    .split(/,| while | through | around | with /)[0]
+    .trim();
 }
 
 function getAudienceItems(course: TrainingPreviewCourse) {
@@ -462,8 +519,8 @@ function getAudienceItems(course: TrainingPreviewCourse) {
       "Tribal communities",
       "Landless individuals",
       "Existing beekeepers",
-      "Aspiring beekeeping entrepreneurs",
-      "Agriculture and horticulture workers",
+      "Aspiring beekeepers & entrepreneurs",
+      "Agriculture & horticulture workers",
       "Anyone interested in starting an apiary",
     ];
   }
@@ -477,5 +534,9 @@ function getAudienceItems(course: TrainingPreviewCourse) {
 }
 
 function formatEnrollDateLabel(batchDate: string) {
-  return batchDate.toLowerCase().includes("contact") ? batchDate : `Starts ${batchDate}`;
+  return batchDate.toLowerCase().includes("contact") ? batchDate : `starts ${batchDate}`;
+}
+
+function formatCertificateMetric(certificate: string) {
+  return certificate.replace(" issued ", " ").replace(" after completion", " after completion");
 }
