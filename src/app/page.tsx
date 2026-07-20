@@ -107,6 +107,7 @@ export default async function Home() {
               </span>
             </div>
 
+            <div className="pointer-events-none absolute -right-px -bottom-px z-20 h-[8.1rem] w-16 bg-[#f8faf7] sm:h-[6.7rem] sm:w-14 lg:h-[5.8rem] lg:w-12" aria-hidden="true" />
             <svg
               className="pointer-events-none absolute -inset-x-px -bottom-px z-20 h-[8.1rem] w-[calc(100%+2px)] drop-shadow-[0_-18px_48px_rgba(7,20,18,0.13)] sm:h-[6.7rem] lg:h-[5.8rem]"
               viewBox="0 0 1000 108"
