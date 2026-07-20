@@ -459,29 +459,29 @@ function CourseDetailTabs({
         ) : null}
       </div>
 
-      <section className="rounded-[1.1rem] border border-[#eadfc8] bg-[#fffefa] p-4 shadow-[0_12px_34px_rgba(36,41,34,0.05)]">
+      <section className="rounded-lg border border-[#eadfc8] bg-[#fffefa] p-2.5 shadow-[0_8px_22px_rgba(36,41,34,0.04)]">
         <div className="text-center">
-          <h3 className="text-xl font-black uppercase leading-none tracking-[0.08em] text-[#06432f]">
+          <h3 className="text-sm font-black uppercase leading-none tracking-[0.07em] text-[#06432f]">
             Who can attend?
           </h3>
-          <div className="mx-auto mt-3 flex max-w-36 items-center justify-center gap-2 text-[#efa500]">
-            <span className="h-0.5 w-12 rounded-full bg-[#2f703c]" />
-            <Bug className="h-5 w-5" strokeWidth={2.1} aria-hidden="true" />
-            <span className="h-0.5 w-12 rounded-full bg-[#2f703c]" />
+          <div className="mx-auto mt-1.5 flex max-w-24 items-center justify-center gap-1.5 text-[#efa500]">
+            <span className="h-px w-9 rounded-full bg-[#2f703c]" />
+            <Bug className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
+            <span className="h-px w-9 rounded-full bg-[#2f703c]" />
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3">
+        <div className="mt-2.5 grid gap-1.5">
           {audience.map((item) => {
             const AudienceIcon = getAudienceIcon(item);
 
             return (
               <p
                 key={item}
-                className="flex min-h-[5.25rem] min-w-0 items-center gap-3 rounded-lg border border-[#efdfbe] bg-white px-4 py-3 text-sm font-black capitalize leading-snug text-[#14241f] shadow-[0_8px_20px_rgba(36,41,34,0.04)] lg:text-[15px]"
+                className="flex min-h-[3rem] min-w-0 items-center gap-2 rounded-lg border border-[#efdfbe] bg-white px-2.5 py-1.5 text-[11px] font-black capitalize leading-snug text-[#14241f] shadow-[0_5px_14px_rgba(36,41,34,0.03)]"
               >
-                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[#f2ddb5] bg-[#fffaf0] text-[#efa500] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                  <AudienceIcon className="h-7 w-7" strokeWidth={2.2} aria-hidden="true" />
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#f2ddb5] bg-[#fffaf0] text-[#efa500] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+                  <AudienceIcon className="h-4.5 w-4.5" strokeWidth={2.2} aria-hidden="true" />
                 </span>
                 <span className="min-w-0 flex-1 [overflow-wrap:normal] [text-wrap:balance] [word-break:normal]">{item}</span>
               </p>
