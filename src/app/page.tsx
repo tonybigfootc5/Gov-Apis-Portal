@@ -134,20 +134,20 @@ export default async function Home() {
         <TrainingPreviewSwitch courses={courses} language={language} />
       </section>
 
-      <section className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+      <section className="mx-auto max-w-[1792px] px-3 py-10 sm:px-5 sm:py-12 lg:px-8 lg:py-16">
         <div className="mb-7 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.35),rgba(23,63,51,0.12),rgba(179,107,0,0))]" />
-        <figure className="relative mx-auto max-w-[46rem] overflow-hidden rounded-[1.25rem] border border-[#e2dccd] bg-[#f3b31f] p-4 shadow-[0_20px_54px_rgba(23,63,51,0.07)] sm:p-5 md:max-w-[52rem] lg:max-w-[58rem] lg:p-7">
+        <figure className="relative mx-auto w-full overflow-hidden rounded-[1.65rem] border border-[#e2dccd] bg-[#f3b31f] p-4 shadow-[0_28px_90px_rgba(31,54,44,0.08)] sm:p-6 lg:p-10 xl:p-12">
           <Image
             src="/quote-honeycomb-background.png"
             alt=""
             fill
-            sizes="(min-width: 1024px) 58rem, 100vw"
+            sizes="(min-width: 1800px) 1792px, 100vw"
             className="scale-110 object-cover object-center opacity-80 blur-[2px] saturate-125"
           />
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,250,232,0.5),rgba(255,244,207,0.28)),radial-gradient(circle_at_20%_45%,rgba(255,255,255,0.42),transparent_24rem)]" aria-hidden="true" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.38),rgba(179,107,0,0))]" aria-hidden="true" />
           <blockquote
-            className="relative z-10 text-left font-display text-[clamp(1.22rem,5vw,2rem)] font-semibold leading-[1.08] text-[#073f37] sm:text-[clamp(1.55rem,4vw,2.55rem)] md:text-[clamp(1.65rem,3.4vw,2.65rem)] lg:text-[clamp(1.9rem,3vw,3rem)]"
+            className="relative z-10 max-w-[64rem] text-left font-display text-[clamp(1.22rem,5vw,2rem)] font-semibold leading-[1.08] text-[#073f37] sm:text-[clamp(1.55rem,4vw,2.55rem)] md:text-[clamp(1.65rem,3.4vw,2.65rem)] lg:text-[clamp(1.9rem,3vw,3rem)]"
             style={{ textShadow: "0 1px 0 rgba(255,255,255,0.96), 0 18px 34px rgba(7,20,33,0.08)" }}
           >
             <span className="mr-2 align-top text-[0.58em] leading-none text-[#b36b00]">&ldquo;</span>
