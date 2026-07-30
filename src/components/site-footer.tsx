@@ -107,7 +107,7 @@ export function SiteFooter({ language }: SiteFooterProps) {
               <span>{institute.address}</span>
             </p>
             <p className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-semibold leading-6 text-white/82">
-              Programs, classes, timings, and batch coordination are taken care of by Ravinder Pydi (admin).
+              Programs, classes, timings, and batch coordination are taken care of by Ravindra Kumar Pydi (admin).
             </p>
           </FooterColumn>
 
