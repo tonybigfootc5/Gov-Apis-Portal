@@ -113,6 +113,7 @@ export function SiteHeader({
                 className={`object-contain ${isPublicRoute ? "drop-shadow-[0_18px_26px_rgba(7,20,33,0.32)]" : "drop-shadow-[0_10px_24px_rgba(242,181,68,0.18)]"}`}
                 style={isPublicRoute ? { transform: "translate(0.95rem, 1.45rem) scale(2.12)", transformOrigin: "center" } : undefined}
                 sizes="64px"
+                loading="eager"
                 priority
               />
             </span>

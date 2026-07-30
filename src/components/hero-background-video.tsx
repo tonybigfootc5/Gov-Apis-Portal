@@ -94,7 +94,8 @@ export function HeroBackgroundVideo() {
         autoPlay
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
+        poster="/honey-house-signboard.jpg"
         disablePictureInPicture
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 h-full w-full scale-[1.24] object-cover object-center opacity-95 [filter:brightness(0.84)_contrast(1.08)_saturate(1.02)] sm:scale-[1.2] sm:object-[center_42%]"
