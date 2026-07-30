@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Check, Clock3, GraduationCap, IndianRupee, Users2 } from "lucide-react";
+import { ArrowLeft, Check, Clock3, GraduationCap, IndianRupee, UserRound, Users2 } from "lucide-react";
 import { TrainingApplicationForm } from "@/components/training-application-form";
 import { getProgram } from "@/lib/data";
 import { getTranslatedProgramContent, t, type SiteLanguage } from "@/lib/i18n";
@@ -32,6 +32,7 @@ export default async function ProgramDetailPage({ params }: Props) {
       duration: "Duration",
       level: "Level",
       capacity: "Capacity",
+      takenCareBy: "Taken care by",
       participants: "participants",
       overviewEyebrow: "Program overview",
       overviewTitle: "What this training covers",
@@ -49,6 +50,7 @@ export default async function ProgramDetailPage({ params }: Props) {
       duration: "వ్యవధి",
       level: "స్థాయి",
       capacity: "సామర్థ్యం",
+      takenCareBy: "Taken care by",
       participants: "పాల్గొనేవారు",
       overviewEyebrow: "కార్యక్రమ అవలోకనం",
       overviewTitle: "ఈ శిక్షణలో ఏమి ఉంటుంది",
@@ -66,6 +68,7 @@ export default async function ProgramDetailPage({ params }: Props) {
       duration: "अवधि",
       level: "स्तर",
       capacity: "क्षमता",
+      takenCareBy: "Taken care by",
       participants: "प्रतिभागी",
       overviewEyebrow: "कार्यक्रम अवलोकन",
       overviewTitle: "इस प्रशिक्षण में क्या शामिल है",
@@ -149,9 +152,10 @@ export default async function ProgramDetailPage({ params }: Props) {
         <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="grid gap-6">
             <section className="section-frame rounded-[1.8rem] p-5 sm:p-6">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <MiniInfo icon={Clock3} label={pageCopy.duration} value={translatedProgram.duration} />
                 <MiniInfo icon={GraduationCap} label={pageCopy.level} value={translatedProgram.level} />
+                <MiniInfo icon={UserRound} label={pageCopy.takenCareBy} value={presentation?.instructorName ?? "Ravinder"} />
                 <MiniInfo icon={Users2} label={pageCopy.capacity} value={`${translatedProgram.capacity} ${pageCopy.participants}`} />
                 <MiniInfo icon={IndianRupee} label={t(language, "programs.detail.fee")} value={translatedProgram.fee ?? t(language, "programs.detail.fallbackFee")} />
               </div>

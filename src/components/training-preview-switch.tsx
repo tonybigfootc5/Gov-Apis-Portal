@@ -11,7 +11,6 @@ import {
   ChevronRight,
   CircleCheck,
   Factory,
-  FileBadge2,
   GraduationCap,
   HandHeart,
   Info,
@@ -368,8 +367,8 @@ function CourseOverview({
       <div className="grid gap-4 border-y border-[#ece4d8] bg-[#fffdfa] p-4 sm:grid-cols-2 min-[1500px]:grid-cols-4">
         <Metric icon={GraduationCap} label="Level" value={course.experienceLabel || course.level} />
         <Metric icon={Timer} label="Duration" value={course.duration} />
+        <Metric icon={UserRound} label="Taken care by" value={course.instructorName} />
         <Metric icon={UsersRound} label="Batch size" value={course.capacity} />
-        <Metric icon={FileBadge2} label="Certificate" value={formatCertificateMetric(course.certificate)} />
       </div>
 
       <div className="p-4 sm:p-5">
@@ -626,10 +625,6 @@ function getAudienceItems(course: TrainingPreviewCourse) {
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
-}
-
-function formatCertificateMetric(certificate: string) {
-  return certificate.replace(" issued ", " ").replace(" after completion", " after completion");
 }
 
 function formatFeeForDisplay(fee: string) {
