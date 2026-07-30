@@ -15,6 +15,7 @@ import {
   GraduationCap,
   HandHeart,
   Info,
+  IndianRupee,
   Languages,
   Landmark,
   Lightbulb,
@@ -273,6 +274,7 @@ function TrainingRail({
         {courses.map((course, index) => {
           const isActive = index === active;
           const Icon = courseIcons[index % courseIcons.length] ?? GraduationCap;
+          const feeLabel = formatFeeForDisplay(course.fee);
 
           return (
             <button
@@ -295,6 +297,9 @@ function TrainingRail({
               <span className="min-w-0 flex-1">
                 <span className="block text-base font-black leading-5">{course.tabLabel}</span>
                 <span className={cn("mt-2 block text-sm font-medium", isActive ? "text-white/86" : "text-[#2d3935]")}>{course.duration} program</span>
+                <span className={cn("mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-black", isActive ? "bg-[#f5b300] text-[#062f24]" : "bg-[#fff1bd] text-[#8b5a00]")}>
+                  {feeLabel}
+                </span>
               </span>
               <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full transition", isActive ? "bg-[#021d16] text-white" : "bg-[#f5f1eb] text-[#10251d] group-hover:bg-[#f5b300]")}>
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
@@ -327,6 +332,7 @@ function CourseOverview({
   onEnroll: () => void;
 }) {
   const skills = normalizeSkills(course);
+  const feeLabel = formatFeeForDisplay(course.fee);
 
   return (
     <article ref={overviewRef} className="scroll-mt-24 overflow-hidden rounded-lg border border-[#e7dfd2] bg-white shadow-[0_18px_46px_rgba(36,41,34,0.08)]">
@@ -340,6 +346,15 @@ function CourseOverview({
           <h2 className="mt-5 text-[clamp(2.25rem,5vw,3.5rem)] font-black leading-none text-[#06432f]">{course.title}</h2>
           <p className="mt-3 text-lg font-black leading-6 text-[#153f32]">{course.focusLabel}</p>
           <p className="mt-4 max-w-sm text-base font-medium leading-7 text-[#24322d]">{course.focusText}</p>
+          <div className="mt-5 inline-flex min-w-[13.5rem] items-center gap-3 rounded-lg border border-[#f0c667] bg-[linear-gradient(135deg,#fff9e7,#fff1bc)] px-4 py-3 shadow-[0_16px_34px_rgba(166,105,0,0.14)]">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-[#06432f] text-[#f5b300]">
+              <IndianRupee className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-[#8b5a00]">Course fee</span>
+              <span className="mt-1 block text-2xl font-black leading-none text-[#06432f]">{feeLabel}</span>
+            </span>
+          </div>
         </div>
         <button
           type="button"
@@ -355,7 +370,7 @@ function CourseOverview({
       </div>
 
       <div className="grid gap-4 border-y border-[#ece4d8] bg-[#fffdfa] p-4 sm:grid-cols-2 min-[1500px]:grid-cols-4">
-        <Metric icon={GraduationCap} label="Level" value={course.experienceLabel || course.level} />
+        <Metric icon={IndianRupee} label="Fee" value={feeLabel} emphasize />
         <Metric icon={Timer} label="Duration" value={course.duration} />
         <Metric icon={UsersRound} label="Batch size" value={course.capacity} />
         <Metric icon={FileBadge2} label="Certificate" value={formatCertificateMetric(course.certificate)} />
@@ -516,13 +531,13 @@ function BenefitRow() {
   );
 }
 
-function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+function Metric({ icon: Icon, label, value, emphasize = false }: { icon: LucideIcon; label: string; value: string; emphasize?: boolean }) {
   return (
-    <div className="flex items-start gap-3">
-      <Icon className="mt-1 h-8 w-8 shrink-0 text-[#06432f]" strokeWidth={1.8} aria-hidden="true" />
+    <div className={cn("flex items-start gap-3", emphasize ? "rounded-lg border border-[#f0c667] bg-[#fff8df] p-3 shadow-[0_10px_24px_rgba(166,105,0,0.08)]" : "")}>
+      <Icon className={cn("mt-1 h-8 w-8 shrink-0", emphasize ? "text-[#9c6a00]" : "text-[#06432f]")} strokeWidth={1.8} aria-hidden="true" />
       <div className="min-w-0">
-        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#14241f]">{label}</p>
-        <p className="mt-1 break-words text-sm font-black leading-5 text-[#121f1b]">{value}</p>
+        <p className={cn("text-[10px] font-black uppercase tracking-[0.12em]", emphasize ? "text-[#8b5a00]" : "text-[#14241f]")}>{label}</p>
+        <p className={cn("mt-1 break-words font-black leading-5", emphasize ? "text-lg text-[#06432f]" : "text-sm text-[#121f1b]")}>{value}</p>
       </div>
     </div>
   );
@@ -619,4 +634,8 @@ function getAudienceItems(course: TrainingPreviewCourse) {
 
 function formatCertificateMetric(certificate: string) {
   return certificate.replace(" issued ", " ").replace(" after completion", " after completion");
+}
+
+function formatFeeForDisplay(fee: string) {
+  return fee.replace(/^INR\s*/i, "Rs. ");
 }
