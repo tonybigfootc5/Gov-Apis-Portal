@@ -342,13 +342,13 @@ function CourseOverview({
           <h2 className="mt-5 text-[clamp(2.25rem,5vw,3.5rem)] font-black leading-none text-[#06432f]">{course.title}</h2>
           <p className="mt-3 text-lg font-black leading-6 text-[#153f32]">{course.focusLabel}</p>
           <p className="mt-4 max-w-sm text-base font-medium leading-7 text-[#24322d]">{course.focusText}</p>
-          <div className="mt-6 inline-flex w-full max-w-[29.5rem] items-center gap-5 rounded-lg border border-[#f0c667] bg-[linear-gradient(135deg,#fff9e7,#fff1bc)] px-6 py-5 shadow-[0_16px_34px_rgba(166,105,0,0.14)] sm:px-7">
-            <span className="grid h-20 w-20 shrink-0 place-items-center rounded-full bg-[#06432f] text-[#f5b300] shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]">
-              <IndianRupee className="h-10 w-10" strokeWidth={2.4} aria-hidden="true" />
+          <div className="mt-5 inline-flex w-full max-w-[22rem] items-center gap-4 rounded-lg border border-[#f0c667] bg-[linear-gradient(135deg,#fff9e7,#fff1bc)] px-4 py-3.5 shadow-[0_14px_28px_rgba(166,105,0,0.12)] sm:px-5">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-[#06432f] text-[#f5b300] shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]">
+              <IndianRupee className="h-7 w-7" strokeWidth={2.4} aria-hidden="true" />
             </span>
             <span className="min-w-0">
-              <span className="block text-xs font-black uppercase tracking-[0.28em] text-[#8b5a00]">Course fee</span>
-              <span className="mt-3 block text-[clamp(2rem,4.4vw,2.8rem)] font-black leading-none text-[#06432f]">{feeLabel}</span>
+              <span className="block text-[10px] font-black uppercase tracking-[0.22em] text-[#8b5a00]">Course fee</span>
+              <span className="mt-1.5 block text-[clamp(1.55rem,3.4vw,2.05rem)] font-black leading-none text-[#06432f]">{feeLabel}</span>
             </span>
           </div>
         </div>
