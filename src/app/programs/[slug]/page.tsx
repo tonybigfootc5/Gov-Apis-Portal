@@ -155,7 +155,7 @@ export default async function ProgramDetailPage({ params }: Props) {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <MiniInfo icon={Clock3} label={pageCopy.duration} value={translatedProgram.duration} />
                 <MiniInfo icon={GraduationCap} label={pageCopy.level} value={translatedProgram.level} />
-                <MiniInfo icon={UserRound} label={pageCopy.takenCareBy} value={presentation?.instructorName ?? "Ravinder"} />
+                <MiniInfo icon={UserRound} label={pageCopy.takenCareBy} value={presentation?.instructorName ?? "Ravinder Pydi (admin)"} />
                 <MiniInfo icon={Users2} label={pageCopy.capacity} value={`${translatedProgram.capacity} ${pageCopy.participants}`} />
                 <MiniInfo icon={IndianRupee} label={t(language, "programs.detail.fee")} value={translatedProgram.fee ?? t(language, "programs.detail.fallbackFee")} />
               </div>

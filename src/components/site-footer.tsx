@@ -106,6 +106,9 @@ export function SiteFooter({ language }: SiteFooterProps) {
               <MapPin className="h-4 w-4 text-[#8ec5ff]" aria-hidden="true" />
               <span>{institute.address}</span>
             </p>
+            <p className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-semibold leading-6 text-white/82">
+              Programs, classes, timings, and batch coordination are taken care of by Ravinder Pydi (admin).
+            </p>
           </FooterColumn>
 
           <FooterColumn title={copy.footer.socialLabel}>
