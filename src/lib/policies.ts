@@ -19,11 +19,6 @@ export const policyLinks = [
     description: "Refund and cancellation handling for training enrollments and related services.",
   },
   {
-    title: "Return Policy",
-    href: "/return-policy",
-    description: "Returns and exchanges for any physical materials or goods, where applicable.",
-  },
-  {
     title: "Shipping Policy",
     href: "/shipping-policy",
     description: "Delivery expectations for confirmations, documents, and any physical shipments.",
@@ -234,61 +229,6 @@ export const policyDocuments: Record<string, PolicyDocument> = {
         title: "Support and grievance contact",
         paragraphs: [
           `For refund status, cancellation requests, or payment-related grievances, contact ${grievanceContact}`,
-        ],
-      },
-    ],
-  },
-  returns: {
-    title: "Return Policy",
-    description: "Return and exchange terms for any physical materials, kits, or goods associated with the project.",
-    eyebrow: "Returns",
-    summary:
-      "API CULTURE primarily provides training and service-based offerings. The website does not provide a general product-return facility for training fees, digital confirmations, or service bookings. This policy applies only if a physical item is separately supplied by the center.",
-    sections: [
-      {
-        title: "No general returns for service payments",
-        paragraphs: [
-          "Training registrations, seat bookings, application processing, digital confirmations, and service access are not physical goods and therefore cannot be returned in the ordinary product-return sense.",
-          "If your payment on this website is only for training, workshop enrollment, or a service booking, the applicable policy is the refund policy and not a product return policy.",
-        ],
-      },
-      {
-        title: "When this return policy applies",
-        paragraphs: [
-          "This policy applies only if the center separately supplies a physical training kit, printed material, merchandise item, publication, or another tangible good for which return review is relevant.",
-          "A return or replacement request should be raised within 48 hours of delivery if the item was damaged, defective, missing parts, or materially different from what was communicated at the time of purchase.",
-        ],
-        bullets: [
-          "Damage during delivery",
-          "Defective item received",
-          "Item materially different from what was described",
-        ],
-      },
-      {
-        title: "Eligibility conditions for approved returns",
-        paragraphs: [
-          "To be eligible, the item should ordinarily be unused, in the same condition in which it was received, and accompanied by the original packaging or proof of purchase where reasonably available.",
-          "The center may request photographs, delivery details, or a short written explanation before approving a return, replacement, or refund.",
-        ],
-      },
-      {
-        title: "Non-returnable items and situations",
-        paragraphs: [
-          "Used consumables, customized materials, time-sensitive printed matter, items damaged after delivery due to misuse, and items specifically marked as non-returnable are ordinarily not eligible for return.",
-          "Dissatisfaction unrelated to a verified defect, shipping damage, or description mismatch may not qualify for return approval.",
-        ],
-      },
-      {
-        title: "How approved returns are handled",
-        paragraphs: [
-          "If a return or replacement is approved, the center will share the next steps. Depending on the case, the remedy may be replacement of the item, partial adjustment, or refund handling under the refund policy.",
-          "If the return is approved because the center sent the wrong item, sent a defective item, or the item was damaged in transit, the center may bear the reasonable return logistics cost. In other approved cases, the return cost may be communicated case by case.",
-        ],
-      },
-      {
-        title: "Important merchant declaration",
-        paragraphs: [
-          "For the current website payment flow, API CULTURE primarily accepts payments for training and related services rather than for sale of physical consumer goods. If the payment gateway or merchant onboarding form asks whether the business supports general product returns, the answer for service-only enrollments is ordinarily no.",
         ],
       },
     ],
