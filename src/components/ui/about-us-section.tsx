@@ -120,19 +120,7 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
         </p>
       </div>
 
-      <div className="mx-auto max-w-[1792px] overflow-hidden rounded-[1.65rem] bg-white shadow-[0_28px_90px_rgba(31,54,44,0.08)]">
-        <Image
-          src="/about-section-reference.png"
-          alt="About Api Culture Technology Center, training benefits, crop yield potential, faculty experience, and pan-India reach"
-          width={1792}
-          height={1024}
-          sizes="(min-width: 1800px) 1792px, 100vw"
-          className="block h-auto w-full"
-          priority
-        />
-      </div>
-
-      <div className="mx-auto mt-10 max-w-[1480px] sm:mt-14">
+      <div className="mx-auto max-w-[1480px]">
         <div className="mb-6 max-w-4xl">
           <p className="text-xs font-black uppercase tracking-[0.26em] text-[#b97816]">{orbitCopy.eyebrow}</p>
           <h2 className="mt-3 text-[clamp(2rem,4vw,4rem)] font-black leading-[0.98] text-[#123f31]">
@@ -143,6 +131,18 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
           </p>
         </div>
         <AboutEcosystemOrbit copy={orbitCopy} />
+      </div>
+
+      <div className="mx-auto mt-10 max-w-[1792px] overflow-hidden rounded-[1.65rem] bg-white shadow-[0_28px_90px_rgba(31,54,44,0.08)] sm:mt-14">
+        <Image
+          src="/about-section-reference.png"
+          alt="About Api Culture Technology Center, training benefits, crop yield potential, faculty experience, and pan-India reach"
+          width={1792}
+          height={1024}
+          sizes="(min-width: 1800px) 1792px, 100vw"
+          className="block h-auto w-full"
+          priority
+        />
       </div>
     </section>
   );
@@ -174,11 +174,13 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
     const radiusY = 196;
     const x = radiusX * Math.cos(radian);
     const y = radiusY * Math.sin(radian);
+    const lineLength = Math.hypot(x, y);
+    const lineAngle = Math.atan2(y, x) * (180 / Math.PI);
     const zIndex = Math.round(90 + 35 * Math.sin(radian));
     const opacity = Math.max(0.54, Math.min(1, 0.62 + 0.38 * ((1 + Math.sin(radian)) / 2)));
     const scale = 0.92 + 0.12 * ((1 + Math.sin(radian)) / 2);
 
-    return { opacity, scale, x, y, zIndex };
+    return { lineAngle, lineLength, opacity, scale, x, y, zIndex };
   };
 
   const centerNode = (cultureTitle: string) => {
@@ -191,6 +193,11 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
     setRotationAngle(270 - targetAngle);
     setActiveCulture(cultureTitle);
   };
+
+  const orbitPositions = supportingCultures.map((culture, index) => ({
+    culture,
+    position: calculateNodePosition(index, supportingCultures.length),
+  }));
 
   return (
     <div className="relative overflow-hidden rounded-[1.65rem] border border-[#eadbb7] bg-[linear-gradient(145deg,rgba(255,252,244,0.96),rgba(247,240,225,0.82))] p-4 shadow-[0_30px_90px_rgba(82,57,13,0.12)] ring-1 ring-[#d7be90]/28 md:p-7">
@@ -228,24 +235,18 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
           <div className="absolute left-1/2 top-1/2 h-[21rem] w-[21rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6a84b]/38" />
           <div className="absolute left-1/2 top-1/2 h-[29rem] w-[29rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/48" />
           <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/22" />
-          <svg className="absolute inset-0 h-full w-full" viewBox="0 0 960 560" aria-hidden="true">
-            {supportingCultures.map((culture, index) => {
-              const position = calculateNodePosition(index, supportingCultures.length);
-              return (
-                <line
-                  key={culture.title}
-                  x1="480"
-                  y1="280"
-                  x2={480 + position.x}
-                  y2={280 + position.y}
-                  stroke="#c7ad70"
-                  strokeWidth="1.4"
-                  strokeDasharray="7 9"
-                  opacity={activeCulture === culture.title || hoveredCulture === culture.title ? 0.68 : 0.34}
-                />
-              );
-            })}
-          </svg>
+          {orbitPositions.map(({ culture, position }) => (
+            <span
+              key={`${culture.title}-connector`}
+              className="pointer-events-none absolute left-1/2 top-1/2 h-px origin-left bg-[repeating-linear-gradient(90deg,#c7ad70_0_7px,transparent_7px_16px)]"
+              style={{
+                opacity: activeCulture === culture.title || hoveredCulture === culture.title ? 0.68 : 0.34,
+                transform: `rotate(${position.lineAngle}deg)`,
+                width: `${position.lineLength}px`,
+              }}
+              aria-hidden="true"
+            />
+          ))}
 
           <div className="absolute left-1/2 top-1/2 flex h-44 w-44 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(255,248,234,0.64))] text-center shadow-[0_22px_54px_rgba(99,77,26,0.14)] ring-1 ring-[#e6d2a9]/40 backdrop-blur-xl">
             <div className="absolute -inset-4 rounded-full border border-[#d6a84b]/15 opacity-70 [animation:ping_2.8s_cubic-bezier(0,0,0.2,1)_infinite]" />
@@ -257,10 +258,9 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
             <p className="mt-1 px-4 text-xs leading-5 text-[#61716a]">{copy.sharedEcosystem}</p>
           </div>
 
-          {supportingCultures.map((culture, index) => {
+          {orbitPositions.map(({ culture, position }) => {
             const isActive = activeCulture === culture.title;
             const isHovered = hoveredCulture === culture.title;
-            const position = calculateNodePosition(index, supportingCultures.length);
             return (
               <button
                 type="button"
@@ -268,7 +268,7 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                 onClick={() => centerNode(culture.title)}
                 onMouseEnter={() => setHoveredCulture(culture.title)}
                 onMouseLeave={() => setHoveredCulture(null)}
-                className={`absolute left-1/2 top-1/2 ${culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.25rem] border p-4 text-left backdrop-blur-xl transition-all duration-700 ${
+                className={`absolute left-1/2 top-1/2 ${culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.25rem] border p-4 text-left backdrop-blur-xl transition-[border-color,background-color,box-shadow,opacity] duration-200 ${
                   isActive
                     ? "border-[#d6a84b] bg-[linear-gradient(180deg,rgba(255,249,235,0.94),rgba(255,255,255,0.68))] shadow-[0_28px_60px_rgba(184,120,22,0.2)]"
                     : isHovered
