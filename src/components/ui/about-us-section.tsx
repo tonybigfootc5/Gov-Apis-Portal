@@ -148,10 +148,25 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
 }
 
 function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
-  const [activeCulture, setActiveCulture] = useState<string>(supportingCultures[0].title);
+  const [activeCulture, setActiveCulture] = useState<string | null>(null);
   const [rotationAngle, setRotationAngle] = useState(0);
   const [hoveredCulture, setHoveredCulture] = useState<string | null>(null);
   const [autoRotate, setAutoRotate] = useState(true);
+
+  useEffect(() => {
+    if (!activeCulture) {
+      return;
+    }
+
+    const closeOnScroll = () => {
+      setActiveCulture(null);
+      setAutoRotate(true);
+    };
+
+    window.addEventListener("scroll", closeOnScroll, { passive: true });
+
+    return () => window.removeEventListener("scroll", closeOnScroll);
+  }, [activeCulture]);
 
   useEffect(() => {
     if (!autoRotate) {
@@ -190,15 +205,38 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
     const targetAngle = (nodeIndex / supportingCultures.length) * 360;
     setRotationAngle(270 - targetAngle);
     setActiveCulture(cultureTitle);
+    setAutoRotate(false);
   };
 
   const orbitPositions = supportingCultures.map((culture, index) => ({
     culture,
-    position: calculateNodePosition(index, supportingCultures.length),
+    position: (() => {
+      const basePosition = calculateNodePosition(index, supportingCultures.length);
+      if (activeCulture !== culture.title) {
+        return basePosition;
+      }
+
+      const x = clamp(basePosition.x, -260, 260);
+      const y = clamp(basePosition.y, -42, 42);
+
+      return {
+        ...basePosition,
+        lineAngle: Math.atan2(y, x) * (180 / Math.PI),
+        lineLength: Math.hypot(x, y),
+        x,
+        y,
+      };
+    })(),
   }));
 
   return (
-    <div className="relative overflow-hidden rounded-[1.65rem] border border-[#eadbb7] bg-[linear-gradient(145deg,rgba(255,252,244,0.96),rgba(247,240,225,0.82))] p-4 shadow-[0_30px_90px_rgba(82,57,13,0.12)] ring-1 ring-[#d7be90]/28 md:p-7">
+    <div
+      className="relative overflow-hidden rounded-[1.65rem] border border-[#eadbb7] bg-[linear-gradient(145deg,rgba(255,252,244,0.96),rgba(247,240,225,0.82))] p-4 shadow-[0_30px_90px_rgba(82,57,13,0.12)] ring-1 ring-[#d7be90]/28 md:p-7"
+      onClick={() => {
+        setActiveCulture(null);
+        setAutoRotate(true);
+      }}
+    >
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.62),transparent_26%,transparent_74%,rgba(242,181,68,0.12))]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_1px_1px,#9c7a36_1px,transparent_0)] [background-size:18px_18px]" />
 
@@ -210,7 +248,10 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
               <button
                 type="button"
                 key={culture.title}
-                onClick={() => centerNode(culture.title)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  centerNode(culture.title);
+                }}
                 className={`rounded-[1.15rem] border p-4 text-left transition ${
                   isActive ? "border-[#d6a84b] bg-white/90 shadow-[0_16px_34px_rgba(184,120,22,0.14)]" : "border-white/70 bg-white/56"
                 }`}
@@ -226,7 +267,9 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
           onMouseEnter={() => setAutoRotate(false)}
           onMouseLeave={() => {
             setHoveredCulture(null);
-            setAutoRotate(true);
+            if (!activeCulture) {
+              setAutoRotate(true);
+            }
           }}
         >
           <div className="absolute left-1/2 top-1/2 h-[18rem] w-[18rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f5c15f]/24 blur-sm" />
@@ -263,7 +306,10 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
               <button
                 type="button"
                 key={culture.title}
-                onClick={() => centerNode(culture.title)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  centerNode(culture.title);
+                }}
                 onMouseEnter={() => setHoveredCulture(culture.title)}
                 onMouseLeave={() => setHoveredCulture(null)}
                 className={`absolute left-1/2 top-1/2 ${isActive ? "w-[26rem]" : culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.25rem] border p-4 text-left backdrop-blur-xl transition-[border-color,background-color,box-shadow,opacity,width] duration-200 ${
@@ -287,6 +333,10 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
       </div>
     </div>
   );
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
 }
 
 function CultureOrbitContent({
