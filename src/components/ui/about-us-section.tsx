@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowRight, Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users } from "lucide-react";
-import type { ReactNode } from "react";
 import type { SiteLanguage } from "@/lib/i18n";
 
 const apiCultureFormation = {
@@ -153,7 +152,6 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
   const [rotationAngle, setRotationAngle] = useState(0);
   const [hoveredCulture, setHoveredCulture] = useState<string | null>(null);
   const [autoRotate, setAutoRotate] = useState(true);
-  const activeDetails = supportingCultures.find((culture) => culture.title === activeCulture) ?? supportingCultures[0];
 
   useEffect(() => {
     if (!autoRotate) {
@@ -217,7 +215,7 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                   isActive ? "border-[#d6a84b] bg-white/90 shadow-[0_16px_34px_rgba(184,120,22,0.14)]" : "border-white/70 bg-white/56"
                 }`}
               >
-                <CultureLogo culture={culture} />
+                <CultureOrbitContent culture={culture} active={isActive} copy={copy} compact />
               </button>
             );
           })}
@@ -268,7 +266,7 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                 onClick={() => centerNode(culture.title)}
                 onMouseEnter={() => setHoveredCulture(culture.title)}
                 onMouseLeave={() => setHoveredCulture(null)}
-                className={`absolute left-1/2 top-1/2 ${culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.25rem] border p-4 text-left backdrop-blur-xl transition-[border-color,background-color,box-shadow,opacity] duration-200 ${
+                className={`absolute left-1/2 top-1/2 ${isActive ? "w-[26rem]" : culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.25rem] border p-4 text-left backdrop-blur-xl transition-[border-color,background-color,box-shadow,opacity,width] duration-200 ${
                   isActive
                     ? "border-[#d6a84b] bg-[linear-gradient(180deg,rgba(255,249,235,0.94),rgba(255,255,255,0.68))] shadow-[0_28px_60px_rgba(184,120,22,0.2)]"
                     : isHovered
@@ -281,72 +279,69 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                   zIndex: isActive || isHovered ? 140 : position.zIndex,
                 }}
               >
-                <CultureLogo culture={culture} note={isHovered ? copy.clickToView : undefined} />
+                <CultureOrbitContent culture={culture} active={isActive} copy={copy} note={isHovered ? copy.clickToView : undefined} />
               </button>
             );
           })}
         </div>
-
-        <div className="relative overflow-hidden rounded-[1.35rem] border border-[#d7be90]/38 bg-[linear-gradient(180deg,rgba(255,255,255,0.78),rgba(255,249,239,0.5))] p-5 shadow-[0_22px_54px_rgba(99,77,26,0.1)] md:p-6">
-          <div className="absolute right-0 top-0 h-36 w-36 rounded-bl-full bg-[#f5c15f]/18" />
-          <div className="relative grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:items-stretch">
-            <div>
-              <div className="flex items-center gap-4">
-                <div className="relative h-[4.5rem] w-[4.5rem] shrink-0 overflow-hidden rounded-[1.15rem] border border-white/70 bg-white/85 shadow-[0_10px_24px_rgba(99,77,26,0.08)]">
-                  <Image src={activeDetails.logo} alt={`${activeDetails.title} logo`} fill className="object-contain p-2" sizes="72px" />
-                </div>
-                <div>
-                  <h3 className="text-[clamp(1.8rem,3vw,3.1rem)] font-black leading-[1.03] text-[#173f33]">{activeDetails.title}</h3>
-                  <p className="mt-3 text-xs font-black uppercase tracking-[0.18em] text-[#7d8b84]">{activeDetails.eyebrow}</p>
-                </div>
-              </div>
-              <p className="mt-6 text-[15px] font-semibold leading-8 text-[#5f6e67]">{activeDetails.description}</p>
-              <Link href="/programs" className="mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-[#f2b544] px-5 py-2.5 text-sm font-black text-[#173f33]">
-                {copy.explorePrograms} <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {activeDetails.details.map((detail) => (
-                <DetailCard key={detail.title} icon={detail.icon} title={detail.title} description={detail.description} />
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 }
 
-function CultureLogo({
+function CultureOrbitContent({
   culture,
+  active,
+  compact = false,
+  copy,
   note,
 }: {
   culture: (typeof supportingCultures)[number];
+  active: boolean;
+  compact?: boolean;
+  copy: Record<string, string>;
   note?: string;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/75 bg-white/85 shadow-[0_8px_22px_rgba(99,77,26,0.08)]">
-        <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="48px" />
-      </div>
-      <div className="min-w-0">
-        <h4 className={`${culture.title === "API Bee Keeper's Association" ? "text-[1.05rem]" : "text-lg"} font-black leading-snug text-[#173f33]`}>
-          {culture.title}
-        </h4>
-        {note ? <p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#b97816]">{note}</p> : null}
-      </div>
-    </div>
-  );
-}
-
-function DetailCard({ icon, title, description }: { icon: ReactNode; title: string; description: string }) {
-  return (
-    <div className="rounded-[1rem] border border-white/65 bg-white/64 p-4 shadow-[0_10px_24px_rgba(99,77,26,0.05)]">
+    <div>
       <div className="flex items-center gap-3">
-        <div className="rounded-xl bg-[#f8f1e1] p-2 text-[#b97816]">{icon}</div>
-        <h4 className="text-base font-black text-[#173f33]">{title}</h4>
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full border border-white/75 bg-white/85 shadow-[0_8px_22px_rgba(99,77,26,0.08)]">
+          <Image src={culture.logo} alt={`${culture.title} logo`} fill className="object-contain p-2" sizes="48px" />
+        </div>
+        <div className="min-w-0">
+          <h4 className={`${culture.title === "API Bee Keeper's Association" ? "text-[1.05rem]" : "text-lg"} font-black leading-snug text-[#173f33]`}>
+            {culture.title}
+          </h4>
+          {note && !active ? <p className="mt-1 text-[10px] font-black uppercase tracking-[0.18em] text-[#b97816]">{note}</p> : null}
+        </div>
       </div>
-      <p className="mt-3 text-sm font-semibold leading-7 text-[#62706a]">{description}</p>
+
+      {active ? (
+        <div className={compact ? "mt-4 space-y-4" : "mt-4 space-y-3"}>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7d8b84]">{culture.eyebrow}</p>
+          <p className={`${compact ? "text-sm leading-7" : "text-[13px] leading-6"} font-semibold text-[#5f6e67]`}>
+            {culture.description}
+          </p>
+          <div className={compact ? "grid gap-3 sm:grid-cols-2" : "grid gap-2 sm:grid-cols-2"}>
+            {culture.details.map((detail) => (
+              <div key={detail.title} className="rounded-[0.9rem] border border-white/65 bg-white/62 p-3 shadow-[0_8px_18px_rgba(99,77,26,0.05)]">
+                <div className="flex items-center gap-2">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#f8f1e1] text-[#b97816]">{detail.icon}</span>
+                  <span className="text-sm font-black leading-snug text-[#173f33]">{detail.title}</span>
+                </div>
+                <p className={`${compact ? "mt-2 leading-5" : "mt-1.5 leading-[1.35]"} text-xs font-semibold text-[#62706a]`}>{detail.description}</p>
+              </div>
+            ))}
+          </div>
+          <Link
+            href="/programs"
+            className="inline-flex w-fit items-center gap-2 rounded-full bg-[#f2b544] px-4 py-2 text-xs font-black text-[#173f33]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            {copy.explorePrograms} <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      ) : null}
     </div>
   );
 }
