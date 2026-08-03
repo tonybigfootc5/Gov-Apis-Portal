@@ -30,6 +30,11 @@
   - select a training
   - open that training detail page
   - fill the application form inside that selected training page
+- PhonePe Standard Checkout integration is present:
+  - application submission creates a PhonePe checkout order when gateway env vars are configured
+  - successful checkout returns through `/payments/return`
+  - webhook callback route exists at `/api/payments/phonepe/webhook`
+  - if PhonePe credentials are missing, the form no longer redirects users back to the program page
 - `/apply` now redirects to `/programs`.
 - Admin dashboard redesigned with left sidebar and hamburger navigation.
 - Admin sections now switch the right-side workspace so only the selected section shows.
@@ -45,6 +50,13 @@
   - `ADMIN_SESSION_SECRET`
   - `ADMIN_TOTP_SECRET`
   - `ADMIN_BACKUP_CODES_HASHES`
+  - `PHONEPE_ENV`
+  - `PHONEPE_CLIENT_ID`
+  - `PHONEPE_CLIENT_SECRET`
+  - `PHONEPE_CLIENT_VERSION`
+  - `PHONEPE_WEBHOOK_USERNAME`
+  - `PHONEPE_WEBHOOK_PASSWORD`
+  - `TRAINING_APPLICATION_FEE_PAISE`
 
 ## Important Current Limitation
 
@@ -81,6 +93,13 @@
   - `src/app/api/training-application/route.ts`
   - `src/app/api/admin/applications/route.ts`
   - `src/app/api/admin/applications/[id]/route.ts`
+- PhonePe payment backend:
+  - `src/lib/phonepe.ts`
+  - `src/lib/phonepe-config.ts`
+  - `src/app/api/payments/phonepe/webhook/route.ts`
+  - `src/app/api/payments/order/[merchantOrderId]/status/route.ts`
+  - `src/app/api/payments/application/[applicationId]/initiate/route.ts`
+  - `src/app/payments/return/page.tsx`
 - Data access:
   - `src/lib/data.ts`
   - `src/lib/prisma.ts`
@@ -121,12 +140,53 @@ npm run build
   - `ADMIN_SESSION_SECRET`
   - `ADMIN_TOTP_SECRET`
   - `ADMIN_BACKUP_CODES_HASHES`
+- Required for PhonePe payments:
+  - `PHONEPE_ENV=PRODUCTION`
+  - `PHONEPE_CLIENT_ID`
+  - `PHONEPE_CLIENT_SECRET`
+  - `PHONEPE_CLIENT_VERSION`
+  - `PHONEPE_WEBHOOK_USERNAME=api_culture_43481450`
+  - `PHONEPE_WEBHOOK_PASSWORD`
+  - `TRAINING_APPLICATION_FEE_PAISE`
 - If `DATABASE_URL` is missing:
   - public site still works with fallback data
   - admin content remains read-only locally
 - Useful env files already present locally:
   - `.env.local`
   - `.env.production.local`
+
+## PhonePe Webhook Setup
+
+- PhonePe dashboard area: Developer Settings -> Webhooks -> Create New Webhook
+- Webhook URL: `https://www.apiculture.in/api/payments/phonepe/webhook`
+- Authentication type: `SHA` / Username and Password
+- Username: `api_culture_43481450`
+- Password: store only in PhonePe and Vercel as `PHONEPE_WEBHOOK_PASSWORD`; do not commit the live value to git.
+- Description: `API Culture website payment webhook`
+- Active events selected:
+  - `pg.order.completed`
+  - `pg.order.failed`
+  - `pg.refund.completed`
+  - `pg.refund.failed`
+  - `pg.transaction.authorized`
+- Events intentionally not selected for current flow:
+  - `checkout.order.*`
+  - `paylink.order.*`
+  - `payment.page.order.*`
+  - `payment.dispute.*`
+  - `settlement.*`
+  - `subscription.*`
+  - `order.split.settlement.*`
+
+## PhonePe Gateway Activation Checklist
+
+- Create/save the PhonePe webhook with the details above.
+- Copy API credentials from PhonePe Developer Settings -> API Keys.
+- Add the PhonePe env vars to Vercel Production.
+- Redeploy production after adding env vars.
+- Submit a test training application and confirm the browser redirects to the PhonePe checkout URL.
+- Confirm the return page loads at `/payments/return?merchantOrderId=...`.
+- Confirm a successful payment updates Admin -> Payments and Admin -> Applications.
 
 ## Verification Completed
 
@@ -145,6 +205,8 @@ npm run build
 - Add the real `DATABASE_URL` in Vercel production if not already present.
 - Apply Prisma migration to the real production database.
 - Add `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `ADMIN_TOTP_SECRET`, and `ADMIN_BACKUP_CODES_HASHES` in Vercel for production.
+- Add PhonePe API credentials and webhook credentials in Vercel production.
+- Complete one live or approved test payment through PhonePe after credentials are connected.
 - Verify end to end with a real admin session:
   - `/admin` redirects to `/admin/login` when unauthenticated
   - valid password opens the admin UI
