@@ -138,13 +138,14 @@ export default async function Home() {
         <div className="mb-7 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.35),rgba(23,63,51,0.12),rgba(179,107,0,0))]" />
         <figure className="relative mx-auto w-full overflow-hidden rounded-[1.65rem] border border-[#e2dccd] bg-[#f3b31f] p-4 shadow-[0_28px_90px_rgba(31,54,44,0.08)] sm:p-6 lg:p-10 xl:p-12">
           <Image
-            src="/quote-honeycomb-background.png"
+            src="/einstein-quote-background.avif"
             alt=""
             fill
             sizes="(min-width: 1800px) 1792px, 100vw"
-            className="scale-110 object-cover object-center opacity-80 blur-[2px] saturate-125"
+            className="object-cover object-center opacity-100"
+            style={{ transform: "scaleX(-1) scale(1.04)" }}
           />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,250,232,0.5),rgba(255,244,207,0.28)),radial-gradient(circle_at_20%_45%,rgba(255,255,255,0.42),transparent_24rem)]" aria-hidden="true" />
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,246,211,0.94)_0%,rgba(255,238,176,0.78)_46%,rgba(255,190,65,0.24)_66%,rgba(12,12,11,0.02)_100%),radial-gradient(circle_at_18%_42%,rgba(255,255,255,0.52),transparent_24rem)]" aria-hidden="true" />
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.38),rgba(179,107,0,0))]" aria-hidden="true" />
           <blockquote
             className="relative z-10 max-w-[64rem] text-left font-display text-[clamp(1.22rem,5vw,2rem)] font-semibold leading-[1.08] text-[#073f37] sm:text-[clamp(1.55rem,4vw,2.55rem)] md:text-[clamp(1.65rem,3.4vw,2.65rem)] lg:text-[clamp(1.9rem,3vw,3rem)]"
