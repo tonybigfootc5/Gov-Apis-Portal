@@ -1,6 +1,7 @@
 import "server-only";
 
 import { PaymentEnvironment as PrismaPaymentEnvironment } from "@/generated/prisma/client";
+import { getSiteOrigin } from "@/lib/site-url";
 import { trainingProgramCatalog } from "@/lib/training-programs";
 
 export type PhonePeEnv = "SANDBOX" | "PRODUCTION";
@@ -49,6 +50,5 @@ export function getTrainingApplicationAmountPaise(fee?: string | null) {
 }
 
 export function buildPhonePeRedirectUrl(merchantOrderId: string) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  return `${siteUrl}/payments/return?merchantOrderId=${encodeURIComponent(merchantOrderId)}`;
+  return `${getSiteOrigin("http://localhost:3000")}/payments/return?merchantOrderId=${encodeURIComponent(merchantOrderId)}`;
 }

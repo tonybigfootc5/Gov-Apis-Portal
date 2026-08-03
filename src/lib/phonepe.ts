@@ -35,8 +35,8 @@ let phonePeClient: StandardCheckoutClient | null = null;
 
 function getPhonePeCredentials() {
   return {
-    clientId: process.env.PHONEPE_CLIENT_ID ?? "",
-    clientSecret: process.env.PHONEPE_CLIENT_SECRET ?? "",
+    clientId: (process.env.PHONEPE_CLIENT_ID ?? "").trim(),
+    clientSecret: (process.env.PHONEPE_CLIENT_SECRET ?? "").trim(),
     clientVersion: Number(process.env.PHONEPE_CLIENT_VERSION ?? 1),
     env: getPhonePeEnvironment(),
   };
@@ -101,6 +101,9 @@ export async function createPhonePePayment(input: CreatePaymentInput) {
   const request = requestBuilder.build();
 
   const response = await client.pay(request);
+  if (!response.redirectUrl) {
+    throw new Error("PhonePe did not return a checkout URL.");
+  }
 
   return {
     checkoutUrl: response.redirectUrl,

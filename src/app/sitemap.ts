@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { getArticles, getEvents } from "@/lib/data";
+import { getSiteOrigin } from "@/lib/site-url";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.apiculture.in";
+  const base = getSiteOrigin();
   const [events, articles] = await Promise.all([getEvents(), getArticles()]);
 
   return [

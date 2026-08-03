@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     headerStore.get("x-real-ip")?.trim() ||
     "unknown";
   const ipHash = ip ? createHash("sha256").update(ip).digest("hex") : undefined;
-  const limit = rateLimit("training-application-form", ip, 3, 30 * 60 * 1000);
+  const limit = rateLimit("training-application-form", ip, 10, 30 * 60 * 1000);
   if (!limit.allowed) {
     const retryAfterSeconds = Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000));
     return tooManyRequests("Too many applications were submitted from this connection.", retryAfterSeconds);
@@ -129,41 +129,50 @@ export async function POST(request: Request) {
       );
     }
 
-    const merchantOrderId = buildMerchantOrderId(application.id);
-    const redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);
-    const checkoutUrl = (
-      await createPhonePePayment({
-        merchantOrderId,
-        amountPaise,
-        redirectUrl,
-        message: `${parsed.data.serviceName} application payment`,
-        disablePaymentRetry: true,
-        phoneNumber: parsed.data.phone,
-        metadata: {
-          applicationId: application.id,
-          serviceName: parsed.data.serviceName,
-          candidateName: parsed.data.candidateName,
-        },
-      })
-    ).checkoutUrl;
+    let merchantOrderId: string;
+    let checkoutUrl: string;
+    try {
+      merchantOrderId = buildMerchantOrderId(application.id);
+      const redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);
+      checkoutUrl = (
+        await createPhonePePayment({
+          merchantOrderId,
+          amountPaise,
+          redirectUrl,
+          message: `${parsed.data.serviceName} application payment`,
+          disablePaymentRetry: true,
+          phoneNumber: parsed.data.phone,
+          metadata: {
+            applicationId: application.id,
+            serviceName: parsed.data.serviceName,
+            candidateName: parsed.data.candidateName,
+          },
+        })
+      ).checkoutUrl;
 
-    await prisma.paymentOrder.create({
-      data: {
-        trainingApplicationId: application.id,
-        environment: getCurrentPaymentEnvironment(),
-        merchantOrderId,
-        checkoutUrl,
-        redirectUrl,
-        status: "PENDING",
-        amountPaise,
-        meta: {
-          ipHash,
-          serviceName: parsed.data.serviceName,
-          mode: "phonepe",
+      await prisma.paymentOrder.create({
+        data: {
+          trainingApplicationId: application.id,
+          environment: getCurrentPaymentEnvironment(),
+          merchantOrderId,
+          checkoutUrl,
+          redirectUrl,
+          status: "PENDING",
+          amountPaise,
+          meta: {
+            ipHash,
+            serviceName: parsed.data.serviceName,
+            mode: "phonepe",
+          },
+          latestEventName: "checkout.created",
         },
-        latestEventName: "checkout.created",
-      },
-    });
+      });
+    } catch (error) {
+      console.error("PhonePe checkout creation failed", error);
+      return serviceUnavailable(
+        "Application saved, but the payment gateway could not be opened right now. Please try again in a minute or contact the center.",
+      );
+    }
 
     return NextResponse.json(
       {
@@ -174,7 +183,8 @@ export async function POST(request: Request) {
       },
       { status: 201 },
     );
-  } catch {
+  } catch (error) {
+    console.error("Training application submission failed", error);
     return serviceUnavailable("Application storage is temporarily unavailable.");
   }
 }

@@ -6,6 +6,7 @@ import { SiteMainShell } from "@/components/site-main-shell";
 import { isSandboxEnvironment } from "@/lib/app-env";
 import { supportedLanguages, t, type SiteLanguage } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
+import { getSiteOrigin } from "@/lib/site-url";
 import "./globals.css";
 
 const workSans = Work_Sans({
@@ -20,7 +21,7 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.apiculture.in"),
+  metadataBase: new URL(getSiteOrigin()),
   title: {
     default: "API CULTURE Technology Center",
     template: "%s | API CULTURE",

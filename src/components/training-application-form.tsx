@@ -435,7 +435,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
         return;
       }
 
-      setMessage(body.message ?? copy.saved);
+      setSubmitState("error");
+      setMessage(body.message ?? "Application saved, but the payment gateway did not return a checkout link. Please try again.");
     } catch (error) {
       setSubmitState("error");
       setMessage(error instanceof Error ? error.message : "Application submission failed.");
@@ -862,6 +863,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
             form={form}
             photoPreviewUrl={photoPreviewUrl}
             submitting={submitState === "submitting"}
+            submitState={submitState}
+            message={message}
             onEdit={() => setShowPreview(false)}
             onConfirm={() => void handleSubmit()}
           />
@@ -893,12 +896,16 @@ function ApplicationPreview({
   form,
   photoPreviewUrl,
   submitting,
+  submitState,
+  message,
   onEdit,
   onConfirm,
 }: {
   form: FormState;
   photoPreviewUrl: string;
   submitting: boolean;
+  submitState: SubmitState;
+  message: string;
   onEdit: () => void;
   onConfirm: () => void;
 }) {
@@ -952,6 +959,17 @@ function ApplicationPreview({
       </div>
 
       <div className="flex flex-col gap-3 border-t border-[#eee6d8] bg-[#fffdf8] p-5 sm:flex-row sm:justify-end sm:p-6">
+        {message ? (
+          <p
+            className={`rounded-[1rem] border px-4 py-3 text-sm font-semibold sm:mr-auto ${
+              submitState === "success"
+                ? "border-[#2a8d5f]/20 bg-[#eefaf3] text-[#1f7a50]"
+                : "border-[#c85b42]/20 bg-[#fff3ee] text-[#8e3d2f]"
+            }`}
+          >
+            {message}
+          </p>
+        ) : null}
         <button
           type="button"
           onClick={onEdit}
