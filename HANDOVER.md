@@ -158,11 +158,14 @@ npm run build
 ## PhonePe Webhook Setup
 
 - PhonePe dashboard area: Developer Settings -> Webhooks -> Create New Webhook
+- Webhook ID: `CF2608031738137715287805`
+- Status: `Enabled`
 - Webhook URL: `https://www.apiculture.in/api/payments/phonepe/webhook`
 - Authentication type: `SHA` / Username and Password
 - Username: `api_culture_43481450`
 - Password: store only in PhonePe and Vercel as `PHONEPE_WEBHOOK_PASSWORD`; do not commit the live value to git.
 - Description: `API Culture website payment webhook`
+- Created/last updated in PhonePe: `03 Aug 2026, 05:38 PM`
 - Active events selected:
   - `pg.order.completed`
   - `pg.order.failed`
