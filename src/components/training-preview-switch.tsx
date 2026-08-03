@@ -282,18 +282,24 @@ function TrainingRail({
               aria-selected={isActive}
               onClick={() => onSelect(index)}
               className={cn(
-                "group flex min-h-[6.6rem] w-full min-w-0 items-center gap-3 rounded-lg border px-4 py-4 text-left shadow-[0_14px_30px_rgba(36,41,34,0.06)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2",
+                "group flex min-h-[7.25rem] w-full min-w-0 items-center gap-4 rounded-lg border px-4 py-4 text-left shadow-[0_14px_30px_rgba(36,41,34,0.06)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2",
                 isActive
                   ? "border-[#06432f] bg-[#06432f] text-white shadow-[0_20px_42px_rgba(6,67,47,0.22)]"
                   : "border-[#f0e8dc] bg-white text-[#111f1a] hover:-translate-y-0.5 hover:border-[#f1c866]",
               )}
             >
-              <span className="grid h-12 w-12 shrink-0 place-items-center bg-[#f5b300] text-base font-black text-[#062f24] hex-clip">
-                {index + 1}
+              <span
+                className={cn(
+                  "grid h-14 w-14 shrink-0 place-items-center bg-[#f5b300] text-[#062f24] transition hex-clip sm:h-16 sm:w-16",
+                  isActive
+                    ? "shadow-[0_0_0_4px_rgba(245,179,0,0.18),0_16px_30px_rgba(245,179,0,0.2)]"
+                    : "shadow-[0_10px_22px_rgba(245,179,0,0.16)] group-hover:shadow-[0_0_0_4px_rgba(245,179,0,0.14),0_14px_26px_rgba(245,179,0,0.2)]",
+                )}
+              >
+                <Icon className="h-8 w-8 sm:h-9 sm:w-9" strokeWidth={2.35} aria-hidden="true" />
               </span>
-              <Icon className={cn("h-10 w-10 shrink-0", isActive ? "text-[#f5b300]" : "text-[#111f1a]")} aria-hidden="true" />
               <span className="min-w-0 flex-1">
-                <span className="block text-base font-black leading-5">{course.tabLabel}</span>
+                <span className="block text-[1.28rem] font-black leading-[1.1] sm:text-2xl lg:text-[1.35rem] xl:text-2xl">{course.tabLabel}</span>
                 <span className={cn("mt-2 block text-sm font-medium", isActive ? "text-white/86" : "text-[#2d3935]")}>{course.duration} program</span>
               </span>
               <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full transition", isActive ? "bg-[#021d16] text-white" : "bg-[#f5f1eb] text-[#10251d] group-hover:bg-[#f5b300]")}>
