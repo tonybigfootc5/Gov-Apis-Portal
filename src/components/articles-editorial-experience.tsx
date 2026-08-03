@@ -64,7 +64,7 @@ export function ArticlesEditorialExperience({ articles }: { articles: ArticleCar
 
   return (
     <section className="bg-[#eee3d5] px-4 py-14 text-[#111312] sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl rounded-[2.6rem] bg-[#fffefa] px-8 py-8 shadow-[0_30px_90px_rgba(63,45,24,0.12)] lg:px-12 lg:py-10">
+      <div className="mx-auto max-w-7xl rounded-[2.6rem] bg-[#fffefa] px-5 py-6 shadow-[0_30px_90px_rgba(63,45,24,0.12)] sm:px-8 lg:px-12 lg:py-10">
         <header className="pb-12">
           <ArticleFinder
             query={query}
@@ -133,8 +133,11 @@ export function ArticlesEditorialExperience({ articles }: { articles: ArticleCar
         )}
 
         <div className="mt-10 border-t border-[#e8e3dc] pt-8">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-3xl font-black tracking-[-0.055em]">Founders corner</h2>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#a94d1c]">API Culture newsroom</p>
+              <h2 className="mt-2 text-3xl font-black tracking-[-0.055em]">More field notes</h2>
+            </div>
             <div className="hidden items-center gap-3 sm:flex">
               <button className="grid h-9 w-9 place-items-center rounded-full border border-[#ddd8d0] text-[#9b9d96]" type="button" aria-label="Previous articles">
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -145,8 +148,8 @@ export function ArticlesEditorialExperience({ articles }: { articles: ArticleCar
             </div>
           </div>
 
-          <div className="mt-6 grid gap-7 md:grid-cols-3">
-            {cards.slice(0, 3).map((article) => (
+          <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {cards.slice(0, 12).map((article) => (
               <Link key={article.id} href={`/articles/${article.slug}`} className="group rounded-[1rem] bg-[#fffefa] p-2 transition hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(63,45,24,0.1)]">
                 <div className="relative h-36 overflow-hidden rounded-[0.75rem] bg-[#ece5dc]">
                   <ArticleMedia article={article} />
@@ -171,10 +174,8 @@ export function ArticlesEditorialExperience({ articles }: { articles: ArticleCar
           <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           <div className="flex items-center gap-7 text-xs font-semibold">
             <span className="grid h-7 w-7 place-items-center rounded-full bg-[#161a1b] text-white">1</span>
-            <span>2</span>
-            <span>3</span>
-            <span>4</span>
-            <span>5</span>
+            <span>{Math.max(1, Math.ceil(filteredArticles.length / 12))}</span>
+            <span>{filteredArticles.length} stories</span>
           </div>
           <ArrowRight className="h-5 w-5" aria-hidden="true" />
         </footer>

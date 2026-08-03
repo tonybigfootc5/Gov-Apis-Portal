@@ -39,7 +39,9 @@ export type PolicyDocument = {
   sections: PolicySection[];
 };
 
-const grievanceContact = `${institute.legalName}, ${institute.address}. Email: ${institute.email}. Phone: ${institute.phone.join(" / ")}.`;
+const officeAddressText = institute.offices.map((office) => `${office.label}: ${office.address} (${office.mapsUrl})`).join("; ");
+const hoursText = `Office Working Hours: ${institute.officeHours}; Training Hrs: ${institute.trainingHours}; Training Location: ${institute.trainingLocation}.`;
+const grievanceContact = `${institute.legalName}. ${officeAddressText}. ${hoursText} Email: ${institute.email}. Phone: ${institute.phone.join(" / ")}.`;
 
 export const policyDocuments: Record<string, PolicyDocument> = {
   terms: {
@@ -52,7 +54,7 @@ export const policyDocuments: Record<string, PolicyDocument> = {
       {
         title: "Platform and acceptance",
         paragraphs: [
-          `The website at ${institute.website} and its related pages are operated for API CULTURE Technology Center (Bee Keeping), located at ${institute.address}. By accessing, browsing, applying for programs, making payments, or otherwise using the platform, you agree to these terms and the related public policies published on this website.`,
+          `The website at ${institute.website} and its related pages are operated for API CULTURE Technology Center (Bee Keeping). ${officeAddressText}. ${hoursText} By accessing, browsing, applying for programs, making payments, or otherwise using the platform, you agree to these terms and the related public policies published on this website.`,
           "If you do not agree with these terms, please do not use the platform or submit information through it.",
         ],
       },

@@ -182,7 +182,7 @@ const emptyEvent: Omit<EventItem, "id"> = {
   slug: "",
   summary: "",
   description: "",
-  location: "API CULTURE, Rajendranagar, Hyderabad",
+  location: "ATC's Training Hall, Rajendranagar, Hyderabad",
   startsAt: "",
   endsAt: "",
   status: "UPCOMING",
@@ -213,22 +213,33 @@ const SCHEDULE_STORAGE_KEY = "api-culture-admin-schedules";
 const NOTIFICATION_STORAGE_KEY = "api-culture-admin-notifications";
 const HISTORY_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
-function readStoredHistory() {
+function readStoredArray<Value>(storageKey: string): Value[] {
   if (typeof window === "undefined") return [];
 
+  const rawValue = window.localStorage.getItem(storageKey);
+  if (!rawValue) return [];
+
+  try {
+    const parsed = JSON.parse(rawValue);
+    return Array.isArray(parsed) ? (parsed as Value[]) : [];
+  } catch {
+    window.localStorage.removeItem(storageKey);
+    return [];
+  }
+}
+
+function readStoredHistory() {
   const now = Date.now();
-  const savedHistory = JSON.parse(window.localStorage.getItem(HISTORY_STORAGE_KEY) ?? "[]") as HistoryEntry[];
+  const savedHistory = readStoredArray<HistoryEntry>(HISTORY_STORAGE_KEY);
   return savedHistory.filter((entry) => now - new Date(entry.timestamp).getTime() <= HISTORY_RETENTION_MS);
 }
 
 function readStoredSchedules() {
-  if (typeof window === "undefined") return [];
-  return JSON.parse(window.localStorage.getItem(SCHEDULE_STORAGE_KEY) ?? "[]") as PublishSchedule[];
+  return readStoredArray<PublishSchedule>(SCHEDULE_STORAGE_KEY);
 }
 
 function readStoredNotifications() {
-  if (typeof window === "undefined") return [];
-  return JSON.parse(window.localStorage.getItem(NOTIFICATION_STORAGE_KEY) ?? "[]") as NotificationItem[];
+  return readStoredArray<NotificationItem>(NOTIFICATION_STORAGE_KEY);
 }
 
 export function AdminConsole({
@@ -470,46 +481,44 @@ export function AdminConsole({
   );
 
   async function load() {
-    if (!databaseConfigured) {
-      setNotice("Local preview is running without DATABASE_URL. You can review the layout, but save actions stay disabled until a database is connected.");
-      return;
-    }
-
     setLoading(true);
     setNotice("");
     try {
-      const [programResponse, eventResponse, articleResponse, galleryResponse, applicationResponse, paymentResponse, contactResponse] = await Promise.all([
-        fetch("/api/admin/programs"),
-        fetch("/api/admin/events"),
-        fetch("/api/admin/articles"),
-        fetch("/api/admin/gallery"),
+      const dashboardRequests = [
         fetch("/api/admin/applications"),
-        fetch("/api/admin/payments"),
-        fetch("/api/admin/contact-messages"),
-      ]);
-      if (
-        programResponse.status === 401 ||
-        eventResponse.status === 401 ||
-        articleResponse.status === 401 ||
-        galleryResponse.status === 401 ||
-        applicationResponse.status === 401 ||
-        paymentResponse.status === 401 ||
-        contactResponse.status === 401
-      ) {
+        ...(databaseConfigured
+          ? [
+              fetch("/api/admin/programs"),
+              fetch("/api/admin/events"),
+              fetch("/api/admin/articles"),
+              fetch("/api/admin/gallery"),
+              fetch("/api/admin/payments"),
+              fetch("/api/admin/contact-messages"),
+            ]
+          : []),
+      ];
+      const responses = await Promise.all(dashboardRequests);
+      if (responses.some((response) => response.status === 401)) {
         window.location.assign("/admin");
         return;
       }
-      if (!programResponse.ok || !eventResponse.ok || !articleResponse.ok || !galleryResponse.ok || !applicationResponse.ok || !paymentResponse.ok || !contactResponse.ok) {
+      if (responses.some((response) => !response.ok)) {
         setNotice("Unable to refresh the dashboard right now.");
         return;
       }
-      setPrograms(await programResponse.json());
-      setEvents(await eventResponse.json());
-      setArticles(await articleResponse.json());
-      setGalleryImages(await galleryResponse.json());
-      setApplications(await applicationResponse.json());
-      setPayments(await paymentResponse.json());
-      setContactMessages(await contactResponse.json());
+      const [applicationResponse, programResponse, eventResponse, articleResponse, galleryResponse, paymentResponse, contactResponse] = responses;
+      setApplications((await applicationResponse.json()) as TrainingApplicationRecord[]);
+
+      if (databaseConfigured && programResponse && eventResponse && articleResponse && galleryResponse && paymentResponse && contactResponse) {
+        setPrograms(await programResponse.json());
+        setEvents(await eventResponse.json());
+        setArticles(await articleResponse.json());
+        setGalleryImages(await galleryResponse.json());
+        setPayments(await paymentResponse.json());
+        setContactMessages(await contactResponse.json());
+      } else {
+        setNotice("Local applications refreshed. Content, payments, and contact inbox need DATABASE_URL to refresh from the backend.");
+      }
       appendHistory("overview", "Refresh", "Dashboard data refreshed");
     } catch {
       setNotice("Unable to refresh the dashboard right now.");
@@ -1153,8 +1162,10 @@ export function AdminConsole({
           className="mt-5"
         >
           <ApplicationAdminPanel
+            key={applications.map((application) => `${application.id}:${application.updatedAt}`).join("|")}
             storageMode={applicationStorageMode}
             initialApplications={applications}
+            onApplicationsChange={setApplications}
           />
         </DashboardSection>
       ) : null}
@@ -1167,8 +1178,10 @@ export function AdminConsole({
           className="mt-5"
         >
           <PaymentAdminPanel
+            key={payments.map((payment) => `${payment.id}:${payment.updatedAt}`).join("|")}
             databaseConfigured={databaseConfigured}
             initialPayments={payments}
+            onPaymentsChange={setPayments}
           />
         </DashboardSection>
       ) : null}
@@ -1180,7 +1193,7 @@ export function AdminConsole({
           title=""
           className="mt-5"
         >
-          <ContactInboxPanel messages={contactMessages} loading={loading} />
+          <ContactInboxPanel messages={contactMessages} loading={loading} onRefresh={load} />
         </DashboardSection>
       ) : null}
 

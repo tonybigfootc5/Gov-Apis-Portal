@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, Mail, MapPin, MessageCircle, Phone, Timer } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingPreviewSwitch, type TrainingPreviewCourse } from "@/components/training-preview-switch";
@@ -43,7 +43,6 @@ export default async function Home() {
       imageAlt: presentation?.imageAlt ?? translatedProgram.title,
       outcomes: presentation?.outcomes ?? [],
       skills: presentation?.skills ?? [],
-      instructorName: presentation?.instructorName ?? "Api Culture Training Faculty",
       rating: presentation?.rating ?? "4.8",
       ratingLabel: presentation?.ratingLabel ?? "Program reviews",
       experienceLabel: presentation?.experienceLabel ?? translatedProgram.level,
@@ -66,8 +65,8 @@ export default async function Home() {
 
   return (
     <main className="bg-[#f8faf7] text-[#14241f]">
-      <section className="px-4 pt-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl pt-[4.65rem]">
+      <section className="px-3 pt-4 sm:px-5 lg:px-8">
+        <div className="mx-auto max-w-[94rem] pt-[4.65rem]">
           <div className="relative mx-0 overflow-hidden rounded-[1.85rem] bg-[#0d1d18]" style={{ minHeight: "51rem" }}>
             <HeroBackgroundVideo />
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,20,18,0.18)_0%,rgba(7,20,18,0.06)_28%,rgba(9,20,18,0.34)_58%,rgba(6,14,11,0.78)_100%)]" />
@@ -136,40 +135,28 @@ export default async function Home() {
         <TrainingPreviewSwitch courses={courses} language={language} />
       </section>
 
-      <section className="mx-auto max-w-[1792px] px-3 py-10 sm:px-5 sm:py-12 lg:px-8 lg:py-16">
+      <section className="mx-auto max-w-[94rem] px-3 py-10 sm:px-5 sm:py-12 lg:px-8 lg:py-14">
         <div className="mb-7 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.35),rgba(23,63,51,0.12),rgba(179,107,0,0))]" />
-        <figure className="relative mx-auto w-full overflow-hidden rounded-[1.65rem] border border-[#e2dccd] bg-[#f3b31f] p-4 shadow-[0_28px_90px_rgba(31,54,44,0.08)] sm:p-6 lg:p-10 xl:p-12">
+        <figure className="relative mx-auto overflow-hidden rounded-[1.7rem] border border-[#16281f] bg-[#06130f] shadow-[0_34px_110px_rgba(10,25,18,0.2),inset_0_1px_0_rgba(255,255,255,0.18)]">
           <Image
-            src="/einstein-quote-background.avif"
-            alt=""
-            fill
+            src="/einstein-quote-premium.png"
+            alt="Premium Einstein honey bee quote artwork explaining the importance of bees, pollination, plants, animals, and people."
+            width={1708}
+            height={921}
             sizes="(min-width: 1800px) 1792px, 100vw"
-            className="object-cover object-center opacity-100"
-            style={{ transform: "scaleX(-1) scale(1.04)" }}
+            className="block h-auto w-full"
+            priority
           />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,246,211,0.94)_0%,rgba(255,238,176,0.78)_46%,rgba(255,190,65,0.24)_66%,rgba(12,12,11,0.02)_100%),radial-gradient(circle_at_18%_42%,rgba(255,255,255,0.52),transparent_24rem)]" aria-hidden="true" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(179,107,0,0.38),rgba(179,107,0,0))]" aria-hidden="true" />
-          <blockquote
-            className="relative z-10 max-w-[64rem] text-left font-display text-[clamp(1.22rem,5vw,2rem)] font-semibold leading-[1.08] text-[#073f37] sm:text-[clamp(1.55rem,4vw,2.55rem)] md:text-[clamp(1.65rem,3.4vw,2.65rem)] lg:text-[clamp(1.9rem,3vw,3rem)]"
-            style={{ textShadow: "0 1px 0 rgba(255,255,255,0.96), 0 18px 34px rgba(7,20,33,0.08)" }}
-          >
-            <span className="mr-2 align-top text-[0.58em] leading-none text-[#b36b00]">&ldquo;</span>
-            If the honey bee disappeared from the surface of the globe the man would only have four years of life left. No more bees, No more pollination, No more plants, No more animals, No more man.
-            <span className="ml-2 text-[#b36b00]">&rdquo;</span>
-            <span className="mt-4 block font-sans text-[0.62rem] font-black uppercase leading-none tracking-[0.3em] text-[#b36b00] sm:text-[0.68rem]">
-              Albert Einstein
-            </span>
-          </blockquote>
-
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(255,225,145,0),rgba(255,225,145,0.78),rgba(255,225,145,0))]" aria-hidden="true" />
         </figure>
         <div className="mt-7 h-px w-full bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(23,63,51,0.12),rgba(179,107,0,0.35),rgba(179,107,0,0))]" />
       </section>
 
       <AboutUsSection language={language} />
 
-      <section id="contact-section" className="scroll-mt-28 px-4 py-24 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-14 h-px max-w-7xl bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(23,63,51,0.18),rgba(179,107,0,0))]" />
-        <div className="mx-auto grid max-w-7xl gap-8 rounded-[2rem] border border-[#ece8de] bg-[#f4f3ee] p-6 shadow-[0_28px_80px_rgba(30,34,28,0.12)] lg:grid-cols-[0.92fr_1.08fr] lg:p-10">
+      <section id="contact-section" className="scroll-mt-28 px-3 py-14 sm:px-5 sm:py-16 lg:px-8 lg:py-20">
+        <div className="mx-auto mb-10 h-px max-w-[94rem] bg-[linear-gradient(90deg,rgba(179,107,0,0),rgba(23,63,51,0.18),rgba(179,107,0,0))]" />
+        <div className="mx-auto grid max-w-[94rem] gap-8 rounded-[2rem] border border-[#ece8de] bg-[#f4f3ee] p-6 shadow-[0_28px_80px_rgba(30,34,28,0.12)] lg:grid-cols-[0.92fr_1.08fr] lg:p-10">
           <div className="grid content-between gap-10">
             <div>
               <span className="inline-flex items-center gap-2 rounded-full bg-[#ecebe6] px-3 py-2 text-sm font-semibold text-[#171a16]">
@@ -182,8 +169,15 @@ export default async function Home() {
             </div>
 
             <div className="grid gap-5 text-[#171a16]">
-              <ContactLine icon={<MapPin className="h-5 w-5" aria-hidden="true" />} title="Center location">
-                {institute.address}
+              {institute.offices.map((office) => (
+                <ContactLine key={office.label} icon={<MapPin className="h-5 w-5" aria-hidden="true" />} title={office.label}>
+                  <a href={office.mapsUrl} target="_blank" rel="noreferrer" className="underline decoration-[#c8a65c]/50 underline-offset-4 transition hover:text-[#121512]">
+                    {office.address}
+                  </a>
+                </ContactLine>
+              ))}
+              <ContactLine icon={<Timer className="h-5 w-5" aria-hidden="true" />} title="Office Working Hours">
+                {institute.officeHours}
               </ContactLine>
               <ContactLine icon={<Phone className="h-5 w-5" aria-hidden="true" />} title={t(language, "contact.phone")}>
                 {institute.phone.join(" / ")}

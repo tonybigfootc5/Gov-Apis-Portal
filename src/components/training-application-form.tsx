@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   BriefcaseBusiness,
   Camera,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  LoaderCircle,
   MapPinned,
   ShieldCheck,
   Sparkles,
@@ -272,6 +273,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       submitApplication: "Submit application",
       waitUpload: "Photo upload is in progress.",
       uploadBeforeSubmit: "Applicant photo is required.",
+      openingPayment: "Submitting application and opening secure payment gateway...",
       redirecting: "Application saved. Redirecting to secure payment...",
       saved: "Application saved successfully.",
       uploadReady: "Photo prepared and ready.",
@@ -328,6 +330,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       submitApplication: "దరఖాస్తు సమర్పించండి",
       waitUpload: "ఫోటో అప్లోడ్ జరుగుతోంది.",
       uploadBeforeSubmit: "దరఖాస్తుదారు ఫోటో అవసరం.",
+      openingPayment: "Submitting application and opening secure payment gateway...",
       redirecting: "దరఖాస్తు సేవ్ అయింది. సురక్షిత చెల్లింపు గేట్‌వేకు తీసుకెళ్తున్నాం...",
       saved: "దరఖాస్తు విజయవంతంగా సేవ్ అయింది.",
       uploadReady: "ఫోటో అప్లోడ్ అయి సిద్ధంగా ఉంది.",
@@ -384,6 +387,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       submitApplication: "आवेदन जमा करें",
       waitUpload: "फोटो अपलोड जारी है।",
       uploadBeforeSubmit: "आवेदक का फोटो आवश्यक है।",
+      openingPayment: "Submitting application and opening secure payment gateway...",
       redirecting: "आवेदन सहेजा गया। सुरक्षित भुगतान गेटवे पर ले जाया जा रहा है...",
       saved: "आवेदन सफलतापूर्वक सहेजा गया।",
       uploadReady: "फोटो अपलोड होकर तैयार है।",
@@ -414,6 +418,20 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
   const progress = ((step + 1) / STEPS.length) * 100;
   const canAdvance = requiredStepFields(step, form);
+  const completedSteps = STEPS.filter((_, index) => requiredStepFields(index, form)).length;
+
+  useEffect(() => {
+    if (!showPreview) return;
+    window.setTimeout(() => {
+      const scrollContainer = document.querySelector("[data-application-scroll]");
+      if (scrollContainer instanceof HTMLElement) {
+        scrollContainer.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      document.getElementById("application-review")?.scrollIntoView({ block: "start", behavior: "smooth" });
+    }, 60);
+  }, [showPreview]);
 
   function updateField<Key extends keyof FormState>(key: Key, value: FormState[Key]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -488,7 +506,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
     }
 
     setSubmitState("submitting");
-    setMessage("");
+    setMessage(copy.openingPayment);
 
     try {
       const response = await fetch("/api/training-application", {
@@ -541,26 +559,34 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="rounded-[2rem] border border-[#e3ded2] bg-[#fffdf8] p-4 shadow-[0_24px_70px_rgba(34,45,38,0.1)] sm:p-6 lg:p-7">
-        <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,16rem)_1fr]">
-          <aside className="rounded-[1.5rem] border border-[#e3ded2] bg-[#f7f3ea] p-4 sm:p-5">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{copy.enrollmentFlow}</p>
-            <h2 className="mt-3 text-2xl font-black leading-tight text-[#173f33]">{copy.applyLead}</h2>
+      <div className="rounded-[1.4rem] border border-[#e3ded2] bg-[#fffdf8] p-3 shadow-[0_24px_70px_rgba(34,45,38,0.1)] sm:rounded-[2rem] sm:p-5 lg:p-7">
+        <div className="relative z-10 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,17rem)_1fr] lg:gap-8">
+          <aside className="min-w-0 rounded-[1.25rem] border border-[#e3ded2] bg-[#f7f3ea] p-4 sm:rounded-[1.5rem] sm:p-5 lg:sticky lg:top-5 lg:self-start">
+            <div className="flex items-start justify-between gap-4 lg:block">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{copy.enrollmentFlow}</p>
+                <h2 className="mt-2 text-2xl font-black leading-tight text-[#173f33]">{showPreview ? "Review and pay" : copy.applyLead}</h2>
+              </div>
+              <div className="rounded-full bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#173f33] lg:mt-4 lg:inline-flex">
+                {showPreview ? `${completedSteps}/${STEPS.length} ready` : `Step ${step + 1}/${STEPS.length}`}
+              </div>
+            </div>
             <div className="mt-5 h-2 overflow-hidden rounded-full bg-white">
               <div className="h-full rounded-full bg-[#b36b00] transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
-            <div className="mt-6 grid gap-3">
+            <div className="mt-4 grid min-w-0 grid-cols-2 gap-3 lg:mt-6 lg:grid-cols-1">
               {STEPS.map((item, index) => {
                 const Icon = item.icon;
                 const active = index === step;
                 const passed = index < step;
+                const complete = requiredStepFields(index, form);
 
                 return (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => setStep(index)}
-                    className={`rounded-[1.05rem] border px-3 py-3 text-left transition ${
+                    className={`min-w-0 rounded-[1.05rem] border px-3 py-3 text-left transition ${
                       active
                         ? "border-[#173f33] bg-white shadow-[0_12px_28px_rgba(34,45,38,0.08)]"
                         : passed
@@ -570,11 +596,11 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   >
                     <div className="flex items-center gap-3">
                       <span className={`flex h-9 w-9 items-center justify-center rounded-full ${active ? "bg-[#173f33] text-white" : "bg-white text-[#b36b00]"}`}>
-                        <Icon className="h-4 w-4" aria-hidden="true" />
+                        {complete ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : <Icon className="h-4 w-4" aria-hidden="true" />}
                       </span>
-                      <div>
-                        <p className="text-sm font-black text-[#173f33]">{copy.steps[index].title}</p>
-                        <p className="text-xs font-semibold text-[#66776f]">{copy.steps[index].subtitle}</p>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-[#173f33] lg:whitespace-normal">{copy.steps[index].title}</p>
+                        <p className="hidden text-xs font-semibold text-[#66776f] sm:block lg:block">{copy.steps[index].subtitle}</p>
                       </div>
                     </div>
                   </button>
@@ -586,14 +612,31 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                 {copy.sidebarNote}
               </div>
             ) : null}
+            <div className="mt-4 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm font-semibold leading-6 text-[#5c6d63]">
+              Secure PhonePe payment opens after review.
+            </div>
           </aside>
 
-          <section className="rounded-[1.5rem] border border-[#e3ded2] bg-white p-5 sm:p-6">
+          {showPreview ? (
+            <ApplicationPreview
+              form={form}
+              photoPreviewUrl={photoPreviewUrl}
+              submitting={submitState === "submitting"}
+              submitState={submitState}
+              message={message}
+              onEdit={() => setShowPreview(false)}
+              onConfirm={() => void handleSubmit()}
+            />
+          ) : (
+          <section className="min-w-0 rounded-[1.25rem] border border-[#e3ded2] bg-white p-4 sm:rounded-[1.5rem] sm:p-6">
             <div className="border-b border-[#e3ded2] pb-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{copy.steps[step].title}</p>
                   <h3 className="font-display mt-3 text-3xl text-bright sm:text-4xl">{copy.steps[step].subtitle}</h3>
+                  <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-[#66776f]">
+                    Step {step + 1} of {STEPS.length}. Required details are checked before the payment review opens.
+                  </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:items-end">
                   {SHOW_TEST_AUTOFILL ? (
@@ -614,7 +657,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
               </div>
             </div>
 
-            <div className="mt-6 grid gap-5">
+            <div className="mt-6 grid gap-6">
               {step === 0 ? (
                 <div className="grid gap-5">
                   {lockedService ? null : (
@@ -634,42 +677,46 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     </label>
                   )}
 
-                  <Field label={copy.dateOfBirth}>
-                    <input
-                      type="date"
-                      value={form.dateOfBirth}
-                      onChange={(event) => updateField("dateOfBirth", event.target.value)}
-                      className={inputClassName}
-                    />
-                  </Field>
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <Field label={copy.applicantName}>
+                      <input
+                        value={form.candidateName}
+                        onChange={(event) => updateField("candidateName", event.target.value)}
+                        placeholder={copy.applicantNamePlaceholder}
+                        className={inputClassName}
+                      />
+                    </Field>
 
-                  <Field label={copy.applicantName}>
-                    <input
-                      value={form.candidateName}
-                      onChange={(event) => updateField("candidateName", event.target.value)}
-                      placeholder={copy.applicantNamePlaceholder}
-                      className={inputClassName}
-                    />
-                  </Field>
+                    <Field label={copy.guardianName}>
+                      <input
+                        value={form.guardianName}
+                        onChange={(event) => updateField("guardianName", event.target.value)}
+                        placeholder={copy.guardianPlaceholder}
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
 
-                  <Field label={copy.guardianName}>
-                    <input
-                      value={form.guardianName}
-                      onChange={(event) => updateField("guardianName", event.target.value)}
-                      placeholder={copy.guardianPlaceholder}
-                      className={inputClassName}
-                    />
-                  </Field>
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <Field label={copy.dateOfBirth}>
+                      <input
+                        type="date"
+                        value={form.dateOfBirth}
+                        onChange={(event) => updateField("dateOfBirth", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
 
-                  <Field label={physicalFormCopy.aadhaarNo}>
-                    <input
-                      value={form.aadhaarNo}
-                      onChange={(event) => updateField("aadhaarNo", event.target.value.replace(/\D/g, "").slice(0, 12))}
-                      placeholder={physicalFormCopy.aadhaarPlaceholder}
-                      inputMode="numeric"
-                      className={inputClassName}
-                    />
-                  </Field>
+                    <Field label={physicalFormCopy.aadhaarNo}>
+                      <input
+                        value={form.aadhaarNo}
+                        onChange={(event) => updateField("aadhaarNo", event.target.value.replace(/\D/g, "").slice(0, 12))}
+                        placeholder={physicalFormCopy.aadhaarPlaceholder}
+                        inputMode="numeric"
+                        className={inputClassName}
+                      />
+                    </Field>
+                  </div>
 
                   <div className="grid gap-2 text-sm font-semibold text-[#516253]">
                     {copy.gender}
@@ -899,12 +946,12 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                 </div>
               ) : null}
 
-              <div className="flex flex-col gap-3 border-t border-[rgba(41,56,49,0.1)] pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="sticky bottom-0 z-10 -mx-4 flex flex-col gap-3 border-t border-[rgba(41,56,49,0.1)] bg-white/95 px-4 py-4 shadow-[0_-18px_38px_rgba(34,45,38,0.06)] backdrop-blur sm:-mx-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
                 <button
                   type="button"
                   disabled={step === 0}
                   onClick={() => setStep((current) => Math.max(0, current - 1))}
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(41,56,49,0.12)] bg-[rgba(255,255,255,0.76)] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#1f352b] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-[rgba(41,56,49,0.12)] bg-[rgba(255,255,255,0.76)] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#1f352b] disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
                 >
                   <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                   {copy.previous}
@@ -916,7 +963,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                       type="button"
                       disabled={!canAdvance}
                       onClick={() => setStep((current) => Math.min(STEPS.length - 1, current + 1))}
-                      className="inline-flex items-center justify-center gap-2 rounded-full bg-[#f2b544] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#f2b544] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                     >
                       {copy.next}
                       <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -931,7 +978,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                         !hasUploadedPhoto
                       }
                       onClick={openPreview}
-                      className="inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] shadow-[0_16px_40px_rgba(242,181,68,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#f2b544,#ff8a2a)] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12] shadow-[0_16px_40px_rgba(242,181,68,0.22)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                     >
                       Review application
                       <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
@@ -947,18 +994,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
               ) : null}
             </div>
           </section>
+          )}
         </div>
-        {showPreview ? (
-          <ApplicationPreview
-            form={form}
-            photoPreviewUrl={photoPreviewUrl}
-            submitting={submitState === "submitting"}
-            submitState={submitState}
-            message={message}
-            onEdit={() => setShowPreview(false)}
-            onConfirm={() => void handleSubmit()}
-          />
-        ) : null}
       </div>
     </div>
   );
@@ -1019,22 +1056,23 @@ function ApplicationPreview({
   ] as const;
 
   return (
-    <section className="mt-6 overflow-hidden rounded-[1.8rem] border border-[#dfd6c4] bg-white shadow-[0_22px_64px_rgba(34,45,38,0.12)]">
+    <section id="application-review" className="min-w-0 scroll-mt-36 overflow-hidden rounded-[1.25rem] border border-[#dfd6c4] bg-white shadow-[0_22px_64px_rgba(34,45,38,0.12)] sm:scroll-mt-8 sm:rounded-[1.8rem]">
       <div className="grid gap-5 border-b border-[#eee6d8] bg-[#173f33] p-5 text-white sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f2b544]">Cross-check before payment</p>
           <h3 className="mt-2 text-2xl font-black leading-tight">Review application details</h3>
+          <p className="mt-2 text-sm font-semibold leading-6 text-white/75">Check the applicant details once. The next button opens the secure PhonePe checkout.</p>
         </div>
       </div>
 
-      <div className="grid gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_14rem]">
-        <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid min-w-0 gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_14rem]">
+        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
           {rows.map(([label, value]) => (
             <ReviewRow key={label} label={label} value={value} wide={label === "Address"} />
           ))}
         </div>
 
-        <aside className="rounded-[1.35rem] border border-[#eee6d8] bg-[#fffdf8] p-4">
+        <aside className="min-w-0 rounded-[1.35rem] border border-[#eee6d8] bg-[#fffdf8] p-4">
           <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#b36b00]">Applicant photo</p>
           {photoPreviewUrl ? (
             <div className="relative mt-3 aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#f7f3ea]">
@@ -1048,7 +1086,7 @@ function ApplicationPreview({
         </aside>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-[#eee6d8] bg-[#fffdf8] p-5 sm:flex-row sm:justify-end sm:p-6">
+      <div className="sticky bottom-0 flex flex-col gap-3 border-t border-[#eee6d8] bg-[#fffdf8]/95 p-4 shadow-[0_-18px_38px_rgba(34,45,38,0.08)] backdrop-blur sm:flex-row sm:items-center sm:justify-end sm:p-6">
         {message ? (
           <p
             className={`rounded-[1rem] border px-4 py-3 text-sm font-semibold sm:mr-auto ${
@@ -1064,7 +1102,7 @@ function ApplicationPreview({
           type="button"
           onClick={onEdit}
           disabled={submitting}
-          className="inline-flex items-center justify-center rounded-full border border-[rgba(41,56,49,0.16)] bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#173f33] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-full border border-[rgba(41,56,49,0.16)] bg-white px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#173f33] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           Edit details
         </button>
@@ -1072,10 +1110,20 @@ function ApplicationPreview({
           type="button"
           onClick={onConfirm}
           disabled={submitting}
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#173f33,#0d261f)] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-white shadow-[0_18px_44px_rgba(23,63,51,0.24)] disabled:cursor-not-allowed disabled:opacity-60"
+          aria-busy={submitting}
+          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#173f33,#0d261f)] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-white shadow-[0_18px_44px_rgba(23,63,51,0.24)] disabled:cursor-wait disabled:opacity-80 sm:w-auto"
         >
-          {submitting ? "Sending..." : "Confirm and continue to payment"}
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          {submitting ? (
+            <>
+              <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden="true" />
+              Opening payment gateway...
+            </>
+          ) : (
+            <>
+              Confirm and continue to payment
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </>
+          )}
         </button>
       </div>
     </section>
@@ -1086,13 +1134,13 @@ function ReviewRow({ label, value, wide = false }: { label: string; value?: stri
   return (
     <div className={`rounded-[1.05rem] border border-[#eee6d8] bg-[#fffdf8] px-4 py-3 ${wide ? "sm:col-span-2" : ""}`}>
       <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8b7d6b]">{label}</p>
-      <p className="mt-1 text-sm font-semibold leading-6 text-[#173f33]">{value?.trim() || "Not provided"}</p>
+      <p className="mt-1 break-words text-sm font-semibold leading-6 text-[#173f33]">{value?.trim() || "Not provided"}</p>
     </div>
   );
 }
 
 const inputClassName =
-  "min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] placeholder:text-[#7d8b83] focus:ring-2";
+  "min-h-12 min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] placeholder:text-[#7d8b83] focus:ring-2";
 
 const textareaClassName =
-  "min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] placeholder:text-[#7d8b83] focus:ring-2";
+  "min-h-28 min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] placeholder:text-[#7d8b83] focus:ring-2";

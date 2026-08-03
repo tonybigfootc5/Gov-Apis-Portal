@@ -5,13 +5,17 @@ import {
   getContactMessageCutoffDate,
   mapContactInboxRecord,
 } from "@/lib/contact-inbox";
-import { prisma } from "@/lib/prisma";
+import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { TRAINING_APPLICATION_SUBJECT_PREFIX } from "@/lib/training-application";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   if (!(await requireAdmin())) return adminUnauthorized();
+
+  if (!hasDatabaseUrl) {
+    return NextResponse.json([]);
+  }
 
   try {
     const cutoffDate = getContactMessageCutoffDate();

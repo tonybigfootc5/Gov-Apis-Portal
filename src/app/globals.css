@@ -276,12 +276,47 @@ canvas {
 
 .training-program-layout {
   display: grid;
+  align-items: start;
   gap: 1rem;
+}
+
+.training-program-shell {
+  --course-surface: #0f4a38;
+  --course-surface-deep: #0b382b;
+  --program-tab-height: 8rem;
+  --program-tab-gap: 0.85rem;
 }
 
 .training-program-rail-list {
   display: grid;
   gap: 0.75rem;
+}
+
+.training-program-tab {
+  transition:
+    transform 560ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 560ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 560ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 420ms ease,
+    box-shadow 560ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.training-course-panel {
+  animation: training-course-enter 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes training-course-enter {
+  from {
+    opacity: 0.62;
+    transform: translate3d(0, 14px, 0) scale(0.992);
+    filter: saturate(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: saturate(1);
+  }
 }
 
 @media (min-width: 640px) {
@@ -291,20 +326,104 @@ canvas {
 }
 
 @media (min-width: 1024px) {
+  .training-program-shell {
+    background: transparent;
+  }
+
   .training-program-layout {
-    grid-template-columns: 20rem minmax(0, 1fr) 24rem;
+    grid-template-columns: 20rem minmax(0, 1fr);
+    gap: 0;
+    align-items: start;
+  }
+
+  .training-program-layout > :first-child {
+    grid-row: span 2;
   }
 
   .training-program-rail-list {
     grid-template-columns: minmax(0, 1fr);
+    gap: 0.85rem;
+    position: relative;
+    z-index: 2;
+    padding: 0;
+  }
+
+  .training-program-rail {
+    position: relative;
+    z-index: 3;
+    padding-right: 0;
+  }
+
+  .training-program-tab {
+    border-radius: 0.9rem;
+    height: var(--program-tab-height);
+    min-height: var(--program-tab-height);
+  }
+
+  .training-program-tab:not(.training-program-tab-active):hover {
+    transform: translate3d(0, -2px, 0);
+  }
+
+  .training-program-tab-active {
+    z-index: 4;
+    width: 100%;
+    border-color: var(--course-surface-deep);
+    border-right-color: transparent;
+    border-radius: 0.9rem 0 0 0.9rem;
+    box-shadow: -12px 20px 42px rgba(15, 74, 56, 0.2);
+    background: var(--course-surface) !important;
+  }
+
+  .training-program-tab-active::before {
+    content: none;
+  }
+
+  .training-program-tab-active::after {
+    content: "";
+    position: absolute;
+    top: 0.95rem;
+    bottom: 0.95rem;
+    left: 0;
+    width: 0.28rem;
+    border-radius: 999px;
+    background: #f5b300;
+    box-shadow: 0 0 0 4px rgba(245, 179, 0, 0.12);
+    pointer-events: none;
+    transition:
+      top 520ms cubic-bezier(0.16, 1, 0.3, 1),
+      bottom 520ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 520ms ease;
+  }
+
+  .training-course-panel {
+    position: relative;
+    z-index: 1;
+    margin-top: 0;
+    border-color: var(--course-surface-deep);
+    border-left-color: transparent;
+    border-radius: 0 0.9rem 0.9rem 0.9rem;
+    background: var(--course-surface);
+    box-shadow: 0 20px 54px rgba(15, 74, 56, 0.16);
+    transition:
+      border-color 560ms ease,
+      background-color 560ms ease,
+      box-shadow 560ms ease;
+    will-change: transform;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .marquee-track,
   .float-gentle,
-  .product-image-slide {
+  .product-image-slide,
+  .training-course-panel {
     animation: none;
+  }
+
+  .training-program-tab,
+  .training-course-panel,
+  .training-program-tab-active::after {
+    transition: none;
   }
 
   html {

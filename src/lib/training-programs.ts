@@ -23,7 +23,6 @@ export type TrainingProgramCatalogItem = {
   highlights: string[];
   outcomes: string[];
   skills: string[];
-  instructorName: string;
   rating: string;
   ratingLabel: string;
   experienceLabel: string;
@@ -42,9 +41,9 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     title: "Beekeeping",
     slug: "scientific-beekeeping-foundation",
     summary:
-      "A 5-day Scientific Beekeeping Training Programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad.",
+      "A 5-day Scientific Beekeeping Training Programme conducted at ATC's Training Hall, Rajendranagar, Hyderabad.",
     description:
-      "The Api Culture Technology Center conducts this 5-day programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around scientific beekeeping methods and beekeeping as a livelihood or enterprise.",
+      "The Api Culture Technology Center conducts this 5-day programme at ATC's Training Hall, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around scientific beekeeping methods and beekeeping as a livelihood or enterprise.",
     duration: "5 days",
     level: "FOUNDATION",
     fee: "INR 5,000",
@@ -70,7 +69,6 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Understand costs, government schemes, registrations, marketing, and enterprise development.",
     ],
     skills: ["Bee species", "Colony structure", "Safe hive handling", "Apiary management", "Honey hygiene", "Marketing"],
-    instructorName: "Ravindra Kumar Pydi (admin)",
     rating: "4.9",
     ratingLabel: "Program reviews",
     experienceLabel: "Beginner friendly",
@@ -112,7 +110,6 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Prepare honey for bottling and simple value-addition workflows.",
     ],
     skills: ["Extraction", "Filtration", "Quality control", "Packaging"],
-    instructorName: "Ravindra Kumar Pydi (admin)",
     rating: "4.8",
     ratingLabel: "Program reviews",
     experienceLabel: "Beginner to practitioner",
@@ -154,7 +151,6 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Connect colony multiplication records with broader apiary productivity and expansion.",
     ],
     skills: ["Queen rearing", "Colony multiplication", "Nucleus management", "Apiary planning"],
-    instructorName: "Ravindra Kumar Pydi (admin)",
     rating: "4.8",
     ratingLabel: "Program reviews",
     experienceLabel: "Prior hive experience preferred",
@@ -196,7 +192,6 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Connect royal jelly production with niche commercial beekeeping opportunities.",
     ],
     skills: ["Royal jelly collection", "Queen cell prep", "Hygienic transfer", "Cold handling"],
-    instructorName: "Ravindra Kumar Pydi (admin)",
     rating: "4.9",
     ratingLabel: "Program reviews",
     experienceLabel: "Advanced beekeepers",

@@ -17,16 +17,22 @@ import type { PaymentAdminRecord } from "@/lib/training-application-store";
 type Props = {
   databaseConfigured: boolean;
   initialPayments: PaymentAdminRecord[];
+  onPaymentsChange?: (payments: PaymentAdminRecord[]) => void;
 };
 
 type PaymentTab = "confirmations" | "refunds" | "history";
 
-export function PaymentAdminPanel({ databaseConfigured, initialPayments }: Props) {
+export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPaymentsChange }: Props) {
   const [payments, setPayments] = useState(initialPayments);
   const [tab, setTab] = useState<PaymentTab>("confirmations");
   const [notice, setNotice] = useState("");
   const [query, setQuery] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  function setPaymentRecords(nextPayments: PaymentAdminRecord[]) {
+    setPayments(nextPayments);
+    onPaymentsChange?.(nextPayments);
+  }
 
   const filteredPayments = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -78,7 +84,8 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments }: Props
       return;
     }
 
-    setPayments(await response.json());
+    const nextPayments = (await response.json()) as PaymentAdminRecord[];
+    setPaymentRecords(nextPayments);
   }
 
   async function refreshPayment(orderId: string) {

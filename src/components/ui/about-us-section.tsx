@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users, X } from "lucide-react";
 import type { SiteLanguage } from "@/lib/i18n";
+import { getSiteCopy } from "@/lib/site-copy";
 
 const apiCultureFormation = {
   title: "API CULTURE",
@@ -73,9 +74,9 @@ const supportingCultures = [
 
 const localizedOrbitCopy = {
   en: {
-    eyebrow: "Formation ecosystem",
-    title: "API CULTURE formed by three supporting cultures",
-    body: "The orbit view restores the earlier About page visual: API CULTURE at the center, with its documented support ecosystem moving around it.",
+    eyebrow: "Three cultures. One mission.",
+    title: "",
+    body: "",
     explorePrograms: "Explore programs",
     sharedEcosystem: "Shared apiculture ecosystem",
     clickToView: "Click to view",
@@ -100,9 +101,10 @@ const localizedOrbitCopy = {
 
 export default function AboutUsSection({ language }: { language: SiteLanguage }) {
   const orbitCopy = localizedOrbitCopy[language];
+  const aboutCopy = getSiteCopy(language).about;
 
   return (
-    <section id="about-section" className="scroll-mt-28 bg-white px-3 py-10 text-[#173f33] sm:px-5 sm:py-14 lg:px-8">
+    <section id="about-section" className="scroll-mt-28 bg-white px-3 py-10 text-[#173f33] sm:px-5 sm:py-12 lg:px-8 lg:py-14">
       <div className="sr-only">
         <h1>Api Culture Technology Center</h1>
         <p>
@@ -119,32 +121,144 @@ export default function AboutUsSection({ language }: { language: SiteLanguage })
         </p>
       </div>
 
-      <div className="mx-auto max-w-[1480px]">
-        <div className="mb-6 max-w-4xl">
+      <div className="mx-auto max-w-[94rem]">
+        <div className="mx-auto mb-6 max-w-4xl text-center">
           <p className="text-xs font-black uppercase tracking-[0.26em] text-[#b97816]">{orbitCopy.eyebrow}</p>
-          <h2 className="mt-3 text-[clamp(2rem,4vw,4rem)] font-black leading-[0.98] text-[#123f31]">
-            {orbitCopy.title}
-          </h2>
-          <p className="mt-4 max-w-3xl text-sm font-semibold leading-7 text-[#61716a] sm:text-base sm:leading-8">
-            {orbitCopy.body}
-          </p>
+          {orbitCopy.title ? (
+            <h2 className="mt-3 text-[clamp(2rem,4vw,4rem)] font-black leading-[0.98] text-[#123f31]">
+              {orbitCopy.title}
+            </h2>
+          ) : null}
+          {orbitCopy.body ? (
+            <p className="mx-auto mt-4 max-w-3xl text-sm font-semibold leading-7 text-[#61716a] sm:text-base sm:leading-8">
+              {orbitCopy.body}
+            </p>
+          ) : null}
         </div>
         <AboutEcosystemOrbit copy={orbitCopy} />
       </div>
 
-      <div className="mx-auto mt-10 max-w-[1792px] overflow-hidden rounded-[1.65rem] bg-white shadow-[0_28px_90px_rgba(31,54,44,0.08)] sm:mt-14">
+      <div className="mx-auto mt-10 max-w-[94rem] sm:mt-12">
         <Image
           src="/about-section-reference.png"
           alt="About Api Culture Technology Center, training benefits, crop yield potential, faculty experience, and pan-India reach"
           width={1792}
           height={1024}
-          sizes="(min-width: 1800px) 1792px, 100vw"
+          sizes="(min-width: 1504px) 1504px, 100vw"
           className="block h-auto w-full"
           priority
         />
       </div>
+
+      <AboutPeopleSection
+        eyebrow={aboutCopy.peopleEyebrow}
+        title={aboutCopy.peopleTitle}
+        body={aboutCopy.peopleBody}
+        profileLabel={aboutCopy.profileLabel}
+        groups={aboutCopy.peopleGroups}
+      />
     </section>
   );
+}
+
+type AboutPeopleSectionProps = {
+  eyebrow: string;
+  title: string;
+  body: string;
+  profileLabel: string;
+  groups: ReturnType<typeof getSiteCopy>["about"]["peopleGroups"];
+};
+
+function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: AboutPeopleSectionProps) {
+  const members = groups.flatMap((group) =>
+    group.members.map((member, memberIndex) => ({
+      ...member,
+      groupEyebrow: group.eyebrow,
+      groupTitle: group.title,
+      tone: memberIndex === 0 && group.title === groups[0].title ? "deep" : memberIndex === 1 ? "gold" : "light",
+    })),
+  );
+
+  return (
+    <div className="mx-auto mt-10 max-w-[94rem] rounded-[1.65rem] border border-[#eadbb7] bg-[#fffdf8] px-4 py-10 shadow-[0_32px_90px_rgba(31,54,44,0.10)] sm:mt-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl text-center">
+        <p className="font-serif text-sm italic leading-none text-[#9c8b6a]">{eyebrow}</p>
+        <h3 className="mt-3 text-[clamp(2.25rem,5vw,4.8rem)] font-black leading-[0.92] text-[#111c18]">
+          {title}
+        </h3>
+        <p className="mx-auto mt-5 max-w-2xl text-sm font-semibold leading-7 text-[#68776f] sm:text-base sm:leading-8">
+          {body}
+        </p>
+      </div>
+
+      <div className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {members.map((member, index) => (
+          <article
+            key={member.name}
+            className="group relative isolate min-h-[26rem] overflow-hidden rounded-[1.35rem] border border-[#e8dcc4] bg-[#f3f2ef] p-5 shadow-[0_20px_48px_rgba(31,54,44,0.10)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_rgba(31,54,44,0.16)]"
+          >
+            <div
+              aria-hidden="true"
+              className={`absolute inset-x-0 bottom-0 h-[58%] ${
+                member.tone === "deep"
+                  ? "bg-[linear-gradient(180deg,rgba(18,63,49,0),rgba(18,63,49,0.18))]"
+                  : member.tone === "gold"
+                    ? "bg-[linear-gradient(180deg,rgba(242,181,68,0),rgba(242,181,68,0.28))]"
+                    : "bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(220,229,222,0.74))]"
+              }`}
+            />
+            <div className="relative z-10">
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#b97816]">{profileLabel}</p>
+              <h4 className="mt-2 text-[clamp(1.65rem,2.2vw,2.15rem)] font-black leading-[0.96] text-[#111c18]">
+                {member.name}
+              </h4>
+              <p className="mt-3 max-w-[13rem] text-sm font-bold italic leading-5 text-[#7a827d]">{member.designation}</p>
+            </div>
+
+            <div className="pointer-events-none absolute inset-x-4 bottom-12 flex justify-center">
+              <div className="relative h-44 w-44 rounded-full bg-[linear-gradient(180deg,#ffffff,#e8ece8)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_24px_44px_rgba(23,63,51,0.12)]">
+                <div className="absolute left-1/2 top-7 h-20 w-20 -translate-x-1/2 rounded-full bg-[#d6ddd8]" />
+                <div className="absolute bottom-0 left-1/2 h-28 w-36 -translate-x-1/2 rounded-t-[4rem] bg-[#ffffff]" />
+                <div className="absolute bottom-6 left-1/2 grid h-20 w-20 -translate-x-1/2 place-items-center rounded-[1.25rem] bg-[#123f31] text-2xl font-black text-[#f2b544] shadow-[0_16px_30px_rgba(18,63,49,0.22)]">
+                  {initials(member.name, index)}
+                </div>
+              </div>
+            </div>
+
+            <div className="absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#6c7b73]">{member.groupEyebrow}</p>
+                <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-[#43544c]">{member.role}</p>
+              </div>
+              <div className="flex shrink-0 gap-1.5">
+                <span className="grid h-8 w-8 place-items-center rounded-[0.55rem] bg-[#123f31] text-[#fffdf8]" title={member.groupTitle}>
+                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+                <span className="grid h-8 w-8 place-items-center rounded-[0.55rem] bg-[#111c18] text-[#fffdf8]" title={member.highlights[0]}>
+                  <X className="h-3.5 w-3.5" aria-hidden="true" />
+                </span>
+              </div>
+            </div>
+
+            <div className="absolute right-4 top-4 z-10 rounded-full border border-[#e2d5b8] bg-white/76 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#123f31]">
+              {member.highlights[0]}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function initials(name: string, fallback: number) {
+  const letters = name
+    .split(/\s+/)
+    .map((part) => part.replace(/[^a-zA-Z]/g, "").charAt(0))
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("");
+
+  return letters || String(fallback + 1).padStart(2, "0");
 }
 
 function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
@@ -183,8 +297,8 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
   const calculateNodePosition = (index: number, total: number) => {
     const angle = ((index / total) * 360 + rotationAngle) % 360;
     const radian = (angle * Math.PI) / 180;
-    const radiusX = 360;
-    const radiusY = 196;
+    const radiusX = 440;
+    const radiusY = 238;
     const x = radiusX * Math.cos(radian);
     const y = radiusY * Math.sin(radian);
     const lineLength = Math.hypot(x, y);
@@ -202,45 +316,23 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
       return;
     }
 
-    const targetAngle = (nodeIndex / supportingCultures.length) * 360;
-    setRotationAngle(270 - targetAngle);
     setActiveCulture(cultureTitle);
     setAutoRotate(false);
   };
 
   const orbitPositions = supportingCultures.map((culture, index) => ({
     culture,
-    position: (() => {
-      const basePosition = calculateNodePosition(index, supportingCultures.length);
-      if (activeCulture !== culture.title) {
-        return basePosition;
-      }
-
-      const activeIndex = supportingCultures.findIndex((entry) => entry.title === culture.title);
-      const activeDockX = activeIndex === 1 ? 318 : activeIndex === 2 ? -318 : 318;
-      const activeDockY = activeIndex === 1 ? -78 : 88;
-
-      return {
-        ...basePosition,
-        lineAngle: Math.atan2(activeDockY, activeDockX) * (180 / Math.PI),
-        lineLength: Math.hypot(activeDockX, activeDockY),
-        x: activeDockX,
-        y: activeDockY,
-      };
-    })(),
+    position: calculateNodePosition(index, supportingCultures.length),
   }));
 
   return (
     <div
-      className="relative overflow-hidden rounded-[1.65rem] border border-[#eadbb7] bg-[linear-gradient(145deg,rgba(255,252,244,0.96),rgba(247,240,225,0.82))] p-4 shadow-[0_30px_90px_rgba(82,57,13,0.12)] ring-1 ring-[#d7be90]/28 md:p-7"
+      className="relative overflow-visible p-0"
       onClick={() => {
         setActiveCulture(null);
         setAutoRotate(true);
       }}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.62),transparent_26%,transparent_74%,rgba(242,181,68,0.12))]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:radial-gradient(circle_at_1px_1px,#9c7a36_1px,transparent_0)] [background-size:18px_18px]" />
-
       <div className="relative z-10 grid gap-5">
         <div className="grid gap-3 lg:hidden">
           {supportingCultures.map((culture) => {
@@ -264,7 +356,7 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
         </div>
 
         <div
-          className="relative hidden min-h-[35rem] overflow-hidden rounded-[1.35rem] border border-white/60 bg-[linear-gradient(180deg,rgba(255,255,255,0.48),rgba(255,250,242,0.28))] shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] lg:block"
+          className="relative hidden min-h-[45rem] overflow-visible lg:block"
           onMouseEnter={() => setAutoRotate(false)}
           onMouseLeave={() => {
             setHoveredCulture(null);
@@ -274,9 +366,9 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
           }}
         >
           <div className="absolute left-1/2 top-1/2 h-[18rem] w-[18rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#f5c15f]/24 blur-sm" />
-          <div className="absolute left-1/2 top-1/2 h-[21rem] w-[21rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6a84b]/38" />
-          <div className="absolute left-1/2 top-1/2 h-[29rem] w-[29rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/48" />
-          <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/22" />
+          <div className="absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6a84b]/38" />
+          <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/48" />
+          <div className="absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/22" />
           {orbitPositions.map(({ culture, position }) => (
             <span
               key={`${culture.title}-connector`}
@@ -322,7 +414,7 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                 }`}
                 style={{
                   opacity: isActive || isHovered ? 1 : position.opacity,
-                  transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${isActive || isHovered ? 1.08 : position.scale})`,
+                  transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${isActive || isHovered ? 1.02 : position.scale})`,
                   zIndex: isActive || isHovered ? 140 : position.zIndex,
                 }}
               >

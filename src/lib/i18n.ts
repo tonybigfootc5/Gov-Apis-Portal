@@ -116,9 +116,9 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "event.status.CANCELLED": "Cancelled",
     "program.slug.scientific-beekeeping-foundation.title": "Beekeeping",
     "program.slug.scientific-beekeeping-foundation.summary":
-      "A 5-day Scientific Beekeeping Training Programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad.",
+      "A 5-day Scientific Beekeeping Training Programme conducted at ATC's Training Hall, Rajendranagar, Hyderabad.",
     "program.slug.scientific-beekeeping-foundation.description":
-      "The Api Culture Technology Center conducts this 5-day programme at the Rural Technology Park, NIRDPR, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around scientific beekeeping methods and beekeeping as a livelihood or enterprise.",
+      "The Api Culture Technology Center conducts this 5-day programme at ATC's Training Hall, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around scientific beekeeping methods and beekeeping as a livelihood or enterprise.",
     "program.slug.queen-rearing-and-colony-multiplication.title": "Queen Rearing & Colony Multiplication",
     "program.slug.queen-rearing-and-colony-multiplication.summary":
       "Advanced instruction on selection, grafting, nucleus colonies, and sustainable apiary expansion.",

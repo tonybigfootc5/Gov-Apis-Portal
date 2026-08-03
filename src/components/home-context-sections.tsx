@@ -121,7 +121,19 @@ export function HomeContactSection({ language }: { language: SiteLanguage }) {
           </SectionHeading>
           <div className="paper-panel mt-10 rounded-[2rem] p-5 text-sm leading-7 text-[#516253] sm:p-6">
             <p className="font-display text-xl font-semibold text-[#1b3b2b] sm:text-2xl">{institute.legalName}</p>
-            <p className="mt-3">{institute.address}</p>
+            <div className="mt-3 grid gap-3">
+              {institute.offices.map((office) => (
+                <p key={office.label}>
+                  <span className="block text-xs font-black uppercase tracking-[0.14em] text-[#b36b00]">{office.label}</span>
+                  <a href={office.mapsUrl} target="_blank" rel="noreferrer" className="underline decoration-[#c8a65c]/50 underline-offset-4 transition hover:text-[#1b3b2b]">
+                    {office.address}
+                  </a>
+                </p>
+              ))}
+            </div>
+            <p className="mt-3">
+              Office Working Hours: {institute.officeHours}
+            </p>
             <p className="mt-3 break-words">
               {t(language, "contact.phone")}: {institute.phone.join(" / ")}
             </p>

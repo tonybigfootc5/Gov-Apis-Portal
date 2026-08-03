@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Mail, MapPin, MessageCircle, Phone, Timer } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { institute } from "@/lib/fallback-data";
 import { t } from "@/lib/i18n";
@@ -34,8 +34,15 @@ export default async function ContactPage() {
             </div>
 
             <div className="grid gap-5 text-[#171a16]">
-              <ContactLine icon={<MapPin className="h-5 w-5" aria-hidden="true" />} title="Center location">
-                {institute.address}
+              {institute.offices.map((office) => (
+                <ContactLine key={office.label} icon={<MapPin className="h-5 w-5" aria-hidden="true" />} title={office.label}>
+                  <a href={office.mapsUrl} target="_blank" rel="noreferrer" className="underline decoration-[#c8a65c]/50 underline-offset-4 transition hover:text-[#121512]">
+                    {office.address}
+                  </a>
+                </ContactLine>
+              ))}
+              <ContactLine icon={<Timer className="h-5 w-5" aria-hidden="true" />} title="Office Working Hours">
+                {institute.officeHours}
               </ContactLine>
               <ContactLine icon={<Phone className="h-5 w-5" aria-hidden="true" />} title={t(language, "contact.phone")}>
                 {phoneLabel}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, FileText, Mail, Phone, ShieldCheck } from "lucide-react";
+import { ChevronRight, FileText, Mail, MapPin, Phone, ShieldCheck, Timer } from "lucide-react";
 import { institute } from "@/lib/fallback-data";
 import { policyLastUpdated, policyLinks, type PolicyDocument } from "@/lib/policies";
 
@@ -83,7 +83,21 @@ export function PolicyPage({ document }: PolicyPageProps) {
                   <Phone className="mt-1 h-4 w-4 shrink-0 text-[#f6cf74]" aria-hidden="true" />
                   {institute.phone.join(" / ")}
                 </p>
-                <p>{institute.address}</p>
+                {institute.offices.map((office) => (
+                  <p key={office.label} className="flex gap-3">
+                    <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#f6cf74]" aria-hidden="true" />
+                    <span>
+                      <span className="block text-xs font-black uppercase tracking-[0.12em] text-[#f6cf74]">{office.label}</span>
+                      <a href={office.mapsUrl} target="_blank" rel="noreferrer" className="underline decoration-[#f6cf74]/40 underline-offset-4 transition hover:text-white">
+                        {office.address}
+                      </a>
+                    </span>
+                  </p>
+                ))}
+                <p className="flex gap-3">
+                  <Timer className="mt-1 h-4 w-4 shrink-0 text-[#f6cf74]" aria-hidden="true" />
+                  <span>Office Working Hours: {institute.officeHours}</span>
+                </p>
               </div>
             </div>
 

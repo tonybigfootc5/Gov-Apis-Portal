@@ -117,7 +117,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       primaryCta: "View programs",
       secondaryCta: "About the center",
       stats: ["Years experience", "Beekeepers", "Hands-on training", "Institutional backing"],
-      locationChip: "Rajendranagar, Hyderabad",
+      locationChip: "Central & State Offices",
       portalChip: "Public-facing training portal",
       cards: [
         {
@@ -164,7 +164,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
     about: {
       heroTitle: "Honey farming grows through learning, technology, and field support.",
       heroBody:
-        "API Culture Technology Center operates in Rajendranagar, Hyderabad as a practical beekeeping mission built around training, technology transfer, pollination awareness, and rural livelihood support.",
+        "API Culture Technology Center operates through Central and State offices in Rajendranagar, Hyderabad as a practical beekeeping mission built around training, technology transfer, pollination awareness, and rural livelihood support.",
       badges: ["Established in 2004", "NIRDPR-linked mission", "Field-first apiculture"],
       collaboratorsTitle: "Learn from leading institutional and field collaborators",
       collaboratorsBody:

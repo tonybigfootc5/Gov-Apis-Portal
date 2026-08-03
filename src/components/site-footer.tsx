@@ -15,6 +15,7 @@ import {
   Phone,
   ShoppingBag,
   ShieldCheck,
+  Timer,
   Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -89,7 +90,7 @@ export function SiteFooter({ language }: SiteFooterProps) {
     <footer className="relative overflow-hidden bg-[#151615] text-[#f4f2e8]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_100%,rgba(246,207,116,0.14),rgba(246,207,116,0)_34%),linear-gradient(180deg,#171817_0%,#121312_100%)]" aria-hidden="true" />
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[0.72fr_0.92fr_minmax(27rem,1.45fr)_0.9fr]">
           <FooterLinks title={copy.footer.quickLinksLabel} links={primaryLinks} linkClass={linkClass} iconClass="text-[#f6cf74]" />
           <FooterLinks title={copy.footer.policyLinksLabel} links={policyLinks} linkClass={linkClass} iconClass="text-[#9aa7b7]" />
 
@@ -102,12 +103,26 @@ export function SiteFooter({ language }: SiteFooterProps) {
               <Mail className="h-4 w-4 text-[#8aa884]" aria-hidden="true" />
               {institute.email}
             </a>
+            <div className="grid gap-3 sm:grid-cols-2 sm:divide-x sm:divide-white/12">
+              {institute.offices.map((office) => (
+                <a
+                  key={office.label}
+                  href={office.mapsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-start gap-2 text-sm font-semibold leading-6 text-white/82 transition hover:text-white sm:pr-3 sm:[&+a]:pl-3"
+                >
+                  <MapPin className="mt-1 h-4 w-4 shrink-0 text-[#8ec5ff]" aria-hidden="true" />
+                  <span>
+                    <span className="block text-xs font-black uppercase tracking-[0.12em] text-[#f6cf74]">{office.label}</span>
+                    <span className="group-hover:underline">{office.address}</span>
+                  </span>
+                </a>
+              ))}
+            </div>
             <p className="inline-flex items-start gap-2 text-sm font-semibold leading-6 text-white/82">
-              <MapPin className="h-4 w-4 text-[#8ec5ff]" aria-hidden="true" />
-              <span>{institute.address}</span>
-            </p>
-            <p className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-semibold leading-6 text-white/82">
-              Programs, classes, timings, and batch coordination are taken care of by Ravindra Kumar Pydi (admin).
+              <Timer className="h-4 w-4 text-[#f6cf74]" aria-hidden="true" />
+              <span>Office Working Hours: {institute.officeHours}</span>
             </p>
           </FooterColumn>
 
@@ -203,9 +218,26 @@ function BrandBlock({
           <Mail className="h-4 w-4 text-[#8aa884]" aria-hidden="true" />
           {institute.email}
         </a>
+        <div className="grid gap-3 sm:grid-cols-2 sm:divide-x sm:divide-white/10">
+          {institute.offices.map((office) => (
+            <a
+              key={office.label}
+              href={office.mapsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={`${linkClass} items-start sm:pr-3 sm:[&+a]:pl-3`}
+            >
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#8ec5ff]" aria-hidden="true" />
+              <span>
+                <span className="block text-xs font-black uppercase tracking-[0.12em] text-[#f6cf74]">{office.label}</span>
+                {office.address}
+              </span>
+            </a>
+          ))}
+        </div>
         <p className={`inline-flex items-start gap-2 text-sm ${mutedClass}`}>
-          <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#8ec5ff]" aria-hidden="true" />
-          <span>{institute.address}</span>
+          <Timer className="mt-0.5 h-4 w-4 shrink-0 text-[#f2b544]" aria-hidden="true" />
+          <span>Office Working Hours: {institute.officeHours}</span>
         </p>
       </div>
     </div>

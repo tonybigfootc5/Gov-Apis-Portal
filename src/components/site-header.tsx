@@ -71,13 +71,13 @@ export function SiteHeader({
     <header
       className={`${
         isHomeRoute
-          ? "fixed inset-x-0 top-0 overflow-x-clip px-4 pt-4 sm:px-6 lg:px-8"
+          ? "fixed inset-x-0 top-0 overflow-x-clip px-3 pt-4 sm:px-5 lg:px-8"
           : isAdminRoute
             ? "sticky top-0 border-b backdrop-blur-2xl"
             : "sticky top-0 overflow-x-clip px-4 py-4 sm:px-6 lg:px-8"
       } z-50 ${frameClass}`}
     >
-      <div className={`mx-auto max-w-7xl ${isHomeRoute || (!isAdminRoute && isPublicRoute) ? "py-0" : "px-4 py-3 sm:px-6 lg:px-8"}`}>
+      <div className={`mx-auto max-w-[94rem] ${isHomeRoute || (!isAdminRoute && isPublicRoute) ? "py-0" : "px-4 py-3 sm:px-6 lg:px-8"}`}>
         {sandboxMode ? (
           <div
             className={`mb-3 rounded-[1.2rem] border px-4 py-3 text-center text-xs font-black uppercase tracking-[0.16em] ${
@@ -93,7 +93,7 @@ export function SiteHeader({
         <div
           className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] ${
             isPublicRoute
-              ? "px-8 py-4"
+              ? "px-4 py-4 sm:px-8"
               : "rounded-[1.6rem] px-3 py-3"
           } ${shellClass}`}
           style={
@@ -102,7 +102,7 @@ export function SiteHeader({
               : undefined
           }
         >
-          <Link href="/" className={`flex min-w-0 items-center pr-2 ${isPublicRoute ? "gap-6 pl-1" : "gap-3"}`} aria-label="API CULTURE home">
+          <Link href="/" className={`flex min-w-0 items-center pr-2 ${isPublicRoute ? "gap-3 pl-1 sm:gap-6" : "gap-3"}`} aria-label="API CULTURE home">
             <span
               className={`relative shrink-0 overflow-visible ${isPublicRoute ? "h-10 w-14" : "h-12 w-14 sm:h-14 sm:w-16"}`}
             >
@@ -123,7 +123,7 @@ export function SiteHeader({
             >
               <span
                 className={`block sm:whitespace-nowrap ${isPublicRoute ? "font-display uppercase tracking-[0.015em] text-[#071421]" : `text-[clamp(1rem,4.6vw,1.2rem)] font-black uppercase tracking-[0.18em] ${isAdminRoute ? "text-[#f4efe3]" : "text-[#1c382d]"}`}`}
-                style={isPublicRoute ? { fontSize: "clamp(1.34rem, 2.2vw, 1.48rem)", fontWeight: 800, lineHeight: 0.9, textShadow: "0 1px 0 rgba(255,255,255,0.72)" } : undefined}
+                style={isPublicRoute ? { fontSize: "clamp(1.12rem, 2.2vw, 1.48rem)", fontWeight: 800, lineHeight: 0.9, textShadow: "0 1px 0 rgba(255,255,255,0.72)" } : undefined}
               >
                 API CULTURE
               </span>

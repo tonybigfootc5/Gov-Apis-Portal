@@ -1,6 +1,9 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import { Boxes, Factory, Leaf, PackageCheck, ShieldCheck, Sparkles, Wrench } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import type { SiteLanguage } from "@/lib/i18n";
+import { getRequestLanguage } from "@/lib/request-language";
 
 export const metadata: Metadata = {
   title: "Equipment",
@@ -152,6 +155,17 @@ const equipmentTools = [
   },
 ] as const;
 
+type LocalizedEquipmentTool = {
+  title: string;
+  category: string;
+  body: string;
+  imageSrc: string;
+  imageAlt: string;
+  imageSlides?: readonly { src: string; alt: string }[];
+  icon: LucideIcon;
+};
+type EquipmentTextOverride = Partial<Pick<LocalizedEquipmentTool, "title" | "category" | "body">>;
+
 const supportCards = [
   {
     icon: Factory,
@@ -174,17 +188,196 @@ const supportCards = [
   },
 ] as const;
 
-export default function EquipmentPage() {
-  const featured = equipmentTools[6];
-  const leftRailItems = equipmentTools.slice(0, 3);
-  const middleRailItems = equipmentTools.slice(3, 5);
-  const rightRailItems = [equipmentTools[5], ...equipmentTools.slice(7)];
+const equipmentPageCopy = {
+  en: {
+    titleLines: ["Beekeeping equipment", "for field-ready", "apiaries."],
+    bodyLines: [
+      "Supply support and local manufacturing encouragement",
+      "for the tools farmers need to manage colonies,",
+      "harvest honey, and work safely.",
+    ],
+    deskPrefix: "API CULTURE",
+    deskTitle: "Equipment Desk",
+    ctaTitle: "From equipment supply to farmer confidence.",
+    ctaBody:
+      "The Technology Center supports the development of the beekeeping industry through equipment access and local manufacturing units that serve apiarists closer to their fields.",
+    items: {} as Record<string, Partial<(typeof equipmentTools)[number]>>,
+    support: {} as Record<string, { title: string; body: string }>,
+  },
+  te: {
+    titleLines: ["తేనెటీగల పెంపక", "పరికరాలు", "ఫీల్డ్ అపియరీల కోసం."],
+    bodyLines: [
+      "రైతులు కాలనీలను నిర్వహించడానికి,",
+      "తేనె కోతకు మరియు సురక్షితంగా పనిచేయడానికి",
+      "అవసరమైన పరికరాలకు సరఫరా సహాయం.",
+    ],
+    deskPrefix: "API CULTURE",
+    deskTitle: "పరికరాల విభాగం",
+    ctaTitle: "పరికరాల సరఫరా నుంచి రైతుల విశ్వాసం వరకు.",
+    ctaBody:
+      "టెక్నాలజీ సెంటర్ పరికరాల లభ్యత మరియు స్థానిక తయారీ యూనిట్ల ప్రోత్సాహం ద్వారా తేనెటీగల పెంపక రంగ అభివృద్ధికి మద్దతు ఇస్తుంది.",
+    items: {
+      "Bee colonies": {
+        title: "తేనెటీగల కాలనీలు",
+        category: "జీవ కాలనీ",
+        body: "ప్రాయోగిక అపియరీ ఏర్పాటు మరియు డెమోలకు ప్రారంభ మరియు పని కాలనీలు.",
+      },
+      Queens: {
+        title: "క్వీన్స్",
+        category: "కాలనీ బలం",
+        body: "కాలనీ కొనసాగింపు, బ్రూడ్ నాణ్యత మరియు ఉత్పాదకతకు క్వీన్ సహాయం.",
+      },
+      "Queen excluders": {
+        title: "క్వీన్ ఎక్స్‌క్లూడర్లు",
+        category: "హైవ్ నిర్వహణ",
+        body: "హైవ్‌లో బ్రూడ్ మరియు తేనె ప్రాంతాలను విడదీయడానికి భాగాలు.",
+      },
+      Feeders: {
+        title: "ఫీడర్లు",
+        category: "పోషణ సహాయం",
+        body: "సీజనల్ లోటు మరియు బలహీన కాలనీ రికవరీ కోసం ఫీడింగ్ పరికరాలు.",
+      },
+      "Comb foundation sheets": {
+        title: "కాంబ్ ఫౌండేషన్ షీట్లు",
+        category: "కాంబ్ నిర్మాణం",
+        body: "సమానమైన కాంబ్ నిర్మాణం మరియు శుభ్రమైన ఫ్రేమ్స్‌కు సహాయం.",
+      },
+      Extractors: {
+        title: "ఎక్స్‌ట్రాక్టర్లు",
+        category: "తేనె కోత",
+        body: "శుభ్రమైన తేనె తొలగింపు మరియు ప్రాసెసింగ్ కోసం ఎక్స్‌ట్రాక్షన్ పరికరాలు.",
+      },
+      "Bee hives": {
+        title: "తేనెటీగల పెట్టెలు",
+        category: "కాలనీ నివాసం",
+        body: "పరిశీలన, విస్తరణ మరియు ఫీల్డ్ ఏర్పాటు కోసం హైవ్ బాక్స్‌లు మరియు ఫ్రేమ్స్.",
+      },
+      "Hive tools": {
+        title: "హైవ్ టూల్స్",
+        category: "పరిశీలన పని",
+        body: "బాక్స్‌లు తెరవడం, ఫ్రేమ్స్ ఎత్తడం మరియు సురక్షిత పరిశీలనకు రోజువారీ టూల్స్.",
+      },
+      "Bee veils": {
+        title: "బీ వేయిల్స్",
+        category: "రక్షణ",
+        body: "శిక్షణార్థులు మరియు రైతులు నమ్మకంగా పనిచేయడానికి రక్షణ వేయిల్స్.",
+      },
+    },
+    support: {
+      "Local manufacturing": {
+        title: "స్థానిక తయారీ",
+        body: "ప్రాయోగిక తేనెటీగల పెంపక పరికరాలు రైతులకు వేగంగా చేరేలా సమీప యూనిట్లను ప్రోత్సహించడం.",
+      },
+      "Supply support": {
+        title: "సరఫరా సహాయం",
+        body: "కాలనీ, హైవ్, కోత, భద్రత మరియు నిర్వహణ పరికరాలతో అపియరిస్టులను కలపడం.",
+      },
+      "Training readiness": {
+        title: "శిక్షణ సిద్ధత",
+        body: "పరికరాల వినియోగం, నిర్వహణ మరియు ఫీల్డ్ వాడకం.",
+      },
+    },
+  },
+  hi: {
+    titleLines: ["मधुमक्खी पालन", "उपकरण", "फील्ड एपियरी के लिए."],
+    bodyLines: [
+      "कॉलोनी प्रबंधन, शहद कटाई और",
+      "सुरक्षित काम के लिए किसानों को",
+      "जरूरी उपकरणों की आपूर्ति सहायता.",
+    ],
+    deskPrefix: "API CULTURE",
+    deskTitle: "उपकरण डेस्क",
+    ctaTitle: "उपकरण आपूर्ति से किसान भरोसे तक.",
+    ctaBody:
+      "टेक्नोलॉजी सेंटर उपकरण उपलब्धता और स्थानीय निर्माण इकाइयों को प्रोत्साहित करके मधुमक्खी पालन उद्योग के विकास में मदद करता है.",
+    items: {
+      "Bee colonies": {
+        title: "मधुमक्खी कॉलोनियां",
+        category: "जीवित कॉलोनी",
+        body: "प्रायोगिक एपियरी सेटअप और डेमो के लिए स्टार्टर और वर्किंग कॉलोनियां.",
+      },
+      Queens: {
+        title: "रानियां",
+        category: "कॉलोनी शक्ति",
+        body: "कॉलोनी निरंतरता, ब्रूड गुणवत्ता और उत्पादकता के लिए क्वीन सपोर्ट.",
+      },
+      "Queen excluders": {
+        title: "क्वीन एक्सक्लूडर",
+        category: "हाइव प्रबंधन",
+        body: "हाइव में ब्रूड और शहद क्षेत्रों को अलग रखने के लिए पार्टिशन.",
+      },
+      Feeders: {
+        title: "फीडर",
+        category: "पोषण सहायता",
+        body: "मौसमी कमी और कमजोर कॉलोनी रिकवरी के लिए फीडिंग उपकरण.",
+      },
+      "Comb foundation sheets": {
+        title: "कॉम्ब फाउंडेशन शीट",
+        category: "कॉम्ब निर्माण",
+        body: "समान कॉम्ब निर्माण और साफ फ्रेम के लिए फाउंडेशन सपोर्ट.",
+      },
+      Extractors: {
+        title: "एक्सट्रैक्टर",
+        category: "शहद कटाई",
+        body: "साफ शहद निकासी और प्रोसेसिंग के लिए एक्सट्रैक्शन उपकरण.",
+      },
+      "Bee hives": {
+        title: "बी हाइव्स",
+        category: "कॉलोनी आवास",
+        body: "निरीक्षण, विस्तार और फील्ड सेटअप के लिए हाइव बॉक्स और फ्रेम.",
+      },
+      "Hive tools": {
+        title: "हाइव टूल्स",
+        category: "निरीक्षण कार्य",
+        body: "बॉक्स खोलने, फ्रेम उठाने और सुरक्षित निरीक्षण के लिए दैनिक टूल्स.",
+      },
+      "Bee veils": {
+        title: "बी वेल्स",
+        category: "सुरक्षा",
+        body: "प्रशिक्षुओं और किसानों को आत्मविश्वास से काम करने के लिए सुरक्षात्मक वेल्स.",
+      },
+    },
+    support: {
+      "Local manufacturing": {
+        title: "स्थानीय निर्माण",
+        body: "व्यावहारिक मधुमक्खी पालन उपकरण किसानों तक जल्दी पहुंचें, इसके लिए पास की इकाइयों को प्रोत्साहन.",
+      },
+      "Supply support": {
+        title: "आपूर्ति सहायता",
+        body: "कॉलोनी, हाइव, कटाई, सुरक्षा और प्रबंधन उपकरणों से एपियारिस्ट को जोड़ना.",
+      },
+      "Training readiness": {
+        title: "प्रशिक्षण तैयारी",
+        body: "उपकरण उपयोग, रखरखाव और फील्ड उपयोग.",
+      },
+    },
+  },
+} as const satisfies Record<SiteLanguage, {
+  titleLines: readonly string[];
+  bodyLines: readonly string[];
+  deskPrefix: string;
+  deskTitle: string;
+  ctaTitle: string;
+  ctaBody: string;
+  items: Record<string, EquipmentTextOverride>;
+  support: Record<string, { title: string; body: string }>;
+}>;
+
+export default async function EquipmentPage() {
+  const language = await getRequestLanguage();
+  const copy = equipmentPageCopy[language] ?? equipmentPageCopy.en;
+  const localizedTools: LocalizedEquipmentTool[] = equipmentTools.map((item) => ({ ...item, ...copy.items[item.title] }));
+  const localizedSupportCards = supportCards.map((card) => ({ ...card, ...copy.support[card.title] }));
+  const featured = localizedTools[6];
+  const leftRailItems = localizedTools.slice(0, 3);
+  const middleRailItems = localizedTools.slice(3, 5);
+  const rightRailItems = [localizedTools[5], ...localizedTools.slice(7)];
 
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <div className="mx-auto max-w-7xl">
         <div className="relative overflow-hidden rounded-[2.35rem] border border-[rgba(41,56,49,0.1)] bg-[#fffefa] shadow-[0_30px_90px_rgba(121,105,70,0.16)]">
-          <div className="absolute left-1/2 top-0 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[#dcefe8]" />
+          <div className="pointer-events-none absolute left-1/2 top-0 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[#dcefe8]" />
           <div className="absolute inset-x-0 top-0 h-36 bg-[linear-gradient(180deg,rgba(214,239,229,0.72),rgba(255,255,255,0))]" />
           <div className="relative grid gap-5 p-5 sm:p-8 lg:p-10">
             <div className="grid gap-6 lg:grid-cols-[15.5rem_minmax(0,1fr)_15.5rem] lg:items-start xl:gap-8">
@@ -197,19 +390,19 @@ export default function EquipmentPage() {
               <main className="order-1 lg:order-2">
                 <div className="mx-auto max-w-[39rem] text-center lg:mt-2">
                   <h1 className="mx-auto max-w-[34rem] text-balance font-display text-[clamp(2.35rem,4.2vw,4rem)] font-semibold leading-[0.9] text-[#008b67]">
-                    <span className="block">Beekeeping equipment</span>
-                    <span className="block">for field-ready</span>
-                    <span className="block">apiaries.</span>
+                    {copy.titleLines.map((line) => (
+                      <span key={line} className="block">{line}</span>
+                    ))}
                   </h1>
                   <p className="mx-auto mt-6 max-w-[39rem] text-[15px] leading-8 text-[#65756c]">
-                    <span className="block">Supply support and local manufacturing encouragement</span>
-                    <span className="block">for the tools farmers need to manage colonies,</span>
-                    <span className="block">harvest honey, and work safely.</span>
+                    {copy.bodyLines.map((line) => (
+                      <span key={line} className="block">{line}</span>
+                    ))}
                   </p>
                 </div>
 
                 <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:hidden">
-                  {equipmentTools.map((item) => (
+                  {localizedTools.map((item) => (
                     <ProductOrbitCard key={item.title} item={item} compact />
                   ))}
                 </div>
@@ -224,11 +417,11 @@ export default function EquipmentPage() {
                 <div className="mx-auto mt-5 hidden w-full max-w-[48rem] justify-center lg:flex">
                   <p className="flex w-full max-w-[42rem] items-center justify-center gap-5 py-1 text-center">
                     <span className="text-[15px] font-black uppercase tracking-[0.28em] text-[#b36b00]">
-                      API CULTURE
+                      {copy.deskPrefix}
                     </span>
                     <span className="h-px w-20 bg-[#cda24c]" aria-hidden="true" />
                     <span className="font-display text-[clamp(2.45rem,3.05vw,3.55rem)] font-semibold leading-none text-[#0f5d47]">
-                      Equipment Desk
+                      {copy.deskTitle}
                     </span>
                   </p>
                 </div>
@@ -244,7 +437,7 @@ export default function EquipmentPage() {
         </div>
 
         <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {supportCards.map((card) => (
+          {localizedSupportCards.map((card) => (
             <SupportCard key={card.title} {...card} />
           ))}
         </div>
@@ -252,9 +445,9 @@ export default function EquipmentPage() {
         <div className="mt-8">
           <section className="rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(135deg,#113f32,#0f5d47)] p-6 text-[#fff9ef] shadow-[0_24px_70px_rgba(22,57,46,0.18)] sm:p-8">
             <Sparkles className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />
-            <h2 className="mt-5 font-display text-4xl leading-tight">From equipment supply to farmer confidence.</h2>
+            <h2 className="mt-5 font-display text-4xl leading-tight">{copy.ctaTitle}</h2>
             <p className="mt-5 text-sm leading-7 text-white/76">
-              The Technology Center supports the development of the beekeeping industry through equipment access and local manufacturing units that serve apiarists closer to their fields.
+              {copy.ctaBody}
             </p>
           </section>
         </div>
@@ -269,7 +462,7 @@ function ProductOrbitCard({
   showcase = false,
   className = "",
 }: {
-  item: (typeof equipmentTools)[number];
+  item: LocalizedEquipmentTool;
   compact?: boolean;
   showcase?: boolean;
   className?: string;
@@ -302,7 +495,7 @@ function EquipmentCardMedia({
   sizes,
   priority = false,
 }: {
-  item: (typeof equipmentTools)[number];
+  item: LocalizedEquipmentTool;
   sizes: string;
   priority?: boolean;
 }) {

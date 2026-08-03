@@ -49,6 +49,7 @@ export async function PATCH(request: Request, { params }: Props) {
   const updated = await prisma.trainingApplication.update({
     where: { id },
     data: {
+      attemptStatus: parsed.data.attemptStatus,
       approvalStatus: parsed.data.approvalStatus,
       crossCheckStatus: parsed.data.crossCheckStatus,
       adminNotes: parsed.data.adminNotes || "",

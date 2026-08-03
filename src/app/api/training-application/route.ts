@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash, randomUUID } from "crypto";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { badRequest, serviceUnavailable, tooManyRequests } from "@/lib/api-response";
@@ -15,7 +15,10 @@ import { rateLimit } from "@/lib/rate-limit";
 import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingBatchPeriod, getTrainingServiceInitials } from "@/lib/training-application";
 import { trainingApplicationSchema } from "@/lib/validators";
 
+const TRAINING_APPLICATION_SEQUENCE_LOCK_ID = 84152026;
+
 export async function POST(request: Request) {
+  const requestId = randomUUID();
   const parsed = trainingApplicationSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return badRequest("Application details could not be submitted.");
@@ -63,6 +66,8 @@ export async function POST(request: Request) {
     const amountPaise = getTrainingApplicationAmountPaise(selectedProgramFee);
 
     const application = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(${TRAINING_APPLICATION_SEQUENCE_LOCK_ID})`;
+
       const batchDate = new Date();
       const initials = getTrainingServiceInitials(parsed.data.serviceName);
       const { month, year } = getTrainingBatchPeriod(batchDate);
@@ -180,7 +185,13 @@ export async function POST(request: Request) {
         }),
       ]);
     } catch (error) {
-      console.error("PhonePe checkout creation failed", error);
+      console.error("PhonePe checkout creation failed", {
+        requestId,
+        applicationId: application.id,
+        merchantOrderId,
+        serviceName: parsed.data.serviceName,
+        error,
+      });
       const failureMessage = error instanceof Error ? error.message : "PhonePe checkout creation failed.";
 
       if (merchantOrderId && redirectUrl) {
@@ -204,7 +215,12 @@ export async function POST(request: Request) {
             },
           })
           .catch((paymentOrderError) => {
-            console.error("Failed to record PhonePe checkout failure", paymentOrderError);
+            console.error("Failed to record PhonePe checkout failure", {
+              requestId,
+              applicationId: application.id,
+              merchantOrderId,
+              error: paymentOrderError,
+            });
           });
       }
 
@@ -214,7 +230,11 @@ export async function POST(request: Request) {
           data: { attemptStatus: "PAYMENT_FAILED" },
         })
         .catch((applicationUpdateError) => {
-          console.error("Failed to mark application payment as failed", applicationUpdateError);
+          console.error("Failed to mark application payment as failed", {
+            requestId,
+            applicationId: application.id,
+            error: applicationUpdateError,
+          });
         });
 
       return serviceUnavailable(
@@ -232,7 +252,7 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    console.error("Training application submission failed", error);
+    console.error("Training application submission failed", { requestId, error });
     return serviceUnavailable("Application storage is temporarily unavailable.");
   }
 }

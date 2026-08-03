@@ -13,6 +13,7 @@ import type {
 type Props = {
   storageMode: "database" | "local";
   initialApplications: TrainingApplicationRecord[];
+  onApplicationsChange?: (applications: TrainingApplicationRecord[]) => void;
 };
 
 const attemptOptions: ApplicationAttemptStatus[] = [
@@ -26,7 +27,7 @@ const attemptOptions: ApplicationAttemptStatus[] = [
 const paymentOptions: ApplicationPaymentStatus[] = ["NOT_STARTED", "PENDING", "PAID", "FAILED"];
 const approvalOptions: ApplicationApprovalStatus[] = ["PENDING", "APPROVED", "REJECTED"];
 const crossCheckOptions: ApplicationCrossCheckStatus[] = ["PENDING", "VERIFIED"];
-export function ApplicationAdminPanel({ storageMode, initialApplications }: Props) {
+export function ApplicationAdminPanel({ storageMode, initialApplications, onApplicationsChange }: Props) {
   const [applications, setApplications] = useState(initialApplications);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,6 +47,11 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const canMutate = storageMode === "database" || storageMode === "local";
   const isLocalMode = storageMode === "local";
+
+  function setApplicationRecords(nextApplications: TrainingApplicationRecord[]) {
+    setApplications(nextApplications);
+    onApplicationsChange?.(nextApplications);
+  }
 
   const serviceOptions = useMemo(
     () => Array.from(new Set(applications.map((application) => application.payload.serviceName))).sort(),
@@ -170,7 +176,8 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
         setNotice("Unable to refresh applications right now.");
         return;
       }
-      setApplications(await response.json());
+      const nextApplications = (await response.json()) as TrainingApplicationRecord[];
+      setApplicationRecords(nextApplications);
     } catch {
       setNotice("Unable to refresh applications right now.");
     } finally {
@@ -202,6 +209,10 @@ export function ApplicationAdminPanel({ storageMode, initialApplications }: Prop
         setNotice(data?.error ?? "Unable to save application changes.");
         return;
       }
+      const updatedApplication = data as TrainingApplicationRecord;
+      setApplicationRecords(
+        applications.map((application) => (application.id === updatedApplication.id ? updatedApplication : application)),
+      );
       setNotice(isLocalMode ? "Local training application updated successfully." : "Application updated successfully.");
       await load();
     } catch {

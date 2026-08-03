@@ -2,15 +2,16 @@
 
 import { useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { ChevronDown, ChevronUp, Mail, Phone, Search, SlidersHorizontal, UserRound } from "lucide-react";
+import { ChevronDown, ChevronUp, Mail, Phone, RefreshCw, Search, UserRound } from "lucide-react";
 import type { ContactInboxRecord } from "@/lib/contact-inbox";
 
 type Props = {
   messages: ContactInboxRecord[];
   loading: boolean;
+  onRefresh?: () => void;
 };
 
-export function ContactInboxPanel({ messages, loading }: Props) {
+export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
   const [query, setQuery] = useState("");
   const [openMessageId, setOpenMessageId] = useState<string>(messages[0]?.id ?? "");
   const [now] = useState(() => Date.now());
@@ -56,7 +57,7 @@ export function ContactInboxPanel({ messages, loading }: Props) {
         </div>
         <div className="flex rounded-full bg-white/75 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.78)]">
           <span className="rounded-full bg-[#173f33] px-4 py-2 text-xs font-black text-[#fff9ec]">Inbox</span>
-          <span className="px-4 py-2 text-xs font-black text-[#607366]">Manual follow-up</span>
+          <span className="px-4 py-2 text-xs font-black text-[#607366]">{messages.length} active</span>
         </div>
       </div>
 
@@ -68,11 +69,12 @@ export function ContactInboxPanel({ messages, loading }: Props) {
 
       <div className="mt-5 rounded-[1.35rem] bg-white/82 p-3 shadow-[0_14px_34px_rgba(23,63,51,0.06)]">
         <div className="flex flex-wrap items-center gap-2">
-          <ToolbarPill label="Columns" />
-          <ToolbarPill label="Source" />
-          <ToolbarPill label="Status" />
-          <ToolbarPill label="Follow-up" />
-          <label className="ml-auto flex min-w-[16rem] flex-1 items-center rounded-full bg-white px-4 shadow-[inset_0_0_0_1px_#edf2ee] lg:max-w-md">
+          <div className="flex flex-wrap gap-2">
+            <StatusChip label="30-day window" />
+            <StatusChip label={`${phoneSharedCount} callable`} />
+            <StatusChip label={`${todayCount} today`} />
+          </div>
+          <label className="flex min-w-[16rem] flex-1 items-center rounded-full bg-white px-4 shadow-[inset_0_0_0_1px_#edf2ee] lg:ml-auto lg:max-w-md">
             <Search className="h-4 w-4 text-[#718477]" aria-hidden="true" />
             <input
               value={query}
@@ -81,8 +83,14 @@ export function ContactInboxPanel({ messages, loading }: Props) {
               className="h-10 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#90a094]"
             />
           </label>
-          <button className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#f5c65e] text-[#173f33]" type="button" aria-label="Inbox filter options">
-            <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+          <button
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#f5c65e] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#173f33] disabled:cursor-not-allowed disabled:opacity-60"
+            type="button"
+            onClick={onRefresh}
+            disabled={loading || !onRefresh}
+          >
+            <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+            Refresh
           </button>
         </div>
       </div>
@@ -150,7 +158,7 @@ export function ContactInboxPanel({ messages, loading }: Props) {
                         <div className="grid gap-3">
                           <InfoTile icon={<Phone className="h-4 w-4" aria-hidden="true" />} label="Phone" value={message.phone || "Phone not shared"} />
                           <InfoTile icon={<Mail className="h-4 w-4" aria-hidden="true" />} label="Email" value={message.email} />
-                          <InfoTile icon={<UserRound className="h-4 w-4" aria-hidden="true" />} label="Future field" value="Owner, status, and notes can plug in here later." />
+                          <InfoTile icon={<UserRound className="h-4 w-4" aria-hidden="true" />} label="Follow-up owner" value="Admin desk" />
                         </div>
                       </div>
                     ) : null}
@@ -196,12 +204,11 @@ function MetricStrip({
   );
 }
 
-function ToolbarPill({ label }: { label: string }) {
+function StatusChip({ label }: { label: string }) {
   return (
-    <button type="button" className="inline-flex h-10 items-center gap-2 rounded-full bg-white px-3 text-xs font-black text-[#607366] shadow-[inset_0_0_0_1px_#edf2ee]">
+    <span className="inline-flex h-10 items-center rounded-full bg-white px-3 text-xs font-black text-[#607366] shadow-[inset_0_0_0_1px_#edf2ee]">
       {label}
-      <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
-    </button>
+    </span>
   );
 }
 

@@ -241,19 +241,35 @@ export async function getEvent(slug: string): Promise<EventItem | null> {
 
 export async function getArticles(): Promise<ArticleItem[]> {
   const fallback = fallbackArticles as ArticleItem[];
-  if (!process.env.DATABASE_URL) return fallback;
+  const publicFallback = process.env.NODE_ENV === "production" ? fallback.filter((article) => !article.id.startsWith("test-article-")) : fallback;
+  if (!process.env.DATABASE_URL) return publicFallback;
   try {
-    return await prisma.article.findMany({
+    const articles = await prisma.article.findMany({
       where: { published: true },
       orderBy: { publishedAt: "desc" },
     });
+
+    if (process.env.NODE_ENV === "production") {
+      return articles;
+    }
+
+    const articlesBySlug = new Map<string, ArticleItem>();
+    for (const article of [...articles, ...publicFallback]) {
+      articlesBySlug.set(article.slug, article);
+    }
+
+    return Array.from(articlesBySlug.values()).sort((left, right) => right.publishedAt.getTime() - left.publishedAt.getTime());
   } catch {
-    return fallback;
+    return publicFallback;
   }
 }
 
 export async function getArticle(slug: string): Promise<ArticleItem | null> {
-  const fallback = (fallbackArticles as ArticleItem[]).find((item) => item.slug === slug) ?? null;
+  const fallbackPool =
+    process.env.NODE_ENV === "production"
+      ? (fallbackArticles as ArticleItem[]).filter((article) => !article.id.startsWith("test-article-"))
+      : (fallbackArticles as ArticleItem[]);
+  const fallback = fallbackPool.find((item) => item.slug === slug) ?? null;
   if (!process.env.DATABASE_URL) {
     return fallback;
   }
