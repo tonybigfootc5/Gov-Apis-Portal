@@ -4,6 +4,7 @@ import {
   buildPhonePeRedirectUrl,
   getCurrentPaymentEnvironment,
   getTrainingApplicationAmountPaise,
+  getTrainingProgramFeeByServiceName,
 } from "@/lib/phonepe-config";
 import { prisma } from "@/lib/prisma";
 import { buildMerchantOrderId } from "@/lib/training-application";
@@ -21,7 +22,7 @@ export async function POST(_request: Request, { params }: Props) {
     return NextResponse.json({ error: "Application not found." }, { status: 404 });
   }
 
-  const amountPaise = getTrainingApplicationAmountPaise();
+  const amountPaise = getTrainingApplicationAmountPaise(getTrainingProgramFeeByServiceName(application.serviceName));
   const merchantOrderId = buildMerchantOrderId(application.id);
   const redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);
   const checkoutUrl = (

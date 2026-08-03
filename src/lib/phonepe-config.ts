@@ -1,6 +1,7 @@
 import "server-only";
 
 import { PaymentEnvironment as PrismaPaymentEnvironment } from "@/generated/prisma/client";
+import { trainingProgramCatalog } from "@/lib/training-programs";
 
 export type PhonePeEnv = "SANDBOX" | "PRODUCTION";
 
@@ -14,7 +15,27 @@ export function getCurrentPaymentEnvironment(): PrismaPaymentEnvironment {
     : PrismaPaymentEnvironment.SANDBOX;
 }
 
-export function getTrainingApplicationAmountPaise() {
+export function parseFeeLabelToPaise(fee: string | null | undefined) {
+  const normalized = fee?.replace(/,/g, "").trim() ?? "";
+  const match = normalized.match(/(?:INR|Rs\.?|₹)?\s*(\d+(?:\.\d{1,2})?)/i);
+  if (!match) {
+    return null;
+  }
+
+  return Math.round(Number(match[1]) * 100);
+}
+
+export function getTrainingProgramFeeByServiceName(serviceName: string) {
+  const normalizedServiceName = serviceName.trim().toLowerCase();
+  return trainingProgramCatalog.find((program) => program.title.trim().toLowerCase() === normalizedServiceName)?.fee ?? null;
+}
+
+export function getTrainingApplicationAmountPaise(fee?: string | null) {
+  const parsedFeeAmount = parseFeeLabelToPaise(fee);
+  if (parsedFeeAmount != null && Number.isFinite(parsedFeeAmount) && parsedFeeAmount >= 100) {
+    return parsedFeeAmount;
+  }
+
   const configured = Number(process.env.TRAINING_APPLICATION_FEE_PAISE ?? "");
   if (Number.isFinite(configured) && configured >= 100) {
     return configured;
@@ -24,7 +45,7 @@ export function getTrainingApplicationAmountPaise() {
     return 100;
   }
 
-  throw new Error("TRAINING_APPLICATION_FEE_PAISE must be configured for production.");
+  throw new Error("A valid training program fee must be configured for production payments.");
 }
 
 export function buildPhonePeRedirectUrl(merchantOrderId: string) {

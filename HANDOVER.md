@@ -56,7 +56,7 @@
   - `PHONEPE_CLIENT_VERSION`
   - `PHONEPE_WEBHOOK_USERNAME`
   - `PHONEPE_WEBHOOK_PASSWORD`
-  - `TRAINING_APPLICATION_FEE_PAISE`
+  - `TRAINING_APPLICATION_FEE_PAISE` only if a temporary global fallback fee is needed
 
 ## Important Current Limitation
 
@@ -147,7 +147,8 @@ npm run build
   - `PHONEPE_CLIENT_VERSION`
   - `PHONEPE_WEBHOOK_USERNAME=api_culture_43481450`
   - `PHONEPE_WEBHOOK_PASSWORD`
-  - `TRAINING_APPLICATION_FEE_PAISE`
+- Payment amounts are parsed from the selected program fee shown on the website, for example `INR 5,000` becomes `500000` paise.
+- Optional fallback for unusual cases: `TRAINING_APPLICATION_FEE_PAISE`
 - If `DATABASE_URL` is missing:
   - public site still works with fallback data
   - admin content remains read-only locally
@@ -187,7 +188,7 @@ npm run build
 - Copy API credentials from PhonePe Developer Settings -> API Keys.
 - Add the PhonePe env vars to Vercel Production.
 - Redeploy production after adding env vars.
-- Submit a test training application and confirm the browser redirects to the PhonePe checkout URL.
+- Submit a test training application and confirm the browser redirects to the PhonePe checkout URL with the selected program's listed website price.
 - Confirm the return page loads at `/payments/return?merchantOrderId=...`.
 - Confirm a successful payment updates Admin -> Payments and Admin -> Applications.
 

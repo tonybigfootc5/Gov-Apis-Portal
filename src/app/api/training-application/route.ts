@@ -8,6 +8,7 @@ import {
   buildPhonePeRedirectUrl,
   getCurrentPaymentEnvironment,
   getTrainingApplicationAmountPaise,
+  getTrainingProgramFeeByServiceName,
 } from "@/lib/phonepe-config";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
@@ -58,7 +59,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const amountPaise = getTrainingApplicationAmountPaise();
+    const selectedProgramFee = getTrainingProgramFeeByServiceName(parsed.data.serviceName);
+    const amountPaise = getTrainingApplicationAmountPaise(selectedProgramFee);
 
     const application = await prisma.$transaction(async (tx) => {
       const batchDate = new Date();
