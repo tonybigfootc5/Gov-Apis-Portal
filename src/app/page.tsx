@@ -118,7 +118,6 @@ export default async function Home() {
                 fill="#f8faf7"
               />
             </svg>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[19] h-[6.9rem] bg-[#f8faf7] sm:h-[5.55rem] lg:h-[4.95rem]" aria-hidden="true" />
 
             <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-4 pt-7 sm:px-8 sm:pb-4 sm:pt-6 lg:px-12 lg:pb-3 lg:pt-5">
               <div className="relative grid grid-cols-2 gap-y-3 lg:grid-cols-4 lg:gap-y-0">
