@@ -352,6 +352,7 @@ function CourseOverview({
           <span className="min-w-0">
             <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-[#8b5a00]">Course fee</span>
             <span className="mt-1 block whitespace-nowrap text-2xl font-black leading-none text-[#06432f]">{feeLabel}</span>
+            <span className="mt-1 block text-[10px] font-black uppercase tracking-[0.12em] text-[#2f703c]">GST included</span>
           </span>
         </div>
         <div className="relative max-w-md">
@@ -368,6 +369,7 @@ function CourseOverview({
             <span className="min-w-0">
               <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-[#8b5a00]">Course fee</span>
               <span className="mt-1 block whitespace-nowrap text-2xl font-black leading-none text-[#06432f]">{feeLabel}</span>
+              <span className="mt-1 block text-[10px] font-black uppercase tracking-[0.12em] text-[#2f703c]">GST included</span>
             </span>
           </div>
         </div>

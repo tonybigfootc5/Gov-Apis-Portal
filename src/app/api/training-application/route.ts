@@ -35,16 +35,16 @@ export async function POST(request: Request) {
 
   try {
     if (!hasDatabaseUrl) {
-    const application = await createLocalTrainingApplication({
-      ...parsed.data,
-      email: parsed.data.email || "no-email-provided@applicant.local",
-      residencePhone: parsed.data.residencePhone || "",
-      educationQualification: parsed.data.educationQualification || "",
-      occupation: parsed.data.occupation || "",
-      sponsoringOrganization: parsed.data.sponsoringOrganization || "",
-      photoObjectKey: parsed.data.photoObjectKey || "",
-      photoDataUrl: parsed.data.photoDataUrl || "",
-    });
+      const application = await createLocalTrainingApplication({
+        ...parsed.data,
+        email: parsed.data.email || "no-email-provided@applicant.local",
+        residencePhone: parsed.data.residencePhone || "",
+        educationQualification: parsed.data.educationQualification || "",
+        occupation: parsed.data.occupation || "",
+        sponsoringOrganization: parsed.data.sponsoringOrganization || "",
+        photoObjectKey: parsed.data.photoObjectKey || "",
+        photoDataUrl: parsed.data.photoDataUrl || "",
+      });
 
       return NextResponse.json(
         {
@@ -124,16 +124,22 @@ export async function POST(request: Request) {
     });
 
     if (!isPhonePeConfigured()) {
+      await prisma.trainingApplication.update({
+        where: { id: application.id },
+        data: { attemptStatus: "PAYMENT_FAILED" },
+      });
+
       return serviceUnavailable(
         "Application saved successfully, but payment gateway credentials are not configured yet. Please contact the center to complete payment.",
       );
     }
 
-    let merchantOrderId: string;
+    let merchantOrderId: string | null = null;
     let checkoutUrl: string;
+    let redirectUrl: string | null = null;
     try {
       merchantOrderId = buildMerchantOrderId(application.id);
-      const redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);
+      redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);
       checkoutUrl = (
         await createPhonePePayment({
           merchantOrderId,
@@ -150,25 +156,67 @@ export async function POST(request: Request) {
         })
       ).checkoutUrl;
 
-      await prisma.paymentOrder.create({
-        data: {
-          trainingApplicationId: application.id,
-          environment: getCurrentPaymentEnvironment(),
-          merchantOrderId,
-          checkoutUrl,
-          redirectUrl,
-          status: "PENDING",
-          amountPaise,
-          meta: {
-            ipHash,
-            serviceName: parsed.data.serviceName,
-            mode: "phonepe",
+      await prisma.$transaction([
+        prisma.paymentOrder.create({
+          data: {
+            trainingApplicationId: application.id,
+            environment: getCurrentPaymentEnvironment(),
+            merchantOrderId,
+            checkoutUrl,
+            redirectUrl,
+            status: "PENDING",
+            amountPaise,
+            meta: {
+              ipHash,
+              serviceName: parsed.data.serviceName,
+              mode: "phonepe",
+            },
+            latestEventName: "checkout.created",
           },
-          latestEventName: "checkout.created",
-        },
-      });
+        }),
+        prisma.trainingApplication.update({
+          where: { id: application.id },
+          data: { attemptStatus: "PAYMENT_INITIATED" },
+        }),
+      ]);
     } catch (error) {
       console.error("PhonePe checkout creation failed", error);
+      const failureMessage = error instanceof Error ? error.message : "PhonePe checkout creation failed.";
+
+      if (merchantOrderId && redirectUrl) {
+        await prisma.paymentOrder
+          .create({
+            data: {
+              trainingApplicationId: application.id,
+              environment: getCurrentPaymentEnvironment(),
+              merchantOrderId,
+              redirectUrl,
+              status: "FAILED",
+              amountPaise,
+              meta: {
+                ipHash,
+                serviceName: parsed.data.serviceName,
+                mode: "phonepe",
+              },
+              latestErrorMessage: failureMessage,
+              latestEventName: "checkout.failed",
+              failedAt: new Date(),
+            },
+          })
+          .catch((paymentOrderError) => {
+            console.error("Failed to record PhonePe checkout failure", paymentOrderError);
+          });
+      }
+
+      await prisma.trainingApplication
+        .update({
+          where: { id: application.id },
+          data: { attemptStatus: "PAYMENT_FAILED" },
+        })
+        .catch((applicationUpdateError) => {
+          console.error("Failed to mark application payment as failed", applicationUpdateError);
+        });
+
       return serviceUnavailable(
         "Application saved, but the payment gateway could not be opened right now. Please try again in a minute or contact the center.",
       );

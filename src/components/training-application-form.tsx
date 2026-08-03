@@ -117,6 +117,8 @@ const TEST_EDUCATION = ["Intermediate", "B.Sc Agriculture", "Diploma", "Graduate
 const TEST_OCCUPATIONS = ["Farmer", "Student", "Self employed", "Rural entrepreneur", "Homemaker"];
 const TEST_PHOTO_DATA_URL =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='480'%20height='600'%20viewBox='0%200%20480%20600'%3E%3Crect%20width='480'%20height='600'%20fill='%23f7f3ea'/%3E%3Ccircle%20cx='240'%20cy='196'%20r='86'%20fill='%23173f33'/%3E%3Cpath%20d='M92%20512c20-102%2078-158%20148-158s128%2056%20148%20158'%20fill='%23f2b544'/%3E%3Ctext%20x='240'%20y='548'%20text-anchor='middle'%20font-family='Arial'%20font-size='28'%20font-weight='700'%20fill='%23173f33'%3ETEST%20PHOTO%3C/text%3E%3C/svg%3E";
+const SHOW_TEST_AUTOFILL =
+  process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_ENABLE_APPLICATION_AUTOFILL === "true";
 
 function buildAddressLine(data: Pick<FormState, "houseNo" | "street" | "village" | "post" | "addressLine">) {
   return [
@@ -594,14 +596,16 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   <h3 className="font-display mt-3 text-3xl text-bright sm:text-4xl">{copy.steps[step].subtitle}</h3>
                 </div>
                 <div className="flex flex-col gap-3 sm:items-end">
-                  <button
-                    type="button"
-                    onClick={autoFillForTesting}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#f2b544]/50 bg-[#fff8df] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#173f33] shadow-[0_10px_24px_rgba(242,181,68,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f2b544]"
-                  >
-                    <Sparkles className="h-4 w-4" aria-hidden="true" />
-                    Auto fill test data
-                  </button>
+                  {SHOW_TEST_AUTOFILL ? (
+                    <button
+                      type="button"
+                      onClick={autoFillForTesting}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#f2b544]/50 bg-[#fff8df] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#173f33] shadow-[0_10px_24px_rgba(242,181,68,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f2b544]"
+                    >
+                      <Sparkles className="h-4 w-4" aria-hidden="true" />
+                      Auto fill test data
+                    </button>
+                  ) : null}
                   <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] px-4 py-3 text-sm text-dim">
                     <p className="font-semibold text-bright">{form.serviceName}</p>
                     <p className="mt-1">{copy.selectedTraining}</p>
