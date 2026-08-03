@@ -12,7 +12,6 @@ import {
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingBatchPeriod, getTrainingServiceInitials } from "@/lib/training-application";
-import { trainingProgramCatalog } from "@/lib/training-programs";
 import { trainingApplicationSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
@@ -123,20 +122,8 @@ export async function POST(request: Request) {
     });
 
     if (!isPhonePeConfigured()) {
-      const fallbackProgram =
-        trainingProgramCatalog.find((program) => program.title.toLowerCase() === parsed.data.serviceName.toLowerCase()) ??
-        null;
-
-      return NextResponse.json(
-        {
-          ok: true,
-          applicationId: application.id,
-          localMode: true,
-          redirectUrl: fallbackProgram ? `/programs/${fallbackProgram.slug}` : "/programs",
-          message:
-            "Application saved successfully. Payment is not configured in this environment yet, so the record has been kept for manual follow-up.",
-        },
-        { status: 201 },
+      return serviceUnavailable(
+        "Application saved successfully, but payment gateway credentials are not configured yet. Please contact the center to complete payment.",
       );
     }
 
