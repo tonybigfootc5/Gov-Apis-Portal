@@ -108,13 +108,13 @@ export default async function Home() {
             </div>
 
             <svg
-              className="pointer-events-none absolute -inset-x-1 -bottom-px z-20 h-[8.1rem] w-[calc(100%+8px)] drop-shadow-[0_-18px_48px_rgba(7,20,18,0.13)] sm:h-[6.7rem] lg:h-[5.8rem]"
+              className="pointer-events-none absolute inset-x-0 -bottom-px z-20 h-[8.1rem] w-full drop-shadow-[0_-18px_48px_rgba(7,20,18,0.13)] sm:h-[6.7rem] lg:h-[5.8rem]"
               viewBox="0 0 1000 108"
               preserveAspectRatio="none"
               aria-hidden="true"
             >
               <path
-                d="M0 108V25C0 10 15 0 38 0H404C442 0 468 28 500 28C532 28 558 0 596 0H962C985 0 1000 10 1000 25V108H0Z"
+                d="M0 108V34C0 12 18 0 52 0H404C442 0 468 28 500 28C532 28 558 0 596 0H948C982 0 1000 12 1000 34V108H0Z"
                 fill="#f8faf7"
               />
             </svg>
