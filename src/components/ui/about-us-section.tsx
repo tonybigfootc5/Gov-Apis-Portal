@@ -216,15 +216,16 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
         return basePosition;
       }
 
-      const x = clamp(basePosition.x, -260, 260);
-      const y = clamp(basePosition.y, -42, 42);
+      const activeIndex = supportingCultures.findIndex((entry) => entry.title === culture.title);
+      const activeDockX = activeIndex === 1 ? 318 : activeIndex === 2 ? -318 : 318;
+      const activeDockY = activeIndex === 1 ? -78 : 88;
 
       return {
         ...basePosition,
-        lineAngle: Math.atan2(y, x) * (180 / Math.PI),
-        lineLength: Math.hypot(x, y),
-        x,
-        y,
+        lineAngle: Math.atan2(activeDockY, activeDockX) * (180 / Math.PI),
+        lineLength: Math.hypot(activeDockX, activeDockY),
+        x: activeDockX,
+        y: activeDockY,
       };
     })(),
   }));
@@ -312,7 +313,7 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                 }}
                 onMouseEnter={() => setHoveredCulture(culture.title)}
                 onMouseLeave={() => setHoveredCulture(null)}
-                className={`absolute left-1/2 top-1/2 ${isActive ? "w-[26rem]" : culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.25rem] border p-4 text-left backdrop-blur-xl transition-[border-color,background-color,box-shadow,opacity,width] duration-200 ${
+                className={`absolute left-1/2 top-1/2 ${isActive ? "w-[22rem] xl:w-[24rem]" : culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.25rem] border p-4 text-left backdrop-blur-xl transition-[border-color,background-color,box-shadow,opacity,width] duration-200 ${
                   isActive
                     ? "border-[#d6a84b] bg-[linear-gradient(180deg,rgba(255,249,235,0.94),rgba(255,255,255,0.68))] shadow-[0_28px_60px_rgba(184,120,22,0.2)]"
                     : isHovered
@@ -333,10 +334,6 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
       </div>
     </div>
   );
-}
-
-function clamp(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
 }
 
 function CultureOrbitContent({
