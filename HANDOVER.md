@@ -26,10 +26,10 @@
 - Header logo replaced with custom honeycomb artwork from `public/api-culture-logo.png`.
 - Top navbar `Apply` button removed.
 - Training application flow moved into the training area:
-  - users open `/programs`
-  - select a training
-  - open that training detail page
-  - fill the application form inside that selected training page
+  - users open the homepage training section or `/programs`
+  - select a training inside the combined program experience
+  - fill the application form in the modal without opening a separate program detail page
+- Program-specific detail URLs such as `/programs/scientific-beekeeping-foundation` are legacy deep links and permanently redirect to `/#training-section` to avoid duplicate program pages.
 - PhonePe Standard Checkout integration is present:
   - application submission creates a PhonePe checkout order when gateway env vars are configured
   - successful checkout returns through `/payments/return`
@@ -73,7 +73,7 @@
   - `src/app/page.tsx`
 - Training pages:
   - `src/app/programs/page.tsx`
-  - `src/app/programs/[slug]/page.tsx`
+  - `src/app/programs/[slug]/page.tsx` redirects legacy program detail links to the homepage training section
   - `src/components/training-application-form.tsx`
 - Redirected apply route:
   - `src/app/apply/page.tsx`
