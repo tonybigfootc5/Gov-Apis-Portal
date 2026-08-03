@@ -3,7 +3,6 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import * as React from "react";
-import { createPortal } from "react-dom";
 import {
   ArrowRight,
   BookOpenCheck,
@@ -190,6 +189,10 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
 
   if (!course) return null;
 
+  function openApplicationForCourse(selectedCourse: TrainingPreviewCourse) {
+    setApplicationCourse(selectedCourse);
+  }
+
   function selectCourse(index: number) {
     setActive(index);
     setActiveDetail("about");
@@ -211,24 +214,21 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
         <div className="mt-6 rounded-lg border border-[#efe7da] bg-white/82 p-3 shadow-[0_28px_80px_rgba(36,41,34,0.1)] backdrop-blur sm:p-4 lg:p-5">
           <div className="training-program-layout">
             <TrainingRail courses={courses} active={active} onSelect={selectCourse} />
-            <CourseOverview course={course} overviewRef={courseOverviewRef} onEnroll={() => setApplicationCourse(course)} />
+            <CourseOverview course={course} overviewRef={courseOverviewRef} onEnroll={() => openApplicationForCourse(course)} />
             <CourseDetailTabs course={course} active={activeDetail} onSelect={setActiveDetail} />
           </div>
           <BenefitRow />
         </div>
       </div>
 
-      {applicationCourse && typeof document !== "undefined"
-        ? createPortal(
-            <ApplicationOverlay
-              course={applicationCourse}
-              language={language}
-              serviceOptions={serviceOptions}
-              onClose={() => setApplicationCourse(null)}
-            />,
-            document.body,
-          )
-        : null}
+      {applicationCourse ? (
+        <ApplicationOverlay
+          course={applicationCourse}
+          language={language}
+          serviceOptions={serviceOptions}
+          onClose={() => setApplicationCourse(null)}
+        />
+      ) : null}
     </section>
   );
 }
@@ -334,6 +334,11 @@ function CourseOverview({
 }) {
   const skills = normalizeSkills(course);
   const feeLabel = formatFeeForDisplay(course.fee);
+  function handleEnrollClick(event: React.MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    onEnroll();
+  }
 
   return (
     <article ref={overviewRef} className="scroll-mt-24 overflow-hidden rounded-lg border border-[#e7dfd2] bg-white shadow-[0_18px_46px_rgba(36,41,34,0.08)]">
@@ -368,7 +373,7 @@ function CourseOverview({
         </div>
         <button
           type="button"
-          onClick={onEnroll}
+          onClick={handleEnrollClick}
           className="absolute bottom-5 right-5 z-20 inline-flex min-h-16 items-center justify-center gap-3 rounded-lg bg-[#06432f] px-5 py-2.5 text-left text-white shadow-[0_18px_38px_rgba(6,67,47,0.26)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
         >
           <span className="grid gap-1">
