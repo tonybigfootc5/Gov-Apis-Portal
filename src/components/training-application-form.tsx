@@ -10,6 +10,7 @@ import {
   ChevronRight,
   MapPinned,
   ShieldCheck,
+  Sparkles,
   UserRound,
 } from "lucide-react";
 import { optimizeImageForInlineStorage } from "@/lib/client-media";
@@ -108,6 +109,15 @@ const physicalFormCopy = {
   additionalAddress: "Additional address details",
 };
 
+const TEST_NAMES = ["Arjun Reddy", "Meera Sharma", "Kiran Patel", "Saanvi Rao", "Rahul Verma", "Ananya Iyer"];
+const TEST_GUARDIANS = ["Suresh Reddy", "Lakshmi Devi", "Vijay Kumar", "Ravi Sharma", "Nirmala Rao"];
+const TEST_VILLAGES = ["Mamidipally", "Kothapet", "Chintal", "Gundlapochampally", "Shamirpet"];
+const TEST_DISTRICTS = ["Hyderabad", "Ranga Reddy", "Medchal", "Sangareddy", "Siddipet"];
+const TEST_EDUCATION = ["Intermediate", "B.Sc Agriculture", "Diploma", "Graduate", "10th Pass"];
+const TEST_OCCUPATIONS = ["Farmer", "Student", "Self employed", "Rural entrepreneur", "Homemaker"];
+const TEST_PHOTO_DATA_URL =
+  "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='480'%20height='600'%20viewBox='0%200%20480%20600'%3E%3Crect%20width='480'%20height='600'%20fill='%23f7f3ea'/%3E%3Ccircle%20cx='240'%20cy='196'%20r='86'%20fill='%23173f33'/%3E%3Cpath%20d='M92%20512c20-102%2078-158%20148-158s128%2056%20148%20158'%20fill='%23f2b544'/%3E%3Ctext%20x='240'%20y='548'%20text-anchor='middle'%20font-family='Arial'%20font-size='28'%20font-weight='700'%20fill='%23173f33'%3ETEST%20PHOTO%3C/text%3E%3C/svg%3E";
+
 function buildAddressLine(data: Pick<FormState, "houseNo" | "street" | "village" | "post" | "addressLine">) {
   return [
     data.houseNo ? `H. No. ${data.houseNo}` : "",
@@ -119,6 +129,59 @@ function buildAddressLine(data: Pick<FormState, "houseNo" | "street" | "village"
     .map((item) => item.trim())
     .filter(Boolean)
     .join(", ");
+}
+
+function pickRandom(items: string[]) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function randomDigits(length: number) {
+  return Array.from({ length }, () => Math.floor(Math.random() * 10)).join("");
+}
+
+function buildRandomPastDate(minAge: number, maxAge: number) {
+  const now = new Date();
+  const age = minAge + Math.floor(Math.random() * (maxAge - minAge + 1));
+  const date = new Date(now.getFullYear() - age, Math.floor(Math.random() * 12), 1 + Math.floor(Math.random() * 28));
+
+  return date.toISOString().slice(0, 10);
+}
+
+function buildTestApplication(currentServiceName: string): FormState {
+  const suffix = randomDigits(4);
+  const village = pickRandom(TEST_VILLAGES);
+  const district = pickRandom(TEST_DISTRICTS);
+
+  return {
+    ...INITIAL_FORM,
+    serviceName: currentServiceName,
+    applicationDate: new Date().toISOString().slice(0, 10),
+    candidateName: pickRandom(TEST_NAMES),
+    guardianName: pickRandom(TEST_GUARDIANS),
+    aadhaarNo: `9${randomDigits(11)}`,
+    email: `test.applicant.${suffix}@example.com`,
+    gender: Math.random() > 0.5 ? "male" : "female",
+    dateOfBirth: buildRandomPastDate(20, 48),
+    houseNo: `${1 + Math.floor(Math.random() * 9)}-${10 + Math.floor(Math.random() * 89)}`,
+    street: `Bee Farm Road ${1 + Math.floor(Math.random() * 6)}`,
+    village,
+    post: `${village} Post`,
+    addressLine: "Temporary autofill test address",
+    mandal: "Not provided",
+    district,
+    state: "Telangana",
+    pinCode: `50${randomDigits(4)}`,
+    phone: `9${randomDigits(9)}`,
+    residencePhone: "",
+    educationQualification: pickRandom(TEST_EDUCATION),
+    occupation: pickRandom(TEST_OCCUPATIONS),
+    sponsoringOrganization: "Testing only",
+    photoName: `test-photo-${suffix}.svg`,
+    photoType: "image/svg+xml",
+    photoUrl: TEST_PHOTO_DATA_URL,
+    photoObjectKey: "",
+    photoDataUrl: TEST_PHOTO_DATA_URL,
+  };
 }
 
 function requiredStepFields(stepIndex: number, data: FormState) {
@@ -354,6 +417,19 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  function autoFillForTesting() {
+    const testApplication = buildTestApplication(form.serviceName);
+
+    setForm(testApplication);
+    setStep(STEPS.length - 1);
+    setSubmitState("idle");
+    setPhotoUploadState("uploaded");
+    setMessage("");
+    setPhotoPreviewUrl(TEST_PHOTO_DATA_URL);
+    setPhotoStatus("Temporary test data filled. Review and continue to payment.");
+    setShowPreview(false);
+  }
+
   async function onPhotoChange(file: File | null) {
     if (!file) {
       setPhotoUploadState("idle");
@@ -517,9 +593,19 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{copy.steps[step].title}</p>
                   <h3 className="font-display mt-3 text-3xl text-bright sm:text-4xl">{copy.steps[step].subtitle}</h3>
                 </div>
-                <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] px-4 py-3 text-sm text-dim">
-                  <p className="font-semibold text-bright">{form.serviceName}</p>
-                  <p className="mt-1">{copy.selectedTraining}</p>
+                <div className="flex flex-col gap-3 sm:items-end">
+                  <button
+                    type="button"
+                    onClick={autoFillForTesting}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#f2b544]/50 bg-[#fff8df] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#173f33] shadow-[0_10px_24px_rgba(242,181,68,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f2b544]"
+                  >
+                    <Sparkles className="h-4 w-4" aria-hidden="true" />
+                    Auto fill test data
+                  </button>
+                  <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] px-4 py-3 text-sm text-dim">
+                    <p className="font-semibold text-bright">{form.serviceName}</p>
+                    <p className="mt-1">{copy.selectedTraining}</p>
+                  </div>
                 </div>
               </div>
             </div>
