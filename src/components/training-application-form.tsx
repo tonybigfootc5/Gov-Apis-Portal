@@ -482,21 +482,29 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   return (
     <div className="mx-auto max-w-6xl">
       <div className="rounded-[1.4rem] border border-[#e3ded2] bg-[#fffdf8] p-3 shadow-[0_24px_70px_rgba(34,45,38,0.1)] sm:rounded-[2rem] sm:p-5 lg:p-7">
-        <div className="relative z-10 grid min-w-0 gap-4 lg:grid-cols-[minmax(0,17rem)_1fr] lg:gap-8">
-          <aside className="min-w-0 rounded-[1.25rem] border border-[#e3ded2] bg-[#f7f3ea] p-4 sm:rounded-[1.5rem] sm:p-5 lg:sticky lg:top-5 lg:self-start">
-            <div className="flex items-start justify-between gap-4 lg:block">
+        <div className="relative z-10 grid min-w-0 gap-5">
+          <aside className="min-w-0 rounded-[1.25rem] border border-[#e3ded2] bg-[#f7f3ea] p-4 sm:rounded-[1.5rem] sm:p-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{copy.enrollmentFlow}</p>
                 <h2 className="mt-2 text-2xl font-black leading-tight text-[#173f33]">{showPreview ? "Review and pay" : copy.applyLead}</h2>
               </div>
-              <div className="rounded-full bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#173f33] lg:mt-4 lg:inline-flex">
-                {showPreview ? `${completedSteps}/${STEPS.length} ready` : `Step ${step + 1}/${STEPS.length}`}
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="rounded-full bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#173f33]">
+                  {showPreview ? `${completedSteps}/${STEPS.length} ready` : `Step ${step + 1}/${STEPS.length}`}
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#5f259f]/15 bg-white px-3 py-2 text-xs font-black text-[#173f33] shadow-[0_10px_22px_rgba(34,45,38,0.06)]">
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-[#5f259f] text-[0.65rem] font-black tracking-[-0.02em] text-white" aria-hidden="true">
+                    Pe
+                  </span>
+                  <span>PhonePe secure payment</span>
+                </div>
               </div>
             </div>
             <div className="mt-5 h-2 overflow-hidden rounded-full bg-white">
               <div className="h-full rounded-full bg-[#b36b00] transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
-            <div className="mt-4 grid min-w-0 grid-cols-2 gap-3 lg:mt-6 lg:grid-cols-1">
+            <div className="mt-4 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {STEPS.map((item, index) => {
                 const Icon = item.icon;
                 const active = index === step;
@@ -521,21 +529,24 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                         {complete ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : <Icon className="h-4 w-4" aria-hidden="true" />}
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-[#173f33] lg:whitespace-normal">{copy.steps[index].title}</p>
-                        <p className="hidden text-xs font-semibold text-[#66776f] sm:block lg:block">{copy.steps[index].subtitle}</p>
+                        <p className="truncate text-sm font-black text-[#173f33]">{copy.steps[index].title}</p>
+                        <p className="hidden text-xs font-semibold text-[#66776f] sm:block">{copy.steps[index].subtitle}</p>
                       </div>
                     </div>
                   </button>
                 );
               })}
             </div>
-            {copy.sidebarNote ? (
-              <div className="mt-5 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm leading-7 text-[#5c6d63]">
-                {copy.sidebarNote}
+            <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
+              {copy.sidebarNote ? (
+                <div className="rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm leading-7 text-[#5c6d63]">
+                  {copy.sidebarNote}
+                </div>
+              ) : <span aria-hidden="true" />}
+              <div className="inline-flex items-center gap-3 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm font-semibold leading-6 text-[#5c6d63]">
+                <ShieldCheck className="h-5 w-5 shrink-0 text-[#5f259f]" aria-hidden="true" />
+                <span>Secure payment opens after review.</span>
               </div>
-            ) : null}
-            <div className="mt-4 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm font-semibold leading-6 text-[#5c6d63]">
-              Secure PhonePe payment opens after review.
             </div>
           </aside>
 
@@ -550,7 +561,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
               onConfirm={() => void handleSubmit()}
             />
           ) : (
-          <section className="min-w-0 rounded-[1.25rem] border border-[#e3ded2] bg-white p-4 sm:rounded-[1.5rem] sm:p-6">
+          <section className="mx-auto w-full max-w-4xl min-w-0 rounded-[1.25rem] border border-[#e3ded2] bg-white p-4 sm:rounded-[1.5rem] sm:p-6">
             <div className="border-b border-[#e3ded2] pb-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
@@ -968,7 +979,7 @@ function ApplicationPreview({
   ] as const;
 
   return (
-    <section id="application-review" className="min-w-0 scroll-mt-36 overflow-hidden rounded-[1.25rem] border border-[#dfd6c4] bg-white shadow-[0_22px_64px_rgba(34,45,38,0.12)] sm:scroll-mt-8 sm:rounded-[1.8rem]">
+    <section id="application-review" className="mx-auto w-full max-w-4xl min-w-0 scroll-mt-36 overflow-hidden rounded-[1.25rem] border border-[#dfd6c4] bg-white shadow-[0_22px_64px_rgba(34,45,38,0.12)] sm:scroll-mt-8 sm:rounded-[1.8rem]">
       <div className="grid gap-5 border-b border-[#eee6d8] bg-[#173f33] p-5 text-white sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f2b544]">Cross-check before payment</p>
