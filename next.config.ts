@@ -27,6 +27,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/programs/:slug",
+        destination: "/#training-section",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

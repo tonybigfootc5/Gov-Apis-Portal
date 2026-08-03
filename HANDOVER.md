@@ -67,13 +67,14 @@
 
 - App layout and global nav:
   - `src/app/layout.tsx`
+  - `next.config.ts`
   - `src/components/site-header.tsx`
   - `src/components/site-footer.tsx`
 - Homepage:
   - `src/app/page.tsx`
 - Training pages:
   - `src/app/programs/page.tsx`
-  - `src/app/programs/[slug]/page.tsx` redirects legacy program detail links to the homepage training section
+  - Legacy `/programs/:slug` detail links redirect through `next.config.ts` to the homepage training section
   - `src/components/training-application-form.tsx`
 - Redirected apply route:
   - `src/app/apply/page.tsx`
