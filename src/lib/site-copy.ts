@@ -306,7 +306,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       officialWebsite: "Official website",
       instagramHandle: "honey2health",
       youtubeHandle: "@ApiCultureTechCenter",
-      designedDevelopedBy: "Architected & Developed by",
+      designedDevelopedBy: "Developed & Architected by",
       whatsappOnlyNote: "For quick communication, drop a WhatsApp message.",
     },
     policies: {
@@ -515,7 +515,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       officialWebsite: "అధికారిక వెబ్‌సైట్",
       instagramHandle: "honey2health",
       youtubeHandle: "@ApiCultureTechCenter",
-      designedDevelopedBy: "Architected & Developed by",
+      designedDevelopedBy: "Developed & Architected by",
       whatsappOnlyNote: "త్వరిత కమ్యూనికేషన్ కోసం WhatsApp సందేశం పంపండి.",
     },
     policies: {
@@ -723,7 +723,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       officialWebsite: "आधिकारिक वेबसाइट",
       instagramHandle: "honey2health",
       youtubeHandle: "@ApiCultureTechCenter",
-      designedDevelopedBy: "Architected & Developed by",
+      designedDevelopedBy: "Developed & Architected by",
       whatsappOnlyNote: "त्वरित संवाद के लिए WhatsApp संदेश भेजें.",
     },
     policies: {
