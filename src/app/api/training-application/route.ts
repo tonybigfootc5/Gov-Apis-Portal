@@ -12,7 +12,7 @@ import {
 } from "@/lib/phonepe-config";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
-import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingBatchPeriod, getTrainingServiceInitials } from "@/lib/training-application";
+import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingCourseCode } from "@/lib/training-application";
 import { trainingApplicationSchema } from "@/lib/validators";
 
 const TRAINING_APPLICATION_SEQUENCE_LOCK_ID = 84152026;
@@ -69,13 +69,12 @@ export async function POST(request: Request) {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(${TRAINING_APPLICATION_SEQUENCE_LOCK_ID})`;
 
       const batchDate = new Date();
-      const initials = getTrainingServiceInitials(parsed.data.serviceName);
-      const { month, year } = getTrainingBatchPeriod(batchDate);
-      const monthSuffix = `-${month}-${year}`;
+      const courseCode = getTrainingCourseCode(parsed.data.serviceName);
+      const year = String(batchDate.getFullYear()).slice(-2);
       const existingMonthlyBatch = await tx.trainingApplication.findFirst({
         where: {
           serviceName: parsed.data.serviceName,
-          batchCode: { endsWith: monthSuffix },
+          batchCode: { startsWith: `${courseCode}-${year}-HYD-B` },
         },
         orderBy: { createdAt: "asc" },
         select: { batchCode: true },
@@ -84,7 +83,7 @@ export async function POST(request: Request) {
         existingMonthlyBatch?.batchCode ??
         buildTrainingBatchCode(
           parsed.data.serviceName,
-          await getNextBatchNumberForService(tx, initials, parsed.data.serviceName),
+          await getNextBatchNumberForService(tx, courseCode, parsed.data.serviceName),
           batchDate,
         );
       const [applicationCounter, batchCounter] = await Promise.all([
@@ -259,20 +258,25 @@ export async function POST(request: Request) {
 
 async function getNextBatchNumberForService(
   tx: Pick<typeof prisma, "trainingApplication">,
-  initials: string,
+  courseCode: string,
   serviceName: string,
 ) {
   const existingBatches = await tx.trainingApplication.findMany({
     where: {
       serviceName,
-      batchCode: { startsWith: `${initials}-` },
+      batchCode: { startsWith: `${courseCode}-` },
     },
     select: { batchCode: true },
     distinct: ["batchCode"],
   });
   const largestBatchNumber = existingBatches.reduce((largest, application) => {
-    const parts = application.batchCode?.split("-") ?? [];
-    const batchNumber = parts[0] === initials && parts.length === 4 ? Number(parts[1]) : 0;
+    const modernBatchMatch = application.batchCode?.match(new RegExp(`^${courseCode}-\\d{2}-HYD-B(\\d+)$`));
+    const legacyParts = application.batchCode?.split("-") ?? [];
+    const batchNumber = modernBatchMatch
+      ? Number(modernBatchMatch[1])
+      : legacyParts[0] === courseCode && legacyParts.length === 4
+        ? Number(legacyParts[1])
+        : 0;
 
     return Number.isFinite(batchNumber) ? Math.max(largest, batchNumber) : largest;
   }, 0);

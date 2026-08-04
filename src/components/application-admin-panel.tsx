@@ -9,6 +9,7 @@ import type {
   ApplicationPaymentStatus,
   TrainingApplicationRecord,
 } from "@/lib/training-application";
+import { formatStudentCode } from "@/lib/training-application";
 
 type Props = {
   storageMode: "database" | "local";
@@ -269,7 +270,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search name, phone, student no., batch no."
+              placeholder="Search name, phone, enrollment ID, batch no."
               className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#819083]"
               aria-label="Search applications"
             />
@@ -446,7 +447,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                           <span>Submitted</span>
                           <span>Payment</span>
                           <span>Approval</span>
-                          <span>Number</span>
+                          <span>Enrollment ID</span>
                           <span className="text-right">Action</span>
                         </div>
                     {groupApplications.map((application) => {
@@ -654,7 +655,7 @@ function ApplicationCard({
   const previewMeta = getPreviewApplicationMeta(application);
   const studentDetailRows = [
     { label: "Application number", value: previewMeta.applicationCode ?? "Not assigned yet" },
-    { label: "Student number", value: previewMeta.studentCode ?? "Not assigned yet" },
+    { label: "Enrollment ID", value: previewMeta.studentCode ?? "Not assigned yet" },
     { label: "Student name", value: application.payload.candidateName },
     { label: "Batch number", value: previewMeta.batchNumber },
     { label: "Phone number", value: application.payload.phone || "Not provided" },
@@ -947,19 +948,21 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
   const match = /app-preview-(\d+)/.exec(application.id);
   const index = match ? Number(match[1]) - 1 : -1;
   const unassignedBatchNumber = buildUnassignedBatchNumber();
-  const unassignedStudentCode = `${unassignedBatchNumber}-${String(buildStableStudentSequence(application.id)).padStart(3, "0")}`;
+  const unassignedStudentCode = formatStudentCode(
+    unassignedBatchNumber,
+    buildStableStudentSequence(application.id),
+    application.payload.candidateName,
+  );
   const applicationCode = application.applicationCode ?? (
     application.applicationNumber ? `API-${String(application.applicationNumber).padStart(4, "0")}` : null
   );
-  const studentCode = application.studentCode ?? (
-    application.batchCode && application.batchSequenceNumber
-      ? `${application.batchCode}-${String(application.batchSequenceNumber).padStart(3, "0")}`
-      : null
-  );
+  const studentCode = application.batchCode && application.batchSequenceNumber
+    ? formatStudentCode(application.batchCode, application.batchSequenceNumber, application.payload.candidateName)
+    : application.studentCode ?? null;
 
   if (index >= 0) {
-    const batchNumber = index < 10 ? "BK-001-07-2026" : index < 20 ? "QR-001-08-2026" : "BK-002-09-2026";
-    const previewStudentCode = `${batchNumber}-${String(index + 1).padStart(3, "0")}`;
+    const batchNumber = index < 10 ? "BK-26-HYD-B01" : index < 20 ? "QCM-26-HYD-B01" : "BK-26-HYD-B02";
+    const previewStudentCode = formatStudentCode(batchNumber, index + 1, application.payload.candidateName);
     const paymentSentDate =
       application.payload.paymentStatus === "NOT_STARTED"
         ? "Not sent yet"
@@ -996,10 +999,9 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
 
 function buildUnassignedBatchNumber() {
   const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const year = String(now.getFullYear());
+  const year = String(now.getFullYear()).slice(-2);
 
-  return `UN-001-${month}-${year}`;
+  return `UN-${year}-HYD-B01`;
 }
 
 function buildStableStudentSequence(value: string) {

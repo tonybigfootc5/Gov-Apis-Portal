@@ -6,8 +6,7 @@ import {
   buildTrainingBatchCode,
   formatApplicationCode,
   formatStudentCode,
-  getTrainingBatchPeriod,
-  getTrainingServiceInitials,
+  getTrainingCourseCode,
   type ApplicationApprovalStatus,
   type ApplicationAttemptStatus,
   type ApplicationCrossCheckStatus,
@@ -126,11 +125,11 @@ export async function createLocalTrainingApplication(input: CreateLocalTrainingA
     const id = `local-app-${randomUUID()}`;
     const applicationNumber = store.nextApplicationNumber ?? 1;
     const batchDate = new Date(now);
-    const initials = getTrainingServiceInitials(input.serviceName);
-    const { month, year } = getTrainingBatchPeriod(batchDate);
-    const monthBatchKey = `${input.serviceName.toLowerCase()}|${month}|${year}`;
+    const courseCode = getTrainingCourseCode(input.serviceName);
+    const year = String(batchDate.getFullYear());
+    const monthBatchKey = `${input.serviceName.toLowerCase()}|${year}`;
     const existingBatchCode = store.monthBatchCodes?.[monthBatchKey];
-    const nextBatchNumber = store.nextBatchNumbers?.[initials] ?? 1;
+    const nextBatchNumber = store.nextBatchNumbers?.[courseCode] ?? 1;
     const batchCode = existingBatchCode ?? buildTrainingBatchCode(input.serviceName, nextBatchNumber, batchDate);
     const batchSequenceNumber = (store.batchCounters?.[batchCode] ?? 0) + 1;
     const payload = buildTrainingApplicationPayload(input);
@@ -142,7 +141,7 @@ export async function createLocalTrainingApplication(input: CreateLocalTrainingA
       applicationCode: formatApplicationCode(applicationNumber),
       batchCode,
       batchSequenceNumber,
-      studentCode: formatStudentCode(batchCode, batchSequenceNumber),
+      studentCode: formatStudentCode(batchCode, batchSequenceNumber, input.candidateName),
       name: input.candidateName,
       email: input.email || "no-email-provided@applicant.local",
       phone: input.phone,
@@ -154,7 +153,7 @@ export async function createLocalTrainingApplication(input: CreateLocalTrainingA
     store.monthBatchCodes = { ...(store.monthBatchCodes ?? {}), [monthBatchKey]: batchCode };
     store.nextBatchNumbers = {
       ...(store.nextBatchNumbers ?? {}),
-      [initials]: existingBatchCode ? nextBatchNumber : nextBatchNumber + 1,
+      [courseCode]: existingBatchCode ? nextBatchNumber : nextBatchNumber + 1,
     };
     store.batchCounters = { ...(store.batchCounters ?? {}), [batchCode]: batchSequenceNumber };
     store.applications.unshift(record);

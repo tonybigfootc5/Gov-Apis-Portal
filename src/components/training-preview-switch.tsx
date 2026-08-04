@@ -6,16 +6,11 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import {
   ArrowRight,
-  BookOpenCheck,
   Bug,
-  ChevronRight,
   CircleCheck,
   Factory,
   GraduationCap,
-  HandHeart,
-  IndianRupee,
   Languages,
-  Landmark,
   Lightbulb,
   Sprout,
   Target,
@@ -27,7 +22,6 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { institute } from "@/lib/fallback-data";
 import type { SiteLanguage } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -263,29 +257,6 @@ function getAudienceIcon(label: string) {
   return audienceIconRules.find((rule) => rule.patterns.some((pattern) => normalized.includes(pattern)))?.icon ?? Sprout;
 }
 
-const programBenefits = [
-  {
-    icon: UsersRound,
-    title: "Expert Instructors",
-    body: "Learn from experienced apiculture faculty.",
-  },
-  {
-    icon: BookOpenCheck,
-    title: "Practical Approach",
-    body: "Field-led practice with classroom grounding.",
-  },
-  {
-    icon: Landmark,
-    title: "Modern Facilities",
-    body: "Apiary, labs, tools, and demonstrations.",
-  },
-  {
-    icon: HandHeart,
-    title: "Community Impact",
-    body: "Building stronger rural livelihoods.",
-  },
-] as const;
-
 function ApiaryCartLogo(props: ProgramLogoProps) {
   return (
     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -343,6 +314,8 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
     title: item.title,
     duration: item.duration,
     level: item.level,
+    imageSrc: item.imageSrc,
+    imageAlt: item.imageAlt,
   }));
 
   if (!course) return null;
@@ -362,20 +335,15 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
   }
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#fffdfa] px-3 py-7 text-[#16241f] sm:px-5 lg:px-8 lg:py-10">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_18%_5%,rgba(246,179,0,0.14),transparent_22rem),radial-gradient(circle_at_92%_2%,rgba(15,75,51,0.14),transparent_24rem),linear-gradient(180deg,#ffffff_0%,#fffaf0_56%,#ffffff_100%)]" />
+    <section className="relative isolate overflow-hidden bg-[#f6f6f3] px-3 py-6 text-[#101816] sm:px-5 lg:px-8 lg:py-8">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(239,165,0,0.12),transparent_28rem),linear-gradient(180deg,#ffffff_0%,#f7f6f2_62%,#ffffff_100%)]" />
 
-      <div className="relative mx-auto max-w-[94rem]">
+      <div className="training-program-shell relative mx-auto max-w-[94rem]">
         <TrainingHeader copy={copy} />
 
-        <div
-          className="training-program-shell mt-6"
-          style={getCourseSurfaceStyle()}
-        >
-          <div className="training-program-layout">
-            <TrainingRail courses={courses} active={active} copy={copy} onSelect={selectCourse} />
-            <CourseOverview key={course.id} course={course} copy={copy} overviewRef={courseOverviewRef} onEnroll={() => openApplicationForCourse(course)} />
-          </div>
+        <div className="mt-7" style={getCourseSurfaceStyle()}>
+          <TrainingRail courses={courses} active={active} copy={copy} onSelect={selectCourse} />
+          <CourseOverview key={course.id} course={course} copy={copy} overviewRef={courseOverviewRef} onEnroll={() => openApplicationForCourse(course)} />
         </div>
       </div>
 
@@ -393,21 +361,20 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
 
 function TrainingHeader({ copy }: { copy: TrainingCopy }) {
   return (
-    <header className="mx-auto max-w-7xl text-left">
+    <header className="mx-auto text-center">
       <h1
         aria-label={copy.headingAria}
-        className="max-w-full whitespace-nowrap font-light leading-[1.02]"
-        style={{ color: "#d8dad7", fontSize: "clamp(1.55rem, 5.8vw, 5.7rem)" }}
+        className="max-w-full font-black leading-[0.98] text-[#070b0a]"
+        style={{ fontSize: "clamp(2.35rem, 5.4vw, 4.9rem)" }}
       >
         <span>{copy.headingLight} </span>
-        <span className="font-semibold" style={{ color: "#111513" }}>
+        <span className="text-[#efa500]">
           {copy.headingStrong}
         </span>
       </h1>
-      <p className="mt-5 max-w-3xl text-base font-medium leading-7 text-[#26332f] sm:text-lg">
+      <p className="mx-auto mt-3 max-w-3xl text-sm font-semibold leading-6 text-[#3c4a48] sm:text-base">
         {copy.intro}
       </p>
-      <span className="mt-5 block h-1 w-16 rounded-full bg-[#063f2e] shadow-[2px_2px_0_#f5b300]" />
     </header>
   );
 }
@@ -424,7 +391,7 @@ function TrainingRail({
   onSelect: (index: number) => void;
 }) {
   return (
-    <aside className="training-program-rail grid gap-4">
+    <aside className="training-program-rail">
       <div
         role="tablist"
         aria-label={copy.railAria}
@@ -442,67 +409,30 @@ function TrainingRail({
               aria-selected={isActive}
               onClick={() => onSelect(index)}
               className={cn(
-                "training-program-tab group relative flex min-h-[6.6rem] w-full min-w-0 items-center gap-4 rounded-lg border px-4 py-4 text-left shadow-[0_14px_30px_rgba(36,41,34,0.06)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2",
+                "training-program-tab group relative flex min-h-[4.85rem] w-full min-w-0 items-center justify-center gap-4 rounded-lg border px-4 py-4 text-left shadow-[0_12px_28px_rgba(36,41,34,0.05)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2",
                 isActive
-                  ? "training-program-tab-active border-[#0b382b] bg-[#0f4a38] text-white shadow-[0_20px_42px_rgba(15,74,56,0.24)]"
-                  : "border-[#f0e8dc] bg-white/78 text-[#111f1a] hover:-translate-y-0.5 hover:border-[#f1c866] hover:bg-white",
+                  ? "training-program-tab-active border-[#f4c05a] bg-[#fffaf0] text-[#111f1a] shadow-[0_18px_36px_rgba(239,165,0,0.12)]"
+                  : "border-[#ece8df] bg-white text-[#111f1a] hover:-translate-y-0.5 hover:border-[#f1c866] hover:bg-[#fffdf8]",
               )}
             >
               <span
                 className={cn(
-                  "grid h-14 w-14 shrink-0 place-items-center bg-[#f5b300] text-[#062f24] transition hex-clip sm:h-16 sm:w-16",
+                  "grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#fff3cc] text-[#efa500] transition sm:h-12 sm:w-12",
                   isActive
-                    ? "shadow-[0_0_0_5px_rgba(245,179,0,0.18),0_16px_30px_rgba(245,179,0,0.22)]"
-                    : "shadow-[0_10px_22px_rgba(245,179,0,0.16)] group-hover:shadow-[0_0_0_4px_rgba(245,179,0,0.14),0_14px_26px_rgba(245,179,0,0.2)]",
+                    ? "bg-[#fff2c6] text-[#1f1200] shadow-[0_10px_22px_rgba(239,165,0,0.13)]"
+                    : "group-hover:bg-[#fff2c6]",
                 )}
               >
-                <Icon className="h-8 w-8 sm:h-9 sm:w-9" strokeWidth={2.35} aria-hidden="true" />
+                <Icon className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2.25} aria-hidden="true" />
               </span>
-              <span className="flex min-w-0 flex-1 items-center self-stretch">
-                <span className="block text-[1.12rem] font-black leading-[1.08] sm:text-[1.26rem] lg:text-[1.18rem] xl:text-[1.4rem]">{course.tabLabel}</span>
-              </span>
-              <span className={cn("grid h-9 w-9 shrink-0 place-items-center rounded-full transition", isActive ? "bg-[#f5b300] text-[#0f2f25] shadow-[0_10px_18px_rgba(245,179,0,0.24)]" : "bg-[#f5f1eb] text-[#10251d] group-hover:bg-[#f5b300]")}>
-                <ChevronRight className="h-5 w-5" aria-hidden="true" />
+              <span className="flex min-w-0 items-center self-stretch">
+                <span className="block text-sm font-black leading-tight sm:text-[0.95rem]">{course.tabLabel}</span>
               </span>
             </button>
           );
         })}
       </div>
-
-      <TrainingTimingPanel />
-      <BenefitPanel copy={copy} />
     </aside>
-  );
-}
-
-function TrainingTimingPanel() {
-  return (
-    <section className="rounded-lg border border-[#ead8ad] bg-[linear-gradient(180deg,#fff8df,#fffdf8)] p-3 shadow-[0_14px_32px_rgba(36,41,34,0.06)]">
-      <div className="flex items-center justify-between gap-3 border-b border-[#eadfca] pb-3">
-        <h3 className="text-[11px] font-black uppercase tracking-[0.16em] text-[#06432f]">Training schedule</h3>
-        <span className="h-2 w-2 rounded-full bg-[#f5b300] shadow-[0_0_0_4px_rgba(245,179,0,0.18)]" />
-      </div>
-      <div className="mt-3 grid gap-2">
-        <div className="flex items-start gap-3 rounded-lg border border-[#efe4d2] bg-white px-3 py-2.5">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#06432f] text-[#f5b300] shadow-[inset_0_0_0_3px_rgba(255,255,255,0.08)]">
-            <Timer className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <h4 className="text-xs font-black text-[#14241f]">Training Hrs</h4>
-            <p className="mt-1 text-xs font-semibold leading-5 text-[#293834]">{institute.trainingHours}</p>
-          </div>
-        </div>
-        <div className="flex items-start gap-3 rounded-lg border border-[#efe4d2] bg-white px-3 py-2.5">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#06432f] text-[#f5b300] shadow-[inset_0_0_0_3px_rgba(255,255,255,0.08)]">
-            <Landmark className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <h4 className="text-xs font-black text-[#14241f]">Training Location</h4>
-            <p className="mt-1 text-xs font-semibold leading-5 text-[#293834]">{institute.trainingLocation}</p>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -528,134 +458,106 @@ function CourseOverview({
   }
 
   return (
-    <article ref={overviewRef} className="training-course-panel scroll-mt-24 overflow-hidden rounded-lg border border-[#0b382b] bg-[#0f4a38] p-2.5 shadow-[0_18px_46px_rgba(15,74,56,0.18)] sm:p-3">
-      <div className="relative min-h-[20rem] overflow-hidden rounded-lg p-5 sm:p-6 lg:min-h-[19.5rem] lg:pb-6">
-        <Image src={course.imageSrc} alt={course.imageAlt} fill sizes="(max-width: 1280px) 100vw, 46rem" className="object-cover object-right" priority />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,0.98)_33%,rgba(255,253,248,0.72)_55%,rgba(255,253,248,0.18)_100%)]" />
-        <div className="relative lg:pr-[29rem]">
-          <p className="inline-flex rounded-full bg-[#f5a900] px-3.5 py-1.5 text-[11px] font-black uppercase tracking-[0.08em] text-white">
-            {course.duration} {copy.program}
-          </p>
-          <h2
-            className={cn(
-              "mt-4 max-w-full font-black leading-none text-[#06432f] lg:whitespace-nowrap",
-              "lg:w-[calc(100%+29rem)]",
-              hasLongTitle ? "text-[clamp(1.65rem,2.25vw,2.55rem)]" : "text-[clamp(2rem,4.6vw,3.25rem)]",
-            )}
-          >
-            {course.title}
-          </h2>
-          <p className="mt-2 text-base font-black leading-6 text-[#153f32] sm:text-lg">{course.focusLabel}</p>
-          <p className="mt-3 max-w-none text-[0.94rem] font-semibold leading-6 text-[#24322d] sm:text-base sm:leading-7">{course.description}</p>
-        </div>
-        <button
-          type="button"
-          onClick={handleEnrollClick}
-          className="group relative z-20 mt-5 flex min-h-[5.35rem] w-full max-w-[27.5rem] items-center gap-2 overflow-visible rounded-[1.35rem] border border-[#f4c75f]/75 bg-[#053727] p-2 text-left shadow-[0_24px_52px_rgba(6,67,47,0.32)] transition hover:-translate-y-0.5 hover:shadow-[0_32px_68px_rgba(6,67,47,0.38)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:min-h-[6rem] sm:gap-3 sm:p-2.5 sm:pr-3 lg:absolute lg:bottom-6 lg:right-6 lg:mt-0"
-        >
-          <span
-            className="pointer-events-none absolute inset-0 overflow-hidden rounded-[1.28rem] bg-[radial-gradient(circle_at_14%_18%,rgba(255,211,103,0.26),transparent_24%),radial-gradient(circle_at_88%_18%,rgba(255,255,255,0.14),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.1),transparent_45%)]"
-            aria-hidden="true"
-          />
-          <span
-            className="pointer-events-none absolute inset-y-3 right-16 hidden w-px bg-[linear-gradient(180deg,transparent,rgba(245,179,0,0.86),transparent)] sm:block"
-            aria-hidden="true"
-          />
-          <span className="relative grid h-[4.25rem] w-[4.75rem] shrink-0 place-items-center rounded-[1.05rem] bg-[linear-gradient(145deg,#ffeaa0,#f5b300_58%,#d98900)] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.58),0_18px_30px_rgba(0,0,0,0.18)] sm:h-[4.9rem] sm:w-[6.75rem]">
-            <span
-              className="absolute inset-1 rounded-[0.88rem] opacity-45 [background-image:linear-gradient(30deg,rgba(6,67,47,0.16)_12%,transparent_12.5%,transparent_87%,rgba(6,67,47,0.16)_87.5%,rgba(6,67,47,0.16)),linear-gradient(150deg,rgba(6,67,47,0.16)_12%,transparent_12.5%,transparent_87%,rgba(6,67,47,0.16)_87.5%,rgba(6,67,47,0.16)),linear-gradient(30deg,rgba(6,67,47,0.16)_12%,transparent_12.5%,transparent_87%,rgba(6,67,47,0.16)_87.5%,rgba(6,67,47,0.16)),linear-gradient(150deg,rgba(6,67,47,0.16)_12%,transparent_12.5%,transparent_87%,rgba(6,67,47,0.16)_87.5%,rgba(6,67,47,0.16))] [background-position:0_0,0_0,12px_21px,12px_21px] [background-size:24px_42px]"
-              aria-hidden="true"
-            />
-            <span className="relative grid h-10 w-10 place-items-center rounded-full bg-[#053727] text-[#f5b300] shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_10px_20px_rgba(6,67,47,0.24)] sm:h-11 sm:w-11">
-              <IndianRupee className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={2.6} aria-hidden="true" />
-            </span>
-          </span>
-          <span className="relative min-w-0 flex-1 py-1 text-white">
-            <span className="flex items-center gap-2">
-              <span className="rounded-full border border-[#f5b300]/36 bg-white/8 px-1.5 py-1 text-[7px] font-black uppercase tracking-[0.12em] text-[#ffe39b] sm:px-2 sm:text-[8px] sm:tracking-[0.16em]">
-                {copy.courseFee}
+    <article ref={overviewRef} className="training-course-panel mt-6 scroll-mt-24">
+      <div className="overflow-hidden rounded-[1.2rem] border border-[#ece4d8] bg-white shadow-[0_22px_48px_rgba(36,41,34,0.08)]">
+        <div className="relative min-h-[24rem] overflow-hidden p-5 sm:p-7 lg:min-h-[23rem] lg:p-9">
+          <Image src={course.imageSrc} alt={course.imageAlt} fill sizes="(max-width: 1280px) 100vw, 82rem" className="object-cover object-right" priority />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,0.97)_33%,rgba(255,253,248,0.74)_55%,rgba(255,253,248,0.1)_100%)]" />
+          <div className="relative grid min-h-[19rem] items-center gap-6 lg:grid-cols-[minmax(0,1fr)_19rem]">
+            <div className="max-w-[38rem]">
+              <p className="inline-flex rounded-full bg-[#f2a900] px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.04em] text-[#140f00]">
+                {course.duration} {copy.program}
+              </p>
+              <h2
+                className={cn(
+                  "mt-4 font-black leading-[0.96] text-[#071019]",
+                  hasLongTitle ? "text-[clamp(2rem,4vw,3.4rem)]" : "text-[clamp(2.7rem,5.2vw,4.05rem)]",
+                )}
+              >
+                {course.title}
+              </h2>
+              <p className="mt-3 text-lg font-black leading-6 text-[#f2a000] sm:text-xl">{course.focusLabel}</p>
+              <p className="mt-4 max-w-[34rem] text-sm font-semibold leading-7 text-[#263532] sm:text-base">{course.description}</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleEnrollClick}
+              className="group relative z-20 w-full rounded-lg border border-[#eee8df] bg-white p-5 text-left shadow-[0_22px_46px_rgba(28,31,28,0.17)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_58px_rgba(28,31,28,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+            >
+              <span className="block text-sm font-bold text-[#111816]">{copy.courseFee}</span>
+              <span className="mt-2 flex flex-wrap items-end gap-x-2 gap-y-1">
+                <span className="text-[2.35rem] font-black leading-none text-[#071019]">{feeLabel}</span>
+                <span className="pb-1 text-[10px] font-black uppercase text-[#222b29]">{copy.gstIncluded}</span>
               </span>
-              <span className="h-px min-w-3 flex-1 bg-[#f5b300]/22" aria-hidden="true" />
-            </span>
-            <span className="mt-1.5 flex items-end gap-2">
-              <span className="whitespace-nowrap text-[1.25rem] font-black leading-none text-white drop-shadow-[0_2px_0_rgba(0,0,0,0.12)] sm:text-[1.7rem]">{feeLabel}</span>
-              <span className="hidden pb-0.5 text-[8px] font-black uppercase tracking-[0.12em] text-[#8dd2a8] sm:inline">{copy.gstIncluded}</span>
-            </span>
-            <span className="mt-2 flex items-center gap-1.5 text-[9px] font-bold leading-none text-white/78 sm:text-[10px]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#f5b300] shadow-[0_0_0_3px_rgba(245,179,0,0.14)]" aria-hidden="true" />
-              {copy.startsAt} {course.batchDate}
-            </span>
-          </span>
-          <span className="relative grid shrink-0 gap-1 text-center">
-            <span className="grid h-10 w-10 place-items-center rounded-full bg-[#f5b300] text-[#053727] shadow-[0_14px_28px_rgba(245,179,0,0.28)] transition group-hover:scale-105 group-hover:shadow-[0_18px_34px_rgba(245,179,0,0.34)] sm:h-12 sm:w-12">
-              <ArrowRight className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
-            </span>
-            <span className="text-[7px] font-black uppercase tracking-[0.06em] text-white/88 sm:text-[8px] sm:tracking-[0.08em]">{copy.enrollNow}</span>
-          </span>
-        </button>
+              <span className="mt-3 block text-sm font-bold text-[#111816]">
+                {copy.startsAt} {course.batchDate}
+              </span>
+              <span className="mt-5 flex min-h-12 overflow-hidden rounded-lg bg-[#042f28] text-white">
+                <span className="flex flex-1 items-center justify-center px-4 text-sm font-black">{copy.enrollNow}</span>
+                <span className="grid w-14 place-items-center bg-[#f2a900] text-[#071019] transition group-hover:w-16">
+                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                </span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid gap-4 border-t border-[#efe7dc] bg-white px-5 py-4 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+          <Metric icon={GraduationCap} label={copy.level} value={course.experienceLabel || course.level} />
+          <Metric icon={Timer} label={copy.duration} value={course.duration} />
+          <Metric icon={UsersRound} label={copy.batchSize} value={course.capacity} />
+          <Metric icon={Languages} label={copy.taughtIn} value={course.taughtIn} />
+        </div>
       </div>
 
-      <div className="mt-2.5 grid gap-2.5 rounded-lg border border-[color:var(--course-surface-deep)] bg-white/72 p-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Metric icon={GraduationCap} label={copy.level} value={course.experienceLabel || course.level} />
-        <Metric icon={Timer} label={copy.duration} value={course.duration} />
-        <Metric icon={UsersRound} label={copy.batchSize} value={course.capacity} />
-        <Metric icon={Languages} label={copy.taughtIn} value={course.taughtIn} />
-      </div>
-
-      <div className="pt-2.5">
-        <section className="rounded-lg border border-[color:var(--course-surface-deep)] bg-white/78 p-3.5">
-          <h3 className="text-lg font-black uppercase tracking-[0.02em] text-[#06432f]">{copy.learn}</h3>
-          <div className="mt-3 grid gap-x-8 gap-y-2.5 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.98fr)]">
+        <section className="rounded-[1rem] border border-[#ece6dc] bg-white p-5 shadow-[0_18px_40px_rgba(36,41,34,0.05)] sm:p-6">
+          <SectionTitle title={copy.learn} />
+          <div className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
             {skills.map((skill) => (
-              <p key={skill} className="flex items-center gap-3 text-sm font-medium text-[#24322d]">
-                <CircleCheck className="h-4 w-4 shrink-0 fill-[#06432f] text-white" aria-hidden="true" />
+              <p key={skill} className="flex items-start gap-3 text-sm font-semibold leading-5 text-[#273431]">
+                <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#efa500]" strokeWidth={2.4} aria-hidden="true" />
                 {skill}
               </p>
             ))}
           </div>
         </section>
+
+        <section className="rounded-[1rem] border border-[#ece6dc] bg-white p-5 shadow-[0_18px_40px_rgba(36,41,34,0.05)] sm:p-6">
+          <SectionTitle title={copy.attend} />
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {audience.slice(0, 6).map((item, index) => {
+              const AudienceIcon = getAudienceIcon(item);
+              const isWide = index === 5;
+
+              return (
+                <p
+                  key={item}
+                  className={cn(
+                    "flex min-h-[4.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-lg border px-3 py-3 text-center text-[11px] font-black capitalize leading-tight shadow-[0_8px_18px_rgba(36,41,34,0.03)]",
+                    isWide ? "sm:col-span-2 xl:col-span-2" : "",
+                    "border-[#eee8df] bg-white text-[#111816]",
+                  )}
+                >
+                  <span className="grid h-8 w-8 place-items-center text-[#efa500]">
+                    <AudienceIcon className="h-7 w-7" strokeWidth={2.1} aria-hidden="true" />
+                  </span>
+                  <span className="line-clamp-2 min-w-0">{item}</span>
+                </p>
+              );
+            })}
+          </div>
+        </section>
       </div>
 
-      <section className="mt-2.5 rounded-lg border border-[color:var(--course-surface-deep)] bg-white/78 p-3.5 shadow-[0_8px_22px_rgba(36,41,34,0.04)]">
-        <div className="flex items-center justify-between gap-3 border-b border-[#f0e5d2] pb-2.5">
-          <h3 className="text-sm font-black uppercase leading-none tracking-[0.07em] text-[#06432f]">
-            {copy.attend}
-          </h3>
-          <div className="flex shrink-0 items-center justify-center gap-1.5 text-[#efa500]">
-            <span className="hidden h-px w-7 rounded-full bg-[#2f703c] sm:block" />
-            <Bug className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
-          </div>
-        </div>
-
-        <div className="mt-2.5 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-          {audience.map((item) => {
-            const AudienceIcon = getAudienceIcon(item);
-
-            return (
-              <p
-                key={item}
-                className="flex min-h-[2.65rem] min-w-0 items-center gap-2 rounded-lg border border-[#efdfbe] bg-white px-2 py-1.5 text-[10px] font-black capitalize leading-tight text-[#14241f] shadow-[0_5px_14px_rgba(36,41,34,0.03)]"
-              >
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#f2ddb5] bg-[#fffaf0] text-[#efa500] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                  <AudienceIcon className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
-                </span>
-                <span className="line-clamp-2 min-w-0 flex-1 [overflow-wrap:normal] [word-break:normal]">{item}</span>
-              </p>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="mt-2.5 rounded-lg border border-[color:var(--course-surface-deep)] bg-white/78 p-3.5 shadow-[0_16px_38px_rgba(36,41,34,0.06)]">
-        <div className="flex items-center gap-2 border-b border-[#f0e5d2] pb-3">
-          <Target className="h-4 w-4 text-[#06432f]" aria-hidden="true" />
-          <h3 className="text-sm font-black uppercase tracking-[0.07em] text-[#06432f]">{copy.outcomes}</h3>
-        </div>
-        <div className="mt-2.5 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-          {course.outcomes.map((outcome, index) => (
-            <p key={outcome} className="flex gap-3 rounded-lg border border-[#f0eadf] bg-[#fffdf8] p-3 text-sm font-medium leading-6 text-[#24322d]">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#fff0bd] text-xs font-black text-[#06432f]">{index + 1}</span>
-              {outcome}
+      <section className="mt-5 rounded-[1rem] border border-[#ece6dc] bg-white p-5 shadow-[0_18px_40px_rgba(36,41,34,0.05)] sm:p-6">
+        <SectionTitle title="Outcomes You'll Achieve" icon={Target} />
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          {course.outcomes.slice(0, 6).map((outcome, index) => (
+            <p key={outcome} className="flex gap-3 border-[#f0dfbb] text-xs font-semibold leading-5 text-[#17231f] xl:border-l xl:pl-4">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#f8d98d] text-[11px] font-black text-[#111816]">{String(index + 1).padStart(2, "0")}</span>
+              <span>{outcome}</span>
             </p>
           ))}
         </div>
@@ -664,32 +566,15 @@ function CourseOverview({
   );
 }
 
-function BenefitPanel({ copy }: { copy: TrainingCopy }) {
+function SectionTitle({ title, icon: Icon }: { title: string; icon?: LucideIcon }) {
   return (
-    <section className="rounded-lg border border-[#e8decf] bg-[linear-gradient(180deg,#fffdf8,#f7f5ec)] p-3 shadow-[0_14px_32px_rgba(36,41,34,0.06)]">
-      <div className="flex items-center justify-between gap-3 border-b border-[#ebe1d2] pb-3">
-        <h3 className="text-[11px] font-black uppercase tracking-[0.16em] text-[#06432f]">Why this works</h3>
-        <span className="h-2 w-2 rounded-full bg-[#f5b300] shadow-[0_0_0_4px_rgba(245,179,0,0.18)]" />
+    <div>
+      <div className="flex items-center gap-2">
+        {Icon ? <Icon className="h-4 w-4 text-[#efa500]" aria-hidden="true" /> : null}
+        <h3 className="text-xl font-black leading-tight text-[#111816]">{title}</h3>
       </div>
-      <div className="mt-3 grid gap-2">
-        {programBenefits.map((benefit, index) => {
-          const Icon = benefit.icon;
-          const localized = copy.benefits[index] ?? [benefit.title, benefit.body];
-
-          return (
-            <article key={benefit.title} className="flex items-start gap-3 rounded-lg border border-[#efe4d2] bg-white px-3 py-2.5">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#06432f] text-[#f5b300] shadow-[inset_0_0_0_3px_rgba(255,255,255,0.08)]">
-                <Icon className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div className="min-w-0">
-                <h4 className="text-xs font-black text-[#14241f]">{localized[0]}</h4>
-                <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-[#293834]">{localized[1]}</p>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </section>
+      <span className="mt-2 block h-0.5 w-8 rounded-full bg-[#efa500]" />
+    </div>
   );
 }
 
@@ -713,7 +598,7 @@ function ApplicationOverlay({
 }: {
   course: TrainingPreviewCourse;
   language: SiteLanguage;
-  serviceOptions: Array<{ title: string; duration: string; level: string }>;
+  serviceOptions: Array<{ title: string; duration: string; level: string; imageSrc: string; imageAlt: string }>;
   onClose: () => void;
 }) {
   const portalElement = typeof document === "undefined" ? null : document.body;
@@ -731,16 +616,9 @@ function ApplicationOverlay({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-[300] bg-[#071421]/58 p-0 backdrop-blur-sm sm:p-5" role="dialog" aria-modal="true" aria-labelledby="training-application-title">
+    <div className="fixed inset-0 z-[300] bg-[#071421]/58 p-0 backdrop-blur-sm sm:p-5" role="dialog" aria-modal="true" aria-label={trainingCopy[language].applicationForm}>
       <div className="mx-auto flex h-[100dvh] max-w-6xl flex-col overflow-hidden border border-[#e3ded2] bg-[#fbfaf6] shadow-[0_30px_90px_rgba(7,20,33,0.38)] sm:h-full sm:rounded-lg">
-        <div className="flex items-start justify-between gap-4 border-b border-[#e3ded2] bg-white px-4 py-4 sm:px-6">
-          <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{trainingCopy[language].applicationForm}</p>
-            <h2 id="training-application-title" className="mt-1 text-xl font-black leading-tight text-[#173f33] sm:text-2xl">
-              {course.title}
-            </h2>
-            <p className="mt-1 text-sm font-semibold text-[#66776f]">{trainingCopy[language].modalHelp}</p>
-          </div>
+        <div className="flex justify-end border-b border-[#e3ded2] bg-white px-4 py-3 sm:px-6">
           <button
             type="button"
             onClick={onClose}

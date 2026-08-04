@@ -52,6 +52,8 @@ type ServiceOption = {
   title: string;
   duration: string;
   level: string;
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 type Props = {
@@ -109,6 +111,144 @@ const physicalFormCopy = {
   additionalAddress: "Additional address details",
 };
 
+const requiredFields = new Set([
+  "Applicant name",
+  "Date of birth",
+  "Aadhaar number",
+  "Gender",
+  "Mobile number",
+  "H. No.",
+  "Street",
+  "Village",
+  "Post",
+  "District",
+  "State",
+  "Pin code",
+  "Education qualification",
+  "Applicant photo",
+]);
+
+function formatDateOfBirthInput(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  const parts = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 8)].filter(Boolean);
+
+  return parts.join(" ");
+}
+
+const indianStates = [
+  "Andaman and Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
+const educationOptions = [
+  "No formal education",
+  "Primary school",
+  "Secondary school",
+  "Intermediate / 12th",
+  "ITI / Diploma",
+  "Graduate",
+  "Postgraduate",
+  "Agriculture / Horticulture graduate",
+  "Other",
+];
+
+const indiaAreaSuggestions: Record<string, Record<string, Array<{ post: string; pin: string }>>> = {
+  Telangana: {
+    Hyderabad: [
+      { post: "Rajendranagar", pin: "500030" },
+      { post: "Mehdipatnam", pin: "500028" },
+      { post: "Charminar", pin: "500002" },
+      { post: "Secunderabad", pin: "500003" },
+      { post: "Gachibowli", pin: "500032" },
+    ],
+    "Rangareddy": [
+      { post: "Shamshabad", pin: "501218" },
+      { post: "Ibrahimpatnam", pin: "501506" },
+      { post: "Chevella", pin: "501503" },
+    ],
+    "Medchal Malkajgiri": [
+      { post: "Malkajgiri", pin: "500047" },
+      { post: "Kukatpally", pin: "500072" },
+      { post: "Medchal", pin: "501401" },
+    ],
+    Warangal: [
+      { post: "Hanamkonda", pin: "506001" },
+      { post: "Kazipet", pin: "506003" },
+    ],
+    Karimnagar: [
+      { post: "Karimnagar", pin: "505001" },
+      { post: "Huzurabad", pin: "505468" },
+    ],
+    Nizamabad: [{ post: "Nizamabad", pin: "503001" }],
+    Khammam: [{ post: "Khammam", pin: "507001" }],
+    Nalgonda: [{ post: "Nalgonda", pin: "508001" }],
+  },
+  "Andhra Pradesh": {
+    Visakhapatnam: [
+      { post: "Visakhapatnam", pin: "530001" },
+      { post: "Gajuwaka", pin: "530026" },
+    ],
+    Vijayawada: [{ post: "Vijayawada", pin: "520001" }],
+    Guntur: [{ post: "Guntur", pin: "522002" }],
+    Tirupati: [{ post: "Tirupati", pin: "517501" }],
+  },
+  Delhi: {
+    "New Delhi": [
+      { post: "Connaught Place", pin: "110001" },
+      { post: "Chanakyapuri", pin: "110021" },
+    ],
+    "South Delhi": [{ post: "Saket", pin: "110017" }],
+  },
+  Karnataka: {
+    Bengaluru: [
+      { post: "Bengaluru GPO", pin: "560001" },
+      { post: "Whitefield", pin: "560066" },
+    ],
+    Mysuru: [{ post: "Mysuru", pin: "570001" }],
+  },
+  Maharashtra: {
+    Mumbai: [
+      { post: "Mumbai GPO", pin: "400001" },
+      { post: "Andheri", pin: "400053" },
+    ],
+    Pune: [{ post: "Pune", pin: "411001" }],
+  },
+};
+
 function buildAddressLine(data: Pick<FormState, "houseNo" | "street" | "village" | "post" | "addressLine">) {
   return [
     data.houseNo ? `H. No. ${data.houseNo}` : "",
@@ -126,15 +266,18 @@ function requiredStepFields(stepIndex: number, data: FormState) {
   if (stepIndex === 0) {
     return Boolean(
         data.candidateName &&
-        data.guardianName &&
         data.gender &&
+        data.aadhaarNo &&
         data.dateOfBirth,
     );
   }
 
   if (stepIndex === 1) {
     return Boolean(
-        buildAddressLine(data) &&
+        data.houseNo &&
+        data.street &&
+        data.village &&
+        data.post &&
         data.district &&
         data.state &&
         /^\d{6}$/.test(data.pinCode) &&
@@ -143,7 +286,7 @@ function requiredStepFields(stepIndex: number, data: FormState) {
   }
 
   if (stepIndex === 2) {
-    return true;
+    return Boolean(data.educationQualification);
   }
 
   return Boolean(data.photoUrl && data.photoName);
@@ -331,7 +474,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   }[language];
   const normalizedServiceOptions = serviceOptions.length
     ? serviceOptions
-    : [{ title: DEFAULT_SERVICE_NAME, duration: "As scheduled", level: "FOUNDATION" }];
+    : [{ title: DEFAULT_SERVICE_NAME, duration: "As scheduled", level: "FOUNDATION", imageSrc: "/beekeeping-training-program.png", imageAlt: "Beekeeping training program" }];
   const lockedService =
     normalizedServiceOptions.find((service) => service.title === selectedServiceTitle) ?? null;
   const initialServiceName = lockedService?.title ?? normalizedServiceOptions[0].title;
@@ -354,6 +497,12 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const progress = ((step + 1) / STEPS.length) * 100;
   const canAdvance = requiredStepFields(step, form);
   const completedSteps = STEPS.filter((_, index) => requiredStepFields(index, form)).length;
+  const selectedService =
+    normalizedServiceOptions.find((service) => service.title === form.serviceName) ?? normalizedServiceOptions[0];
+  const stateAreaSuggestions = indiaAreaSuggestions[form.state] ?? {};
+  const districtSuggestions = Object.keys(stateAreaSuggestions);
+  const postSuggestions = form.district ? (stateAreaSuggestions[form.district] ?? []) : [];
+  const pinSuggestions = Array.from(new Set(postSuggestions.map((item) => item.pin)));
 
   useEffect(() => {
     if (!showPreview) return;
@@ -481,30 +630,27 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="rounded-[1.4rem] border border-[#e3ded2] bg-[#fffdf8] p-3 shadow-[0_24px_70px_rgba(34,45,38,0.1)] sm:rounded-[2rem] sm:p-5 lg:p-7">
-        <div className="relative z-10 grid min-w-0 gap-5">
-          <aside className="min-w-0 rounded-[1.25rem] border border-[#e3ded2] bg-[#f7f3ea] p-4 sm:rounded-[1.5rem] sm:p-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{copy.enrollmentFlow}</p>
-                <h2 className="mt-2 text-2xl font-black leading-tight text-[#173f33]">{showPreview ? "Review and pay" : copy.applyLead}</h2>
+      <div className="overflow-hidden rounded-[1.1rem] border border-[#e3ded2] bg-white shadow-[0_24px_70px_rgba(34,45,38,0.08)]">
+        <div className="relative z-10 grid min-w-0">
+          <aside className="min-w-0 border-b border-[#e8dfd1] bg-[#faf7f0] px-4 py-3 sm:px-5">
+            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+              <div className="min-w-0">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">{copy.enrollmentFlow}</p>
+                  <span className="hidden h-1.5 w-1.5 rounded-full bg-[#d5c7b3] sm:block" aria-hidden="true" />
+                  <h2 className="text-base font-black leading-tight text-[#173f33] sm:text-lg">{showPreview ? "Review and pay" : copy.applyLead}</h2>
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="rounded-full bg-white px-3 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#173f33]">
+              <div className="flex flex-wrap items-center gap-2 text-xs font-black">
+                <div className="rounded-full bg-[#173f33] px-3 py-2 uppercase tracking-[0.12em] text-white">
                   {showPreview ? `${completedSteps}/${STEPS.length} ready` : `Step ${step + 1}/${STEPS.length}`}
                 </div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#5f259f]/15 bg-white px-3 py-2 text-xs font-black text-[#173f33] shadow-[0_10px_22px_rgba(34,45,38,0.06)]">
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-[#5f259f] text-[0.65rem] font-black tracking-[-0.02em] text-white" aria-hidden="true">
-                    Pe
-                  </span>
-                  <span>PhonePe secure payment</span>
-                </div>
               </div>
             </div>
-            <div className="mt-5 h-2 overflow-hidden rounded-full bg-white">
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white">
               <div className="h-full rounded-full bg-[#b36b00] transition-all duration-300" style={{ width: `${progress}%` }} />
             </div>
-            <div className="mt-4 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-3 grid min-w-0 grid-cols-4 gap-1.5">
               {STEPS.map((item, index) => {
                 const Icon = item.icon;
                 const active = index === step;
@@ -516,38 +662,36 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     key={item.id}
                     type="button"
                     onClick={() => setStep(index)}
-                    className={`min-w-0 rounded-[1.05rem] border px-3 py-3 text-left transition ${
+                    className={`min-w-0 rounded-lg px-2 py-2 text-left transition sm:px-3 ${
                       active
-                        ? "border-[#173f33] bg-white shadow-[0_12px_28px_rgba(34,45,38,0.08)]"
+                        ? "bg-white shadow-[0_10px_24px_rgba(34,45,38,0.08)]"
                         : passed
-                          ? "border-[#e3ded2] bg-white/70"
-                          : "border-[#e3ded2] bg-transparent"
+                          ? "bg-white/70"
+                          : "bg-transparent"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className={`flex h-9 w-9 items-center justify-center rounded-full ${active ? "bg-[#173f33] text-white" : "bg-white text-[#b36b00]"}`}>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${active ? "bg-[#173f33] text-white" : "bg-white text-[#b36b00]"}`}>
                         {complete ? <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> : <Icon className="h-4 w-4" aria-hidden="true" />}
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-[#173f33]">{copy.steps[index].title}</p>
-                        <p className="hidden text-xs font-semibold text-[#66776f] sm:block">{copy.steps[index].subtitle}</p>
+                        <p className="truncate text-xs font-black text-[#173f33] sm:text-sm">{copy.steps[index].title}</p>
+                        <p className="hidden truncate text-[11px] font-semibold text-[#66776f] lg:block">{copy.steps[index].subtitle}</p>
                       </div>
                     </div>
                   </button>
                 );
               })}
             </div>
-            <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
+            {copy.sidebarNote ? (
+            <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_auto] lg:items-center">
               {copy.sidebarNote ? (
                 <div className="rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm leading-7 text-[#5c6d63]">
                   {copy.sidebarNote}
                 </div>
               ) : <span aria-hidden="true" />}
-              <div className="inline-flex items-center gap-3 rounded-[1.15rem] border border-[#e3ded2] bg-white p-4 text-sm font-semibold leading-6 text-[#5c6d63]">
-                <ShieldCheck className="h-5 w-5 shrink-0 text-[#5f259f]" aria-hidden="true" />
-                <span>Secure payment opens after review.</span>
-              </div>
             </div>
+            ) : null}
           </aside>
 
           {showPreview ? (
@@ -561,26 +705,23 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
               onConfirm={() => void handleSubmit()}
             />
           ) : (
-          <section className="mx-auto w-full max-w-4xl min-w-0 rounded-[1.25rem] border border-[#e3ded2] bg-white p-4 sm:rounded-[1.5rem] sm:p-6">
-            <div className="border-b border-[#e3ded2] pb-5">
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f2b544]">{copy.steps[step].title}</p>
-                  <h3 className="font-display mt-3 text-3xl text-bright sm:text-4xl">{copy.steps[step].subtitle}</h3>
-                  <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-[#66776f]">
-                    Step {step + 1} of {STEPS.length}. Required details are checked before the payment review opens.
+          <div className="grid min-w-0 gap-6 bg-white px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <section className="min-w-0">
+            <div className="border-b border-[#e8dfd1] pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#b36b00]">
+                    {copy.steps[step].title} / {step + 1} of {STEPS.length}
                   </p>
-                </div>
-                <div className="flex flex-col gap-3 sm:items-end">
-                  <div className="rounded-[1.2rem] border border-[rgba(41,56,49,0.1)] bg-[rgba(255,255,255,0.74)] px-4 py-3 text-sm text-dim">
-                    <p className="font-semibold text-bright">{form.serviceName}</p>
-                    <p className="mt-1">{copy.selectedTraining}</p>
-                  </div>
+                  <h3 className="mt-1 text-2xl font-black leading-tight text-[#173f33] sm:text-3xl">{copy.steps[step].subtitle}</h3>
                 </div>
               </div>
+              <p className="mt-3 rounded-lg bg-[#fff7e8] px-3 py-2 text-sm font-semibold leading-6 text-[#7a4b00]">
+                Please fill all personal details exactly as per Aadhaar card.
+              </p>
             </div>
 
-            <div className="mt-6 grid gap-6">
+            <div className="mt-5 grid gap-5">
               {step === 0 ? (
                 <div className="grid gap-5">
                   {lockedService ? null : (
@@ -601,7 +742,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   )}
 
                   <div className="grid gap-5 md:grid-cols-2">
-                    <Field label={copy.applicantName}>
+                    <Field label={copy.applicantName} required>
                       <input
                         value={form.candidateName}
                         onChange={(event) => updateField("candidateName", event.target.value)}
@@ -621,16 +762,18 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   </div>
 
                   <div className="grid gap-5 md:grid-cols-2">
-                    <Field label={copy.dateOfBirth}>
+                    <Field label={copy.dateOfBirth} required>
                       <input
-                        type="date"
                         value={form.dateOfBirth}
-                        onChange={(event) => updateField("dateOfBirth", event.target.value)}
+                        onChange={(event) => updateField("dateOfBirth", formatDateOfBirthInput(event.target.value))}
+                        placeholder="dd mm yyyy"
+                        inputMode="numeric"
+                        maxLength={10}
                         className={inputClassName}
                       />
                     </Field>
 
-                    <Field label={physicalFormCopy.aadhaarNo}>
+                    <Field label={physicalFormCopy.aadhaarNo} required>
                       <input
                         value={form.aadhaarNo}
                         onChange={(event) => updateField("aadhaarNo", event.target.value.replace(/\D/g, "").slice(0, 12))}
@@ -642,7 +785,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   </div>
 
                   <div className="grid gap-2 text-sm font-semibold text-[#516253]">
-                    {copy.gender}
+                    <span>{copy.gender}<RequiredStar /></span>
                     <div className="grid gap-3 sm:grid-cols-2">
                       {[
                         { value: "male", label: copy.male },
@@ -669,7 +812,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
               {step === 1 ? (
                 <div className="grid gap-5">
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label={copy.mobileNumber}>
+                    <Field label={copy.mobileNumber} required>
                       <input
                         value={form.phone}
                         onChange={(event) => updateField("phone", event.target.value.replace(/\D/g, "").slice(0, 10))}
@@ -690,14 +833,14 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   </div>
 
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label={physicalFormCopy.houseNo}>
+                    <Field label={physicalFormCopy.houseNo} required>
                       <input
                         value={form.houseNo}
                         onChange={(event) => updateField("houseNo", event.target.value)}
                         className={inputClassName}
                       />
                     </Field>
-                    <Field label={physicalFormCopy.street}>
+                    <Field label={physicalFormCopy.street} required>
                       <input
                         value={form.street}
                         onChange={(event) => updateField("street", event.target.value)}
@@ -707,19 +850,32 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   </div>
 
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label={physicalFormCopy.village}>
+                    <Field label={physicalFormCopy.village} required>
                       <input
                         value={form.village}
                         onChange={(event) => updateField("village", event.target.value)}
                         className={inputClassName}
                       />
                     </Field>
-                    <Field label={physicalFormCopy.post}>
+                    <Field label={physicalFormCopy.post} required>
                       <input
                         value={form.post}
-                        onChange={(event) => updateField("post", event.target.value)}
+                        onChange={(event) => {
+                          const nextPost = event.target.value;
+                          const matchedPost = postSuggestions.find((item) => item.post === nextPost);
+                          updateField("post", nextPost);
+                          if (matchedPost) updateField("pinCode", matchedPost.pin);
+                        }}
+                        list="india-post-suggestions"
                         className={inputClassName}
                       />
+                      <datalist id="india-post-suggestions">
+                        {postSuggestions.map((item) => (
+                          <option key={`${item.post}-${item.pin}`} value={item.post}>
+                            {item.pin}
+                          </option>
+                        ))}
+                      </datalist>
                     </Field>
                   </div>
 
@@ -734,28 +890,53 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   </Field>
 
                   <div className="grid gap-5 sm:grid-cols-3">
-                    <Field label={copy.district}>
+                    <Field label={copy.district} required>
                       <input
                         value={form.district}
-                        onChange={(event) => updateField("district", event.target.value)}
+                        onChange={(event) => {
+                          updateField("district", event.target.value);
+                          updateField("post", "");
+                          updateField("pinCode", "");
+                        }}
+                        list="india-district-suggestions"
                         className={inputClassName}
                       />
+                      <datalist id="india-district-suggestions">
+                        {districtSuggestions.map((district) => (
+                          <option key={district} value={district} />
+                        ))}
+                      </datalist>
                     </Field>
-                    <Field label={copy.state}>
-                      <input
+                    <Field label={copy.state} required>
+                      <select
                         value={form.state}
-                        onChange={(event) => updateField("state", event.target.value)}
+                        onChange={(event) => {
+                          updateField("state", event.target.value);
+                          updateField("district", "");
+                          updateField("post", "");
+                          updateField("pinCode", "");
+                        }}
                         className={inputClassName}
-                      />
+                      >
+                        {indianStates.map((state) => (
+                          <option key={state} value={state}>{state}</option>
+                        ))}
+                      </select>
                     </Field>
-                    <Field label={copy.pinCode}>
+                    <Field label={copy.pinCode} required>
                       <input
                         value={form.pinCode}
                         onChange={(event) => updateField("pinCode", event.target.value.replace(/\D/g, "").slice(0, 6))}
                         inputMode="numeric"
                         placeholder={copy.pinPlaceholder}
+                        list="india-pin-suggestions"
                         className={inputClassName}
                       />
+                      <datalist id="india-pin-suggestions">
+                        {pinSuggestions.map((pin) => (
+                          <option key={pin} value={pin} />
+                        ))}
+                      </datalist>
                     </Field>
                   </div>
                 </div>
@@ -764,13 +945,17 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
               {step === 2 ? (
                 <div className="grid gap-5">
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label={copy.education}>
-                      <input
+                    <Field label={copy.education} required>
+                      <select
                         value={form.educationQualification}
                         onChange={(event) => updateField("educationQualification", event.target.value)}
-                        placeholder={copy.optional}
                         className={inputClassName}
-                      />
+                      >
+                        <option value="">Select education</option>
+                        {educationOptions.map((education) => (
+                          <option key={education} value={education}>{education}</option>
+                        ))}
+                      </select>
                     </Field>
                     <Field label={copy.occupation}>
                       <input
@@ -809,7 +994,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
               {step === 3 ? (
                 <div className="grid gap-5">
-                  <Field label={copy.photo}>
+                  <Field label={copy.photo} required>
                     <div className="rounded-[1.5rem] border border-dashed border-[rgba(41,56,49,0.16)] bg-[#fffdf8] p-5">
                       <input
                         ref={galleryInputRef}
@@ -859,13 +1044,6 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                       ) : null}
                     </div>
                   </Field>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <SummaryCard label={copy.applicant} value={form.candidateName || copy.pending} />
-                    <SummaryCard label={copy.phone} value={form.phone || copy.pending} />
-                    <SummaryCard label={copy.program} value={form.serviceName || copy.pending} />
-                    <SummaryCard label={copy.district} value={form.district || copy.pending} />
-                  </div>
                 </div>
               ) : null}
 
@@ -917,6 +1095,11 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
               ) : null}
             </div>
           </section>
+          <ApplicationSummary
+            form={form}
+          selectedService={selectedService}
+        />
+          </div>
           )}
         </div>
       </div>
@@ -924,21 +1107,96 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function ApplicationSummary({
+  form,
+  selectedService,
+}: {
+  form: FormState;
+  selectedService: ServiceOption;
+}) {
+  const courseSummary = getEnrollmentCourseSummary(form.serviceName);
+
   return (
-    <label className="grid gap-2 text-sm font-semibold text-[#516253]">
-      {label}
-      {children}
-    </label>
+    <aside className="min-w-0 rounded-[1.05rem] border border-[#e8dfd1] bg-white p-5 shadow-[0_18px_40px_rgba(34,45,38,0.06)] lg:sticky lg:top-4 lg:self-start">
+      <h3 className="text-lg font-black text-[#171b18]">Enrollment Summary</h3>
+
+      <div className="mt-6 flex gap-4 border-b border-[#eee6d8] pb-5">
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-[#fff3e8]">
+          {selectedService.imageSrc ? (
+            <Image
+              src={selectedService.imageSrc}
+              alt={selectedService.imageAlt ?? selectedService.title}
+              fill
+              sizes="80px"
+              className="object-cover"
+            />
+          ) : null}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-base font-black text-[#171b18]">{form.serviceName}</p>
+          <p className="mt-1 text-sm font-semibold text-[#6e7770]">{selectedService.duration}</p>
+          <p className="mt-1 text-sm font-semibold text-[#6e7770]">{selectedService.level}</p>
+        </div>
+      </div>
+
+      <div className="mt-5 border-b border-[#eee6d8] pb-5">
+        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#ff5a1f]">Course summary</p>
+        <p className="mt-2 text-sm font-semibold leading-6 text-[#4d5852]">{courseSummary}</p>
+        <div className="mt-4 grid grid-cols-2 gap-3 text-xs font-black text-[#171b18]">
+          <div className="rounded-lg bg-[#fff7ec] px-3 py-2">
+            <span className="block text-[10px] uppercase tracking-[0.14em] text-[#8b7d6b]">Duration</span>
+            {selectedService.duration}
+          </div>
+          <div className="rounded-lg bg-[#fff7ec] px-3 py-2">
+            <span className="block text-[10px] uppercase tracking-[0.14em] text-[#8b7d6b]">Level</span>
+            {selectedService.level}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 text-center text-xs font-black text-[#5d665f]">
+        <div className="grid min-h-16 place-items-center rounded-xl bg-[#f7f3ff] px-3 py-3">
+          <Image
+            src="/phonepe-payment-gateway.png"
+            alt="PhonePe Payment Gateway"
+            width={220}
+            height={60}
+            className="h-auto max-h-10 w-full max-w-[13rem] object-contain"
+          />
+        </div>
+      </div>
+    </aside>
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: string }) {
+function getEnrollmentCourseSummary(serviceName: string) {
+  const normalized = serviceName.toLowerCase();
+
+  if (normalized.includes("honey processing")) {
+    return "Hands-on training for hygienic honey handling, processing discipline, bottling, quality awareness, and value-addition workflow.";
+  }
+
+  if (normalized.includes("queen") || normalized.includes("colony")) {
+    return "Advanced program focused on queen rearing, colony multiplication, nucleus management, and planned apiary expansion.";
+  }
+
+  if (normalized.includes("royal jelly")) {
+    return "Specialized training for royal jelly collection, handling, hygiene, and high-value hive-product production practices.";
+  }
+
+  return "Foundation beekeeping program covering bee biology, hive handling, apiary management, safety, and livelihood-ready scientific practice.";
+}
+
+function RequiredStar() {
+  return <span className="ml-1 text-[#ff5a1f]" aria-label="required">*</span>;
+}
+
+function Field({ label, children, required = false }: { label: string; children: React.ReactNode; required?: boolean }) {
   return (
-    <div className="section-frame rounded-[1.4rem] p-4">
-      <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{label}</p>
-      <p className="mt-3 text-base font-semibold text-bright">{value}</p>
-    </div>
+    <label className="grid gap-2 text-sm font-semibold text-[#516253]">
+      <span>{label}{required || requiredFields.has(label) ? <RequiredStar /> : null}</span>
+      {children}
+    </label>
   );
 }
 
@@ -979,23 +1237,23 @@ function ApplicationPreview({
   ] as const;
 
   return (
-    <section id="application-review" className="mx-auto w-full max-w-4xl min-w-0 scroll-mt-36 overflow-hidden rounded-[1.25rem] border border-[#dfd6c4] bg-white shadow-[0_22px_64px_rgba(34,45,38,0.12)] sm:scroll-mt-8 sm:rounded-[1.8rem]">
-      <div className="grid gap-5 border-b border-[#eee6d8] bg-[#173f33] p-5 text-white sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
+    <section id="application-review" className="mx-auto w-full max-w-5xl min-w-0 scroll-mt-36 bg-white sm:scroll-mt-8">
+      <div className="grid gap-4 border-b border-[#eee6d8] bg-[#173f33] px-4 py-4 text-white sm:grid-cols-[1fr_auto] sm:items-center sm:px-6">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#f2b544]">Cross-check before payment</p>
-          <h3 className="mt-2 text-2xl font-black leading-tight">Review application details</h3>
-          <p className="mt-2 text-sm font-semibold leading-6 text-white/75">Check the applicant details once. The next button opens the secure PhonePe checkout.</p>
+          <h3 className="mt-1 text-2xl font-black leading-tight">Application complete</h3>
+          <p className="mt-1 text-sm font-semibold leading-6 text-white/75">Review once, then continue to secure PhonePe checkout.</p>
         </div>
       </div>
 
-      <div className="grid min-w-0 gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_14rem]">
-        <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+      <div className="grid min-w-0 gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_13rem]">
+        <div className="grid min-w-0 gap-x-6 gap-y-1 sm:grid-cols-2">
           {rows.map(([label, value]) => (
             <ReviewRow key={label} label={label} value={value} wide={label === "Address"} />
           ))}
         </div>
 
-        <aside className="min-w-0 rounded-[1.35rem] border border-[#eee6d8] bg-[#fffdf8] p-4">
+        <aside className="min-w-0 border-l-0 border-[#eee6d8] lg:border-l lg:pl-5">
           <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#b36b00]">Applicant photo</p>
           {photoPreviewUrl ? (
             <div className="relative mt-3 aspect-[4/5] overflow-hidden rounded-[1rem] bg-[#f7f3ea]">
@@ -1009,7 +1267,7 @@ function ApplicationPreview({
         </aside>
       </div>
 
-      <div className="sticky bottom-0 flex flex-col gap-3 border-t border-[#eee6d8] bg-[#fffdf8]/95 p-4 shadow-[0_-18px_38px_rgba(34,45,38,0.08)] backdrop-blur sm:flex-row sm:items-center sm:justify-end sm:p-6">
+      <div className="sticky bottom-0 flex flex-col gap-3 border-t border-[#eee6d8] bg-white/95 px-4 py-4 shadow-[0_-18px_38px_rgba(34,45,38,0.08)] backdrop-blur sm:flex-row sm:items-center sm:justify-end sm:px-6">
         {message ? (
           <p
             className={`rounded-[1rem] border px-4 py-3 text-sm font-semibold sm:mr-auto ${
@@ -1055,7 +1313,7 @@ function ApplicationPreview({
 
 function ReviewRow({ label, value, wide = false }: { label: string; value?: string; wide?: boolean }) {
   return (
-    <div className={`rounded-[1.05rem] border border-[#eee6d8] bg-[#fffdf8] px-4 py-3 ${wide ? "sm:col-span-2" : ""}`}>
+    <div className={`border-b border-[#eee6d8] py-2.5 ${wide ? "sm:col-span-2" : ""}`}>
       <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8b7d6b]">{label}</p>
       <p className="mt-1 break-words text-sm font-semibold leading-6 text-[#173f33]">{value?.trim() || "Not provided"}</p>
     </div>

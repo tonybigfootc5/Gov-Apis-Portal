@@ -102,6 +102,17 @@ export function getTrainingServiceInitials(serviceName: string) {
     .toUpperCase() || "TRN";
 }
 
+export function getTrainingCourseCode(serviceName: string) {
+  const normalized = serviceName.toLowerCase();
+
+  if (normalized.includes("honey processing")) return "HP";
+  if (normalized.includes("queen") || normalized.includes("colony")) return "QCM";
+  if (normalized.includes("royal jelly")) return "RJ";
+  if (normalized.includes("beekeeping")) return "BK";
+
+  return getTrainingServiceInitials(serviceName).slice(0, 3) || "TRN";
+}
+
 export function getTrainingBatchPeriod(date = new Date()) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = String(date.getFullYear());
@@ -110,18 +121,41 @@ export function getTrainingBatchPeriod(date = new Date()) {
 }
 
 export function buildTrainingBatchCode(serviceName: string, batchNumber: number, date = new Date()) {
-  const servicePrefix = getTrainingServiceInitials(serviceName);
-  const { month, year } = getTrainingBatchPeriod(date);
+  const servicePrefix = getTrainingCourseCode(serviceName);
+  const year = String(date.getFullYear()).slice(-2);
 
-  return `${servicePrefix}-${String(batchNumber).padStart(3, "0")}-${month}-${year}`;
+  return `${servicePrefix}-${year}-HYD-B${String(batchNumber).padStart(2, "0")}`;
 }
 
 export function formatApplicationCode(applicationNumber?: number | null) {
   return applicationNumber ? `API-${String(applicationNumber).padStart(4, "0")}` : null;
 }
 
-export function formatStudentCode(batchCode?: string | null, batchSequenceNumber?: number | null) {
-  return batchCode && batchSequenceNumber ? `${batchCode}-${String(batchSequenceNumber).padStart(3, "0")}` : null;
+function normalizeBatchCodeForEnrollment(batchCode: string) {
+  const modernMatch = batchCode.match(/^([A-Z0-9]+)-(\d{2})-([A-Z]{3})-B(\d{2,})$/);
+  if (modernMatch) return batchCode;
+
+  const legacyMatch = batchCode.match(/^([A-Z0-9]+)-(\d+)-(\d{2})-(\d{4})$/);
+  if (legacyMatch) {
+    const [, servicePrefix, batchNumber, , year] = legacyMatch;
+    return `${servicePrefix}-${year.slice(-2)}-HYD-B${String(Number(batchNumber)).padStart(2, "0")}`;
+  }
+
+  return batchCode;
+}
+
+export function getEnrollmentVerificationCharacter(candidateName?: string | null) {
+  return candidateName?.trim().match(/[A-Za-z]/)?.[0]?.toUpperCase() ?? "X";
+}
+
+export function formatStudentCode(
+  batchCode?: string | null,
+  batchSequenceNumber?: number | null,
+  candidateName?: string | null,
+) {
+  return batchCode && batchSequenceNumber
+    ? `API-${normalizeBatchCodeForEnrollment(batchCode)}-${String(batchSequenceNumber).padStart(4, "0")}-${getEnrollmentVerificationCharacter(candidateName)}`
+    : null;
 }
 
 export function buildTrainingApplicationPayload(
@@ -252,7 +286,7 @@ export function mapTrainingApplicationEntity(
     applicationCode: formatApplicationCode(application.applicationNumber),
     batchCode: application.batchCode,
     batchSequenceNumber: application.batchSequenceNumber,
-    studentCode: formatStudentCode(application.batchCode, application.batchSequenceNumber),
+    studentCode: formatStudentCode(application.batchCode, application.batchSequenceNumber, application.candidateName),
     name: application.candidateName,
     email: application.email,
     phone: application.phone,
