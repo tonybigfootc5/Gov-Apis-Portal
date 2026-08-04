@@ -135,6 +135,13 @@ function formatDateOfBirthInput(value: string) {
   return parts.join(" ");
 }
 
+function formatDateOfBirthForSubmission(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length !== 8) return value.trim();
+
+  return `${digits.slice(4, 8)}-${digits.slice(2, 4)}-${digits.slice(0, 2)}`;
+}
+
 const indianStates = [
   "Andaman and Nicobar Islands",
   "Andhra Pradesh",
@@ -585,6 +592,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          dateOfBirth: formatDateOfBirthForSubmission(form.dateOfBirth),
           addressLine: buildAddressLine(form),
         }),
       });
