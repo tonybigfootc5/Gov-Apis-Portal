@@ -12,6 +12,7 @@ import {
   MapPinned,
   ShieldCheck,
   UserRound,
+  WandSparkles,
 } from "lucide-react";
 import { optimizeImageForInlineStorage } from "@/lib/client-media";
 import type { SiteLanguage } from "@/lib/i18n";
@@ -140,6 +141,70 @@ function formatDateOfBirthForSubmission(value: string) {
   if (digits.length !== 8) return value.trim();
 
   return `${digits.slice(4, 8)}-${digits.slice(2, 4)}-${digits.slice(0, 2)}`;
+}
+
+function createTestApplicantPhotoDataUrl(name: string) {
+  const initials = name
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="640" height="800" viewBox="0 0 640 800">
+      <rect width="640" height="800" fill="#f6efe4"/>
+      <circle cx="320" cy="255" r="122" fill="#173f33"/>
+      <path d="M128 690c26-151 128-238 192-238s166 87 192 238" fill="#f2b544"/>
+      <text x="320" y="292" text-anchor="middle" font-family="Arial, sans-serif" font-size="92" font-weight="800" fill="#fffdf8">${initials || "TA"}</text>
+      <text x="320" y="746" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="700" fill="#173f33">TEST PHOTO</text>
+    </svg>
+  `.trim();
+
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function getRandomItem<T>(items: T[]) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function buildTestFormData(current: FormState): FormState {
+  const firstNames = ["Rahul", "Gowtham", "Anjali", "Kiran", "Madhavi", "Suresh"];
+  const lastNames = ["Reddy", "Kumar", "Naik", "Goud", "Varma", "Sharma"];
+  const candidateName = `${getRandomItem(firstNames)} ${getRandomItem(lastNames)}`;
+  const photoDataUrl = createTestApplicantPhotoDataUrl(candidateName);
+  const aadhaarNo = Array.from({ length: 12 }, () => Math.floor(Math.random() * 10)).join("");
+  const phone = `9${Array.from({ length: 9 }, () => Math.floor(Math.random() * 10)).join("")}`;
+  const houseNo = `${Math.floor(Math.random() * 90) + 10}-${Math.floor(Math.random() * 900) + 100}`;
+
+  return {
+    ...current,
+    applicationDate: new Date().toISOString().slice(0, 10),
+    candidateName,
+    guardianName: `${getRandomItem(firstNames)} ${getRandomItem(lastNames)}`,
+    aadhaarNo,
+    email: `${candidateName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
+    gender: Math.random() > 0.5 ? "male" : "female",
+    dateOfBirth: `${String(Math.floor(Math.random() * 18) + 10).padStart(2, "0")} ${String(Math.floor(Math.random() * 12) + 1).padStart(2, "0")} ${Math.floor(Math.random() * 20) + 1985}`,
+    houseNo,
+    street: "Training Center Road",
+    village: "Rajendranagar",
+    post: "Rajendranagar",
+    addressLine: "Near Agriculture University",
+    mandal: "Rajendranagar",
+    district: "Hyderabad",
+    state: "Telangana",
+    pinCode: "500030",
+    phone,
+    residencePhone: "",
+    educationQualification: getRandomItem(["10th pass", "Intermediate", "Degree", "Post graduation"]),
+    occupation: getRandomItem(["Farmer", "Student", "Self employed", "Beekeeper"]),
+    sponsoringOrganization: "Testing only",
+    photoName: "test-applicant-photo.svg",
+    photoType: "image/svg+xml",
+    photoUrl: photoDataUrl,
+    photoObjectKey: "",
+    photoDataUrl,
+  };
 }
 
 const indianStates = [
@@ -497,9 +562,12 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const [photoPreviewUrl, setPhotoPreviewUrl] = useState("");
   const [photoStatus, setPhotoStatus] = useState(copy.photoHelp);
   const [showPreview, setShowPreview] = useState(false);
+  const [testAutofillOpen, setTestAutofillOpen] = useState(false);
+  const [testAutofillCode, setTestAutofillCode] = useState("");
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const hasUploadedPhoto = Boolean(form.photoUrl && form.photoName);
+  const showTestAutofill = process.env.NODE_ENV !== "production";
 
   const progress = ((step + 1) / STEPS.length) * 100;
   const canAdvance = requiredStepFields(step, form);
@@ -526,6 +594,32 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
   function updateField<Key extends keyof FormState>(key: Key, value: FormState[Key]) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function handleTestAutofill() {
+    if (!testAutofillOpen) {
+      setTestAutofillOpen(true);
+      setMessage("Enter test code 54321 to auto fill random testing details.");
+      return;
+    }
+
+    if (testAutofillCode.trim() !== "54321") {
+      setSubmitState("error");
+      setMessage("Invalid test code. Auto fill was not applied.");
+      return;
+    }
+
+    const testForm = buildTestFormData(form);
+    setForm(testForm);
+    setPhotoPreviewUrl(testForm.photoDataUrl);
+    setPhotoStatus("Test photo added. Random test details filled.");
+    setPhotoUploadState("uploaded");
+    setSubmitState("idle");
+    setMessage("Random test details filled. Review before submitting.");
+    setTestAutofillCode("");
+    setTestAutofillOpen(false);
+    setShowPreview(false);
+    setStep(0);
   }
 
   async function onPhotoChange(file: File | null) {
@@ -650,6 +744,34 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs font-black">
+                {showTestAutofill ? (
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    {testAutofillOpen ? (
+                      <input
+                        value={testAutofillCode}
+                        onChange={(event) => setTestAutofillCode(event.target.value.replace(/\D/g, "").slice(0, 5))}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            handleTestAutofill();
+                          }
+                        }}
+                        placeholder="Code"
+                        inputMode="numeric"
+                        className="h-9 w-24 rounded-full border border-[#f2b544]/50 bg-white px-3 text-xs font-black text-[#173f33] outline-none ring-[#f2b544] placeholder:text-[#9a8b72] focus:ring-2"
+                        aria-label="Test autofill code"
+                      />
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={handleTestAutofill}
+                      className="inline-flex min-h-9 items-center justify-center gap-2 rounded-full border border-[#f2b544]/45 bg-white px-3 py-2 uppercase tracking-[0.12em] text-[#173f33] shadow-[0_8px_18px_rgba(34,45,38,0.06)]"
+                    >
+                      <WandSparkles className="h-3.5 w-3.5 text-[#b36b00]" aria-hidden="true" />
+                      {testAutofillOpen ? "Fill" : "Auto fill test"}
+                    </button>
+                  </div>
+                ) : null}
                 <div className="rounded-full bg-[#173f33] px-3 py-2 uppercase tracking-[0.12em] text-white">
                   {showPreview ? `${completedSteps}/${STEPS.length} ready` : `Step ${step + 1}/${STEPS.length}`}
                 </div>
