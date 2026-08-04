@@ -168,11 +168,13 @@ export function SiteFooter({ language }: SiteFooterProps) {
           </div>
 
         <div className="mt-8 border-t border-white/10 pt-5">
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#8b8d83]">
-            <span className="font-black uppercase tracking-[0.16em] text-[#c77b22]">{copy.footer.designedDevelopedBy}</span>
-            <span>{copy.footer.whatsappOnlyNote}</span>
-            <a href="https://wa.me/9199087909008" className="transition hover:text-[#f6cf74]">Rahul: +91 99087909008</a>
-            <a href="https://wa.me/916309465575" className="transition hover:text-[#f6cf74]">Gowtham: +91 63094 65575</a>
+          <div className="space-y-2 text-xs text-[#8b8d83]">
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
+              <span className="font-black uppercase tracking-[0.16em] text-[#c77b22]">{copy.footer.designedDevelopedBy}</span>
+              <a href="https://wa.me/9199087909008" className="transition hover:text-[#f6cf74]">Rahul: +91 9908790908</a>
+              <a href="https://wa.me/916309465575" className="transition hover:text-[#f6cf74]">Gowtham: +91 63094 65575</a>
+            </div>
+            <p>{copy.footer.whatsappOnlyNote}</p>
           </div>
         </div>
       </div>
