@@ -95,6 +95,7 @@ type SiteCopy = {
     instagramHandle: string;
     youtubeHandle: string;
     designedDevelopedBy: string;
+    whatsappOnlyNote: string;
   };
   policies: {
     title: string;
@@ -305,7 +306,8 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       officialWebsite: "Official website",
       instagramHandle: "honey2health",
       youtubeHandle: "@ApiCultureTechCenter",
-      designedDevelopedBy: "Designed & Developed by",
+      designedDevelopedBy: "Architected & Developed by",
+      whatsappOnlyNote: "For quick communication, drop a WhatsApp message.",
     },
     policies: {
       title: "Public policies for applications, payments, privacy, and service use.",
@@ -513,7 +515,8 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       officialWebsite: "అధికారిక వెబ్‌సైట్",
       instagramHandle: "honey2health",
       youtubeHandle: "@ApiCultureTechCenter",
-      designedDevelopedBy: "డిజైన్ & డెవలప్‌మెంట్",
+      designedDevelopedBy: "Architected & Developed by",
+      whatsappOnlyNote: "త్వరిత కమ్యూనికేషన్ కోసం WhatsApp సందేశం పంపండి.",
     },
     policies: {
       title: "దరఖాస్తులు, చెల్లింపులు, గోప్యత మరియు సేవల వినియోగానికి సంబంధించిన ప్రజా పాలసీలు.",
@@ -720,7 +723,8 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       officialWebsite: "आधिकारिक वेबसाइट",
       instagramHandle: "honey2health",
       youtubeHandle: "@ApiCultureTechCenter",
-      designedDevelopedBy: "डिज़ाइन एवं डेवलपमेंट",
+      designedDevelopedBy: "Architected & Developed by",
+      whatsappOnlyNote: "त्वरित संवाद के लिए WhatsApp संदेश भेजें.",
     },
     policies: {
       title: "आवेदन, भुगतान, गोपनीयता और सेवा उपयोग के लिए सार्वजनिक नीतियाँ।",
