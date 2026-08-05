@@ -460,33 +460,32 @@ function TrainingRail({
               aria-selected={isActive}
               onClick={() => onSelect(index)}
               className={cn(
-                "group relative grid min-h-[13.6rem] w-full min-w-0 grid-cols-[9.3rem_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.05rem] border bg-white p-3 text-left shadow-[0_14px_34px_rgba(36,31,16,0.08)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 max-[520px]:grid-cols-1",
+                "group relative grid min-h-[7rem] w-full min-w-0 grid-cols-[7.2rem_minmax(0,1fr)] gap-3 overflow-hidden rounded-[0.9rem] border bg-white p-2.5 text-left shadow-[0_12px_26px_rgba(36,31,16,0.07)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 max-[520px]:grid-cols-[6.8rem_minmax(0,1fr)]",
                 isActive
                   ? "border-[#f2a900] bg-[#fff9eb] text-[#08251c] shadow-[0_20px_42px_rgba(239,165,0,0.2)]"
                   : "border-[#eee5d6] text-[#08251c] hover:-translate-y-0.5 hover:border-[#f4c05a] hover:bg-[#fffdf7]",
               )}
             >
-              <span className="relative min-h-[12rem] overflow-hidden rounded-[0.75rem] max-[520px]:aspect-[16/10]">
-                <Image src={course.imageSrc} alt="" fill sizes="(max-width: 640px) 100vw, (max-width: 1280px) 45vw, 22vw" className="object-cover transition duration-500 group-hover:scale-105" />
+              <span className="relative min-h-[6rem] overflow-hidden rounded-[0.7rem]">
+                <Image src={course.imageSrc} alt="" fill sizes="(max-width: 640px) 32vw, (max-width: 1280px) 18vw, 10vw" className="object-cover object-center transition duration-500 group-hover:scale-105" />
                 <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,37,28,0.03),rgba(239,165,0,0.12))]" />
-                <span className="absolute left-3 top-3 grid h-14 w-14 place-items-center rounded-[0.85rem] bg-[#07351f] text-[#ffba17] shadow-[0_10px_24px_rgba(7,53,31,0.24)]">
-                  <Icon className="h-8 w-8" strokeWidth={2.2} aria-hidden="true" />
+                <span className="absolute left-2.5 top-2.5 grid h-10 w-10 place-items-center rounded-[0.7rem] bg-[#07351f] text-[#ffba17] shadow-[0_8px_18px_rgba(7,53,31,0.22)]">
+                  <Icon className="h-6 w-6" strokeWidth={2.2} aria-hidden="true" />
                 </span>
               </span>
               {isActive ? (
-                <span className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full bg-[#f2a900] text-white shadow-[0_10px_20px_rgba(239,165,0,0.25)]">
-                  <CircleCheck className="h-5 w-5" strokeWidth={3} aria-hidden="true" />
+                <span className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-full bg-[#f2a900] text-white shadow-[0_10px_20px_rgba(239,165,0,0.25)]">
+                  <CircleCheck className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
                 </span>
               ) : null}
-              <span className="flex min-w-0 flex-col justify-center py-3">
-                <span className="block text-[1.12rem] font-black leading-tight sm:text-xl">{course.tabLabel}</span>
-                <span className="mt-3 w-fit rounded-full bg-[#dfe9d2] px-3 py-1 text-[11px] font-black text-[#14241f]">
+              <span className="flex min-w-0 flex-col justify-center py-1.5 pr-8">
+                <span className="block text-base font-black leading-tight sm:text-lg">{course.tabLabel}</span>
+                <span className="mt-2 w-fit rounded-full bg-[#dfe9d2] px-2.5 py-1 text-[10px] font-black text-[#14241f]">
                   {course.duration.replace(/\bdays\b/i, "Days")} Program
                 </span>
-                <span className="mt-4 line-clamp-3 text-sm font-semibold leading-6 text-[#1f2b27]">{course.summary || course.description}</span>
                 <span
                   className={cn(
-                    "mt-4 grid h-9 w-9 place-items-center self-end rounded-full border transition",
+                    "absolute bottom-3 right-3 grid h-8 w-8 place-items-center rounded-full border transition",
                     isActive ? "border-[#f2a900] bg-[#f2a900] text-white" : "border-[#e3ded2] bg-white text-[#07351f] group-hover:border-[#f2a900]",
                   )}
                 >
