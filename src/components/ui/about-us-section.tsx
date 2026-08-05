@@ -299,13 +299,13 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
     const radian = (angle * Math.PI) / 180;
     const radiusX = 440;
     const radiusY = 238;
-    const x = radiusX * Math.cos(radian);
-    const y = radiusY * Math.sin(radian);
+    const x = Number((radiusX * Math.cos(radian)).toFixed(3));
+    const y = Number((radiusY * Math.sin(radian)).toFixed(3));
     const lineLength = Math.hypot(x, y);
-    const lineAngle = Math.atan2(y, x) * (180 / Math.PI);
+    const lineAngle = Number((Math.atan2(y, x) * (180 / Math.PI)).toFixed(3));
     const zIndex = Math.round(90 + 35 * Math.sin(radian));
-    const opacity = Math.max(0.54, Math.min(1, 0.62 + 0.38 * ((1 + Math.sin(radian)) / 2)));
-    const scale = 0.92 + 0.12 * ((1 + Math.sin(radian)) / 2);
+    const opacity = Number(Math.max(0.88, Math.min(1, 0.9 + 0.1 * ((1 + Math.sin(radian)) / 2))).toFixed(3));
+    const scale = Number((0.98 + 0.04 * ((1 + Math.sin(radian)) / 2)).toFixed(3));
 
     return { lineAngle, lineLength, opacity, scale, x, y, zIndex };
   };
@@ -372,9 +372,9 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
           {orbitPositions.map(({ culture, position }) => (
             <span
               key={`${culture.title}-connector`}
-              className="pointer-events-none absolute left-1/2 top-1/2 h-px origin-left bg-[repeating-linear-gradient(90deg,#c7ad70_0_7px,transparent_7px_16px)]"
+              className="pointer-events-none absolute left-1/2 top-1/2 h-[1.5px] origin-left bg-[repeating-linear-gradient(90deg,#b97816_0_8px,transparent_8px_16px)]"
               style={{
-                opacity: activeCulture === culture.title || hoveredCulture === culture.title ? 0.68 : 0.34,
+                opacity: activeCulture === culture.title || hoveredCulture === culture.title ? 0.82 : 0.58,
                 transform: `rotate(${position.lineAngle}deg)`,
                 width: `${position.lineLength}px`,
               }}
@@ -409,8 +409,8 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                   isActive
                     ? "border-[#d6a84b] bg-[linear-gradient(180deg,rgba(255,249,235,0.94),rgba(255,255,255,0.68))] shadow-[0_28px_60px_rgba(184,120,22,0.2)]"
                     : isHovered
-                      ? "border-[#d6a84b]/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.82),rgba(255,250,242,0.58))] shadow-[0_22px_46px_rgba(99,77,26,0.12)]"
-                      : "border-white/65 bg-[linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,250,242,0.46))] shadow-[0_14px_34px_rgba(99,77,26,0.08)]"
+                      ? "border-[#d6a84b]/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(255,250,242,0.8))] shadow-[0_22px_46px_rgba(99,77,26,0.14)]"
+                      : "border-[#e0c584]/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,250,242,0.74))] shadow-[0_18px_42px_rgba(99,77,26,0.12)]"
                 }`}
                 style={{
                   opacity: isActive || isHovered ? 1 : position.opacity,

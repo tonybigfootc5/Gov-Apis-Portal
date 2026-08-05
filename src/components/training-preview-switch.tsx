@@ -413,12 +413,6 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
 function TrainingHeader({ copy }: { copy: TrainingCopy }) {
   return (
     <header className="mx-auto text-center">
-      <div className="mb-3 flex items-center justify-center gap-3">
-        <span className="h-px w-14 bg-[#f2a900]" aria-hidden="true" />
-        <Bug className="h-4 w-4 text-[#f2a900]" aria-hidden="true" />
-        <p className="text-sm font-black uppercase tracking-[0.06em] text-[#0a241c]">Our Training Programs</p>
-        <span className="h-px w-14 bg-[#f2a900]" aria-hidden="true" />
-      </div>
       <h1
         aria-label={copy.headingAria}
         className="max-w-full font-black leading-[0.96] text-[#07351f]"
