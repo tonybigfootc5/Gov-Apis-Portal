@@ -6,14 +6,20 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import {
   ArrowRight,
+  Award,
   Bug,
+  CalendarDays,
   CircleCheck,
+  Coffee,
   Factory,
   GraduationCap,
   Languages,
   Lightbulb,
+  MapPin,
+  MessageCircle,
+  Phone,
+  ReceiptText,
   Sprout,
-  Target,
   Timer,
   Tractor,
   UserRound,
@@ -81,10 +87,10 @@ const courseIcons: ProgramLogo[] = [ApiaryCartLogo, HoneyJarLogo, QueenBeeLogo, 
 const trainingCopy = {
   en: {
     loadingForm: "Loading application form...",
-    headingLight: "Our Training",
-    headingStrong: "Programs",
-    headingAria: "Our Training Programs",
-    intro: "Learn. Practice. Grow. Empowering beekeepers for a better tomorrow.",
+    headingLight: "Choose a Program,",
+    headingStrong: "Start Your Journey",
+    headingAria: "Choose a Program, Start Your Journey",
+    intro: "Practical training. Real skills. Better tomorrow.",
     railAria: "Training course switcher",
     program: "program",
     courseFee: "Course fee",
@@ -100,6 +106,17 @@ const trainingCopy = {
     aboutShort: "About",
     outcomes: "Outcomes",
     attend: "Who can attend?",
+    selectedProgram: "Selected program",
+    nextBatch: "Next batch",
+    location: "Location",
+    locationValue: "Rajendranagar, Hyd",
+    trainingBreakdown: "5 Day Training Breakdown",
+    programFee: "Program Fee",
+    certificateShort: "Certificate on Completion",
+    refreshments: "Refreshments Included",
+    limitedSeats: "Limited Seats",
+    callPrompt: "Have questions? Call us",
+    whatsapp: "Chat on WhatsApp",
     more: "And more...",
     applicationForm: "Application form",
     modalHelp: "Fill the API Culture application without leaving this page.",
@@ -143,6 +160,17 @@ const trainingCopy = {
     aboutShort: "గురించి",
     outcomes: "ఫలితాలు",
     attend: "ఎవరు హాజరు కావచ్చు?",
+    selectedProgram: "Selected program",
+    nextBatch: "Next batch",
+    location: "Location",
+    locationValue: "Rajendranagar, Hyd",
+    trainingBreakdown: "5 Day Training Breakdown",
+    programFee: "Program Fee",
+    certificateShort: "Certificate on Completion",
+    refreshments: "Refreshments Included",
+    limitedSeats: "Limited Seats",
+    callPrompt: "Have questions? Call us",
+    whatsapp: "Chat on WhatsApp",
     more: "ఇంకా మరిన్ని...",
     applicationForm: "దరఖాస్తు ఫారమ్",
     modalHelp: "ఈ పేజీ విడిచిపెట్టకుండా API Culture దరఖాస్తును పూరించండి.",
@@ -186,6 +214,17 @@ const trainingCopy = {
     aboutShort: "परिचय",
     outcomes: "परिणाम",
     attend: "कौन शामिल हो सकता है?",
+    selectedProgram: "Selected program",
+    nextBatch: "Next batch",
+    location: "Location",
+    locationValue: "Rajendranagar, Hyd",
+    trainingBreakdown: "5 Day Training Breakdown",
+    programFee: "Program Fee",
+    certificateShort: "Certificate on Completion",
+    refreshments: "Refreshments Included",
+    limitedSeats: "Limited Seats",
+    callPrompt: "Have questions? Call us",
+    whatsapp: "Chat on WhatsApp",
     more: "और भी...",
     applicationForm: "आवेदन फॉर्म",
     modalHelp: "इस पेज को छोड़े बिना API Culture आवेदन भरें.",
@@ -229,6 +268,17 @@ const trainingCopy = {
   aboutShort: string;
   outcomes: string;
   attend: string;
+  selectedProgram: string;
+  nextBatch: string;
+  location: string;
+  locationValue: string;
+  trainingBreakdown: string;
+  programFee: string;
+  certificateShort: string;
+  refreshments: string;
+  limitedSeats: string;
+  callPrompt: string;
+  whatsapp: string;
   more: string;
   applicationForm: string;
   modalHelp: string;
@@ -335,13 +385,14 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
   }
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#f6f6f3] px-3 py-6 text-[#101816] sm:px-5 lg:px-8 lg:py-8">
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(239,165,0,0.12),transparent_28rem),linear-gradient(180deg,#ffffff_0%,#f7f6f2_62%,#ffffff_100%)]" />
+    <section className="relative isolate overflow-hidden bg-[#fffdf8] px-3 py-7 text-[#071c16] sm:px-5 lg:px-8 lg:py-9">
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_52%_0%,rgba(248,181,29,0.16),transparent_31rem),linear-gradient(180deg,#ffffff_0%,#fffaf0_52%,#fffdf8_100%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-52 bg-[linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,0.92),rgba(255,255,255,0))]" />
 
-      <div className="training-program-shell relative mx-auto max-w-[94rem]">
+      <div className="relative mx-auto max-w-[94rem]">
         <TrainingHeader copy={copy} />
 
-        <div className="mt-7" style={getCourseSurfaceStyle()}>
+        <div className="mt-6" style={getCourseSurfaceStyle()}>
           <TrainingRail courses={courses} active={active} copy={copy} onSelect={selectCourse} />
           <CourseOverview key={course.id} course={course} copy={copy} overviewRef={courseOverviewRef} onEnroll={() => openApplicationForCourse(course)} />
         </div>
@@ -362,17 +413,23 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
 function TrainingHeader({ copy }: { copy: TrainingCopy }) {
   return (
     <header className="mx-auto text-center">
+      <div className="mb-3 flex items-center justify-center gap-3">
+        <span className="h-px w-14 bg-[#f2a900]" aria-hidden="true" />
+        <Bug className="h-4 w-4 text-[#f2a900]" aria-hidden="true" />
+        <p className="text-sm font-black uppercase tracking-[0.06em] text-[#0a241c]">Our Training Programs</p>
+        <span className="h-px w-14 bg-[#f2a900]" aria-hidden="true" />
+      </div>
       <h1
         aria-label={copy.headingAria}
-        className="max-w-full font-black leading-[0.98] text-[#070b0a]"
-        style={{ fontSize: "clamp(2.35rem, 5.4vw, 4.9rem)" }}
+        className="max-w-full font-black leading-[0.96] text-[#07351f]"
+        style={{ fontSize: "clamp(2.5rem, 5.1vw, 4.75rem)", textShadow: "0 3px 0 rgba(7,53,31,0.08)" }}
       >
         <span>{copy.headingLight} </span>
         <span className="text-[#efa500]">
           {copy.headingStrong}
         </span>
       </h1>
-      <p className="mx-auto mt-3 max-w-3xl text-sm font-semibold leading-6 text-[#3c4a48] sm:text-base">
+      <p className="mx-auto mt-3 max-w-3xl text-sm font-semibold leading-6 text-[#151918] sm:text-lg">
         {copy.intro}
       </p>
     </header>
@@ -391,11 +448,11 @@ function TrainingRail({
   onSelect: (index: number) => void;
 }) {
   return (
-    <aside className="training-program-rail">
+    <aside>
       <div
         role="tablist"
         aria-label={copy.railAria}
-        className="training-program-rail-list"
+        className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
       >
         {courses.map((course, index) => {
           const isActive = index === active;
@@ -409,24 +466,38 @@ function TrainingRail({
               aria-selected={isActive}
               onClick={() => onSelect(index)}
               className={cn(
-                "training-program-tab group relative flex min-h-[4.85rem] w-full min-w-0 items-center justify-center gap-4 rounded-lg border px-4 py-4 text-left shadow-[0_12px_28px_rgba(36,41,34,0.05)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2",
+                "group relative grid min-h-[13.6rem] w-full min-w-0 grid-cols-[9.3rem_minmax(0,1fr)] gap-4 overflow-hidden rounded-[1.05rem] border bg-white p-3 text-left shadow-[0_14px_34px_rgba(36,31,16,0.08)] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 max-[520px]:grid-cols-1",
                 isActive
-                  ? "training-program-tab-active border-[#f4c05a] bg-[#fffaf0] text-[#111f1a] shadow-[0_18px_36px_rgba(239,165,0,0.12)]"
-                  : "border-[#ece8df] bg-white text-[#111f1a] hover:-translate-y-0.5 hover:border-[#f1c866] hover:bg-[#fffdf8]",
+                  ? "border-[#f2a900] bg-[#fff9eb] text-[#08251c] shadow-[0_20px_42px_rgba(239,165,0,0.2)]"
+                  : "border-[#eee5d6] text-[#08251c] hover:-translate-y-0.5 hover:border-[#f4c05a] hover:bg-[#fffdf7]",
               )}
             >
-              <span
-                className={cn(
-                  "grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-[#fff3cc] text-[#efa500] transition sm:h-12 sm:w-12",
-                  isActive
-                    ? "bg-[#fff2c6] text-[#1f1200] shadow-[0_10px_22px_rgba(239,165,0,0.13)]"
-                    : "group-hover:bg-[#fff2c6]",
-                )}
-              >
-                <Icon className="h-7 w-7 sm:h-8 sm:w-8" strokeWidth={2.25} aria-hidden="true" />
+              <span className="relative min-h-[12rem] overflow-hidden rounded-[0.75rem] max-[520px]:aspect-[16/10]">
+                <Image src={course.imageSrc} alt="" fill sizes="(max-width: 640px) 100vw, (max-width: 1280px) 45vw, 22vw" className="object-cover transition duration-500 group-hover:scale-105" />
+                <span className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,37,28,0.03),rgba(239,165,0,0.12))]" />
+                <span className="absolute left-3 top-3 grid h-14 w-14 place-items-center rounded-[0.85rem] bg-[#07351f] text-[#ffba17] shadow-[0_10px_24px_rgba(7,53,31,0.24)]">
+                  <Icon className="h-8 w-8" strokeWidth={2.2} aria-hidden="true" />
+                </span>
               </span>
-              <span className="flex min-w-0 items-center self-stretch">
-                <span className="block text-sm font-black leading-tight sm:text-[0.95rem]">{course.tabLabel}</span>
+              {isActive ? (
+                <span className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full bg-[#f2a900] text-white shadow-[0_10px_20px_rgba(239,165,0,0.25)]">
+                  <CircleCheck className="h-5 w-5" strokeWidth={3} aria-hidden="true" />
+                </span>
+              ) : null}
+              <span className="flex min-w-0 flex-col justify-center py-3">
+                <span className="block text-[1.12rem] font-black leading-tight sm:text-xl">{course.tabLabel}</span>
+                <span className="mt-3 w-fit rounded-full bg-[#dfe9d2] px-3 py-1 text-[11px] font-black text-[#14241f]">
+                  {course.duration.replace(/\bdays\b/i, "Days")} Program
+                </span>
+                <span className="mt-4 line-clamp-3 text-sm font-semibold leading-6 text-[#1f2b27]">{course.summary || course.description}</span>
+                <span
+                  className={cn(
+                    "mt-4 grid h-9 w-9 place-items-center self-end rounded-full border transition",
+                    isActive ? "border-[#f2a900] bg-[#f2a900] text-white" : "border-[#e3ded2] bg-white text-[#07351f] group-hover:border-[#f2a900]",
+                  )}
+                >
+                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
+                </span>
               </span>
             </button>
           );
@@ -450,7 +521,8 @@ function CourseOverview({
   const skills = normalizeSkills(course, copy);
   const audience = getAudienceItems(course, copy);
   const feeLabel = formatFeeForDisplay(course.fee);
-  const hasLongTitle = course.title.length > 28;
+  const dayPlan = getDayPlan(course);
+  const gallery = getProgramGallery(course);
   function handleEnrollClick(event: React.MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
     event.stopPropagation();
@@ -458,110 +530,130 @@ function CourseOverview({
   }
 
   return (
-    <article ref={overviewRef} className="training-course-panel mt-6 scroll-mt-24">
-      <div className="overflow-hidden rounded-[1.2rem] border border-[#ece4d8] bg-white shadow-[0_22px_48px_rgba(36,41,34,0.08)]">
-        <div className="relative min-h-[24rem] overflow-hidden p-5 sm:p-7 lg:min-h-[23rem] lg:p-9">
-          <Image src={course.imageSrc} alt={course.imageAlt} fill sizes="(max-width: 1280px) 100vw, 82rem" className="object-cover object-right" priority />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#fffdf8_0%,rgba(255,253,248,0.97)_33%,rgba(255,253,248,0.74)_55%,rgba(255,253,248,0.1)_100%)]" />
-          <div className="relative grid min-h-[19rem] items-center gap-6 lg:grid-cols-[minmax(0,1fr)_19rem]">
-            <div className="max-w-[38rem]">
-              <p className="inline-flex rounded-full bg-[#f2a900] px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.04em] text-[#140f00]">
-                {course.duration} {copy.program}
-              </p>
-              <h2
-                className={cn(
-                  "mt-4 font-black leading-[0.96] text-[#071019]",
-                  hasLongTitle ? "text-[clamp(2rem,4vw,3.4rem)]" : "text-[clamp(2.7rem,5.2vw,4.05rem)]",
-                )}
-              >
-                {course.title}
-              </h2>
-              <p className="mt-3 text-lg font-black leading-6 text-[#f2a000] sm:text-xl">{course.focusLabel}</p>
-              <p className="mt-4 max-w-[34rem] text-sm font-semibold leading-7 text-[#263532] sm:text-base">{course.description}</p>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleEnrollClick}
-              className="group relative z-20 w-full rounded-lg border border-[#eee8df] bg-white p-5 text-left shadow-[0_22px_46px_rgba(28,31,28,0.17)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_58px_rgba(28,31,28,0.2)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#efa500] focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-            >
-              <span className="block text-sm font-bold text-[#111816]">{copy.courseFee}</span>
-              <span className="mt-2 flex flex-wrap items-end gap-x-2 gap-y-1">
-                <span className="text-[2.35rem] font-black leading-none text-[#071019]">{feeLabel}</span>
-                <span className="pb-1 text-[10px] font-black uppercase text-[#222b29]">{copy.gstIncluded}</span>
-              </span>
-              <span className="mt-3 block text-sm font-bold text-[#111816]">
-                {copy.startsAt} {course.batchDate}
-              </span>
-              <span className="mt-5 flex min-h-12 overflow-hidden rounded-lg bg-[#042f28] text-white">
-                <span className="flex flex-1 items-center justify-center px-4 text-sm font-black">{copy.enrollNow}</span>
-                <span className="grid w-14 place-items-center bg-[#f2a900] text-[#071019] transition group-hover:w-16">
-                  <ArrowRight className="h-5 w-5" aria-hidden="true" />
-                </span>
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div className="grid gap-4 border-t border-[#efe7dc] bg-white px-5 py-4 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
-          <Metric icon={GraduationCap} label={copy.level} value={course.experienceLabel || course.level} />
-          <Metric icon={Timer} label={copy.duration} value={course.duration} />
-          <Metric icon={UsersRound} label={copy.batchSize} value={course.capacity} />
-          <Metric icon={Languages} label={copy.taughtIn} value={course.taughtIn} />
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.98fr)]">
-        <section className="rounded-[1rem] border border-[#ece6dc] bg-white p-5 shadow-[0_18px_40px_rgba(36,41,34,0.05)] sm:p-6">
-          <SectionTitle title={copy.learn} />
-          <div className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
-            {skills.map((skill) => (
-              <p key={skill} className="flex items-start gap-3 text-sm font-semibold leading-5 text-[#273431]">
-                <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#efa500]" strokeWidth={2.4} aria-hidden="true" />
-                {skill}
-              </p>
-            ))}
+    <article ref={overviewRef} className="mt-5 scroll-mt-24 overflow-hidden rounded-[1.05rem] border border-[#f2d796] bg-[#fffaf0] shadow-[0_18px_42px_rgba(67,45,12,0.1)]">
+      <div className="grid lg:grid-cols-[29rem_minmax(0,1fr)]">
+        <section className="relative min-h-[28rem] overflow-hidden p-6 sm:p-8">
+          <Image src={course.imageSrc} alt={course.imageAlt} fill sizes="(max-width: 1024px) 100vw, 30rem" className="object-cover" priority />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,250,240,0.96)_0%,rgba(255,250,240,0.78)_44%,rgba(255,250,240,0.18)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_22%,rgba(242,169,0,0.18),transparent_15rem)]" />
+          <div className="relative max-w-md">
+            <span className="inline-flex items-center gap-1.5 rounded bg-[#f2a900] px-3 py-1 text-[10px] font-black uppercase text-[#102119] shadow-[0_8px_18px_rgba(242,169,0,0.22)]">
+              <Bug className="h-3.5 w-3.5" aria-hidden="true" />
+              {copy.selectedProgram}
+            </span>
+            <h2 className="mt-4 text-[clamp(2.55rem,5vw,4rem)] font-black leading-[0.93] text-[#07351f]">{course.title}</h2>
+            <p className="mt-4 text-lg font-black leading-6 text-[#e59600]">{course.duration.replace(/\bdays\b/i, "Days")} Practical Training</p>
+            <p className="mt-3 max-w-sm text-sm font-semibold leading-6 text-[#151918]">{course.description}</p>
           </div>
         </section>
 
-        <section className="rounded-[1rem] border border-[#ece6dc] bg-white p-5 shadow-[0_18px_40px_rgba(36,41,34,0.05)] sm:p-6">
-          <SectionTitle title={copy.attend} />
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {audience.slice(0, 6).map((item, index) => {
-              const AudienceIcon = getAudienceIcon(item);
-              const isWide = index === 5;
+        <section className="bg-white/72">
+          <div className="grid gap-4 border-b border-[#ead7b0] px-5 py-5 sm:grid-cols-2 xl:grid-cols-5 xl:px-7">
+            <Metric icon={CalendarDays} label={copy.nextBatch} value={course.batchDate} />
+            <Metric icon={MapPin} label={copy.location} value={copy.locationValue} />
+            <Metric icon={UsersRound} label={copy.batchSize} value={course.capacity} />
+            <Metric icon={Languages} label="Languages" value={course.taughtIn} />
+            <Metric icon={Timer} label={copy.duration} value={course.duration.replace(/\bdays\b/i, "Days")} />
+          </div>
 
-              return (
-                <p
-                  key={item}
-                  className={cn(
-                    "flex min-h-[4.25rem] min-w-0 flex-col items-center justify-center gap-1 rounded-lg border px-3 py-3 text-center text-[11px] font-black capitalize leading-tight shadow-[0_8px_18px_rgba(36,41,34,0.03)]",
-                    isWide ? "sm:col-span-2 xl:col-span-2" : "",
-                    "border-[#eee8df] bg-white text-[#111816]",
-                  )}
-                >
-                  <span className="grid h-8 w-8 place-items-center text-[#efa500]">
-                    <AudienceIcon className="h-7 w-7" strokeWidth={2.1} aria-hidden="true" />
-                  </span>
-                  <span className="line-clamp-2 min-w-0">{item}</span>
-                </p>
-              );
-            })}
+          <div className="grid gap-6 px-5 py-6 xl:grid-cols-[1fr_1.05fr_0.92fr] xl:px-7">
+            <section className="xl:border-r xl:border-[#ead7b0] xl:pr-7">
+              <SectionTitle title={copy.learn} />
+              <div className="mt-5 grid gap-3">
+                {skills.slice(0, 8).map((skill) => (
+                  <p key={skill} className="flex items-start gap-3 text-sm font-semibold leading-5 text-[#17231f]">
+                    <CircleCheck className="mt-0.5 h-4 w-4 shrink-0 fill-[#f2a900] text-white" strokeWidth={3} aria-hidden="true" />
+                    {skill}
+                  </p>
+                ))}
+              </div>
+            </section>
+
+            <section className="xl:border-r xl:border-[#ead7b0] xl:pr-7">
+              <SectionTitle title={copy.trainingBreakdown} />
+              <div className="mt-5 grid gap-3">
+                {dayPlan.map((day, index) => (
+                  <div key={day.title} className="grid grid-cols-[4.25rem_minmax(0,1fr)] gap-3">
+                    <span className="relative flex h-8 items-center justify-center bg-[#f8d98d] text-[11px] font-black text-[#102119] [clip-path:polygon(12%_0,88%_0,100%_50%,88%_100%,12%_100%,0_50%)]">
+                      DAY {index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-black leading-5 text-[#14241f]">{day.title}</p>
+                      <p className="text-xs font-semibold leading-5 text-[#293530]">{day.body}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section>
+              <SectionTitle title={copy.attend} />
+              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-2">
+                {audience.slice(0, 6).map((item) => {
+                  const AudienceIcon = getAudienceIcon(item);
+
+                  return (
+                    <p key={item} className="flex min-h-[5.4rem] min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-[#ead7b0] bg-white/78 px-2 py-3 text-center text-[11px] font-black capitalize leading-tight text-[#102119]">
+                      <AudienceIcon className="h-7 w-7 text-[#07351f]" strokeWidth={1.9} aria-hidden="true" />
+                      <span className="line-clamp-2 min-w-0">{item}</span>
+                    </p>
+                  );
+                })}
+              </div>
+            </section>
           </div>
         </section>
       </div>
 
-      <section className="mt-5 rounded-[1rem] border border-[#ece6dc] bg-white p-5 shadow-[0_18px_40px_rgba(36,41,34,0.05)] sm:p-6">
-        <SectionTitle title="Outcomes You'll Achieve" icon={Target} />
-        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          {course.outcomes.slice(0, 6).map((outcome, index) => (
-            <p key={outcome} className="flex gap-3 border-[#f0dfbb] text-xs font-semibold leading-5 text-[#17231f] xl:border-l xl:pl-4">
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[#f8d98d] text-[11px] font-black text-[#111816]">{String(index + 1).padStart(2, "0")}</span>
-              <span>{outcome}</span>
+      <div className="grid items-center gap-4 border-t border-[#ead7b0] bg-[#fffdf8] px-5 py-4 lg:grid-cols-[minmax(13rem,0.9fr)_repeat(3,minmax(7rem,0.52fr))_minmax(12rem,0.8fr)_minmax(12rem,0.8fr)] lg:px-7">
+        <div className="flex items-center gap-4">
+          <Bug className="h-12 w-12 shrink-0 text-[#f2a900]" strokeWidth={1.7} aria-hidden="true" />
+          <div>
+            <p className="text-sm font-black text-[#102119]">{copy.programFee}</p>
+            <p className="flex flex-wrap items-end gap-2 text-[2rem] font-black leading-none text-[#07351f]">
+              {feeLabel}
+              <span className="mb-1 rounded bg-[#07351f] px-2 py-1 text-[10px] uppercase text-white">{copy.gstIncluded}</span>
             </p>
+          </div>
+        </div>
+        <FeaturePill icon={ReceiptText} label={copy.certificateShort} />
+        <FeaturePill icon={Coffee} label={copy.refreshments} />
+        <FeaturePill icon={Award} label={copy.limitedSeats} />
+        <button
+          type="button"
+          onClick={handleEnrollClick}
+          className="group inline-flex min-h-14 items-center justify-center gap-5 rounded-lg bg-[#f2a900] px-6 py-3 text-base font-black text-[#102119] shadow-[0_14px_28px_rgba(242,169,0,0.22)] transition hover:-translate-y-0.5 hover:bg-[#ffb81f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]"
+        >
+          {copy.enrollNow}
+          <ArrowRight className="h-6 w-6 transition group-hover:translate-x-1" aria-hidden="true" />
+        </button>
+        <a
+          href="https://wa.me/919440012345"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex min-h-14 items-center justify-center gap-3 rounded-lg border border-[#07351f] bg-white px-5 py-3 text-base font-black text-[#07351f] transition hover:-translate-y-0.5 hover:bg-[#f3fff7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]"
+        >
+          <MessageCircle className="h-6 w-6 text-[#04893f]" aria-hidden="true" />
+          {copy.whatsapp}
+        </a>
+      </div>
+
+      <div className="grid gap-4 border-t border-[#ead7b0] bg-[#fffaf0] px-5 py-4 lg:grid-cols-[25rem_minmax(0,1fr)] lg:px-7">
+        <a href="tel:+919440012345" className="flex min-h-20 items-center justify-center gap-4 rounded-lg bg-[#eef1e6] px-5 text-[#07351f] transition hover:bg-[#e7ecd9]">
+          <Phone className="h-9 w-9 shrink-0 fill-[#07351f]/10" strokeWidth={2.2} aria-hidden="true" />
+          <span>
+            <span className="block text-base font-semibold">{copy.callPrompt}</span>
+            <span className="block text-2xl font-black leading-tight">+91 94400 12345</span>
+          </span>
+        </a>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {gallery.map((item) => (
+            <div key={item.src} className="relative min-h-20 overflow-hidden rounded-lg shadow-[0_10px_20px_rgba(67,45,12,0.12)]">
+              <Image src={item.src} alt={item.alt} fill sizes="(max-width: 640px) 50vw, 16vw" className="object-cover" />
+            </div>
           ))}
         </div>
-      </section>
+      </div>
     </article>
   );
 }
@@ -571,21 +663,30 @@ function SectionTitle({ title, icon: Icon }: { title: string; icon?: LucideIcon 
     <div>
       <div className="flex items-center gap-2">
         {Icon ? <Icon className="h-4 w-4 text-[#efa500]" aria-hidden="true" /> : null}
-        <h3 className="text-xl font-black leading-tight text-[#111816]">{title}</h3>
+        <h3 className="text-xl font-black leading-tight text-[#102119]">{title}</h3>
       </div>
-      <span className="mt-2 block h-0.5 w-8 rounded-full bg-[#efa500]" />
+      <span className="mt-2 block h-0.5 w-9 rounded-full bg-[#f2a900]" />
     </div>
   );
 }
 
 function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3">
-      <Icon className="mt-1 h-8 w-8 shrink-0 text-[#06432f]" strokeWidth={1.8} aria-hidden="true" />
+    <div className="flex items-start gap-3 xl:border-r xl:border-[#ead7b0] xl:last:border-r-0 xl:last:pr-0">
+      <Icon className="mt-0.5 h-8 w-8 shrink-0 text-[#102119]" strokeWidth={1.8} aria-hidden="true" />
       <div className="min-w-0">
-        <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#14241f]">{label}</p>
-        <p className="mt-1 break-words text-sm font-black leading-5 text-[#121f1b]">{value}</p>
+        <p className="text-[11px] font-bold leading-tight text-[#263530]">{label}</p>
+        <p className="mt-1 break-words text-sm font-black leading-5 text-[#102119]">{value}</p>
       </div>
+    </div>
+  );
+}
+
+function FeaturePill({ icon: Icon, label }: { icon: LucideIcon; label: string }) {
+  return (
+    <div className="flex min-h-14 flex-col items-center justify-center gap-1 border-[#ead7b0] px-2 text-center lg:border-l">
+      <Icon className="h-7 w-7 text-[#07351f]" strokeWidth={1.8} aria-hidden="true" />
+      <p className="text-[11px] font-black leading-tight text-[#102119]">{label}</p>
     </div>
   );
 }
@@ -670,7 +771,59 @@ function getAudienceItems(course: TrainingPreviewCourse, copy: TrainingCopy) {
 }
 
 function formatFeeForDisplay(fee: string) {
-  return fee.replace(/^INR\s*/i, "Rs. ");
+  return fee.replace(/^INR\s*/i, "₹");
+}
+
+function getDayPlan(course: TrainingPreviewCourse) {
+  const defaults = [
+    ["Introduction to Bees", "Bee anatomy, species, tools and equipment"],
+    ["Colony Management", "Hive inspection, feeding, and maintenance"],
+    ["Honey Harvesting", "Extraction methods and storage"],
+    ["Health & Safety", "Disease management and safe handling"],
+    ["Beekeeping as Business", "Marketing, record keeping and government support"],
+  ];
+
+  if (course.slug.includes("honey-processing")) {
+    return [
+      ["Harvest Hygiene", "Clean uncapping, extraction and work-area discipline"],
+      ["Filtration Flow", "Filtering, settling, moisture awareness and quality checks"],
+      ["Bottling Practice", "Packing tools, labels and batch handling"],
+      ["Storage Safety", "Food safety, storage conditions and shelf readiness"],
+      ["Market Readiness", "Pricing, presentation and buyer trust"],
+    ].map(([title, body]) => ({ title, body }));
+  }
+
+  if (course.slug.includes("queen-rearing")) {
+    return [
+      ["Colony Selection", "Breeder traits, colony strength and records"],
+      ["Queen Cell Work", "Cell handling, grafting basics and timing"],
+      ["Nucleus Setup", "Splits, nucleus boxes and mating-yard preparation"],
+      ["Multiplication Plan", "Expansion records and colony balancing"],
+      ["Apiary Scale-Up", "Productivity, quality control and enterprise planning"],
+    ].map(([title, body]) => ({ title, body }));
+  }
+
+  if (course.slug.includes("royal-jelly")) {
+    return [
+      ["Production Cycle", "Queen-cell preparation and timing"],
+      ["Collection Method", "Sensitive harvest workflow and clean tools"],
+      ["Hygienic Transfer", "Handling, containers and contamination control"],
+      ["Cold Handling", "Storage discipline and quality awareness"],
+      ["Commercial Planning", "Niche product positioning and records"],
+    ].map(([title, body]) => ({ title, body }));
+  }
+
+  return defaults.map(([title, body]) => ({ title, body }));
+}
+
+function getProgramGallery(course: TrainingPreviewCourse) {
+  return [
+    { src: "/training-field-visuals/image1.jpeg", alt: "Training participants during apiary practice." },
+    { src: course.imageSrc, alt: course.imageAlt },
+    { src: "/honey-processing-program-updated.png", alt: "Honey processing jars and equipment." },
+    { src: "/training-field-visuals/image4.jpeg", alt: "Beekeepers inspecting a frame during training." },
+    { src: "/training-field-visuals/image7.jpeg", alt: "Outdoor apiary demonstration with trainees." },
+  ];
 }
 
 function getCourseSurfaceStyle(): React.CSSProperties {
