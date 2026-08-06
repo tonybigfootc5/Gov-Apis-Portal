@@ -120,7 +120,7 @@ export default async function ProgramsPage() {
   const language = await getRequestLanguage();
   const programs = await getPrograms();
 
-  const courses: TrainingPreviewCourse[] = programs.slice(0, 4).map((program) => {
+  const courses: TrainingPreviewCourse[] = programs.map((program) => {
     const translatedProgram = getTranslatedProgramContent(program, language);
     const presentation = trainingProgramCatalogBySlug[program.slug];
     const override =
