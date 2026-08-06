@@ -81,7 +81,7 @@ const INITIAL_FORM: FormState = {
   addressLine: "",
   mandal: "",
   district: "",
-  state: "Telangana",
+  state: "",
   pinCode: "",
   phone: "",
   residencePhone: "",
@@ -143,6 +143,18 @@ function formatDateOfBirthForSubmission(value: string) {
   return `${digits.slice(4, 8)}-${digits.slice(2, 4)}-${digits.slice(0, 2)}`;
 }
 
+function formatAadhaarInput(value: string) {
+  return value
+    .replace(/\D/g, "")
+    .slice(0, 12)
+    .replace(/(\d{4})(?=\d)/g, "$1 ")
+    .trim();
+}
+
+function getAadhaarDigits(value: string) {
+  return value.replace(/\D/g, "").slice(0, 12);
+}
+
 function createTestApplicantPhotoDataUrl(name: string) {
   const initials = name
     .split(/\s+/)
@@ -181,7 +193,7 @@ function buildTestFormData(current: FormState): FormState {
     applicationDate: new Date().toISOString().slice(0, 10),
     candidateName,
     guardianName: `${getRandomItem(firstNames)} ${getRandomItem(lastNames)}`,
-    aadhaarNo,
+    aadhaarNo: formatAadhaarInput(aadhaarNo),
     email: `${candidateName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
     gender: Math.random() > 0.5 ? "male" : "female",
     dateOfBirth: `${String(Math.floor(Math.random() * 18) + 10).padStart(2, "0")} ${String(Math.floor(Math.random() * 12) + 1).padStart(2, "0")} ${Math.floor(Math.random() * 20) + 1985}`,
@@ -207,45 +219,6 @@ function buildTestFormData(current: FormState): FormState {
   };
 }
 
-const indianStates = [
-  "Andaman and Nicobar Islands",
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chandigarh",
-  "Chhattisgarh",
-  "Dadra and Nagar Haveli and Daman and Diu",
-  "Delhi",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jammu and Kashmir",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Ladakh",
-  "Lakshadweep",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Puducherry",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-];
-
 const educationOptions = [
   "No formal education",
   "Primary school",
@@ -257,69 +230,6 @@ const educationOptions = [
   "Agriculture / Horticulture graduate",
   "Other",
 ];
-
-const indiaAreaSuggestions: Record<string, Record<string, Array<{ post: string; pin: string }>>> = {
-  Telangana: {
-    Hyderabad: [
-      { post: "Rajendranagar", pin: "500030" },
-      { post: "Mehdipatnam", pin: "500028" },
-      { post: "Charminar", pin: "500002" },
-      { post: "Secunderabad", pin: "500003" },
-      { post: "Gachibowli", pin: "500032" },
-    ],
-    "Rangareddy": [
-      { post: "Shamshabad", pin: "501218" },
-      { post: "Ibrahimpatnam", pin: "501506" },
-      { post: "Chevella", pin: "501503" },
-    ],
-    "Medchal Malkajgiri": [
-      { post: "Malkajgiri", pin: "500047" },
-      { post: "Kukatpally", pin: "500072" },
-      { post: "Medchal", pin: "501401" },
-    ],
-    Warangal: [
-      { post: "Hanamkonda", pin: "506001" },
-      { post: "Kazipet", pin: "506003" },
-    ],
-    Karimnagar: [
-      { post: "Karimnagar", pin: "505001" },
-      { post: "Huzurabad", pin: "505468" },
-    ],
-    Nizamabad: [{ post: "Nizamabad", pin: "503001" }],
-    Khammam: [{ post: "Khammam", pin: "507001" }],
-    Nalgonda: [{ post: "Nalgonda", pin: "508001" }],
-  },
-  "Andhra Pradesh": {
-    Visakhapatnam: [
-      { post: "Visakhapatnam", pin: "530001" },
-      { post: "Gajuwaka", pin: "530026" },
-    ],
-    Vijayawada: [{ post: "Vijayawada", pin: "520001" }],
-    Guntur: [{ post: "Guntur", pin: "522002" }],
-    Tirupati: [{ post: "Tirupati", pin: "517501" }],
-  },
-  Delhi: {
-    "New Delhi": [
-      { post: "Connaught Place", pin: "110001" },
-      { post: "Chanakyapuri", pin: "110021" },
-    ],
-    "South Delhi": [{ post: "Saket", pin: "110017" }],
-  },
-  Karnataka: {
-    Bengaluru: [
-      { post: "Bengaluru GPO", pin: "560001" },
-      { post: "Whitefield", pin: "560066" },
-    ],
-    Mysuru: [{ post: "Mysuru", pin: "570001" }],
-  },
-  Maharashtra: {
-    Mumbai: [
-      { post: "Mumbai GPO", pin: "400001" },
-      { post: "Andheri", pin: "400053" },
-    ],
-    Pune: [{ post: "Pune", pin: "411001" }],
-  },
-};
 
 function buildAddressLine(data: Pick<FormState, "houseNo" | "street" | "village" | "post" | "addressLine">) {
   return [
@@ -339,7 +249,7 @@ function requiredStepFields(stepIndex: number, data: FormState) {
     return Boolean(
         data.candidateName &&
         data.gender &&
-        data.aadhaarNo &&
+        /^\d{12}$/.test(getAadhaarDigits(data.aadhaarNo)) &&
         data.dateOfBirth,
     );
   }
@@ -350,6 +260,7 @@ function requiredStepFields(stepIndex: number, data: FormState) {
         data.street &&
         data.village &&
         data.post &&
+        data.mandal &&
         data.district &&
         data.state &&
         /^\d{6}$/.test(data.pinCode) &&
@@ -552,7 +463,6 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const initialServiceName = lockedService?.title ?? normalizedServiceOptions[0].title;
   const [form, setForm] = useState<FormState>({
     ...INITIAL_FORM,
-    mandal: "Not provided",
     serviceName: initialServiceName,
   });
   const [step, setStep] = useState(0);
@@ -566,6 +476,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const [testAutofillCode, setTestAutofillCode] = useState("");
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+  const cameraVideoRef = useRef<HTMLVideoElement>(null);
   const hasUploadedPhoto = Boolean(form.photoUrl && form.photoName);
   const showTestAutofill = process.env.NODE_ENV !== "production";
 
@@ -574,10 +486,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const completedSteps = STEPS.filter((_, index) => requiredStepFields(index, form)).length;
   const selectedService =
     normalizedServiceOptions.find((service) => service.title === form.serviceName) ?? normalizedServiceOptions[0];
-  const stateAreaSuggestions = indiaAreaSuggestions[form.state] ?? {};
-  const districtSuggestions = Object.keys(stateAreaSuggestions);
-  const postSuggestions = form.district ? (stateAreaSuggestions[form.district] ?? []) : [];
-  const pinSuggestions = Array.from(new Set(postSuggestions.map((item) => item.pin)));
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState("");
 
   useEffect(() => {
     if (!showPreview) return;
@@ -591,6 +501,19 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       document.getElementById("application-review")?.scrollIntoView({ block: "start", behavior: "smooth" });
     }, 60);
   }, [showPreview]);
+
+  useEffect(() => {
+    return () => {
+      stopCameraStream();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!cameraOpen || !cameraVideoRef.current || !cameraStreamRef.current) return;
+
+    cameraVideoRef.current.srcObject = cameraStreamRef.current;
+    void cameraVideoRef.current.play();
+  }, [cameraOpen]);
 
   function updateField<Key extends keyof FormState>(key: Key, value: FormState[Key]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -664,6 +587,65 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
     }
   }
 
+  function stopCameraStream() {
+    cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
+    cameraStreamRef.current = null;
+  }
+
+  async function openCamera() {
+    setCameraError("");
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      cameraInputRef.current?.click();
+      return;
+    }
+
+    try {
+      stopCameraStream();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+        audio: false,
+      });
+      cameraStreamRef.current = stream;
+      setCameraOpen(true);
+    } catch {
+      setCameraError("Camera could not be opened. Use Choose photo or allow camera access and try again.");
+      cameraInputRef.current?.click();
+    }
+  }
+
+  function closeCamera() {
+    stopCameraStream();
+    setCameraOpen(false);
+  }
+
+  async function captureCameraPhoto() {
+    const video = cameraVideoRef.current;
+    if (!video || !video.videoWidth || !video.videoHeight) {
+      setCameraError("Camera is still starting. Please try again in a moment.");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext("2d");
+    if (!context) {
+      setCameraError("Camera photo could not be captured. Please try again.");
+      return;
+    }
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
+    if (!blob) {
+      setCameraError("Camera photo could not be saved. Please try again.");
+      return;
+    }
+
+    closeCamera();
+    await onPhotoChange(new File([blob], "camera-photo.jpg", { type: "image/jpeg" }));
+  }
+
   async function handleSubmit() {
     if (photoUploadState === "uploading" || submitState === "compressing") {
       setMessage(copy.waitUpload);
@@ -686,6 +668,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          aadhaarNo: getAadhaarDigits(form.aadhaarNo),
           dateOfBirth: formatDateOfBirthForSubmission(form.dateOfBirth),
           addressLine: buildAddressLine(form),
         }),
@@ -906,9 +889,10 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     <Field label={physicalFormCopy.aadhaarNo} required>
                       <input
                         value={form.aadhaarNo}
-                        onChange={(event) => updateField("aadhaarNo", event.target.value.replace(/\D/g, "").slice(0, 12))}
+                        onChange={(event) => updateField("aadhaarNo", formatAadhaarInput(event.target.value))}
                         placeholder={physicalFormCopy.aadhaarPlaceholder}
                         inputMode="numeric"
+                        maxLength={14}
                         className={inputClassName}
                       />
                     </Field>
@@ -990,22 +974,9 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     <Field label={physicalFormCopy.post} required>
                       <input
                         value={form.post}
-                        onChange={(event) => {
-                          const nextPost = event.target.value;
-                          const matchedPost = postSuggestions.find((item) => item.post === nextPost);
-                          updateField("post", nextPost);
-                          if (matchedPost) updateField("pinCode", matchedPost.pin);
-                        }}
-                        list="india-post-suggestions"
+                        onChange={(event) => updateField("post", event.target.value)}
                         className={inputClassName}
                       />
-                      <datalist id="india-post-suggestions">
-                        {postSuggestions.map((item) => (
-                          <option key={`${item.post}-${item.pin}`} value={item.post}>
-                            {item.pin}
-                          </option>
-                        ))}
-                      </datalist>
                     </Field>
                   </div>
 
@@ -1019,39 +990,30 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     />
                   </Field>
 
-                  <div className="grid gap-5 sm:grid-cols-3">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <Field label={copy.mandal} required>
+                      <input
+                        value={form.mandal}
+                        onChange={(event) => updateField("mandal", event.target.value)}
+                        className={inputClassName}
+                      />
+                    </Field>
                     <Field label={copy.district} required>
                       <input
                         value={form.district}
-                        onChange={(event) => {
-                          updateField("district", event.target.value);
-                          updateField("post", "");
-                          updateField("pinCode", "");
-                        }}
-                        list="india-district-suggestions"
+                        onChange={(event) => updateField("district", event.target.value)}
                         className={inputClassName}
                       />
-                      <datalist id="india-district-suggestions">
-                        {districtSuggestions.map((district) => (
-                          <option key={district} value={district} />
-                        ))}
-                      </datalist>
                     </Field>
+                  </div>
+
+                  <div className="grid gap-5 sm:grid-cols-2">
                     <Field label={copy.state} required>
-                      <select
+                      <input
                         value={form.state}
-                        onChange={(event) => {
-                          updateField("state", event.target.value);
-                          updateField("district", "");
-                          updateField("post", "");
-                          updateField("pinCode", "");
-                        }}
+                        onChange={(event) => updateField("state", event.target.value)}
                         className={inputClassName}
-                      >
-                        {indianStates.map((state) => (
-                          <option key={state} value={state}>{state}</option>
-                        ))}
-                      </select>
+                      />
                     </Field>
                     <Field label={copy.pinCode} required>
                       <input
@@ -1059,14 +1021,8 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                         onChange={(event) => updateField("pinCode", event.target.value.replace(/\D/g, "").slice(0, 6))}
                         inputMode="numeric"
                         placeholder={copy.pinPlaceholder}
-                        list="india-pin-suggestions"
                         className={inputClassName}
                       />
-                      <datalist id="india-pin-suggestions">
-                        {pinSuggestions.map((pin) => (
-                          <option key={pin} value={pin} />
-                        ))}
-                      </datalist>
                     </Field>
                   </div>
                 </div>
@@ -1152,13 +1108,41 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                         </button>
                         <button
                           type="button"
-                          onClick={() => cameraInputRef.current?.click()}
+                          onClick={() => void openCamera()}
                           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#173f33]/14 bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#173f33]"
                         >
                           <Camera className="h-4 w-4" aria-hidden="true" />
                           Open camera
                         </button>
                       </div>
+                      {cameraOpen ? (
+                        <div className="mt-4 overflow-hidden rounded-[1.4rem] border border-[#173f33]/12 bg-[#102119] p-3">
+                          <video
+                            ref={cameraVideoRef}
+                            playsInline
+                            muted
+                            autoPlay
+                            className="aspect-[4/3] w-full rounded-[1rem] bg-black object-cover"
+                          />
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            <button
+                              type="button"
+                              onClick={() => void captureCameraPhoto()}
+                              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f2b544] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12]"
+                            >
+                              Capture photo
+                            </button>
+                            <button
+                              type="button"
+                              onClick={closeCamera}
+                              className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/24 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-white"
+                            >
+                              Close camera
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
+                      {cameraError ? <p className="mt-3 text-sm font-semibold text-[#8e3d2f]">{cameraError}</p> : null}
                       {photoStatus ? <p className="mt-3 text-sm text-dim">{photoStatus}</p> : null}
                       {hasUploadedPhoto ? (
                         <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[#2a8d5f]">
@@ -1358,6 +1342,7 @@ function ApplicationPreview({
     ["Mobile number", form.phone],
     ["Email", form.email],
     ["Address", address],
+    ["Mandal / Block", form.mandal],
     ["District", form.district],
     ["State", form.state],
     ["Pin code", form.pinCode],
