@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { fallbackGalleryImages } from "@/lib/fallback-data";
 import { prismaErrorResponse, serviceUnavailable } from "@/lib/api-response";
 import { adminUnauthorized, requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -16,9 +15,9 @@ export async function GET() {
     const images = await prisma.galleryImage.findMany({
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     });
-    return NextResponse.json(images.length ? images : fallbackGalleryImages);
+    return NextResponse.json(images);
   } catch {
-    return NextResponse.json(fallbackGalleryImages);
+    return NextResponse.json([]);
   }
 }
 

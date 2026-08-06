@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { AdminConsole } from "@/components/admin-console";
 import { requireAdmin } from "@/lib/auth";
 import { getContactMessageCutoffDate, mapContactInboxRecord, type ContactInboxRecord } from "@/lib/contact-inbox";
-import { fallbackApplications, fallbackArticles, fallbackEvents, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
 import { getLocalTrainingApplications } from "@/lib/local-training-applications";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { getAdminPaymentOrders, getAdminTrainingApplications, type PaymentAdminRecord } from "@/lib/training-application-store";
@@ -82,28 +81,11 @@ export default async function AdminPage() {
   const allowed = await requireAdmin();
   if (!allowed) redirect("/admin/login");
 
-  let programs: AdminProgram[] = fallbackPrograms.map((program) => ({
-    ...program,
-    level: program.level as AdminProgram["level"],
-    fee: program.fee ?? null,
-  }));
-  let events: AdminEvent[] = fallbackEvents.map((event) => ({
-    ...event,
-    status: event.status as AdminEvent["status"],
-    endsAt: event.endsAt ?? null,
-  }));
-  let articles: AdminArticle[] = fallbackArticles.map((article) => ({
-    ...article,
-    mediaUrl: article.mediaUrl ?? null,
-    mediaObjectKey: article.mediaObjectKey ?? null,
-    mediaType: article.mediaType as AdminArticle["mediaType"],
-    externalLink: article.externalLink || null,
-  }));
-  let galleryImages: AdminGalleryImage[] = fallbackGalleryImages.map((image) => ({
-    ...image,
-    place: image.place ?? null,
-  }));
-  let applications: TrainingApplicationRecord[] = fallbackApplications;
+  let programs: AdminProgram[] = [];
+  let events: AdminEvent[] = [];
+  let articles: AdminArticle[] = [];
+  let galleryImages: AdminGalleryImage[] = [];
+  let applications: TrainingApplicationRecord[] = [];
   let payments: PaymentAdminRecord[] = [];
   let contactMessages: ContactInboxRecord[] = [];
 
@@ -159,12 +141,10 @@ export default async function AdminPage() {
         mediaType: article.mediaType ?? null,
         externalLink: article.externalLink ?? null,
       }));
-      galleryImages = dbGalleryImages.length
-        ? dbGalleryImages.map((image) => ({
-            ...image,
-            place: image.place ?? null,
-          }))
-        : galleryImages;
+      galleryImages = dbGalleryImages.map((image) => ({
+        ...image,
+        place: image.place ?? null,
+      }));
       applications = dbApplications;
       payments = dbPayments;
       contactMessages = contactInboxMessages.map(mapContactInboxRecord);
