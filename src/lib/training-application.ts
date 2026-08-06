@@ -103,11 +103,11 @@ export function getTrainingServiceInitials(serviceName: string) {
 }
 
 export function getTrainingCourseCode(serviceName: string) {
-  const normalized = serviceName.toLowerCase();
+  const normalized = serviceName.toLowerCase().replace(/[\s_-]+/g, "");
 
-  if (normalized.includes("honey processing")) return "HP";
+  if (normalized.includes("honeyprocessing")) return "HP";
   if (normalized.includes("queen") || normalized.includes("colony")) return "QCM";
-  if (normalized.includes("royal jelly")) return "RJ";
+  if (normalized.includes("royaljelly")) return "RJ";
   if (normalized.includes("beekeeping")) return "BK";
 
   return getTrainingServiceInitials(serviceName).slice(0, 3) || "TRN";

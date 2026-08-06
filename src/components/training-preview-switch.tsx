@@ -46,6 +46,7 @@ const TrainingApplicationForm = dynamic(
 export type TrainingPreviewCourse = {
   id: string;
   slug: string;
+  serviceTitle: string;
   tabLabel: string;
   title: string;
   summary: string;
@@ -361,7 +362,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
   const courseOverviewRef = React.useRef<HTMLElement | null>(null);
   const course = courses[active] ?? courses[0];
   const serviceOptions = courses.map((item) => ({
-    title: item.title,
+    title: item.serviceTitle,
     duration: item.duration,
     level: item.level,
     imageSrc: item.imageSrc,
@@ -723,7 +724,7 @@ function ApplicationOverlay({
           </button>
         </div>
         <div data-application-scroll className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-6">
-          <TrainingApplicationForm language={language} serviceOptions={serviceOptions} selectedServiceTitle={course.title} />
+          <TrainingApplicationForm language={language} serviceOptions={serviceOptions} selectedServiceTitle={course.serviceTitle} />
         </div>
       </div>
     </div>,

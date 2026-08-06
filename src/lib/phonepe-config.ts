@@ -26,9 +26,13 @@ export function parseFeeLabelToPaise(fee: string | null | undefined) {
   return Math.round(Number(match[1]) * 100);
 }
 
+function normalizeTrainingProgramName(value: string) {
+  return value.trim().toLowerCase().replace(/[\s_-]+/g, "");
+}
+
 export function getTrainingProgramFeeByServiceName(serviceName: string) {
-  const normalizedServiceName = serviceName.trim().toLowerCase();
-  return trainingProgramCatalog.find((program) => program.title.trim().toLowerCase() === normalizedServiceName)?.fee ?? null;
+  const normalizedServiceName = normalizeTrainingProgramName(serviceName);
+  return trainingProgramCatalog.find((program) => normalizeTrainingProgramName(program.title) === normalizedServiceName)?.fee ?? null;
 }
 
 export function getTrainingApplicationAmountPaise(fee?: string | null) {

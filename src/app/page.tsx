@@ -27,6 +27,7 @@ export default async function Home() {
     return {
       id: program.id,
       slug: program.slug,
+      serviceTitle: presentation?.title ?? program.title,
       tabLabel: translatedProgram.title,
       title: translatedProgram.title,
       summary: translatedProgram.summary,
