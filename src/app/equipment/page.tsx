@@ -198,9 +198,6 @@ const equipmentPageCopy = {
     ],
     deskPrefix: "API CULTURE",
     deskTitle: "Equipment Desk",
-    ctaTitle: "From equipment supply to farmer confidence.",
-    ctaBody:
-      "The Technology Center supports the development of the beekeeping industry through equipment access and local manufacturing units that serve apiarists closer to their fields.",
     items: {} as Record<string, Partial<(typeof equipmentTools)[number]>>,
     support: {} as Record<string, { title: string; body: string }>,
   },
@@ -213,9 +210,6 @@ const equipmentPageCopy = {
     ],
     deskPrefix: "API CULTURE",
     deskTitle: "పరికరాల విభాగం",
-    ctaTitle: "పరికరాల సరఫరా నుంచి రైతుల విశ్వాసం వరకు.",
-    ctaBody:
-      "టెక్నాలజీ సెంటర్ పరికరాల లభ్యత మరియు స్థానిక తయారీ యూనిట్ల ప్రోత్సాహం ద్వారా తేనెటీగల పెంపక రంగ అభివృద్ధికి మద్దతు ఇస్తుంది.",
     items: {
       "Bee colonies": {
         title: "తేనెటీగల కాలనీలు",
@@ -287,9 +281,6 @@ const equipmentPageCopy = {
     ],
     deskPrefix: "API CULTURE",
     deskTitle: "उपकरण डेस्क",
-    ctaTitle: "उपकरण आपूर्ति से किसान भरोसे तक.",
-    ctaBody:
-      "टेक्नोलॉजी सेंटर उपकरण उपलब्धता और स्थानीय निर्माण इकाइयों को प्रोत्साहित करके मधुमक्खी पालन उद्योग के विकास में मदद करता है.",
     items: {
       "Bee colonies": {
         title: "मधुमक्खी कॉलोनियां",
@@ -357,8 +348,6 @@ const equipmentPageCopy = {
   bodyLines: readonly string[];
   deskPrefix: string;
   deskTitle: string;
-  ctaTitle: string;
-  ctaBody: string;
   items: Record<string, EquipmentTextOverride>;
   support: Record<string, { title: string; body: string }>;
 }>;
@@ -442,15 +431,6 @@ export default async function EquipmentPage() {
           ))}
         </div>
 
-        <div className="mt-8">
-          <section className="rounded-[1.8rem] border border-[rgba(41,56,49,0.1)] bg-[linear-gradient(135deg,#113f32,#0f5d47)] p-6 text-[#fff9ef] shadow-[0_24px_70px_rgba(22,57,46,0.18)] sm:p-8">
-            <Sparkles className="h-8 w-8 text-[#f2b544]" aria-hidden="true" />
-            <h2 className="mt-5 font-display text-4xl leading-tight">{copy.ctaTitle}</h2>
-            <p className="mt-5 text-sm leading-7 text-white/76">
-              {copy.ctaBody}
-            </p>
-          </section>
-        </div>
       </div>
     </section>
   );

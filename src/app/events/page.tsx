@@ -3,7 +3,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeftCircle, ArrowRight, CalendarDays, Grid2X2, List, MapPin } from "lucide-react";
 import { getEvents } from "@/lib/data";
-import { fallbackEvents } from "@/lib/fallback-data";
 import { getTranslatedEventContent } from "@/lib/i18n";
 import { getRequestLanguage } from "@/lib/request-language";
 import { formatDateTime } from "@/lib/utils";
@@ -25,8 +24,7 @@ const eventImages = [
 export default async function EventsPage() {
   const language = await getRequestLanguage();
   const events = await getEvents();
-  const displayEvents = events.length > 0 ? events : fallbackEvents;
-  const translatedEvents = displayEvents.map((event) => getTranslatedEventContent(event, language));
+  const translatedEvents = events.map((event) => getTranslatedEventContent(event, language));
 
   return (
     <section className="bg-[#f8faf7] text-[#242824]">
@@ -65,6 +63,11 @@ export default async function EventsPage() {
         </div>
 
         <div>
+          {translatedEvents.length === 0 ? (
+            <div className="border-b border-[#d9ddd3] py-14">
+              <p className="text-lg font-semibold text-[#59645d]">No published events yet.</p>
+            </div>
+          ) : null}
           {translatedEvents.map((event, index) => {
             const date = new Date(event.startsAt);
             const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase();

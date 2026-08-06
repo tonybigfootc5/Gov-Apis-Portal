@@ -46,7 +46,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "The Api Culture Technology Center conducts this 5-day programme at ATC's Training Hall, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around scientific beekeeping methods and beekeeping as a livelihood or enterprise.",
     duration: "5 days",
     level: "FOUNDATION",
-    fee: "INR 100",
+    fee: "INR 5,000",
     capacity: 30,
     batchStartsAt: "2026-07-15T09:00:00.000Z",
     enrollmentClosed: false,

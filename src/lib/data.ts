@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { fallbackArticles, fallbackEvents, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
+import { fallbackArticles, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
 import { trainingProgramCatalog, trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
 export type ProgramItem = {
@@ -69,6 +69,24 @@ export type GalleryImageItem = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+const legacyArticleSlugs = new Set([
+  "managing-bee-colonies-in-high-temperature-without-losing-strength",
+  "how-to-select-a-bee-honey-production-during-monsoon-season-in-beekeeping",
+  "poor-pollination-in-crop-fields-how-better-bee-placement-can-improve-results",
+  "smoker-handling-mistakes-that-make-hive-inspections-harder",
+  "honey-hygiene-checklist-before-extraction-day",
+  "queen-cell-selection-what-trainees-should-observe-first",
+  "how-rural-youth-can-start-a-small-training-apiary",
+  "monsoon-feeding-when-support-helps-and-when-it-creates-risk",
+  "a-practical-day-plan-for-beekeeping-training-batches",
+  "royal-jelly-room-setup-small-details-that-matter",
+  "campus-field-note-what-visitors-notice-first-at-the-center",
+  "starter-equipment-kit-what-new-learners-actually-need",
+  "apiary-records-that-help-trainers-spot-problems-early",
+  "market-ready-honey-labels-confidence-and-buyer-trust",
+  "flowering-calendar-notes-every-beekeeper-should-maintain",
+]);
 
 function buildCatalogProgram(program: (typeof trainingProgramCatalog)[number]): ProgramItem {
   return {
@@ -214,66 +232,60 @@ export async function getProgram(slug: string): Promise<ProgramItem | null> {
 }
 
 export async function getEvents(): Promise<EventItem[]> {
-  if (!process.env.DATABASE_URL) return fallbackEvents;
+  if (!process.env.DATABASE_URL) return [];
   try {
     return await prisma.event.findMany({
       where: { published: true },
       orderBy: { startsAt: "asc" },
     });
   } catch {
-    return fallbackEvents;
+    return [];
   }
 }
 
 export async function getEvent(slug: string): Promise<EventItem | null> {
   if (!process.env.DATABASE_URL) {
-    return fallbackEvents.find((item) => item.slug === slug) ?? null;
+    return null;
   }
   try {
     const event = await prisma.event.findFirst({
       where: { slug, published: true },
     });
-    return event ?? fallbackEvents.find((item) => item.slug === slug) ?? null;
+    return event ?? null;
   } catch {
-    return fallbackEvents.find((item) => item.slug === slug) ?? null;
+    return null;
   }
 }
 
 export async function getArticles(): Promise<ArticleItem[]> {
   const fallback = fallbackArticles as ArticleItem[];
-  const publicFallback = process.env.NODE_ENV === "production" ? fallback.filter((article) => !article.id.startsWith("test-article-")) : fallback;
-  if (!process.env.DATABASE_URL) return publicFallback;
+  if (!process.env.DATABASE_URL) return fallback;
   try {
     const articles = await prisma.article.findMany({
       where: { published: true },
       orderBy: { publishedAt: "desc" },
     });
 
-    if (process.env.NODE_ENV === "production") {
-      return articles;
-    }
-
     const articlesBySlug = new Map<string, ArticleItem>();
-    for (const article of [...articles, ...publicFallback]) {
+    for (const article of [...articles.filter((item) => !legacyArticleSlugs.has(item.slug)), ...fallback]) {
       articlesBySlug.set(article.slug, article);
     }
 
     return Array.from(articlesBySlug.values()).sort((left, right) => right.publishedAt.getTime() - left.publishedAt.getTime());
   } catch {
-    return publicFallback;
+    return fallback;
   }
 }
 
 export async function getArticle(slug: string): Promise<ArticleItem | null> {
-  const fallbackPool =
-    process.env.NODE_ENV === "production"
-      ? (fallbackArticles as ArticleItem[]).filter((article) => !article.id.startsWith("test-article-"))
-      : (fallbackArticles as ArticleItem[]);
-  const fallback = fallbackPool.find((item) => item.slug === slug) ?? null;
+  const fallback = (fallbackArticles as ArticleItem[]).find((item) => item.slug === slug) ?? null;
   if (!process.env.DATABASE_URL) {
     return fallback;
   }
   try {
+    if (legacyArticleSlugs.has(slug)) {
+      return fallback;
+    }
     const article = await prisma.article.findFirst({
       where: { slug, published: true },
     });
@@ -290,7 +302,20 @@ export async function getGalleryImages(): Promise<GalleryImageItem[]> {
       where: { published: true },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     });
-    return images.length ? images : fallbackGalleryImages;
+    const legacyGalleryUrls = new Set([
+      "/honey-house-signboard.jpg",
+      "/field-beekeeping.jpg",
+      "/scientific-foundation-bg.jpg",
+      "/queen-rearing-bg.jpg",
+      "/kavuri-extract-0.png",
+      "/kavuri-extract-1.png",
+      "/kavuri-extract-2.png",
+      "/kavuri-extract-3.png",
+    ]);
+    const currentGalleryUrls = new Set(fallbackGalleryImages.map((image) => image.url));
+    const manualImages = images.filter((image) => !legacyGalleryUrls.has(image.url) && !currentGalleryUrls.has(image.url));
+
+    return [...fallbackGalleryImages, ...manualImages].sort((left, right) => right.date.getTime() - left.date.getTime());
   } catch {
     return fallbackGalleryImages;
   }

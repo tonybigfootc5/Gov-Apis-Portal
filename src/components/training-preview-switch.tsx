@@ -16,7 +16,6 @@ import {
   Languages,
   Lightbulb,
   MapPin,
-  MessageCircle,
   Phone,
   ReceiptText,
   Sprout,
@@ -622,22 +621,24 @@ function CourseOverview({
           <ArrowRight className="h-6 w-6 transition group-hover:translate-x-1" aria-hidden="true" />
         </button>
         <a
-          href="https://wa.me/919440012345"
+          href="https://wa.me/919395507766"
           target="_blank"
           rel="noreferrer"
           className="inline-flex min-h-14 items-center justify-center gap-3 rounded-lg border border-[#07351f] bg-white px-5 py-3 text-base font-black text-[#07351f] transition hover:-translate-y-0.5 hover:bg-[#f3fff7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]"
         >
-          <MessageCircle className="h-6 w-6 text-[#04893f]" aria-hidden="true" />
+          <span className="h-6 w-6" aria-hidden="true">
+            <WhatsAppMark />
+          </span>
           {copy.whatsapp}
         </a>
       </div>
 
       <div className="grid gap-4 border-t border-[#ead7b0] bg-[#fffaf0] px-5 py-4 lg:grid-cols-[25rem_minmax(0,1fr)] lg:px-7">
-        <a href="tel:+919440012345" className="flex min-h-20 items-center justify-center gap-4 rounded-lg bg-[#eef1e6] px-5 text-[#07351f] transition hover:bg-[#e7ecd9]">
+        <a href="tel:+919395507766" className="flex min-h-20 items-center justify-center gap-4 rounded-lg bg-[#eef1e6] px-5 text-[#07351f] transition hover:bg-[#e7ecd9]">
           <Phone className="h-9 w-9 shrink-0 fill-[#07351f]/10" strokeWidth={2.2} aria-hidden="true" />
           <span>
             <span className="block text-base font-semibold">{copy.callPrompt}</span>
-            <span className="block text-2xl font-black leading-tight">+91 94400 12345</span>
+            <span className="block text-2xl font-black leading-tight">+91 93955 07766</span>
           </span>
         </a>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -682,6 +683,25 @@ function FeaturePill({ icon: Icon, label }: { icon: LucideIcon; label: string })
       <Icon className="h-7 w-7 text-[#07351f]" strokeWidth={1.8} aria-hidden="true" />
       <p className="text-[11px] font-black leading-tight text-[#102119]">{label}</p>
     </div>
+  );
+}
+
+function WhatsAppMark() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" aria-hidden="true" className="h-full w-full">
+      <circle cx="24" cy="24" r="23" fill="#25D366" />
+      <path
+        d="M35.5 24.2c0 6.1-5 11.1-11.2 11.1-1.9 0-3.7-.5-5.3-1.3l-5.7 1.8 1.8-5.5c-1.1-1.8-1.7-3.8-1.7-6.1 0-6.1 5-11.1 11.1-11.1s11 5 11 11.1Z"
+        fill="#25D366"
+        stroke="white"
+        strokeLinejoin="round"
+        strokeWidth="3.1"
+      />
+      <path
+        d="M20.4 18.8c-.3-.7-.6-.7-.9-.7h-.8c-.3 0-.8.1-1.2.6-.4.4-1.6 1.5-1.6 3.7 0 2.2 1.6 4.4 1.9 4.7.2.3 3.1 5 7.8 6.8 3.9 1.5 4.8 1.2 5.6 1.1.9-.1 2.8-1.1 3.2-2.2.4-1.1.4-2 .3-2.2-.1-.2-.4-.3-.9-.6l-3.2-1.6c-.5-.2-.8-.3-1.2.3-.3.5-1.3 1.6-1.6 1.9-.3.4-.6.4-1.1.1-.5-.2-2-.7-3.8-2.3-1.4-1.3-2.4-2.8-2.7-3.3-.3-.5 0-.8.2-1 .2-.2.5-.6.7-.8.2-.3.3-.5.5-.8.2-.3.1-.6 0-.8l-1.2-2.9Z"
+        fill="white"
+      />
+    </svg>
   );
 }
 

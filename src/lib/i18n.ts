@@ -124,11 +124,6 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
       "Advanced instruction on selection, grafting, nucleus colonies, and sustainable apiary expansion.",
     "program.slug.queen-rearing-and-colony-multiplication.description":
       "Designed for trained beekeepers and extension teams, this module focuses on genetic selection, grafting discipline, mating yard preparation, nucleus management, and record-led colony multiplication.",
-    "event.slug.apiculture-technology-orientation.title": "Apiculture Technology Orientation",
-    "event.slug.apiculture-technology-orientation.summary":
-      "Open orientation on modern beekeeping, honey value chains, and rural enterprise opportunities.",
-    "event.slug.apiculture-technology-orientation.description":
-      "A public orientation for prospective trainees, farmer groups, and partner institutions. Sessions include center briefing, equipment demonstrations, and training enrollment details.",
   },
   te: {
     "lang.label": "భాష",
@@ -247,11 +242,6 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
       "ఎంపిక, గ్రాఫ్టింగ్, న్యూక్లియస్ కాలనీలు మరియు సుస్థిర అపియరీ విస్తరణపై అధునాతన శిక్షణ.",
     "program.slug.queen-rearing-and-colony-multiplication.description":
       "శిక్షణ పొందిన తేనేటీగల పెంపకదారులు మరియు ఎక్స్‌టెన్షన్ బృందాల కోసం రూపొందించిన ఈ మాడ్యూల్‌లో జన్యు ఎంపిక, గ్రాఫ్టింగ్ క్రమశిక్షణ, మ్యాటింగ్ యార్డ్ సిద్ధత, న్యూక్లియస్ నిర్వహణ మరియు కాలనీ విస్తరణపై దృష్టి ఉంటుంది.",
-    "event.slug.apiculture-technology-orientation.title": "అపికల్చర్ టెక్నాలజీ ఓరియెంటేషన్",
-    "event.slug.apiculture-technology-orientation.summary":
-      "ఆధునిక తేనేటీగల పెంపకం, తేనె విలువ గొలుసులు మరియు గ్రామీణ ఉపాధి అవకాశాలపై ఓపెన్ ఓరియెంటేషన్.",
-    "event.slug.apiculture-technology-orientation.description":
-      "భవిష్యత్ శిక్షార్థులు, రైతు బృందాలు మరియు భాగస్వామ్య సంస్థల కోసం ప్రజా ఓరియెంటేషన్. ఇందులో కేంద్ర పరిచయం, పరికరాల ప్రదర్శనలు మరియు శిక్షణ నమోదు మార్గదర్శకం ఉంటాయి.",
   },
   hi: {
     "lang.label": "भाषा",
@@ -370,11 +360,6 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
       "चयन, ग्राफ्टिंग, न्यूक्लियस कालोनियों और सतत एपियरी विस्तार पर उन्नत प्रशिक्षण।",
     "program.slug.queen-rearing-and-colony-multiplication.description":
       "प्रशिक्षित मधुमक्खी पालकों और एक्सटेंशन टीमों के लिए तैयार यह मॉड्यूल आनुवंशिक चयन, ग्राफ्टिंग अनुशासन, मेटिंग यार्ड तैयारी, न्यूक्लियस प्रबंधन और कालोनी विस्तार पर केंद्रित है।",
-    "event.slug.apiculture-technology-orientation.title": "एपिकल्चर टेक्नोलॉजी ओरिएंटेशन",
-    "event.slug.apiculture-technology-orientation.summary":
-      "आधुनिक मधुमक्खी पालन, शहद मूल्य श्रृंखला और ग्रामीण उद्यम अवसरों पर खुला परिचय कार्यक्रम।",
-    "event.slug.apiculture-technology-orientation.description":
-      "भावी प्रशिक्षुओं, किसान समूहों और साझेदार संस्थानों के लिए सार्वजनिक ओरिएंटेशन। इसमें केंद्र परिचय, उपकरण प्रदर्शन और प्रशिक्षण नामांकन मार्गदर्शन शामिल है।",
   },
 };
 
