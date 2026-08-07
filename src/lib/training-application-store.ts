@@ -45,12 +45,17 @@ export type PaymentOrderAdminEntity = Prisma.PaymentOrderGetPayload<{
 export type PaymentAdminRecord = {
   id: string;
   merchantOrderId: string;
+  phonePeOrderId: string | null;
+  provider: "PHONEPE";
   status: PaymentOrderState;
   amountPaise: number;
+  currency: string;
   checkoutUrl: string | null;
+  redirectUrl: string;
   paymentReference: string | null;
   environment: "SANDBOX" | "PRODUCTION";
   paidAt: string | null;
+  failedAt: string | null;
   expiresAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -126,6 +131,9 @@ export type PaymentGatewayEventDetails = {
   expireAt: number | null;
   errorCode: string | null;
   detailedErrorCode: string | null;
+  callbackType: string | null;
+  refundId: string | null;
+  merchantRefundId: string | null;
   paymentDetails: Array<{
     transactionId: string | null;
     paymentMode: string | null;
@@ -284,6 +292,9 @@ function readPaymentEventDetails(payload: unknown): PaymentGatewayEventDetails {
     expireAt: readNumber(record, "expireAt"),
     errorCode: firstPayment?.errorCode ?? readString(record, "errorCode"),
     detailedErrorCode: firstPayment?.detailedErrorCode ?? readString(record, "detailedErrorCode"),
+    callbackType: readString(record, "type"),
+    refundId: readString(record, "refundId"),
+    merchantRefundId: readString(record, "merchantRefundId"),
     paymentDetails,
   };
 }
@@ -292,12 +303,17 @@ export function mapPaymentOrderAdminRecord(order: PaymentOrderAdminEntity): Paym
   return {
     id: order.id,
     merchantOrderId: order.merchantOrderId,
+    phonePeOrderId: order.phonePeOrderId ?? null,
+    provider: order.provider,
     status: order.status,
     amountPaise: order.amountPaise,
+    currency: order.currency,
     checkoutUrl: order.checkoutUrl ?? null,
+    redirectUrl: order.redirectUrl,
     paymentReference: order.paymentReference ?? null,
     environment: order.environment,
     paidAt: order.paidAt?.toISOString() ?? null,
+    failedAt: order.failedAt?.toISOString() ?? null,
     expiresAt: order.expiresAt?.toISOString() ?? null,
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),

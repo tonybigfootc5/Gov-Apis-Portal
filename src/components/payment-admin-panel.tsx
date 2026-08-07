@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   BarChart3,
   CheckCircle2,
+  Clock3,
   Eye,
   IndianRupee,
   RefreshCw,
@@ -25,7 +26,7 @@ type Props = {
 };
 
 type PaymentTab = "confirmations" | "refunds" | "history";
-type DetailTab = "transaction" | "applicant";
+type DetailTab = "transaction" | "logs" | "applicant";
 
 export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPaymentsChange }: Props) {
   const [payments, setPayments] = useState(initialPayments);
@@ -124,9 +125,9 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
     }
   }
 
-  async function openPaymentDetails(payment: PaymentAdminRecord) {
+  async function openPaymentDetails(payment: PaymentAdminRecord, initialTab: DetailTab = "transaction") {
     setSelectedPayment(payment);
-    setDetailTab("transaction");
+    setDetailTab(initialTab);
 
     if (!databaseConfigured) return;
 
@@ -267,7 +268,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
             {activePayments.length ? (
               <div className="overflow-x-auto">
                 <div className="min-w-[66rem]">
-                  <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_1fr] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
+                  <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_1.25fr] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
                     <span>Student</span>
                     <span>Order</span>
                     <span>Amount</span>
@@ -285,6 +286,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
                       onRefresh={() => void refreshPayment(payment.id)}
                       onRefund={() => void initiateRefund(payment.id)}
                       onView={() => void openPaymentDetails(payment)}
+                      onLogs={() => void openPaymentDetails(payment, "logs")}
                     />
                   ))}
                 </div>
@@ -361,6 +363,7 @@ function PaymentRow({
   onRefresh,
   onRefund,
   onView,
+  onLogs,
 }: {
   payment: PaymentAdminRecord;
   loading: boolean;
@@ -368,12 +371,13 @@ function PaymentRow({
   onRefresh: () => void;
   onRefund: () => void;
   onView: () => void;
+  onLogs: () => void;
 }) {
   const latestRefund = payment.refunds[0];
   const canRefund = tab === "refunds" && payment.refundEligible;
 
   return (
-    <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_1fr] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-sm last:border-b-0 hover:bg-[#fbf7ee]">
+    <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_1.25fr] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-sm last:border-b-0 hover:bg-[#fbf7ee]">
       <div className="min-w-0">
         <p className="truncate font-black text-[#173f33]">{payment.application.candidateName}</p>
         <p className="mt-1 truncate text-xs font-semibold text-[#718477]">{payment.application.serviceName}</p>
@@ -390,10 +394,18 @@ function PaymentRow({
         <button
           type="button"
           onClick={onView}
-          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#173f33]/12 bg-white px-3 text-[11px] font-black uppercase tracking-[0.08em] text-[#173f33] hover:bg-[#eef8f1]"
+          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#173f33]/12 bg-white px-2.5 text-[11px] font-black uppercase tracking-[0.08em] text-[#173f33] hover:bg-[#eef8f1]"
         >
           <Eye className="h-3.5 w-3.5" aria-hidden="true" />
           View
+        </button>
+        <button
+          type="button"
+          onClick={onLogs}
+          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#b8871d]/18 bg-[#fff8df] px-2.5 text-[11px] font-black uppercase tracking-[0.08em] text-[#7c5310] hover:bg-[#fff1bd]"
+        >
+          <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
+          Logs
         </button>
         <button
           type="button"
@@ -424,18 +436,40 @@ function PaymentDetailModal({
   const latestEvent = payment.events[0] ?? null;
   const latestDetails = latestEvent?.details ?? null;
   const latestAttempt = latestDetails?.paymentDetails[0] ?? null;
+  const diagnosis = buildPaymentDiagnosis(payment);
+  const orderParameterRows: Array<[string, string]> = [
+    ["Internal payment id", payment.id],
+    ["Provider", payment.provider],
+    ["Environment", payment.environment],
+    ["Currency", payment.currency],
+    ["Merchant order", payment.merchantOrderId],
+    ["PhonePe order", payment.phonePeOrderId ?? latestDetails?.orderId ?? "Not received"],
+    ["Payment reference", payment.paymentReference ?? latestAttempt?.transactionId ?? "Reference pending"],
+    ["Redirect URL", payment.redirectUrl],
+    ["Checkout URL", payment.checkoutUrl ? "Stored" : "Not stored"],
+    ["Created at", formatDate(payment.createdAt)],
+    ["Updated at", formatDate(payment.updatedAt)],
+    ["Paid at", formatDate(payment.paidAt)],
+    ["Failed at", formatDate(payment.failedAt)],
+    ["Expires at", formatGatewayTime(latestDetails?.expireAt) ?? formatDate(payment.expiresAt)],
+    ["Latest event", payment.latestEventName ?? "None"],
+    ["Latest error code", payment.latestErrorCode ?? latestDetails?.errorCode ?? "None"],
+    ["Latest error detail", payment.latestErrorMessage ?? latestDetails?.detailedErrorCode ?? "None"],
+  ];
   const transactionRows: Array<[string, string]> = [
     ["Merchant order", payment.merchantOrderId],
-    ["PhonePe order", latestDetails?.orderId ?? "Not received"],
+    ["PhonePe order", payment.phonePeOrderId ?? latestDetails?.orderId ?? "Not received"],
     ["Payment reference", payment.paymentReference ?? latestAttempt?.transactionId ?? "Reference pending"],
     ["Environment", payment.environment],
     ["Amount", formatMoney(payment.amountPaise)],
+    ["Currency", payment.currency],
     ["Status", payment.status.replaceAll("_", " ")],
     ["Payment mode", latestAttempt?.paymentMode ?? "Not available"],
     ["Gateway state", latestDetails?.state ?? latestEvent?.state ?? "Not synced"],
     ["Error code", payment.latestErrorCode ?? latestDetails?.errorCode ?? "None"],
     ["Gateway detail", payment.latestErrorMessage ?? latestDetails?.detailedErrorCode ?? "None"],
     ["Paid at", formatDate(payment.paidAt)],
+    ["Failed at", formatDate(payment.failedAt)],
     ["Expires at", formatGatewayTime(latestDetails?.expireAt) ?? formatDate(payment.expiresAt)],
     ["Checkout link", payment.checkoutUrl ? "Available" : "Not stored"],
     ["Latest event", payment.latestEventName ?? "None"],
@@ -512,6 +546,16 @@ function PaymentDetailModal({
             </button>
             <button
               type="button"
+              onClick={() => onTabChange("logs")}
+              className={`inline-flex h-10 items-center gap-2 rounded-full px-4 text-xs font-black uppercase tracking-[0.1em] ${
+                detailTab === "logs" ? "bg-[#173f33] text-[#fff9ec]" : "bg-[#eef3ef] text-[#607366]"
+              }`}
+            >
+              <Clock3 className="h-4 w-4" aria-hidden="true" />
+              Logs
+            </button>
+            <button
+              type="button"
               onClick={() => onTabChange("applicant")}
               className={`inline-flex h-10 items-center gap-2 rounded-full px-4 text-xs font-black uppercase tracking-[0.1em] ${
                 detailTab === "applicant" ? "bg-[#173f33] text-[#fff9ec]" : "bg-[#eef3ef] text-[#607366]"
@@ -555,6 +599,57 @@ function PaymentDetailModal({
                 )}
               </section>
             </div>
+          ) : detailTab === "logs" ? (
+            <div className="mt-5 grid gap-5">
+              <div className="grid gap-3 lg:grid-cols-[1fr_1fr_1fr]">
+                <ReadOnlyStat label="Failure reason" value={diagnosis.reason} />
+                <ReadOnlyStat label="Gateway source" value={diagnosis.source} />
+                <ReadOnlyStat label="Next check" value={diagnosis.nextCheck} />
+              </div>
+              <section className="rounded-[1.1rem] border border-[#e7eee8] bg-white">
+                <div className="border-b border-[#e7eee8] px-4 py-3">
+                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Diagnostic parameters</p>
+                </div>
+                <DetailGrid rows={orderParameterRows} />
+              </section>
+              <section className="rounded-[1.1rem] border border-[#e7eee8] bg-white">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e7eee8] px-4 py-3">
+                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Transaction logs</p>
+                  <span className="rounded-full bg-[#eef3ef] px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#607366]">{payment.events.length} stored events</span>
+                </div>
+                {payment.events.length ? (
+                  <div className="divide-y divide-[#eef3ef]">
+                    {payment.events.map((event, index) => (
+                      <PaymentLogEntry key={event.id} event={event} index={index} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid gap-3 px-4 py-8 text-center">
+                    <p className="text-sm font-black text-[#173f33]">No gateway events stored yet.</p>
+                    <p className="text-xs font-semibold leading-6 text-[#607366]">Use Sync or open this Logs view again after gateway reconciliation to pull the latest PhonePe status into the audit trail.</p>
+                  </div>
+                )}
+              </section>
+              {payment.refunds.length ? (
+                <section className="rounded-[1.1rem] border border-[#e7eee8] bg-white">
+                  <div className="border-b border-[#e7eee8] px-4 py-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Refund logs</p>
+                  </div>
+                  <div className="divide-y divide-[#eef3ef]">
+                    {payment.refunds.map((refund) => (
+                      <div key={refund.id} className="grid gap-3 px-4 py-4 sm:grid-cols-2">
+                        <ReadOnlyLine label="Merchant refund" value={refund.merchantRefundId} />
+                        <ReadOnlyLine label="PhonePe refund" value={refund.phonePeRefundId ?? "Not received"} />
+                        <ReadOnlyLine label="Status" value={refund.status} />
+                        <ReadOnlyLine label="Amount" value={formatMoney(refund.amountPaise)} />
+                        <ReadOnlyLine label="Reason" value={refund.reason} />
+                        <ReadOnlyLine label="Failure" value={refund.failureCode ?? refund.failureMessage ?? "None"} />
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
+            </div>
           ) : (
             <div className="mt-5 grid gap-5">
               {payment.application.photoUrl ? (
@@ -594,6 +689,72 @@ function DetailGrid({ rows }: { rows: Array<[string, string]> }) {
           <p className="mt-1 break-words text-sm font-semibold leading-6 text-[#173f33]">{value}</p>
         </div>
       ))}
+    </div>
+  );
+}
+
+function PaymentLogEntry({ event, index }: { event: PaymentAdminRecord["events"][number]; index: number }) {
+  const firstAttempt = event.details.paymentDetails[0] ?? null;
+  const rows: Array<[string, string]> = [
+    ["Log number", `#${index + 1}`],
+    ["Stored event", event.eventName],
+    ["Sync source", event.source],
+    ["Stored state", event.state ?? "Unknown"],
+    ["PhonePe state", event.details.state ?? "Unknown"],
+    ["PhonePe order", event.details.orderId ?? "Not received"],
+    ["Merchant order", event.details.merchantOrderId ?? "Not included in payload"],
+    ["Transaction id", firstAttempt?.transactionId ?? "Not received"],
+    ["Payment mode", firstAttempt?.paymentMode ?? "Not available"],
+    ["Attempt state", firstAttempt?.state ?? "Not available"],
+    ["Attempt amount", firstAttempt?.amount ? formatMoney(firstAttempt.amount) : "Not available"],
+    ["Attempt timestamp", formatGatewayTime(firstAttempt?.timestamp) ?? "Not available"],
+    ["Expire at", formatGatewayTime(event.details.expireAt) ?? "Not available"],
+    ["Error code", event.details.errorCode ?? firstAttempt?.errorCode ?? "None"],
+    ["Detailed error", event.details.detailedErrorCode ?? firstAttempt?.detailedErrorCode ?? "None"],
+    ["Callback type", event.details.callbackType ?? "Not a callback payload"],
+    ["Refund id", event.details.refundId ?? "None"],
+    ["Merchant refund", event.details.merchantRefundId ?? "None"],
+    ["Recorded at", formatDate(event.receivedAt)],
+  ];
+
+  return (
+    <article className="px-4 py-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-black text-[#173f33]">{event.eventName}</p>
+          <p className="mt-1 text-xs font-semibold text-[#607366]">{event.source} / {formatDate(event.receivedAt)}</p>
+        </div>
+        <StatusBadge
+          label={event.details.errorCode ?? event.details.state ?? event.state ?? "log"}
+          tone={event.details.errorCode ? "bad" : event.details.state === "COMPLETED" ? "good" : "warn"}
+        />
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {rows.map(([label, value]) => (
+          <ReadOnlyLine key={label} label={label} value={value} />
+        ))}
+      </div>
+      {event.details.paymentDetails.length > 1 ? (
+        <div className="mt-4 rounded-[1rem] bg-[#fbf7ee] px-4 py-3">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8b7d6b]">Additional attempts</p>
+          <div className="mt-3 grid gap-2">
+            {event.details.paymentDetails.slice(1).map((attempt, attemptIndex) => (
+              <p key={`${attempt.transactionId ?? "attempt"}-${attemptIndex}`} className="text-xs font-semibold leading-6 text-[#607366]">
+                Attempt {attemptIndex + 2}: {attempt.paymentMode ?? "mode unknown"} / {attempt.state ?? "state unknown"} / {attempt.errorCode ?? "no error"} / {attempt.transactionId ?? "no transaction id"}
+              </p>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function ReadOnlyLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-[0.85rem] bg-[#fbfdfb] px-3 py-2">
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#8b7d6b]">{label}</p>
+      <p className="mt-1 break-words text-xs font-semibold leading-5 text-[#173f33]">{value}</p>
     </div>
   );
 }
@@ -655,6 +816,77 @@ function formatMoney(amountPaise: number) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
+}
+
+function buildPaymentDiagnosis(payment: PaymentAdminRecord) {
+  const latestEvent = payment.events[0] ?? null;
+  const details = latestEvent?.details ?? null;
+  const errorCode = payment.latestErrorCode ?? details?.errorCode ?? "";
+  const errorDetail = payment.latestErrorMessage ?? details?.detailedErrorCode ?? "";
+  const paymentMode = details?.paymentDetails[0]?.paymentMode ?? "mode not captured";
+  const source = latestEvent ? `${latestEvent.eventName} from ${latestEvent.source}` : payment.latestEventName ?? "No event stored";
+
+  if (payment.status === "PAID") {
+    return {
+      reason: "Payment captured successfully.",
+      source,
+      nextCheck: "No failure action needed.",
+    };
+  }
+
+  if (payment.status === "PENDING" || payment.status === "CREATED") {
+    return {
+      reason: "Gateway has not returned a final result yet.",
+      source,
+      nextCheck: "Use Sync to pull latest PhonePe status, especially for old pending orders.",
+    };
+  }
+
+  if (errorCode === "TXN_CANCELLED" && errorDetail === "ORDER_CANCELLED_BY_USER") {
+    return {
+      reason: "Customer cancelled the checkout before completing payment.",
+      source,
+      nextCheck: "Ask the applicant to retry payment from a fresh application/payment link.",
+    };
+  }
+
+  if (errorCode === "TXN_CANCELLED" && errorDetail === "REQUEST_CANCEL_BY_REQUESTEE") {
+    return {
+      reason: `Customer or payer cancelled the ${paymentMode} request.`,
+      source,
+      nextCheck: "Applicant should retry and approve the request in their UPI app before it expires.",
+    };
+  }
+
+  if (errorCode === "WITHDRAWAL_LIMIT_EXCEEDED") {
+    return {
+      reason: "Bank/card/UPI withdrawal limit was exceeded.",
+      source,
+      nextCheck: "Applicant should use another instrument or retry after bank limit reset.",
+    };
+  }
+
+  if (errorCode === "TXN_NOT_COMPLETED" || errorDetail === "TXN_AUTO_FAILED") {
+    return {
+      reason: `Gateway or bank auto-failed the ${paymentMode} attempt before completion.`,
+      source,
+      nextCheck: "Applicant can retry; check PhonePe dashboard if repeated for the same instrument.",
+    };
+  }
+
+  if (payment.status === "EXPIRED") {
+    return {
+      reason: "Checkout expired before payment completion.",
+      source,
+      nextCheck: "Generate a new payment attempt for the applicant.",
+    };
+  }
+
+  return {
+    reason: errorCode || errorDetail ? `${errorCode || "Gateway issue"} / ${errorDetail || "No detail"}` : "Gateway did not provide a specific failure reason.",
+    source,
+    nextCheck: "Use the event log and PhonePe order ID to reconcile in PhonePe dashboard.",
+  };
 }
 
 function formatDate(value?: string | null) {
