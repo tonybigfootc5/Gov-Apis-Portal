@@ -565,7 +565,7 @@ function CourseOverview({
 
             <section className="xl:border-r xl:border-[#ead7b0] xl:pr-7">
               <SectionTitle title={copy.trainingBreakdown} />
-              <div className="mt-5 grid gap-3">
+              <div className="mt-5 grid max-h-[22rem] gap-3 overflow-y-auto pr-2">
                 {dayPlan.map((day, index) => (
                   <div key={day.title} className="grid grid-cols-[4.25rem_minmax(0,1fr)] gap-3">
                     <span className="relative flex h-8 items-center justify-center bg-[#f8d98d] text-[11px] font-black text-[#102119] [clip-path:polygon(12%_0,88%_0,100%_50%,88%_100%,12%_100%,0_50%)]">
@@ -811,6 +811,11 @@ function getDayPlan(course: TrainingPreviewCourse) {
       ["Queen Cell Work", "Cell handling, grafting basics and timing"],
       ["Nucleus Setup", "Splits, nucleus boxes and mating-yard preparation"],
       ["Multiplication Plan", "Expansion records and colony balancing"],
+      ["Grafting Practice", "Larval transfer, cell bar setup and careful tool handling"],
+      ["Cell Builder Management", "Starter and finisher colony preparation with feed support"],
+      ["Queen Cell Inspection", "Acceptance checks, timing discipline and healthy cell selection"],
+      ["Mating Yard Setup", "Nucleus placement, drone availability and field records"],
+      ["Queen Introduction", "Caging, release timing and acceptance observation"],
       ["Apiary Scale-Up", "Productivity, quality control and enterprise planning"],
     ].map(([title, body]) => ({ title, body }));
   }
@@ -821,6 +826,11 @@ function getDayPlan(course: TrainingPreviewCourse) {
       ["Collection Method", "Sensitive harvest workflow and clean tools"],
       ["Hygienic Transfer", "Handling, containers and contamination control"],
       ["Cold Handling", "Storage discipline and quality awareness"],
+      ["Starter Colony Setup", "Colony preparation, feeding support and queen-cell readiness"],
+      ["Grafting for Royal Jelly", "Larval transfer, cell cups and timing accuracy"],
+      ["Harvest Timing", "Collection window, batch separation and clean workspace setup"],
+      ["Quality Protection", "Temperature control, containers and contamination prevention"],
+      ["Packing Records", "Lot details, storage notes and handling documentation"],
       ["Commercial Planning", "Niche product positioning and records"],
     ].map(([title, body]) => ({ title, body }));
   }
