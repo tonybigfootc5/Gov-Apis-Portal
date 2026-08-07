@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users, X } from "lucide-react";
+import { ArrowRight, Award, BriefcaseBusiness, Calendar, GraduationCap, ShieldCheck, Users } from "lucide-react";
 import type { SiteLanguage } from "@/lib/i18n";
 import { getSiteCopy } from "@/lib/site-copy";
 
@@ -251,13 +251,15 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
                       : "bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(220,229,222,0.74))]"
               }`}
             />
-            <div className={`relative z-10 ${portrait ? "p-5 text-white" : ""}`}>
-              <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${portrait ? "text-[#f6cf74]" : "text-[#b97816]"}`}>{profileLabel}</p>
-              <h4 className={`mt-2 text-[clamp(1.65rem,2.2vw,2.15rem)] font-black leading-[0.96] ${portrait ? "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]" : "text-[#111c18]"}`}>
-                {member.name}
-              </h4>
-              <p className={`mt-3 max-w-[13rem] text-sm font-bold italic leading-5 ${portrait ? "text-white/86 drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]" : "text-[#7a827d]"}`}>{member.designation}</p>
-            </div>
+            {!portrait ? (
+              <div className="relative z-10">
+                <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#b97816]">{profileLabel}</p>
+                <h4 className="mt-2 text-[clamp(1.65rem,2.2vw,2.15rem)] font-black leading-[0.96] text-[#111c18]">
+                  {member.name}
+                </h4>
+                <p className="mt-3 max-w-[13rem] text-sm font-bold italic leading-5 text-[#7a827d]">{member.designation}</p>
+              </div>
+            ) : null}
 
             {!portrait ? (
               <div className="pointer-events-none absolute inset-x-4 bottom-12 flex justify-center">
@@ -271,19 +273,20 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
               </div>
             ) : null}
 
+            {portrait ? (
+              <p className="absolute bottom-[6.3rem] left-5 right-5 z-10 text-sm font-bold italic leading-5 text-white/88 drop-shadow-[0_2px_8px_rgba(0,0,0,0.38)]">{member.designation}</p>
+            ) : null}
+
             <div className={`absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between gap-3 ${
               portrait ? "rounded-[0.9rem] border border-white/18 bg-[#081710]/72 p-3 shadow-[0_18px_34px_rgba(0,0,0,0.24)] backdrop-blur-md" : ""
             }`}>
               <div className="min-w-0">
                 <p className={`text-[10px] font-black uppercase tracking-[0.14em] ${portrait ? "text-[#f6cf74]" : "text-[#6c7b73]"}`}>{member.groupEyebrow}</p>
-              </div>
-              <div className="flex shrink-0 gap-1.5">
-                <span className={`grid h-8 w-8 place-items-center rounded-[0.55rem] text-[#fffdf8] ${portrait ? "bg-white/14 ring-1 ring-white/18" : "bg-[#123f31]"}`} title={member.groupTitle}>
-                  <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
-                </span>
-                <span className={`grid h-8 w-8 place-items-center rounded-[0.55rem] text-[#fffdf8] ${portrait ? "bg-white/14 ring-1 ring-white/18" : "bg-[#111c18]"}`} title={member.highlights[0]}>
-                  <X className="h-3.5 w-3.5" aria-hidden="true" />
-                </span>
+                {portrait ? (
+                  <h4 className="mt-1 text-[clamp(1.2rem,1.55vw,1.45rem)] font-black leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.36)]">
+                    {member.name}
+                  </h4>
+                ) : null}
               </div>
             </div>
 
