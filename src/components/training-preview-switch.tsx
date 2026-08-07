@@ -581,10 +581,13 @@ function CourseOverview({
                           <div className="mt-1.5 flex flex-wrap gap-1.5">
                             {day.segments.map((segment) => {
                               const segmentTone = getDaySegmentTone(segment.kind);
+                              const segmentLabel = getDaySegmentLabel(segment.label);
 
                               return (
-                                <span key={segment.label} className={`rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] ${segmentTone}`}>
-                                  {segment.label}
+                                <span key={segment.label} className={`inline-flex max-w-full items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-bold leading-none ${segmentTone}`}>
+                                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-80" aria-hidden="true" />
+                                  <span className="shrink-0 text-[9px] uppercase tracking-[0.08em] opacity-75">{segmentLabel.half}</span>
+                                  <span className="min-w-0 truncate text-[10px] font-black">{segmentLabel.topic}</span>
                                 </span>
                               );
                             })}
@@ -847,8 +850,17 @@ function getDayPlanTone(track: DayPlanTrack = "plain") {
 
 function getDaySegmentTone(kind: DaySegmentKind) {
   return kind === "queen"
-    ? "bg-[#e7f4ec] text-[#0f6b4a] ring-1 ring-[#0f6b4a]/18"
-    : "bg-[#fff3d9] text-[#a26000] ring-1 ring-[#d98b17]/22";
+    ? "bg-[#eef8f2] text-[#0f6b4a] ring-1 ring-[#0f6b4a]/18"
+    : "bg-[#fff5df] text-[#9b6000] ring-1 ring-[#d98b17]/22";
+}
+
+function getDaySegmentLabel(label: string) {
+  const [half, topic] = label.split(":").map((part) => part.trim());
+
+  return {
+    half: half || label,
+    topic: topic || "",
+  };
 }
 
 function getDayPlan(course: TrainingPreviewCourse): DayPlanItem[] {
