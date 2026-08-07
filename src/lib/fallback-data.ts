@@ -6,25 +6,25 @@ export const institute = {
   parent:
     "National Institute of Rural Development & Panchayati Raj, Ministry of Rural Development, Government of India",
   address:
-    "#12 & 13, CIAT-RTP, Rajendranagar, Hyderabad - 500 030, Telangana, India",
+    "\"Honey House\", #12 & 13, CIAT-RTP, Rajendranagar, Hyderabad - 500 030, Telangana, India",
   stateAddress:
-    "'Bee House', Khadi Gramodyog Maha Vidyalaya (KGMV), Rajendranagar, Hyderabad - 500 030, Telangana, India",
+    "\"Bee House\", Khadi Gramodyog Maha Vidyalaya (KGMV), Rajendranagar, Hyderabad - 500 030, Telangana, India",
   offices: [
     {
       label: "Central Office",
-      address: "#12 & 13, CIAT-RTP, Rajendranagar, Hyderabad - 500 030, Telangana, India",
+      address: "\"Honey House\", #12 & 13, CIAT-RTP, Rajendranagar, Hyderabad - 500 030, Telangana, India",
       mapsUrl: "https://maps.app.goo.gl/CnucEbmm6us5LTDBA",
     },
     {
       label: "State Office",
-      address: "'Bee House', Khadi Gramodyog Maha Vidyalaya (KGMV), Rajendranagar, Hyderabad - 500 030, Telangana, India",
+      address: "\"Bee House\", Khadi Gramodyog Maha Vidyalaya (KGMV), Rajendranagar, Hyderabad - 500 030, Telangana, India",
       mapsUrl: "https://maps.app.goo.gl/MouDG368iNNpZjYE9",
     },
   ],
   officeHours: "9:30 AM to 5:30 PM",
   trainingHours: "10:00 AM to 5:00 PM",
   trainingLocation: "ATC's Training Hall",
-  phone: ["040-24017766", "9395507766"],
+  phone: ["040-24017766", "040-29387766", "9395507766"],
   email: "info@apiculture.in",
   website: "https://www.apiculture.in",
 };
@@ -267,4 +267,3 @@ export const fallbackGalleryImages = [
 ];
 
 export const fallbackApplications = [];
-
