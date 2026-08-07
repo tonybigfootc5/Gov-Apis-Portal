@@ -266,7 +266,6 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
             }`}>
               <div className="min-w-0">
                 <p className={`text-[10px] font-black uppercase tracking-[0.14em] ${portrait ? "text-[#f6cf74]" : "text-[#6c7b73]"}`}>{member.groupEyebrow}</p>
-                <p className={`mt-1 line-clamp-2 text-xs font-semibold leading-5 ${portrait ? "text-white/88" : "text-[#43544c]"}`}>{member.role}</p>
               </div>
               <div className="flex shrink-0 gap-1.5">
                 <span className={`grid h-8 w-8 place-items-center rounded-[0.55rem] text-[#fffdf8] ${portrait ? "bg-white/14 ring-1 ring-white/18" : "bg-[#123f31]"}`} title={member.groupTitle}>
