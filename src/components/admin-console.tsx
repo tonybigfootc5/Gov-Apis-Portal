@@ -1178,7 +1178,6 @@ export function AdminConsole({
           className="mt-5"
         >
           <PaymentAdminPanel
-            key={payments.map((payment) => `${payment.id}:${payment.updatedAt}`).join("|")}
             databaseConfigured={databaseConfigured}
             initialPayments={payments}
             onPaymentsChange={setPayments}
