@@ -27,7 +27,6 @@ import {
   X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { institute } from "@/lib/fallback-data";
 import type { SiteLanguage } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -655,11 +654,11 @@ function CourseOverview({
       </div>
 
       <div className="grid gap-4 border-t border-[#ead7b0] bg-[#fffaf0] px-5 py-4 lg:grid-cols-[25rem_minmax(0,1fr)] lg:px-7">
-        <a href={`tel:${institute.phone[0]}`} className="flex min-h-20 items-center justify-center gap-4 rounded-lg bg-[#eef1e6] px-5 text-[#07351f] transition hover:bg-[#e7ecd9]">
+        <a href="tel:9395507766" className="flex min-h-20 items-center justify-center gap-4 rounded-lg bg-[#eef1e6] px-5 text-[#07351f] transition hover:bg-[#e7ecd9]">
           <Phone className="h-9 w-9 shrink-0 fill-[#07351f]/10" strokeWidth={2.2} aria-hidden="true" />
           <span>
             <span className="block text-base font-semibold">{copy.callPrompt}</span>
-            <span className="block text-xl font-black leading-tight sm:text-2xl">{institute.phone.join(" / ")}</span>
+            <span className="block text-xl font-black leading-tight sm:text-2xl">9395507766</span>
           </span>
         </a>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
