@@ -78,6 +78,16 @@ const memberPortraits: Record<string, { src: string; alt: string; objectPosition
     alt: "Sree Sambashiva Rao portrait",
     objectPosition: "50% 6%",
   },
+  "P. Ravindra Kumar": {
+    src: "/team/p-ravindra-kumar.png",
+    alt: "P. Ravindra Kumar portrait",
+    objectPosition: "50% 4%",
+  },
+  "Smt. Sita Rathnam": {
+    src: "/team/smt-sita-rathnam.png",
+    alt: "Smt. Sita Rathnam portrait",
+    objectPosition: "50% 5%",
+  },
   "Sree Subba Rao": {
     src: "/team/k-subba-rao.jpeg",
     alt: "Sree Subba Rao portrait",
