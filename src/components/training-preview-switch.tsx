@@ -790,10 +790,10 @@ function formatFeeForDisplay(fee: string) {
 
 function getDayPlan(course: TrainingPreviewCourse) {
   const defaults = [
-    ["Introduction to Bees", "Bee anatomy, species, tools and equipment"],
+    ["Bee Hive Production", "Hive production basics, species, tools and equipment"],
     ["Colony Management", "Hive inspection, feeding, and maintenance"],
-    ["Honey Harvesting", "Extraction methods and storage"],
     ["Health & Safety", "Disease management and safe handling"],
+    ["Honey Harvesting", "Extraction methods and storage"],
     ["Scientific Beekeeping as Business", "Marketing, record keeping and government support"],
   ];
 

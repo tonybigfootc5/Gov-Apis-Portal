@@ -43,7 +43,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     summary:
       "A 5-day Scientific Beekeeping Training Programme conducted at ATC's Training Hall, Rajendranagar, Hyderabad.",
     description:
-      "The Api Culture Technology Center conducts this 5-day programme at ATC's Training Hall, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around scientific beekeeping methods and beekeeping as a livelihood or enterprise.",
+      "The Api Culture Technology Center conducts this 5-day programme at ATC's Training Hall, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around pest control, disease management, and beekeeping as a livelihood or enterprise.",
     duration: "5 days",
     level: "FOUNDATION",
     fee: "INR 5,000",
@@ -61,8 +61,8 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     imageAlt: "A beekeeper inspecting a honey bee frame in a sunlit apiary.",
     highlights: ["Scientific methods", "Hands-on practice", "Apiary enterprise"],
     outcomes: [
-      "Understand scientific beekeeping methods, bee species, castes, and colony structure.",
-      "Handle bees, hives, and equipment safely while establishing and managing an apiary.",
+      "Understand pest control, disease management, bee species, castes, and colony structure.",
+      "Handle bee hive production, hives, and equipment safely while establishing and managing an apiary.",
       "Improve colonies through proper feeding and seasonal management.",
       "Understand pollination, its agricultural benefits, and the value of other beehive products.",
       "Extract, process, and package honey hygienically.",
