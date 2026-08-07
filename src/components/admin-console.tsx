@@ -1086,7 +1086,7 @@ export function AdminConsole({
             </div>
 
             {view === "overview" ? (
-              <CurrentBatchCard applications={applications} programs={programs} theme={activeTheme} />
+              <ProgramSeatSummary applications={applications} programs={programs} theme={activeTheme} />
             ) : null}
 
           {notice ? (
@@ -1481,46 +1481,61 @@ function deriveBatchCode(program: Program, index: number) {
   return `${initials}-${year}${month}`;
 }
 
-function getCurrentBatchSnapshot(programs: Program[], applications: TrainingApplicationRecord[]) {
-  const now = Date.now();
+function normalizeTrainingLabel(value: string) {
+  return value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "");
+}
+
+function applicationMatchesProgram(application: TrainingApplicationRecord, program: Program) {
+  const service = normalizeTrainingLabel(application.payload.serviceName);
+  const title = normalizeTrainingLabel(program.title);
+  const slug = normalizeTrainingLabel(program.slug);
+
+  if (service === title || service === slug) return true;
+  if (slug.includes("scientificbeekeeping")) return service.includes("beekeeping");
+  if (slug.includes("honeyprocessing")) return service.includes("honeyprocessing");
+  if (slug.includes("queenrearing")) {
+    return (
+      service.includes("queen") ||
+      service.includes("colonymultiplication") ||
+      service.includes("royaljelly") ||
+      service.includes("queenbeebreeding")
+    );
+  }
+
+  return false;
+}
+
+function getProgramSeatRows(programs: Program[], applications: TrainingApplicationRecord[]) {
   const sortedPrograms = [...programs].sort((left, right) => {
     const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
     const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
     return leftTime - rightTime;
   });
 
-  const startedProgram =
-    [...sortedPrograms]
-      .filter((program) => program.batchStartsAt && new Date(program.batchStartsAt).getTime() <= now)
-      .at(-1) ?? null;
+  return sortedPrograms.slice(0, 3).map((program, index) => {
+    const matchingApplications = applications.filter((application) => applicationMatchesProgram(application, program));
+    const registeredApplications = matchingApplications.filter((application) => application.payload.approvalStatus !== "REJECTED");
+    const batchCounts = registeredApplications.reduce<Map<string, number>>((counts, application) => {
+      const batchCode = application.batchCode || deriveBatchCode(program, index);
+      counts.set(batchCode, (counts.get(batchCode) ?? 0) + 1);
+      return counts;
+    }, new Map());
+    const [topBatchCode, topBatchCount] =
+      [...batchCounts.entries()].sort((left, right) => right[1] - left[1])[0] ?? [deriveBatchCode(program, index), 0];
+    const capacity = Math.max(0, program.capacity || 0);
+    const registeredCount = registeredApplications.length;
+    const availableSeats = Math.max(0, capacity - registeredCount);
 
-  const upcomingProgram =
-    sortedPrograms.find((program) => program.batchStartsAt && new Date(program.batchStartsAt).getTime() > now) ?? null;
-
-  const program = startedProgram ?? upcomingProgram ?? sortedPrograms[0] ?? null;
-  if (!program) return null;
-
-  const programIndex = sortedPrograms.findIndex((entry) => entry.id === program.id);
-  const joinedCount = applications.filter(
-    (application) =>
-      application.payload.serviceName.trim().toLowerCase() === program.title.trim().toLowerCase() &&
-      application.payload.approvalStatus === "APPROVED",
-  ).length;
-
-  const capacity = Math.max(0, program.capacity || 0);
-  const vacancies = Math.max(0, capacity - joinedCount);
-  const startTime = program.batchStartsAt ? new Date(program.batchStartsAt).getTime() : null;
-  const hasStarted = startTime !== null && !Number.isNaN(startTime) && startTime <= now;
-  const statusLabel = hasStarted ? "Already started" : program.enrollmentClosed ? "Enrollment closed" : "Upcoming";
-
-  return {
-    program,
-    batchCode: deriveBatchCode(program, Math.max(programIndex, 0)),
-    joinedCount,
-    vacancies,
-    capacity,
-    statusLabel,
-  };
+    return {
+      program,
+      batchCode: topBatchCode,
+      batchRegisteredCount: topBatchCount,
+      registeredCount,
+      availableSeats,
+      capacity,
+      fillPercent: capacity ? Math.min(100, Math.round((registeredCount / capacity) * 100)) : 0,
+    };
+  });
 }
 
 function OverviewMetricCard({
@@ -1583,7 +1598,7 @@ function BadgeMark() {
   );
 }
 
-function CurrentBatchCard({
+function ProgramSeatSummary({
   applications,
   programs,
   theme,
@@ -1592,51 +1607,65 @@ function CurrentBatchCard({
   programs: Program[];
   theme: SectionTheme;
 }) {
-  const snapshot = getCurrentBatchSnapshot(programs, applications);
+  const rows = getProgramSeatRows(programs, applications);
 
-  if (!snapshot) {
+  if (!rows.length) {
     return (
       <section className={`rounded-[1.45rem] border p-4 shadow-[0_18px_38px_rgba(10,5,4,0.11)] ${theme.panelShell}`}>
-        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Current batch</p>
-        <p className="mt-3 text-sm font-semibold text-[#607366]">No batch is configured yet.</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Program seats</p>
+        <p className="mt-3 text-sm font-semibold text-[#607366]">No active programs are configured yet.</p>
       </section>
     );
   }
 
   return (
     <section className={`rounded-[1.3rem] border p-3.5 shadow-[0_16px_32px_rgba(10,5,4,0.1)] ${theme.panelShell}`}>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Current batch</p>
-            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#173f33]">{snapshot.batchCode}</span>
-          </div>
-          <p className="mt-1.5 truncate text-sm font-semibold text-[#173f33]">{snapshot.program.title}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Program seats</p>
+          <p className="mt-1 text-sm font-semibold text-[#607366]">Registered students by batch number and available seats.</p>
         </div>
         <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${theme.badge}`}>
-          {snapshot.statusLabel}
+          {rows.length} programs
         </span>
       </div>
 
-      <div className="mt-3 grid gap-2.5 sm:grid-cols-4">
-        <div className={`rounded-[0.95rem] border px-3 py-2.5 ${theme.panelSurface}`}>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Joined</p>
-          <p className="mt-1 text-xl font-semibold text-[#173f33]">{snapshot.joinedCount}</p>
-        </div>
-        <div className={`rounded-[0.95rem] border px-3 py-2.5 ${theme.panelSurface}`}>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Vacancies</p>
-          <p className="mt-1 text-xl font-semibold text-[#173f33]">{snapshot.vacancies}</p>
-        </div>
-        <div className={`rounded-[0.95rem] border px-3 py-2.5 ${theme.panelSurface}`}>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Capacity</p>
-          <p className="mt-1 text-xl font-semibold text-[#173f33]">{snapshot.capacity}</p>
-        </div>
-        <div className={`rounded-[0.95rem] border px-3 py-2.5 ${theme.panelSurface}`}>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Starts</p>
-          <p className="mt-1 text-[13px] font-semibold text-[#173f33]">
-            {snapshot.program.batchStartsAt ? formatDateTime(snapshot.program.batchStartsAt) : "Not set"}
-          </p>
-        </div>
+      <div className="mt-3 grid gap-3 lg:grid-cols-3">
+        {rows.map((row) => (
+          <div key={row.program.id} className={`rounded-[1rem] border px-3.5 py-3 ${theme.panelSurface}`}>
+            <div className="flex min-h-[4.5rem] flex-col justify-between">
+              <div>
+                <p className="line-clamp-2 text-sm font-black leading-tight text-[#173f33]">{row.program.title}</p>
+                <p className="mt-1 text-[11px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">
+                  Batch {row.batchCode}
+                </p>
+              </div>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e9eee9]">
+                <div className="h-full rounded-full bg-[#077b76]" style={{ width: `${row.fillPercent}%` }} />
+              </div>
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">Registered</p>
+                <p className="mt-1 text-xl font-black leading-none text-[#173f33]">{row.registeredCount}</p>
+              </div>
+              <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">This batch</p>
+                <p className="mt-1 text-xl font-black leading-none text-[#173f33]">{row.batchRegisteredCount}</p>
+              </div>
+              <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">Available</p>
+                <p className="mt-1 text-xl font-black leading-none text-[#173f33]">{row.availableSeats}</p>
+              </div>
+            </div>
+
+            <div className="mt-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-[#607366]">
+              <span>Capacity {row.capacity}</span>
+              <span>{row.program.batchStartsAt ? formatDateTime(row.program.batchStartsAt) : "Start date not set"}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );
