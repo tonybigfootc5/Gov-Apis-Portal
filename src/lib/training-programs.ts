@@ -50,7 +50,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     level: "FOUNDATION",
     fee: "INR 10",
     capacity: 30,
-    batchStartsAt: "2026-07-15T09:00:00.000Z",
+    batchStartsAt: "2026-08-17T09:00:00.000Z",
     enrollmentClosed: false,
     popupEnabled: true,
     published: true,
