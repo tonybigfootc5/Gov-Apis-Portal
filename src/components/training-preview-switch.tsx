@@ -567,7 +567,7 @@ function CourseOverview({
               <SectionTitle title={copy.trainingBreakdown} />
               <div className="mt-5 grid max-h-[22rem] gap-3 overflow-y-auto pr-2">
                 {dayPlan.map((day, index) => (
-                  <div key={day.title} className="grid grid-cols-[4.25rem_minmax(0,1fr)] gap-3">
+                  <div key={`${day.title}-${index}`} className="grid grid-cols-[4.25rem_minmax(0,1fr)] gap-3">
                     <span className="relative flex h-8 items-center justify-center bg-[#f8d98d] text-[11px] font-black text-[#102119] [clip-path:polygon(12%_0,88%_0,100%_50%,88%_100%,12%_100%,0_50%)]">
                       DAY {index + 1}
                     </span>
@@ -814,9 +814,9 @@ function getDayPlan(course: TrainingPreviewCourse) {
       ["Queen Cell Work Practice", "Starter colony preparation and feed support"],
       ["Queen Cell Work Practice", "Finisher colony care and healthy cell observation"],
       ["Queen Cell Work Practice", "Acceptance checks and selection of strong queen cells"],
-      ["Queen Cell Work Practice", "Nucleus preparation for selected queen cells"],
-      ["Queen Cell Work Practice", "Mating-yard placement and field record practice"],
-      ["Apiary Scale-Up", "Productivity, quality control and enterprise planning"],
+      ["Royal Jelly Collection", "Collection window, hygienic transfer and clean containers"],
+      ["Cold Handling & Records", "Temperature control, storage notes and batch documentation"],
+      ["Apiary Scale-Up", "Nucleus preparation, mating-yard placement, productivity and enterprise planning"],
     ].map(([title, body]) => ({ title, body }));
   }
 

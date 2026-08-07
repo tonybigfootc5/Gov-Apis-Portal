@@ -2,7 +2,7 @@ import { config as loadEnv } from "dotenv";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { EventStatus, PrismaClient, ProgramLevel } from "../src/generated/prisma/client";
-import { trainingProgramCatalog } from "../src/lib/training-programs";
+import { deprecatedTrainingProgramSlugs, trainingProgramCatalog } from "../src/lib/training-programs";
 
 loadEnv({ path: ".env.local" });
 loadEnv({ path: ".env.production.local" });
@@ -20,6 +20,15 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
+  await prisma.program.updateMany({
+    where: { slug: { in: Array.from(deprecatedTrainingProgramSlugs) } },
+    data: {
+      enrollmentClosed: true,
+      popupEnabled: false,
+      published: false,
+    },
+  });
+
   for (const program of trainingProgramCatalog) {
     await prisma.program.upsert({
       where: { slug: program.slug },

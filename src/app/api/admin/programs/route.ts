@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prismaErrorResponse } from "@/lib/api-response";
 import { adminUnauthorized, requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { deprecatedTrainingProgramSlugs } from "@/lib/training-programs";
 import { programSchema } from "@/lib/validators";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +11,7 @@ export async function GET() {
   if (!(await requireAdmin())) return adminUnauthorized();
   try {
     const programs = await prisma.program.findMany({ orderBy: { updatedAt: "desc" } });
-    return NextResponse.json(programs);
+    return NextResponse.json(programs.filter((program) => !deprecatedTrainingProgramSlugs.has(program.slug)));
   } catch (error) {
     return prismaErrorResponse(error, "Program list");
   }

@@ -35,6 +35,8 @@ export type TrainingProgramCatalogItem = {
   };
 };
 
+export const deprecatedTrainingProgramSlugs = new Set(["royal-jelly-production"]);
+
 export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
   {
     id: "program-beekeeping",
@@ -123,12 +125,12 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
   },
   {
     id: "program-queen-wax",
-    title: "Queen Rearing & Colony Multiplication",
+    title: "Queen Rearing & Colony Multiplication, Royal Jelly Production",
     slug: "queen-rearing-and-colony-multiplication",
     summary:
-      "Advanced training that combines colony multiplication planning, queen rearing techniques, and apiary expansion practice.",
+      "Advanced training that combines queen rearing, colony multiplication, and royal jelly production practice in one 10-day module.",
     description:
-      "This longer module is built for participants who already understand practical hive work. It covers queen cell handling, colony splitting, multiplication planning, breeder selection, nucleus colony management, mating yard preparation, and record-led apiary expansion.",
+      "This longer module is built for participants who already understand practical hive work. It covers queen cell handling, grafting practice, colony splitting, nucleus colony management, mating yard preparation, royal jelly collection, hygienic transfer, cold handling, and record-led apiary expansion.",
     duration: "10 days",
     level: "ADVANCED",
     fee: "INR 10,000",
@@ -138,69 +140,29 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     popupEnabled: true,
     published: true,
     focusLabel: "Advanced training",
-    focusText: "Queen rearing, colony multiplication, grafting basics, and nucleus colony management.",
+    focusText: "Queen rearing, colony multiplication, royal jelly collection, and nucleus colony management.",
     targetAudience: "Experienced trainees, extension staff, progressive beekeepers, and trainers.",
-    detailBadge: "Advanced queen rearing",
+    detailBadge: "Advanced queen rearing and royal jelly",
     imageSrc: "/queen-rearing-program-updated.png",
     imageAlt: "A marked queen bee surrounded by worker bees during queen rearing.",
-    highlights: ["Queen cells", "Colony split", "Nucleus colonies"],
+    highlights: ["Queen cells", "Royal jelly", "Nucleus colonies"],
     outcomes: [
       "Understand the practical steps involved in colony multiplication planning.",
       "Handle queen cell work and basic queen rearing support tasks.",
+      "Practice royal jelly collection, hygienic transfer, and storage discipline.",
       "Manage nucleus colonies and mating yard preparation with field-ready discipline.",
       "Connect colony multiplication records with broader apiary productivity and expansion.",
     ],
-    skills: ["Queen rearing", "Colony multiplication", "Nucleus management", "Apiary planning"],
+    skills: ["Queen rearing", "Colony multiplication", "Royal jelly collection", "Hygienic transfer", "Nucleus management", "Apiary planning"],
     rating: "4.8",
     ratingLabel: "Program reviews",
     experienceLabel: "Prior hive experience preferred",
-    tools: ["Grafting frame", "Queen cups", "Nucleus box", "Mating yard records", "Record sheets"],
+    tools: ["Grafting frame", "Queen cups", "Collection spoon", "Sterile containers", "Nucleus box", "Mating yard records", "Record sheets"],
     certificate: "Physical certificate issued after completion",
     taughtIn: "English and Telugu",
     testimonial: {
       quote: "The queen cell and colony multiplication sessions connected field practice with real expansion planning.",
       name: "Advanced trainee",
-    },
-  },
-  {
-    id: "program-royal-jelly",
-    title: "Royal Jelly Production",
-    slug: "royal-jelly-production",
-    summary:
-      "Specialized training focused on the collection, handling, and high-value production workflow of royal jelly.",
-    description:
-      "This program explains the practical cycle behind commercial royal jelly production, including queen cell preparation, timing of collection, hygienic transfer, cold-chain awareness, and handling methods required for a sensitive high-value bee product.",
-    duration: "10 days",
-    level: "PROFESSIONAL",
-    fee: "INR 10,000",
-    capacity: 18,
-    batchStartsAt: "2026-08-21T09:00:00.000Z",
-    enrollmentClosed: false,
-    popupEnabled: true,
-    published: true,
-    focusLabel: "Specialized training",
-    focusText: "High-value commercial harvesting and collection of royal jelly from prepared queen cells.",
-    targetAudience: "Advanced beekeepers, entrepreneurs, product-focused units, and specialized trainees.",
-    detailBadge: "High-value production",
-    imageSrc: "/royal-jelly-program-updated.png",
-    imageAlt: "Royal jelly being collected from prepared queen cells with hygienic tools.",
-    highlights: ["Queen cell prep", "Collection timing", "Cold handling"],
-    outcomes: [
-      "Understand how queen cells are prepared for royal jelly production work.",
-      "Learn the collection timing required for higher-value jelly harvesting.",
-      "Handle transfer and storage with better hygiene and temperature awareness.",
-      "Connect royal jelly production with niche commercial beekeeping opportunities.",
-    ],
-    skills: ["Royal jelly collection", "Queen cell prep", "Hygienic transfer", "Cold handling"],
-    rating: "4.9",
-    ratingLabel: "Program reviews",
-    experienceLabel: "Advanced beekeepers",
-    tools: ["Queen cell bar", "Collection spoon", "Sterile containers", "Cold box", "Timing records"],
-    certificate: "Physical certificate issued after completion",
-    taughtIn: "English and Telugu",
-    testimonial: {
-      quote: "The course explained the timing and hygiene discipline needed for sensitive high-value bee products.",
-      name: "Specialized trainee",
     },
   },
 ];

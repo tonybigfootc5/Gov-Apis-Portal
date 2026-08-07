@@ -119,11 +119,11 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
       "A 5-day Scientific Beekeeping Training Programme conducted at ATC's Training Hall, Rajendranagar, Hyderabad.",
     "program.slug.scientific-beekeeping-foundation.description":
       "The Api Culture Technology Center conducts this 5-day programme at ATC's Training Hall, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around Pest control & disease and beekeeping as a livelihood or enterprise.",
-    "program.slug.queen-rearing-and-colony-multiplication.title": "Queen Rearing & Colony Multiplication",
+    "program.slug.queen-rearing-and-colony-multiplication.title": "Queen Rearing & Colony Multiplication, Royal Jelly Production",
     "program.slug.queen-rearing-and-colony-multiplication.summary":
-      "Advanced instruction on selection, grafting, nucleus colonies, and sustainable apiary expansion.",
+      "Advanced instruction on queen rearing, colony multiplication, royal jelly collection, and sustainable apiary expansion.",
     "program.slug.queen-rearing-and-colony-multiplication.description":
-      "Designed for trained beekeepers and extension teams, this module focuses on genetic selection, grafting discipline, mating yard preparation, nucleus management, and record-led colony multiplication.",
+      "Designed for trained beekeepers and extension teams, this module focuses on genetic selection, grafting discipline, queen cell practice, royal jelly collection, hygienic handling, mating yard preparation, nucleus management, and record-led colony multiplication.",
   },
   te: {
     "lang.label": "భాష",

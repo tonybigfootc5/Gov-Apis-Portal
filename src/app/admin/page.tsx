@@ -6,6 +6,7 @@ import { getLocalTrainingApplications } from "@/lib/local-training-applications"
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { getAdminPaymentOrders, getAdminTrainingApplications, type PaymentAdminRecord } from "@/lib/training-application-store";
 import { TRAINING_APPLICATION_SUBJECT_PREFIX, type TrainingApplicationRecord } from "@/lib/training-application";
+import { deprecatedTrainingProgramSlugs } from "@/lib/training-programs";
 
 export const dynamic = "force-dynamic";
 
@@ -124,11 +125,13 @@ export default async function AdminPage() {
         }),
       ]);
 
-      programs = dbPrograms.map((program) => ({
-        ...program,
-        level: program.level,
-        fee: program.fee ?? null,
-      }));
+      programs = dbPrograms
+        .filter((program) => !deprecatedTrainingProgramSlugs.has(program.slug))
+        .map((program) => ({
+          ...program,
+          level: program.level,
+          fee: program.fee ?? null,
+        }));
       events = dbEvents.map((event) => ({
         ...event,
         status: event.status,

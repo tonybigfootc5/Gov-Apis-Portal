@@ -20,7 +20,7 @@ export default async function Home() {
   const language = await getRequestLanguage();
   const copy = getSiteCopy(language);
   const programs = await getPrograms();
-  const courses: TrainingPreviewCourse[] = programs.slice(0, 4).map((program) => {
+  const courses: TrainingPreviewCourse[] = programs.slice(0, 3).map((program) => {
     const translatedProgram = getTranslatedProgramContent(program, language);
     const presentation = trainingProgramCatalogBySlug[program.slug];
 

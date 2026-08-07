@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { fallbackArticles, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
-import { trainingProgramCatalog, trainingProgramCatalogBySlug } from "@/lib/training-programs";
+import { deprecatedTrainingProgramSlugs, trainingProgramCatalog, trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
 export type ProgramItem = {
   id: string;
@@ -146,6 +146,10 @@ function orderPrograms(programs: ProgramItem[]) {
   });
 }
 
+function isActiveTrainingProgram(program: { slug: string }) {
+  return !deprecatedTrainingProgramSlugs.has(program.slug);
+}
+
 export async function getPrograms(): Promise<ProgramItem[]> {
   if (!process.env.DATABASE_URL) return fallbackPrograms;
   try {
@@ -160,7 +164,7 @@ export async function getPrograms(): Promise<ProgramItem[]> {
       mergedPrograms.set(catalogProgram.slug, buildCatalogProgram(catalogProgram));
     }
 
-    for (const program of programs) {
+    for (const program of programs.filter(isActiveTrainingProgram)) {
       const normalizedProgram = mergeProgramWithCatalog(program);
       mergedPrograms.set(normalizedProgram.slug, normalizedProgram);
     }
@@ -206,7 +210,7 @@ export async function getPopupAnnouncementPrograms(now = new Date()): Promise<Pr
       orderBy: [{ batchStartsAt: "asc" }, { title: "asc" }],
     });
 
-    return programs.map(mergeProgramWithCatalog);
+    return programs.filter(isActiveTrainingProgram).map(mergeProgramWithCatalog);
   } catch {
     return getAnnouncementPrograms(fallbackPrograms, now);
   }
@@ -220,7 +224,7 @@ export async function getProgram(slug: string): Promise<ProgramItem | null> {
     const program = await prisma.program.findFirst({
       where: { slug, published: true },
     });
-    if (program) {
+    if (program && isActiveTrainingProgram(program)) {
       return mergeProgramWithCatalog(program);
     }
 
