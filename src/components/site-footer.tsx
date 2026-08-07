@@ -129,7 +129,7 @@ export function SiteFooter({ language }: SiteFooterProps) {
           <FooterColumn title={copy.footer.socialLabel}>
             <div className="flex flex-wrap gap-4">
               <SocialCircle href="#" label="Facebook" tone="facebook" icon={<BrandIcon name="facebook" />} />
-              <SocialCircle href="https://www.instagram.com/honey2health/" label="Instagram" tone="instagram" icon={<BrandIcon name="instagram" />} />
+              <SocialCircle href="https://www.instagram.com/api_culture_technology?igsh=MTd2dmlhcDhrNDM=" label="Instagram" tone="instagram" icon={<BrandIcon name="instagram" />} />
               <SocialCircle href="https://www.youtube.com/@ApiCultureTechCenter" label="YouTube" tone="youtube" icon={<BrandIcon name="youtube" />} />
             </div>
           </FooterColumn>

@@ -72,6 +72,19 @@ const supportingCultures = [
   },
 ] as const;
 
+const memberPortraits: Record<string, { src: string; alt: string; objectPosition: string }> = {
+  "K. Sambashiva Rao": {
+    src: "/team/k-sambashiva-rao.jpeg",
+    alt: "K. Sambashiva Rao portrait",
+    objectPosition: "50% 6%",
+  },
+  "K. Subba Rao": {
+    src: "/team/k-subba-rao.jpeg",
+    alt: "K. Subba Rao portrait",
+    objectPosition: "50% 7%",
+  },
+};
+
 const localizedOrbitCopy = {
   en: {
     eyebrow: "Three cultures. One mission.",
@@ -216,13 +229,26 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
             </div>
 
             <div className="pointer-events-none absolute inset-x-4 bottom-12 flex justify-center">
-              <div className="relative h-44 w-44 rounded-full bg-[linear-gradient(180deg,#ffffff,#e8ece8)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_24px_44px_rgba(23,63,51,0.12)]">
-                <div className="absolute left-1/2 top-7 h-20 w-20 -translate-x-1/2 rounded-full bg-[#d6ddd8]" />
-                <div className="absolute bottom-0 left-1/2 h-28 w-36 -translate-x-1/2 rounded-t-[4rem] bg-[#ffffff]" />
-                <div className="absolute bottom-6 left-1/2 grid h-20 w-20 -translate-x-1/2 place-items-center rounded-[1.25rem] bg-[#123f31] text-2xl font-black text-[#f2b544] shadow-[0_16px_30px_rgba(18,63,49,0.22)]">
-                  {initials(member.name, index)}
+              {memberPortraits[member.name] ? (
+                <div className="relative h-48 w-40 overflow-hidden rounded-[1rem] border border-white/80 bg-white shadow-[0_24px_44px_rgba(23,63,51,0.16)]">
+                  <Image
+                    src={memberPortraits[member.name].src}
+                    alt={memberPortraits[member.name].alt}
+                    fill
+                    sizes="10rem"
+                    className="object-cover"
+                    style={{ objectPosition: memberPortraits[member.name].objectPosition }}
+                  />
                 </div>
-              </div>
+              ) : (
+                <div className="relative h-44 w-44 rounded-full bg-[linear-gradient(180deg,#ffffff,#e8ece8)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_24px_44px_rgba(23,63,51,0.12)]">
+                  <div className="absolute left-1/2 top-7 h-20 w-20 -translate-x-1/2 rounded-full bg-[#d6ddd8]" />
+                  <div className="absolute bottom-0 left-1/2 h-28 w-36 -translate-x-1/2 rounded-t-[4rem] bg-[#ffffff]" />
+                  <div className="absolute bottom-6 left-1/2 grid h-20 w-20 -translate-x-1/2 place-items-center rounded-[1.25rem] bg-[#123f31] text-2xl font-black text-[#f2b544] shadow-[0_16px_30px_rgba(18,63,49,0.22)]">
+                    {initials(member.name, index)}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between gap-3">
