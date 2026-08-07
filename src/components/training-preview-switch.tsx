@@ -808,14 +808,14 @@ function getDayPlan(course: TrainingPreviewCourse) {
   if (course.slug.includes("queen-rearing")) {
     return [
       ["Colony Selection", "Breeder traits, colony strength and records"],
-      ["Queen Cell Work", "Cell handling, grafting basics and timing"],
-      ["Nucleus Setup", "Splits, nucleus boxes and mating-yard preparation"],
-      ["Multiplication Plan", "Expansion records and colony balancing"],
-      ["Grafting Practice", "Larval transfer, cell bar setup and careful tool handling"],
-      ["Cell Builder Management", "Starter and finisher colony preparation with feed support"],
-      ["Queen Cell Inspection", "Acceptance checks, timing discipline and healthy cell selection"],
-      ["Mating Yard Setup", "Nucleus placement, drone availability and field records"],
-      ["Queen Introduction", "Caging, release timing and acceptance observation"],
+      ["Queen Cell Work", "Cell handling and grafting basics"],
+      ["Queen Cell Work Practice", "Repeat grafting practice with careful tool handling"],
+      ["Queen Cell Work Practice", "Cell bar setup, handling discipline and guided correction"],
+      ["Queen Cell Work Practice", "Starter colony preparation and feed support"],
+      ["Queen Cell Work Practice", "Finisher colony care and healthy cell observation"],
+      ["Queen Cell Work Practice", "Acceptance checks and selection of strong queen cells"],
+      ["Queen Cell Work Practice", "Nucleus preparation for selected queen cells"],
+      ["Queen Cell Work Practice", "Mating-yard placement and field record practice"],
       ["Apiary Scale-Up", "Productivity, quality control and enterprise planning"],
     ].map(([title, body]) => ({ title, body }));
   }
