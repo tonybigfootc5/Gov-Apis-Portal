@@ -222,7 +222,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           badge: "Verified profile roles",
           members: [
             {
-              name: "K. Sambashiva Rao",
+              name: "Sree Sambashiva Rao",
               designation: "President, Bee Keepers Association | Faculty Member and Field Expert",
               role: "Brings around 40 years of beekeeping experience with emphasis on field practice, bee breeding, colony management, and migration support.",
               highlights: ["40 years experience", "National Bee Board member", "Field expert"],
@@ -241,13 +241,13 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           badge: "Verified profile roles",
           members: [
             {
-              name: "P. Sita Rathnam",
+              name: "Smt. Sita Rathnam",
               designation: "Faculty Member, Api Culture Technology Center",
               role: "Supports queen rearing, royal jelly collection, and honey processing and packing technology training through practical sessions.",
               highlights: ["15 years experience", "MBA", "Practical training support"],
             },
             {
-              name: "K. Subba Rao",
+              name: "Sree Subba Rao",
               designation: "Senior Scientist and Technical Adviser | Faculty Member",
               role: "Contributes long-standing scientific and R&D knowledge across beekeeping subjects with senior technical credibility.",
               highlights: ["50 years experience", "Retd. scientist", "Technical adviser"],
@@ -431,7 +431,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           badge: "ధృవీకరించిన పాత్రలు",
           members: [
             {
-              name: "K. Sambashiva Rao",
+              name: "Sree Sambashiva Rao",
               designation: "President, Bee Keepers Association | Faculty Member and Field Expert",
               role: "ఫీల్డ్ ప్రాక్టీస్, తేనెటీగల సంశ్లేషణ, కాలనీ నిర్వహణ మరియు మైగ్రేషన్ మద్దతుపై సుమారు 40 ఏళ్ల అనుభవం కలిగిన నిపుణుడు.",
               highlights: ["40 ఏళ్ల అనుభవం", "National Bee Board సభ్యుడు", "ఫీల్డ్ నిపుణుడు"],
@@ -450,13 +450,13 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           badge: "ధృవీకరించిన పాత్రలు",
           members: [
             {
-              name: "P. Sita Rathnam",
+              name: "Smt. Sita Rathnam",
               designation: "Faculty Member, Api Culture Technology Center",
               role: "క్వీన్ రేరింగ్, రాయల్ జెల్లీ సేకరణ మరియు తేనె ప్రాసెసింగ్ శిక్షణలో ప్రాయోగిక మద్దతు అందిస్తున్నారు.",
               highlights: ["15 ఏళ్ల అనుభవం", "MBA", "ప్రాయోగిక శిక్షణ మద్దతు"],
             },
             {
-              name: "K. Subba Rao",
+              name: "Sree Subba Rao",
               designation: "Senior Scientist and Technical Adviser | Faculty Member",
               role: "తేనెటీగల శిక్షణలో దీర్ఘకాలిక శాస్త్రీయ మరియు R&D పరిజ్ఞానంతో సీనియర్ సాంకేతిక మార్గనిర్దేశం అందిస్తున్నారు.",
               highlights: ["50 ఏళ్ల అనుభవం", "విరమణ పొందిన శాస్త్రవేత్త", "సాంకేతిక సలహాదారు"],
@@ -639,7 +639,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           badge: "सत्यापित भूमिका प्रोफ़ाइल",
           members: [
             {
-              name: "K. Sambashiva Rao",
+              name: "Sree Sambashiva Rao",
               designation: "President, Bee Keepers Association | Faculty Member and Field Expert",
               role: "फील्ड अभ्यास, बी ब्रीडिंग, कॉलोनी प्रबंधन और माइग्रेशन सहयोग पर लगभग 40 वर्षों का अनुभव रखते हैं।",
               highlights: ["40 वर्ष अनुभव", "National Bee Board सदस्य", "फील्ड विशेषज्ञ"],
@@ -658,13 +658,13 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           badge: "सत्यापित भूमिका प्रोफ़ाइल",
           members: [
             {
-              name: "P. Sita Rathnam",
+              name: "Smt. Sita Rathnam",
               designation: "Faculty Member, Api Culture Technology Center",
               role: "क्वीन रियरिंग, रॉयल जेली संग्रह और शहद प्रोसेसिंग प्रशिक्षण में व्यावहारिक सहयोग देती हैं।",
               highlights: ["15 वर्ष अनुभव", "MBA", "व्यावहारिक प्रशिक्षण सहयोग"],
             },
             {
-              name: "K. Subba Rao",
+              name: "Sree Subba Rao",
               designation: "Senior Scientist and Technical Adviser | Faculty Member",
               role: "मधुमक्खी पालन विषयों में दीर्घकालिक वैज्ञानिक और R&D अनुभव के साथ वरिष्ठ तकनीकी मार्गदर्शन देते हैं।",
               highlights: ["50 वर्ष अनुभव", "सेवानिवृत्त वैज्ञानिक", "तकनीकी सलाहकार"],

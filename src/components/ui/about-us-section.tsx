@@ -73,14 +73,14 @@ const supportingCultures = [
 ] as const;
 
 const memberPortraits: Record<string, { src: string; alt: string; objectPosition: string }> = {
-  "K. Sambashiva Rao": {
+  "Sree Sambashiva Rao": {
     src: "/team/k-sambashiva-rao.jpeg",
-    alt: "K. Sambashiva Rao portrait",
+    alt: "Sree Sambashiva Rao portrait",
     objectPosition: "50% 6%",
   },
-  "K. Subba Rao": {
+  "Sree Subba Rao": {
     src: "/team/k-subba-rao.jpeg",
-    alt: "K. Subba Rao portrait",
+    alt: "Sree Subba Rao portrait",
     objectPosition: "50% 7%",
   },
 };
