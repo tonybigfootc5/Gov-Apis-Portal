@@ -118,7 +118,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "program.slug.scientific-beekeeping-foundation.summary":
       "A 5-day Scientific Beekeeping Training Programme conducted at ATC's Training Hall, Rajendranagar, Hyderabad.",
     "program.slug.scientific-beekeeping-foundation.description":
-      "The Api Culture Technology Center conducts this 5-day programme at ATC's Training Hall, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around pest control, disease management, and beekeeping as a livelihood or enterprise.",
+      "The Api Culture Technology Center conducts this 5-day programme at ATC's Training Hall, Rajendranagar, Hyderabad. The programme combines classroom instruction, demonstrations, and individual hands-on practice around Pest control & disease and beekeeping as a livelihood or enterprise.",
     "program.slug.queen-rearing-and-colony-multiplication.title": "Queen Rearing & Colony Multiplication",
     "program.slug.queen-rearing-and-colony-multiplication.summary":
       "Advanced instruction on selection, grafting, nucleus colonies, and sustainable apiary expansion.",

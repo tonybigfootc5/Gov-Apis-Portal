@@ -225,6 +225,7 @@ const educationOptions = [
   "Secondary school",
   "Intermediate / 12th",
   "ITI / Diploma",
+  "Farmer",
   "Graduate",
   "Postgraduate",
   "Agriculture / Horticulture graduate",
@@ -476,8 +477,6 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const [testAutofillCode, setTestAutofillCode] = useState("");
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
-  const cameraStreamRef = useRef<MediaStream | null>(null);
-  const cameraVideoRef = useRef<HTMLVideoElement>(null);
   const hasUploadedPhoto = Boolean(form.photoUrl && form.photoName);
   const showTestAutofill = process.env.NODE_ENV !== "production";
 
@@ -486,8 +485,6 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const completedSteps = STEPS.filter((_, index) => requiredStepFields(index, form)).length;
   const selectedService =
     normalizedServiceOptions.find((service) => service.title === form.serviceName) ?? normalizedServiceOptions[0];
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const [cameraError, setCameraError] = useState("");
 
   useEffect(() => {
     if (!showPreview) return;
@@ -501,19 +498,6 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       document.getElementById("application-review")?.scrollIntoView({ block: "start", behavior: "smooth" });
     }, 60);
   }, [showPreview]);
-
-  useEffect(() => {
-    return () => {
-      stopCameraStream();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!cameraOpen || !cameraVideoRef.current || !cameraStreamRef.current) return;
-
-    cameraVideoRef.current.srcObject = cameraStreamRef.current;
-    void cameraVideoRef.current.play();
-  }, [cameraOpen]);
 
   function updateField<Key extends keyof FormState>(key: Key, value: FormState[Key]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -585,65 +569,6 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       setMessage(error instanceof Error ? error.message : "Photo upload failed.");
       setPhotoStatus(copy.uploadFail);
     }
-  }
-
-  function stopCameraStream() {
-    cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
-    cameraStreamRef.current = null;
-  }
-
-  async function openCamera() {
-    setCameraError("");
-
-    if (!navigator.mediaDevices?.getUserMedia) {
-      cameraInputRef.current?.click();
-      return;
-    }
-
-    try {
-      stopCameraStream();
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: "environment" } },
-        audio: false,
-      });
-      cameraStreamRef.current = stream;
-      setCameraOpen(true);
-    } catch {
-      setCameraError("Camera could not be opened. Use Choose photo or allow camera access and try again.");
-      cameraInputRef.current?.click();
-    }
-  }
-
-  function closeCamera() {
-    stopCameraStream();
-    setCameraOpen(false);
-  }
-
-  async function captureCameraPhoto() {
-    const video = cameraVideoRef.current;
-    if (!video || !video.videoWidth || !video.videoHeight) {
-      setCameraError("Camera is still starting. Please try again in a moment.");
-      return;
-    }
-
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const context = canvas.getContext("2d");
-    if (!context) {
-      setCameraError("Camera photo could not be captured. Please try again.");
-      return;
-    }
-
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.9));
-    if (!blob) {
-      setCameraError("Camera photo could not be saved. Please try again.");
-      return;
-    }
-
-    closeCamera();
-    await onPhotoChange(new File([blob], "camera-photo.jpg", { type: "image/jpeg" }));
   }
 
   async function handleSubmit() {
@@ -1108,41 +1033,13 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                         </button>
                         <button
                           type="button"
-                          onClick={() => void openCamera()}
+                          onClick={() => cameraInputRef.current?.click()}
                           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-[#173f33]/14 bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#173f33]"
                         >
                           <Camera className="h-4 w-4" aria-hidden="true" />
                           Open camera
                         </button>
                       </div>
-                      {cameraOpen ? (
-                        <div className="mt-4 overflow-hidden rounded-[1.4rem] border border-[#173f33]/12 bg-[#102119] p-3">
-                          <video
-                            ref={cameraVideoRef}
-                            playsInline
-                            muted
-                            autoPlay
-                            className="aspect-[4/3] w-full rounded-[1rem] bg-black object-cover"
-                          />
-                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                            <button
-                              type="button"
-                              onClick={() => void captureCameraPhoto()}
-                              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#f2b544] px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0a0d12]"
-                            >
-                              Capture photo
-                            </button>
-                            <button
-                              type="button"
-                              onClick={closeCamera}
-                              className="inline-flex min-h-11 items-center justify-center rounded-full border border-white/24 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-[0.12em] text-white"
-                            >
-                              Close camera
-                            </button>
-                          </div>
-                        </div>
-                      ) : null}
-                      {cameraError ? <p className="mt-3 text-sm font-semibold text-[#8e3d2f]">{cameraError}</p> : null}
                       {photoStatus ? <p className="mt-3 text-sm text-dim">{photoStatus}</p> : null}
                       {hasUploadedPhoto ? (
                         <p className="mt-2 text-xs font-black uppercase tracking-[0.14em] text-[#2a8d5f]">
