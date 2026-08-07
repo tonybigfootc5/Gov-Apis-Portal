@@ -62,6 +62,7 @@ export default async function Home() {
     { value: "25K+", label: copy.home.stats[1] },
     { value: "100+", label: "Learners supported" },
     { value: "NIRDPR", label: "Training center" },
+    { value: "KGMV", label: copy.home.stats[4] ?? "Rajendranagar office" },
   ] as const;
 
   return (
@@ -122,7 +123,7 @@ export default async function Home() {
             <span className="pointer-events-none absolute bottom-0 right-0 z-[21] h-10 w-14 bg-[#f8faf7]" aria-hidden="true" />
 
             <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-4 pt-7 sm:px-8 sm:pb-4 sm:pt-6 lg:px-12 lg:pb-3 lg:pt-5">
-              <div className="relative grid grid-cols-2 gap-y-3 lg:grid-cols-4 lg:gap-y-0">
+              <div className="relative grid grid-cols-2 gap-y-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-y-0">
                 {stats.map((stat, index) => (
                   <StatItem key={stat.value} stat={stat} index={index} />
                 ))}
@@ -224,10 +225,12 @@ function StatItem({ stat, index }: { stat: { value: string; label: string }; ind
   return (
     <div
       className={cn(
-        "flex min-h-12 flex-col items-center justify-center border-[#dce4dd] px-3 pb-2 text-center lg:border-r lg:border-b-0 lg:px-7 lg:pb-0",
-        index % 2 === 0 ? "border-r" : "",
-        index < 2 ? "border-b" : "",
-        index === 3 ? "lg:border-r-0" : "",
+        "flex min-h-12 flex-col items-center justify-center border-[#dce4dd] px-3 pb-2 text-center lg:border-b-0 lg:px-7 lg:pb-0",
+        index % 2 === 0 ? "border-r sm:border-r-0" : "",
+        index < 4 ? "border-b sm:border-b-0" : "",
+        index % 3 !== 2 && index !== 4 ? "sm:border-r" : "",
+        index < 3 ? "sm:border-b" : "",
+        index !== 4 ? "lg:border-r" : "lg:border-r-0",
       )}
     >
       <p

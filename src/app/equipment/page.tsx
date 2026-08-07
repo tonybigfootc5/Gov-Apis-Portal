@@ -7,7 +7,7 @@ import { getRequestLanguage } from "@/lib/request-language";
 
 export const metadata: Metadata = {
   title: "Equipment",
-  description: "Beekeeping equipment support and local manufacturing encouragement from API CULTURE Technology Center.",
+  description: "Scientific beekeeping equipment support and local manufacturing encouragement from API CULTURE Technology Center.",
 };
 
 const equipmentTools = [
@@ -190,7 +190,7 @@ const supportCards = [
 
 const equipmentPageCopy = {
   en: {
-    titleLines: ["Beekeeping equipment", "for field-ready", "apiaries."],
+    titleLines: ["Scientific beekeeping equipment", "for field-ready", "apiaries."],
     bodyLines: [
       "Supply support and local manufacturing encouragement",
       "for the tools farmers need to manage colonies,",

@@ -33,7 +33,7 @@ type SiteCopy = {
     heroDescription: string;
     primaryCta: string;
     secondaryCta: string;
-    stats: [string, string, string, string];
+    stats: string[];
     locationChip: string;
     portalChip: string;
     cards: [HomeCard, HomeCard, HomeCard, HomeCard];
@@ -117,8 +117,8 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
         "To the hands that feed the nation, we bring the science of liquid gold! API CULTURE is the dawn of your prosperity.",
       primaryCta: "View programs",
       secondaryCta: "About the center",
-      stats: ["Years experience", "Beekeepers", "Hands-on training", "Institutional backing"],
-      locationChip: "Central & State Offices",
+      stats: ["Years experience", "Beekeepers", "Hands-on training", "Institutional backing", "Rajendranagar office"],
+      locationChip: "Rajendranagar",
       portalChip: "Public-facing training portal",
       cards: [
         {
@@ -165,7 +165,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
     about: {
       heroTitle: "Honey farming grows through learning, technology, and field support.",
       heroBody:
-        "API Culture Technology Center operates through Central and State offices in Rajendranagar, Hyderabad as a practical beekeeping mission built around training, technology transfer, pollination awareness, and rural livelihood support.",
+        "API Culture Technology Center operates from Rajendranagar, Hyderabad as a practical scientific beekeeping mission built around training, technology transfer, pollination awareness, and rural livelihood support.",
       badges: ["Established in 2004", "NIRDPR-linked mission", "Field-first apiculture"],
       collaboratorsTitle: "Learn from leading institutional and field collaborators",
       collaboratorsBody:
@@ -175,7 +175,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       beliefCards: [
         {
           title: "Rural livelihoods matter",
-          text: "Beekeeping creates an income-support pathway for farmers, women, tribal communities, and future rural entrepreneurs.",
+          text: "Scientific beekeeping creates an income-support pathway for farmers, women, tribal communities, and future rural entrepreneurs.",
         },
         {
           title: "Pollination improves outcomes",
@@ -204,7 +204,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
       storyTitle: "Our story",
       storyParagraphs: [
         "Api Culture Technology Center was established in 2004 at Rural Technology Park in association with NIRDPR, with technical support from the Bee Keepers Association and Kavuri. The center presents itself as a practical mission for training, technology transfer, pollination, and livelihood support across rural communities.",
-        "The mission grows through scientific beekeeping, honey processing, queen rearing, hive product awareness, equipment access, and public-facing apiculture education for farmers and future beekeeping entrepreneurs.",
+        "The mission grows through scientific beekeeping, honey processing and packing, queen rearing, hive product awareness, equipment access, and public-facing apiculture education for farmers and future beekeeping entrepreneurs.",
       ],
       storyFacts: [
         { label: "Established", value: "2004" },
@@ -264,7 +264,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
         },
         {
           title: "What the center teaches",
-          body: "Honey processing, queen rearing, hive products, equipment exposure, and field-ready apiary practice.",
+          body: "Honey processing and packing, queen rearing, hive products, equipment exposure, and field-ready apiary practice.",
         },
         {
           title: "Who the mission supports",

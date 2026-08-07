@@ -11,7 +11,7 @@ export type TechnologyItem = {
 
 export const technologyItems: TechnologyItem[] = [
   {
-    title: "Beekeeping",
+    title: "Scientific Beekeeping",
     slug: "beekeeping",
     category: "Apiary foundation",
     description:
@@ -80,7 +80,7 @@ export const technologyItems: TechnologyItem[] = [
       "Prepare royal jelly for cleaner storage and packaging workflows",
     ],
     imageSrc: "/queen-rearing-bg.jpg",
-    imageAlt: "Beekeeping training visual related to queen and colony work",
+    imageAlt: "Scientific beekeeping training visual related to queen and colony work",
   },
   {
     title: "Bee Pollen Collection",

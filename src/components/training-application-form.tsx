@@ -63,7 +63,7 @@ type Props = {
   selectedServiceTitle?: string;
 };
 
-const DEFAULT_SERVICE_NAME = "Beekeeping";
+const DEFAULT_SERVICE_NAME = "Scientific Beekeeping";
 
 const INITIAL_FORM: FormState = {
   serviceName: DEFAULT_SERVICE_NAME,
@@ -457,7 +457,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   }[language];
   const normalizedServiceOptions = serviceOptions.length
     ? serviceOptions
-    : [{ title: DEFAULT_SERVICE_NAME, duration: "As scheduled", level: "FOUNDATION", imageSrc: "/beekeeping-training-program.png", imageAlt: "Beekeeping training program" }];
+    : [{ title: DEFAULT_SERVICE_NAME, duration: "As scheduled", level: "FOUNDATION", imageSrc: "/beekeeping-training-program.png", imageAlt: "Scientific beekeeping training program" }];
   const lockedService =
     normalizedServiceOptions.find((service) => service.title === selectedServiceTitle) ?? null;
   const initialServiceName = lockedService?.title ?? normalizedServiceOptions[0].title;

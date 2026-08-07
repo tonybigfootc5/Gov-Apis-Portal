@@ -36,7 +36,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "home.cards.workshops.text": "Events and orientation sessions",
     "home.cards.tech.title": "Technology center",
     "home.cards.tech.text": "Field-ready apiculture practices",
-    "home.fieldSpotlight.title": "Beekeeping practice, captured in the field",
+    "home.fieldSpotlight.title": "Scientific beekeeping practice, captured in the field",
     "home.fieldSpotlight.body":
       "API CULTURE connects classroom instruction with real-world observation, hive handling, and field-ready apiculture methods that learners can carry into rural enterprise and institutional training programs.",
     "home.fieldSpotlight.tag1": "Hands-on learning",
@@ -114,7 +114,7 @@ const translations: Record<SiteLanguage, Record<string, string>> = {
     "event.status.UPCOMING": "Upcoming",
     "event.status.COMPLETED": "Completed",
     "event.status.CANCELLED": "Cancelled",
-    "program.slug.scientific-beekeeping-foundation.title": "Beekeeping",
+    "program.slug.scientific-beekeeping-foundation.title": "Scientific Beekeeping",
     "program.slug.scientific-beekeeping-foundation.summary":
       "A 5-day Scientific Beekeeping Training Programme conducted at ATC's Training Hall, Rajendranagar, Hyderabad.",
     "program.slug.scientific-beekeeping-foundation.description":

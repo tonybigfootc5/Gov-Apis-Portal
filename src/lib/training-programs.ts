@@ -38,7 +38,7 @@ export type TrainingProgramCatalogItem = {
 export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
   {
     id: "program-beekeeping",
-    title: "Beekeeping",
+    title: "Scientific Beekeeping",
     slug: "scientific-beekeeping-foundation",
     summary:
       "A 5-day Scientific Beekeeping Training Programme conducted at ATC's Training Hall, Rajendranagar, Hyderabad.",
@@ -68,7 +68,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Extract, process, and package honey hygienically.",
       "Understand costs, government schemes, registrations, marketing, and enterprise development.",
     ],
-    skills: ["Bee species", "Colony structure", "Safe hive handling", "Apiary management", "Honey hygiene", "Marketing"],
+    skills: ["Bee species", "Colony structure", "Safe hive handling", "Apiary management", "Honey extraction", "Marketing"],
     rating: "4.9",
     ratingLabel: "Program reviews",
     experienceLabel: "Beginner friendly",
@@ -82,7 +82,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
   },
   {
     id: "program-honey-processing",
-    title: "Honey Processing",
+    title: "Honey Processing and Packing",
     slug: "honey-processing",
     summary:
       "Specialized processing module focused on honey filtration, hygiene, quality control, and bottling workflow.",
@@ -247,7 +247,7 @@ export const trainingProgramGallery = [
   },
   {
     src: "/training-field-visuals/image8.jpeg",
-    alt: "Beekeeping training visual showing close supervision and learner participation.",
+    alt: "Scientific beekeeping training visual showing close supervision and learner participation.",
     label: "Learner support",
   },
   {

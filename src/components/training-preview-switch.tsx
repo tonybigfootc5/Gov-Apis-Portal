@@ -794,7 +794,7 @@ function getDayPlan(course: TrainingPreviewCourse) {
     ["Colony Management", "Hive inspection, feeding, and maintenance"],
     ["Honey Harvesting", "Extraction methods and storage"],
     ["Health & Safety", "Disease management and safe handling"],
-    ["Beekeeping as Business", "Marketing, record keeping and government support"],
+    ["Scientific Beekeeping as Business", "Marketing, record keeping and government support"],
   ];
 
   if (course.slug.includes("honey-processing")) {

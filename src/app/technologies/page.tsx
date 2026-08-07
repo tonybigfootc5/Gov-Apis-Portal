@@ -9,7 +9,7 @@ import { technologyItems } from "@/lib/technologies";
 
 export const metadata: Metadata = {
   title: "Technologies",
-  description: "Beekeeping and bee-product technologies followed and taught at API CULTURE.",
+  description: "Scientific beekeeping and bee-product technologies followed and taught at API CULTURE.",
 };
 
 const pillars = [
