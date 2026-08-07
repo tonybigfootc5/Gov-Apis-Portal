@@ -205,42 +205,52 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
       </div>
 
       <div className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {members.map((member, index) => (
+        {members.map((member, index) => {
+          const portrait = memberPortraits[member.name];
+
+          return (
           <article
             key={member.name}
-            className="group relative isolate min-h-[26rem] overflow-hidden rounded-[1.35rem] border border-[#e8dcc4] bg-[#f3f2ef] p-5 shadow-[0_20px_48px_rgba(31,54,44,0.10)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_rgba(31,54,44,0.16)]"
+            className={`group relative isolate min-h-[26rem] overflow-hidden rounded-[1.35rem] border border-[#e8dcc4] bg-[#f3f2ef] shadow-[0_20px_48px_rgba(31,54,44,0.10)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_rgba(31,54,44,0.16)] ${
+              portrait ? "p-0" : "p-5"
+            }`}
           >
+            {portrait ? (
+              <>
+                <Image
+                  src={portrait.src}
+                  alt={portrait.alt}
+                  fill
+                  sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1280px) 50vw, 24rem"
+                  className="object-cover"
+                  style={{ objectPosition: portrait.objectPosition }}
+                  priority={index < 2}
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,18,14,0.14)_0%,rgba(7,18,14,0.02)_34%,rgba(7,18,14,0.74)_100%)]" aria-hidden="true" />
+              </>
+            ) : null}
             <div
               aria-hidden="true"
               className={`absolute inset-x-0 bottom-0 h-[58%] ${
-                member.tone === "deep"
-                  ? "bg-[linear-gradient(180deg,rgba(18,63,49,0),rgba(18,63,49,0.18))]"
-                  : member.tone === "gold"
-                    ? "bg-[linear-gradient(180deg,rgba(242,181,68,0),rgba(242,181,68,0.28))]"
-                    : "bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(220,229,222,0.74))]"
+                portrait
+                  ? "bg-transparent"
+                  : member.tone === "deep"
+                    ? "bg-[linear-gradient(180deg,rgba(18,63,49,0),rgba(18,63,49,0.18))]"
+                    : member.tone === "gold"
+                      ? "bg-[linear-gradient(180deg,rgba(242,181,68,0),rgba(242,181,68,0.28))]"
+                      : "bg-[linear-gradient(180deg,rgba(255,255,255,0),rgba(220,229,222,0.74))]"
               }`}
             />
-            <div className="relative z-10">
-              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#b97816]">{profileLabel}</p>
-              <h4 className="mt-2 text-[clamp(1.65rem,2.2vw,2.15rem)] font-black leading-[0.96] text-[#111c18]">
+            <div className={`relative z-10 ${portrait ? "p-5 text-white" : ""}`}>
+              <p className={`text-[10px] font-black uppercase tracking-[0.18em] ${portrait ? "text-[#f6cf74]" : "text-[#b97816]"}`}>{profileLabel}</p>
+              <h4 className={`mt-2 text-[clamp(1.65rem,2.2vw,2.15rem)] font-black leading-[0.96] ${portrait ? "text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]" : "text-[#111c18]"}`}>
                 {member.name}
               </h4>
-              <p className="mt-3 max-w-[13rem] text-sm font-bold italic leading-5 text-[#7a827d]">{member.designation}</p>
+              <p className={`mt-3 max-w-[13rem] text-sm font-bold italic leading-5 ${portrait ? "text-white/86 drop-shadow-[0_2px_8px_rgba(0,0,0,0.35)]" : "text-[#7a827d]"}`}>{member.designation}</p>
             </div>
 
-            <div className="pointer-events-none absolute inset-x-4 bottom-12 flex justify-center">
-              {memberPortraits[member.name] ? (
-                <div className="relative h-48 w-40 overflow-hidden rounded-[1rem] border border-white/80 bg-white shadow-[0_24px_44px_rgba(23,63,51,0.16)]">
-                  <Image
-                    src={memberPortraits[member.name].src}
-                    alt={memberPortraits[member.name].alt}
-                    fill
-                    sizes="10rem"
-                    className="object-cover"
-                    style={{ objectPosition: memberPortraits[member.name].objectPosition }}
-                  />
-                </div>
-              ) : (
+            {!portrait ? (
+              <div className="pointer-events-none absolute inset-x-4 bottom-12 flex justify-center">
                 <div className="relative h-44 w-44 rounded-full bg-[linear-gradient(180deg,#ffffff,#e8ece8)] shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_24px_44px_rgba(23,63,51,0.12)]">
                   <div className="absolute left-1/2 top-7 h-20 w-20 -translate-x-1/2 rounded-full bg-[#d6ddd8]" />
                   <div className="absolute bottom-0 left-1/2 h-28 w-36 -translate-x-1/2 rounded-t-[4rem] bg-[#ffffff]" />
@@ -248,29 +258,34 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
                     {initials(member.name, index)}
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : null}
 
-            <div className="absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between gap-3">
+            <div className={`absolute bottom-4 left-4 right-4 z-10 flex items-end justify-between gap-3 ${
+              portrait ? "rounded-[0.9rem] border border-white/18 bg-[#081710]/72 p-3 shadow-[0_18px_34px_rgba(0,0,0,0.24)] backdrop-blur-md" : ""
+            }`}>
               <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#6c7b73]">{member.groupEyebrow}</p>
-                <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-[#43544c]">{member.role}</p>
+                <p className={`text-[10px] font-black uppercase tracking-[0.14em] ${portrait ? "text-[#f6cf74]" : "text-[#6c7b73]"}`}>{member.groupEyebrow}</p>
+                <p className={`mt-1 line-clamp-2 text-xs font-semibold leading-5 ${portrait ? "text-white/88" : "text-[#43544c]"}`}>{member.role}</p>
               </div>
               <div className="flex shrink-0 gap-1.5">
-                <span className="grid h-8 w-8 place-items-center rounded-[0.55rem] bg-[#123f31] text-[#fffdf8]" title={member.groupTitle}>
+                <span className={`grid h-8 w-8 place-items-center rounded-[0.55rem] text-[#fffdf8] ${portrait ? "bg-white/14 ring-1 ring-white/18" : "bg-[#123f31]"}`} title={member.groupTitle}>
                   <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
                 </span>
-                <span className="grid h-8 w-8 place-items-center rounded-[0.55rem] bg-[#111c18] text-[#fffdf8]" title={member.highlights[0]}>
+                <span className={`grid h-8 w-8 place-items-center rounded-[0.55rem] text-[#fffdf8] ${portrait ? "bg-white/14 ring-1 ring-white/18" : "bg-[#111c18]"}`} title={member.highlights[0]}>
                   <X className="h-3.5 w-3.5" aria-hidden="true" />
                 </span>
               </div>
             </div>
 
-            <div className="absolute right-4 top-4 z-10 rounded-full border border-[#e2d5b8] bg-white/76 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] text-[#123f31]">
+            <div className={`absolute right-4 top-4 z-10 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.12em] ${
+              portrait ? "border border-white/22 bg-black/28 text-white backdrop-blur-md" : "border border-[#e2d5b8] bg-white/76 text-[#123f31]"
+            }`}>
               {member.highlights[0]}
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
