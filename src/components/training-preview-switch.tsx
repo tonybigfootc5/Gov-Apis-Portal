@@ -111,7 +111,7 @@ const trainingCopy = {
     nextBatch: "Next batch",
     location: "Location",
     locationValue: "Rajendranagar, Hyd",
-    trainingBreakdown: "5 Day Training Breakdown",
+    trainingBreakdown: "Training Breakdown",
     programFee: "Program Fee",
     certificateShort: "Certificate on Completion",
     refreshments: "Refreshments Included",
@@ -165,7 +165,7 @@ const trainingCopy = {
     nextBatch: "Next batch",
     location: "Location",
     locationValue: "Rajendranagar, Hyd",
-    trainingBreakdown: "5 Day Training Breakdown",
+    trainingBreakdown: "Training Breakdown",
     programFee: "Program Fee",
     certificateShort: "Certificate on Completion",
     refreshments: "Refreshments Included",
@@ -219,7 +219,7 @@ const trainingCopy = {
     nextBatch: "Next batch",
     location: "Location",
     locationValue: "Rajendranagar, Hyd",
-    trainingBreakdown: "5 Day Training Breakdown",
+    trainingBreakdown: "Training Breakdown",
     programFee: "Program Fee",
     certificateShort: "Certificate on Completion",
     refreshments: "Refreshments Included",
@@ -564,7 +564,7 @@ function CourseOverview({
             </section>
 
             <section className="xl:border-r xl:border-[#ead7b0] xl:pr-7">
-              <SectionTitle title={getTrainingBreakdownTitle(course, copy.trainingBreakdown)} />
+              <SectionTitle title={copy.trainingBreakdown} />
               <div className="mt-5 grid gap-3">
                 {dayPlan.map((day, index) => (
                   <div key={day.title} className="grid grid-cols-[4.25rem_minmax(0,1fr)] gap-3">
@@ -800,7 +800,7 @@ function getDayPlan(course: TrainingPreviewCourse) {
 
   if (course.slug.includes("honey-processing")) {
     return [
-      ["Filtration & Quality Checks", "Filtering, settling, moisture awareness and quality checks"],
+      ["Filtration & Quality Standards", "Filtering, settling, moisture awareness, quality standards and quality checks"],
       ["Packing, Storage & Market Readiness", "Packing tools, labels, batch handling, food-safe storage, shelf readiness, pricing, presentation and buyer trust"],
     ].map(([title, body]) => ({ title, body }));
   }
@@ -826,10 +826,6 @@ function getDayPlan(course: TrainingPreviewCourse) {
   }
 
   return defaults.map(([title, body]) => ({ title, body }));
-}
-
-function getTrainingBreakdownTitle(course: TrainingPreviewCourse, fallbackTitle: string) {
-  return course.slug.includes("honey-processing") ? "2 days Training Breakdown" : fallbackTitle;
 }
 
 function getProgramGallery(course: TrainingPreviewCourse) {
