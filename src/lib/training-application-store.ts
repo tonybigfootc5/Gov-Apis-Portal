@@ -16,6 +16,8 @@ import { prisma } from "@/lib/prisma";
 import { buildPhonePeRedirectUrl, getCurrentPaymentEnvironment } from "@/lib/phonepe-config";
 import {
   buildLegacyMerchantOrderId,
+  formatApplicationCode,
+  formatStudentCode,
   mapLegacyPaymentStatus,
   mapTrainingApplicationEntity,
   parseTrainingApplicationMessage,
@@ -58,10 +60,40 @@ export type PaymentAdminRecord = {
   latestEventName: string | null;
   application: {
     id: string;
+    applicationNumber: number | null;
+    applicationCode: string | null;
+    batchCode: string | null;
+    batchSequenceNumber: number | null;
+    studentCode: string | null;
     candidateName: string;
+    guardianName: string;
     serviceName: string;
+    applicationDate: string;
+    gender: string;
+    dateOfBirth: string;
+    addressLine: string;
+    mandal: string;
+    district: string;
+    state: string;
+    pinCode: string;
     phone: string;
+    residencePhone: string;
     email: string;
+    educationQualification: string;
+    occupation: string;
+    sponsoringOrganization: string;
+    photoName: string;
+    photoType: string;
+    photoUrl: string | null;
+    photoObjectKey: string | null;
+    attemptStatus: string;
+    approvalStatus: string;
+    crossCheckStatus: string;
+    adminNotes: string;
+    approvedAt: string | null;
+    approvedBy: string | null;
+    createdAt: string;
+    updatedAt: string;
   };
   refunds: Array<{
     id: string;
@@ -82,6 +114,26 @@ export type PaymentAdminRecord = {
     source: string;
     state: string | null;
     receivedAt: string;
+    details: PaymentGatewayEventDetails;
+  }>;
+};
+
+export type PaymentGatewayEventDetails = {
+  merchantOrderId: string | null;
+  orderId: string | null;
+  state: string | null;
+  amount: number | null;
+  expireAt: number | null;
+  errorCode: string | null;
+  detailedErrorCode: string | null;
+  paymentDetails: Array<{
+    transactionId: string | null;
+    paymentMode: string | null;
+    timestamp: number | null;
+    amount: number | null;
+    state: string | null;
+    errorCode: string | null;
+    detailedErrorCode: string | null;
   }>;
 };
 
@@ -188,6 +240,54 @@ function buildPaymentUpdateFromCallback(callback: CallbackResponse) {
   } as const;
 }
 
+function asJsonRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function readString(record: Record<string, unknown> | null, key: string) {
+  const value = record?.[key];
+  return typeof value === "string" && value ? value : null;
+}
+
+function readNumber(record: Record<string, unknown> | null, key: string) {
+  const value = record?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function readPaymentEventDetails(payload: unknown): PaymentGatewayEventDetails {
+  const record = asJsonRecord(payload);
+  const rawPaymentDetails = record?.paymentDetails;
+  const paymentDetails = Array.isArray(rawPaymentDetails)
+    ? rawPaymentDetails
+        .map(asJsonRecord)
+        .filter((detail): detail is Record<string, unknown> => Boolean(detail))
+        .map((detail) => ({
+          transactionId: readString(detail, "transactionId"),
+          paymentMode: readString(detail, "paymentMode"),
+          timestamp: readNumber(detail, "timestamp"),
+          amount: readNumber(detail, "amount"),
+          state: readString(detail, "state"),
+          errorCode: readString(detail, "errorCode"),
+          detailedErrorCode: readString(detail, "detailedErrorCode"),
+        }))
+    : [];
+
+  const firstPayment = paymentDetails[0] ?? null;
+
+  return {
+    merchantOrderId: readString(record, "merchantOrderId"),
+    orderId: readString(record, "orderId"),
+    state: readString(record, "state"),
+    amount: readNumber(record, "amount"),
+    expireAt: readNumber(record, "expireAt"),
+    errorCode: firstPayment?.errorCode ?? readString(record, "errorCode"),
+    detailedErrorCode: firstPayment?.detailedErrorCode ?? readString(record, "detailedErrorCode"),
+    paymentDetails,
+  };
+}
+
 export function mapPaymentOrderAdminRecord(order: PaymentOrderAdminEntity): PaymentAdminRecord {
   return {
     id: order.id,
@@ -207,10 +307,44 @@ export function mapPaymentOrderAdminRecord(order: PaymentOrderAdminEntity): Paym
     latestEventName: order.latestEventName ?? null,
     application: {
       id: order.trainingApplication.id,
+      applicationNumber: order.trainingApplication.applicationNumber,
+      applicationCode: formatApplicationCode(order.trainingApplication.applicationNumber),
+      batchCode: order.trainingApplication.batchCode,
+      batchSequenceNumber: order.trainingApplication.batchSequenceNumber,
+      studentCode: formatStudentCode(
+        order.trainingApplication.batchCode,
+        order.trainingApplication.batchSequenceNumber,
+        order.trainingApplication.candidateName,
+      ),
       candidateName: order.trainingApplication.candidateName,
+      guardianName: order.trainingApplication.guardianName,
       serviceName: order.trainingApplication.serviceName,
+      applicationDate: order.trainingApplication.applicationDate,
+      gender: order.trainingApplication.gender,
+      dateOfBirth: order.trainingApplication.dateOfBirth,
+      addressLine: order.trainingApplication.addressLine,
+      mandal: order.trainingApplication.mandal,
+      district: order.trainingApplication.district,
+      state: order.trainingApplication.state,
+      pinCode: order.trainingApplication.pinCode,
       phone: order.trainingApplication.phone,
+      residencePhone: order.trainingApplication.residencePhone,
       email: order.trainingApplication.email,
+      educationQualification: order.trainingApplication.educationQualification,
+      occupation: order.trainingApplication.occupation,
+      sponsoringOrganization: order.trainingApplication.sponsoringOrganization,
+      photoName: order.trainingApplication.photoName,
+      photoType: order.trainingApplication.photoType,
+      photoUrl: order.trainingApplication.photoUrl ?? order.trainingApplication.photoDataUrl ?? null,
+      photoObjectKey: order.trainingApplication.photoObjectKey ?? null,
+      attemptStatus: order.trainingApplication.attemptStatus,
+      approvalStatus: order.trainingApplication.approvalStatus,
+      crossCheckStatus: order.trainingApplication.crossCheckStatus,
+      adminNotes: order.trainingApplication.adminNotes,
+      approvedAt: order.trainingApplication.approvedAt?.toISOString() ?? null,
+      approvedBy: order.trainingApplication.approvedBy,
+      createdAt: order.trainingApplication.createdAt.toISOString(),
+      updatedAt: order.trainingApplication.updatedAt.toISOString(),
     },
     refunds: order.refundRequests.map((refund) => ({
       id: refund.id,
@@ -231,6 +365,7 @@ export function mapPaymentOrderAdminRecord(order: PaymentOrderAdminEntity): Paym
       source: event.source,
       state: event.state ?? null,
       receivedAt: event.receivedAt.toISOString(),
+      details: readPaymentEventDetails(event.payload),
     })),
   };
 }

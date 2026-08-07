@@ -5,12 +5,16 @@ import {
   AlertTriangle,
   BarChart3,
   CheckCircle2,
+  Eye,
   IndianRupee,
   RefreshCw,
+  ReceiptText,
   RotateCcw,
   Search,
   ShieldCheck,
+  UserRound,
   WalletCards,
+  X,
 } from "lucide-react";
 import type { PaymentAdminRecord } from "@/lib/training-application-store";
 
@@ -21,6 +25,7 @@ type Props = {
 };
 
 type PaymentTab = "confirmations" | "refunds" | "history";
+type DetailTab = "transaction" | "applicant";
 
 export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPaymentsChange }: Props) {
   const [payments, setPayments] = useState(initialPayments);
@@ -28,6 +33,8 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   const [notice, setNotice] = useState("");
   const [query, setQuery] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentAdminRecord | null>(null);
+  const [detailTab, setDetailTab] = useState<DetailTab>("transaction");
 
   function setPaymentRecords(nextPayments: PaymentAdminRecord[]) {
     setPayments(nextPayments);
@@ -75,23 +82,28 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   async function reload() {
     if (!databaseConfigured) {
       setNotice("Payments stay read-only locally until DATABASE_URL is configured.");
-      return;
+      return null;
     }
 
     const response = await fetch("/api/admin/payments");
     if (!response.ok) {
       setNotice("Unable to refresh payments right now.");
-      return;
+      return null;
     }
 
     const nextPayments = (await response.json()) as PaymentAdminRecord[];
     setPaymentRecords(nextPayments);
+    setSelectedPayment((current) => {
+      if (!current) return current;
+      return nextPayments.find((payment) => payment.id === current.id) ?? current;
+    });
+    return nextPayments;
   }
 
   async function refreshPayment(orderId: string) {
     if (!databaseConfigured) {
       setNotice("Payments stay read-only locally until DATABASE_URL is configured.");
-      return;
+      return null;
     }
 
     setLoadingId(orderId);
@@ -103,10 +115,26 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
       const body = await response.json().catch(() => null);
       if (!response.ok) {
         setNotice(body?.error ?? "Unable to refresh payment status.");
-        return;
+        return null;
       }
 
-      await reload();
+      return await reload();
+    } finally {
+      setLoadingId(null);
+    }
+  }
+
+  async function openPaymentDetails(payment: PaymentAdminRecord) {
+    setSelectedPayment(payment);
+    setDetailTab("transaction");
+
+    if (!databaseConfigured) return;
+
+    setLoadingId(`view:${payment.id}`);
+    try {
+      const refreshedPayments = await refreshPayment(payment.id);
+      const refreshedPayment = refreshedPayments?.find((item) => item.id === payment.id);
+      if (refreshedPayment) setSelectedPayment(refreshedPayment);
     } finally {
       setLoadingId(null);
     }
@@ -239,7 +267,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
             {activePayments.length ? (
               <div className="overflow-x-auto">
                 <div className="min-w-[66rem]">
-                  <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_0.75fr] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
+                  <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_1fr] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
                     <span>Student</span>
                     <span>Order</span>
                     <span>Amount</span>
@@ -256,6 +284,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
                       tab={tab}
                       onRefresh={() => void refreshPayment(payment.id)}
                       onRefund={() => void initiateRefund(payment.id)}
+                      onView={() => void openPaymentDetails(payment)}
                     />
                   ))}
                 </div>
@@ -298,6 +327,16 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
           </section>
         </aside>
       </div>
+
+      {selectedPayment ? (
+        <PaymentDetailModal
+          payment={selectedPayment}
+          detailTab={detailTab}
+          loading={loadingId === `view:${selectedPayment.id}` || loadingId === selectedPayment.id}
+          onTabChange={setDetailTab}
+          onClose={() => setSelectedPayment(null)}
+        />
+      ) : null}
     </section>
   );
 }
@@ -321,18 +360,20 @@ function PaymentRow({
   tab,
   onRefresh,
   onRefund,
+  onView,
 }: {
   payment: PaymentAdminRecord;
   loading: boolean;
   tab: PaymentTab;
   onRefresh: () => void;
   onRefund: () => void;
+  onView: () => void;
 }) {
   const latestRefund = payment.refunds[0];
   const canRefund = tab === "refunds" && payment.refundEligible;
 
   return (
-    <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_0.75fr] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-sm last:border-b-0 hover:bg-[#fbf7ee]">
+    <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_1fr] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-sm last:border-b-0 hover:bg-[#fbf7ee]">
       <div className="min-w-0">
         <p className="truncate font-black text-[#173f33]">{payment.application.candidateName}</p>
         <p className="mt-1 truncate text-xs font-semibold text-[#718477]">{payment.application.serviceName}</p>
@@ -345,14 +386,214 @@ function PaymentRow({
       <StatusBadge label={payment.status} tone={payment.status === "PAID" ? "good" : payment.status === "FAILED" || payment.status === "EXPIRED" ? "bad" : "warn"} />
       <span className="text-xs font-semibold text-[#607366]">{payment.latestEventName || payment.environment}</span>
       <span className="text-xs font-semibold text-[#607366]">{formatDate(payment.updatedAt)}{latestRefund ? ` / refund ${latestRefund.status}` : ""}</span>
-      <button
-        type="button"
-        disabled={loading}
-        onClick={canRefund ? onRefund : onRefresh}
-        className="justify-self-end rounded-full bg-[#173f33] px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {loading ? "Working" : canRefund ? "Refund" : "Sync"}
-      </button>
+      <div className="flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={onView}
+          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#173f33]/12 bg-white px-3 text-[11px] font-black uppercase tracking-[0.08em] text-[#173f33] hover:bg-[#eef8f1]"
+        >
+          <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+          View
+        </button>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={canRefund ? onRefund : onRefresh}
+          className="h-9 rounded-full bg-[#173f33] px-3 text-[11px] font-black uppercase tracking-[0.08em] text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {loading ? "Working" : canRefund ? "Refund" : "Sync"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PaymentDetailModal({
+  payment,
+  detailTab,
+  loading,
+  onTabChange,
+  onClose,
+}: {
+  payment: PaymentAdminRecord;
+  detailTab: DetailTab;
+  loading: boolean;
+  onTabChange: (tab: DetailTab) => void;
+  onClose: () => void;
+}) {
+  const latestEvent = payment.events[0] ?? null;
+  const latestDetails = latestEvent?.details ?? null;
+  const latestAttempt = latestDetails?.paymentDetails[0] ?? null;
+  const transactionRows: Array<[string, string]> = [
+    ["Merchant order", payment.merchantOrderId],
+    ["PhonePe order", latestDetails?.orderId ?? "Not received"],
+    ["Payment reference", payment.paymentReference ?? latestAttempt?.transactionId ?? "Reference pending"],
+    ["Environment", payment.environment],
+    ["Amount", formatMoney(payment.amountPaise)],
+    ["Status", payment.status.replaceAll("_", " ")],
+    ["Payment mode", latestAttempt?.paymentMode ?? "Not available"],
+    ["Gateway state", latestDetails?.state ?? latestEvent?.state ?? "Not synced"],
+    ["Error code", payment.latestErrorCode ?? latestDetails?.errorCode ?? "None"],
+    ["Gateway detail", payment.latestErrorMessage ?? latestDetails?.detailedErrorCode ?? "None"],
+    ["Paid at", formatDate(payment.paidAt)],
+    ["Expires at", formatGatewayTime(latestDetails?.expireAt) ?? formatDate(payment.expiresAt)],
+    ["Checkout link", payment.checkoutUrl ? "Available" : "Not stored"],
+    ["Latest event", payment.latestEventName ?? "None"],
+  ];
+  const applicantRows: Array<[string, string]> = [
+    ["Application code", payment.application.applicationCode ?? "Not assigned"],
+    ["Student code", payment.application.studentCode ?? "Not assigned"],
+    ["Batch", payment.application.batchCode ?? "Not assigned"],
+    ["Batch sequence", payment.application.batchSequenceNumber ? String(payment.application.batchSequenceNumber) : "Not assigned"],
+    ["Training", payment.application.serviceName],
+    ["Application date", payment.application.applicationDate],
+    ["Applicant name", payment.application.candidateName],
+    ["Guardian name", payment.application.guardianName],
+    ["Gender", payment.application.gender],
+    ["Date of birth", payment.application.dateOfBirth],
+    ["Mobile", payment.application.phone],
+    ["Residence phone", payment.application.residencePhone || "Not provided"],
+    ["Email", payment.application.email],
+    ["Address", payment.application.addressLine],
+    ["Mandal", payment.application.mandal],
+    ["District", payment.application.district],
+    ["State", payment.application.state],
+    ["Pin code", payment.application.pinCode],
+    ["Education", payment.application.educationQualification || "Not provided"],
+    ["Occupation", payment.application.occupation || "Not provided"],
+    ["Sponsoring organization", payment.application.sponsoringOrganization || "Not provided"],
+    ["Photo file", payment.application.photoName || "Not provided"],
+    ["Photo type", payment.application.photoType || "Not provided"],
+    ["Attempt status", payment.application.attemptStatus.replaceAll("_", " ")],
+    ["Approval status", payment.application.approvalStatus],
+    ["Cross-check status", payment.application.crossCheckStatus],
+    ["Approved at", formatDate(payment.application.approvedAt)],
+    ["Approved by", payment.application.approvedBy ?? "Not approved"],
+    ["Submitted at", formatDate(payment.application.createdAt)],
+    ["Admin notes", payment.application.adminNotes || "No notes"],
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[#102119]/55 px-3 py-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Payment transaction details">
+      <section className="max-h-[92vh] w-full max-w-6xl overflow-hidden rounded-[1.4rem] bg-[#fffdf8] shadow-[0_30px_90px_rgba(4,18,13,0.35)]">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#e7eee8] bg-[#173f33] px-5 py-5 text-[#fff9ec]">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-[0.75rem] bg-[#f5c65e] text-[#173f33]">
+                <ReceiptText className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <StatusBadge label={payment.status} tone={payment.status === "PAID" ? "good" : payment.status === "FAILED" || payment.status === "EXPIRED" ? "bad" : "warn"} />
+              {loading ? <span className="text-xs font-black uppercase tracking-[0.12em] text-[#f5c65e]">Refreshing gateway</span> : null}
+            </div>
+            <h3 className="mt-4 truncate text-2xl font-black">{payment.application.candidateName}</h3>
+            <p className="mt-1 break-all text-xs font-semibold text-[#cbd8ce]">{payment.merchantOrderId}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/18"
+            aria-label="Close transaction details"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="max-h-[calc(92vh-7rem)] overflow-y-auto px-5 py-5">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => onTabChange("transaction")}
+              className={`inline-flex h-10 items-center gap-2 rounded-full px-4 text-xs font-black uppercase tracking-[0.1em] ${
+                detailTab === "transaction" ? "bg-[#173f33] text-[#fff9ec]" : "bg-[#eef3ef] text-[#607366]"
+              }`}
+            >
+              <ReceiptText className="h-4 w-4" aria-hidden="true" />
+              Transaction
+            </button>
+            <button
+              type="button"
+              onClick={() => onTabChange("applicant")}
+              className={`inline-flex h-10 items-center gap-2 rounded-full px-4 text-xs font-black uppercase tracking-[0.1em] ${
+                detailTab === "applicant" ? "bg-[#173f33] text-[#fff9ec]" : "bg-[#eef3ef] text-[#607366]"
+              }`}
+            >
+              <UserRound className="h-4 w-4" aria-hidden="true" />
+              Applicant details
+            </button>
+          </div>
+
+          {detailTab === "transaction" ? (
+            <div className="mt-5 grid gap-5">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <ReadOnlyStat label="Amount" value={formatMoney(payment.amountPaise)} />
+                <ReadOnlyStat label="Reference" value={payment.paymentReference ?? "Pending"} />
+                <ReadOnlyStat label="Gateway event" value={payment.latestEventName ?? payment.environment} />
+              </div>
+              <DetailGrid rows={transactionRows} />
+              <section className="rounded-[1.1rem] border border-[#e7eee8] bg-white">
+                <div className="border-b border-[#e7eee8] px-4 py-3">
+                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Gateway event timeline</p>
+                </div>
+                {payment.events.length ? (
+                  <div className="divide-y divide-[#eef3ef]">
+                    {payment.events.map((event) => (
+                      <div key={event.id} className="grid gap-3 px-4 py-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
+                        <div>
+                          <p className="text-xs font-black text-[#173f33]">{event.eventName}</p>
+                          <p className="mt-1 text-xs font-semibold text-[#607366]">{event.source} / {formatDate(event.receivedAt)}</p>
+                        </div>
+                        <div className="grid gap-2 text-xs font-semibold text-[#607366] sm:grid-cols-3">
+                          <span>State: <strong className="text-[#173f33]">{event.details.state ?? event.state ?? "Unknown"}</strong></span>
+                          <span>Mode: <strong className="text-[#173f33]">{event.details.paymentDetails[0]?.paymentMode ?? "None"}</strong></span>
+                          <span>Error: <strong className="text-[#173f33]">{event.details.errorCode ?? "None"}</strong></span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="px-4 py-8 text-center text-sm font-semibold text-[#607366]">No PhonePe status events have been stored for this order yet.</p>
+                )}
+              </section>
+            </div>
+          ) : (
+            <div className="mt-5 grid gap-5">
+              {payment.application.photoUrl ? (
+                <a
+                  href={payment.application.photoUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-fit rounded-full border border-[#173f33]/12 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.1em] text-[#173f33]"
+                >
+                  Open applicant photo
+                </a>
+              ) : null}
+              <DetailGrid rows={applicantRows} />
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ReadOnlyStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-[1rem] bg-white px-4 py-3 shadow-[0_10px_24px_rgba(23,63,51,0.06)]">
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8b7d6b]">{label}</p>
+      <p className="mt-2 break-words text-base font-black text-[#173f33]">{value}</p>
+    </div>
+  );
+}
+
+function DetailGrid({ rows }: { rows: Array<[string, string]> }) {
+  return (
+    <div className="grid overflow-hidden rounded-[1.1rem] border border-[#e7eee8] bg-white sm:grid-cols-2">
+      {rows.map(([label, value]) => (
+        <div key={label} className="min-w-0 border-b border-[#eef3ef] px-4 py-3 odd:sm:border-r">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#8b7d6b]">{label}</p>
+          <p className="mt-1 break-words text-sm font-semibold leading-6 text-[#173f33]">{value}</p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -419,6 +660,18 @@ function formatMoney(amountPaise: number) {
 function formatDate(value?: string | null) {
   if (!value) return "Pending";
   return new Date(value).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function formatGatewayTime(value?: number | null) {
+  if (!value) return null;
+  const milliseconds = value > 10_000_000_000 ? value : value * 1000;
+  return new Date(milliseconds).toLocaleString("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
