@@ -92,7 +92,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "Participants learn how harvested honey moves through filtering, settling, hygienic handling, moisture awareness, quality checks, and packaging readiness. The emphasis is on practical post-harvest discipline and market-facing processing standards.",
     duration: "2 days",
     level: "PROFESSIONAL",
-    fee: "INR 2,000",
+    fee: "INR 2,600",
     capacity: 15,
     batchStartsAt: "2026-07-29T09:00:00.000Z",
     enrollmentClosed: false,
