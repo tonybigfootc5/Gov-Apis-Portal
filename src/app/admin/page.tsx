@@ -6,7 +6,7 @@ import { getLocalTrainingApplications } from "@/lib/local-training-applications"
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { getAdminPaymentOrders, getAdminTrainingApplications, type PaymentAdminRecord } from "@/lib/training-application-store";
 import { TRAINING_APPLICATION_SUBJECT_PREFIX, type TrainingApplicationRecord } from "@/lib/training-application";
-import { deprecatedTrainingProgramSlugs } from "@/lib/training-programs";
+import { deprecatedTrainingProgramSlugs, trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
 export const dynamic = "force-dynamic";
 
@@ -129,8 +129,13 @@ export default async function AdminPage() {
         .filter((program) => !deprecatedTrainingProgramSlugs.has(program.slug))
         .map((program) => ({
           ...program,
+          title: trainingProgramCatalogBySlug[program.slug]?.title ?? program.title,
+          summary: trainingProgramCatalogBySlug[program.slug]?.summary ?? program.summary,
+          description: trainingProgramCatalogBySlug[program.slug]?.description ?? program.description,
+          duration: trainingProgramCatalogBySlug[program.slug]?.duration ?? program.duration,
           level: program.level,
-          fee: program.fee ?? null,
+          fee: trainingProgramCatalogBySlug[program.slug]?.fee ?? program.fee ?? null,
+          capacity: trainingProgramCatalogBySlug[program.slug]?.capacity ?? program.capacity,
         }));
       events = dbEvents.map((event) => ({
         ...event,

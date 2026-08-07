@@ -811,12 +811,12 @@ function getDayPlan(course: TrainingPreviewCourse) {
       ["Queen Cell Work", "Cell handling and grafting basics"],
       ["Queen Cell Work Practice", "Repeat grafting practice with careful tool handling"],
       ["Queen Cell Work Practice", "Cell bar setup, handling discipline and guided correction"],
-      ["Queen Cell Work Practice", "Starter colony preparation and feed support"],
-      ["Queen Cell Work Practice", "Finisher colony care and healthy cell observation"],
-      ["Queen Cell Work Practice", "Acceptance checks and selection of strong queen cells"],
-      ["Royal Jelly Collection", "Collection window, hygienic transfer and clean containers"],
-      ["Cold Handling & Records", "Temperature control, storage notes and batch documentation"],
-      ["Apiary Scale-Up", "Nucleus preparation, mating-yard placement, productivity and enterprise planning"],
+      ["Royal Jelly Collection Practice", "Repeat royal jelly collection practice with clean tools and prepared queen cells"],
+      ["Royal Jelly Collection Practice", "Repeat collection workflow, hygienic transfer and clean containers"],
+      ["Royal Jelly Collection Practice", "Repeat harvesting practice with cold handling and quality protection"],
+      ["Royal Jelly Collection Practice", "Repeat batch collection, storage notes and handling records"],
+      ["Royal Jelly Processing & Packing", "Repeat collection practice, royal jelly processing, pre- and post-harvesting packing"],
+      ["Business Management", "Costing, batch records, market planning, productivity and enterprise management"],
     ].map(([title, body]) => ({ title, body }));
   }
 
