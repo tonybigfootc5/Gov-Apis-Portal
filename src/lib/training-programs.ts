@@ -134,7 +134,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     duration: "10 days",
     level: "ADVANCED",
     fee: "INR 10,000",
-    capacity: 20,
+    capacity: 10,
     batchStartsAt: "2026-08-05T09:00:00.000Z",
     enrollmentClosed: false,
     popupEnabled: true,

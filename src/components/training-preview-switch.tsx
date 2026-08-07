@@ -566,17 +566,34 @@ function CourseOverview({
             <section className="xl:border-r xl:border-[#ead7b0] xl:pr-7">
               <SectionTitle title={copy.trainingBreakdown} />
               <div className="mt-5 grid max-h-[22rem] gap-3 overflow-y-auto pr-2">
-                {dayPlan.map((day, index) => (
-                  <div key={`${day.title}-${index}`} className="grid grid-cols-[4.25rem_minmax(0,1fr)] gap-3">
-                    <span className="relative flex h-8 items-center justify-center bg-[#f8d98d] text-[11px] font-black text-[#102119] [clip-path:polygon(12%_0,88%_0,100%_50%,88%_100%,12%_100%,0_50%)]">
-                      DAY {index + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-black leading-5 text-[#14241f]">{day.title}</p>
-                      <p className="text-xs font-semibold leading-5 text-[#293530]">{day.body}</p>
+                {dayPlan.map((day, index) => {
+                  const tone = getDayPlanTone(day.track);
+
+                  return (
+                    <div key={`${day.title}-${index}`} className="grid grid-cols-[4.25rem_minmax(0,1fr)] gap-3">
+                      <span className={`relative flex h-8 items-center justify-center text-[11px] font-black ${tone.dayBadge} [clip-path:polygon(12%_0,88%_0,100%_50%,88%_100%,12%_100%,0_50%)]`}>
+                        DAY {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-black leading-5 ${tone.title}`}>{day.title}</p>
+                        <p className="text-xs font-semibold leading-5 text-[#293530]">{day.body}</p>
+                        {day.segments?.length ? (
+                          <div className="mt-1.5 flex flex-wrap gap-1.5">
+                            {day.segments.map((segment) => {
+                              const segmentTone = getDaySegmentTone(segment.kind);
+
+                              return (
+                                <span key={segment.label} className={`rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] ${segmentTone}`}>
+                                  {segment.label}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
 
@@ -789,7 +806,52 @@ function formatFeeForDisplay(fee: string) {
   return fee.replace(/^INR\s*/i, "₹");
 }
 
-function getDayPlan(course: TrainingPreviewCourse) {
+type DayPlanTrack = "plain" | "shared" | "split" | "business";
+type DaySegmentKind = "queen" | "royal";
+
+type DayPlanItem = {
+  title: string;
+  body: string;
+  track?: DayPlanTrack;
+  segments?: Array<{ label: string; kind: DaySegmentKind }>;
+};
+
+function makeDayPlanItem(
+  [title, body]: [string, string],
+  track: DayPlanTrack = "plain",
+  segments?: DayPlanItem["segments"],
+): DayPlanItem {
+  return { title, body, track, segments };
+}
+
+function getDayPlanTone(track: DayPlanTrack = "plain") {
+  if (track === "shared" || track === "split") {
+    return {
+      dayBadge: "bg-[linear-gradient(90deg,#0f6b4a_0%,#0f6b4a_50%,#d98b17_50%,#d98b17_100%)] text-white",
+      title: "text-[#173f33]",
+    };
+  }
+
+  if (track === "business") {
+    return {
+      dayBadge: "bg-[linear-gradient(90deg,#0f6b4a_0%,#0f6b4a_48%,#f6c75a_48%,#f6c75a_52%,#d98b17_52%,#d98b17_100%)] text-white",
+      title: "text-[#173f33]",
+    };
+  }
+
+  return {
+    dayBadge: "bg-[#f8d98d] text-[#102119]",
+    title: "text-[#14241f]",
+  };
+}
+
+function getDaySegmentTone(kind: DaySegmentKind) {
+  return kind === "queen"
+    ? "bg-[#e7f4ec] text-[#0f6b4a] ring-1 ring-[#0f6b4a]/18"
+    : "bg-[#fff3d9] text-[#a26000] ring-1 ring-[#d98b17]/22";
+}
+
+function getDayPlan(course: TrainingPreviewCourse): DayPlanItem[] {
   const defaults = [
     ["Bee Hive Production", "Hive production basics, species, tools and equipment"],
     ["Colony Management", "Hive inspection, feeding, and maintenance"],
@@ -802,22 +864,30 @@ function getDayPlan(course: TrainingPreviewCourse) {
     return [
       ["Filtration & Quality Standards", "Filtering, settling, moisture awareness, quality standards and quality checks"],
       ["Packing, Storage & Market Readiness", "Packing tools, labels, batch handling, food-safe storage, shelf readiness, pricing, presentation and buyer trust"],
-    ].map(([title, body]) => ({ title, body }));
+    ].map((item) => makeDayPlanItem(item as [string, string]));
   }
 
   if (course.slug.includes("queen-rearing")) {
+    const splitSegments = [
+      { label: "First half: Queen Bee Breeding", kind: "queen" as const },
+      { label: "Second half: Royal Jelly Harvesting", kind: "royal" as const },
+    ];
+
     return [
-      ["Colony Selection", "Breeder traits, colony strength and records"],
-      ["Queen Cell Work", "Cell handling and grafting basics"],
-      ["Queen Cell Work Practice", "Repeat grafting practice with careful tool handling"],
-      ["Queen Cell Work Practice", "Cell bar setup, handling discipline and guided correction"],
-      ["Royal Jelly Collection Practice", "Repeat royal jelly collection practice with clean tools and prepared queen cells"],
-      ["Royal Jelly Collection Practice", "Repeat collection workflow, hygienic transfer and clean containers"],
-      ["Royal Jelly Collection Practice", "Repeat harvesting practice with cold handling and quality protection"],
-      ["Royal Jelly Collection Practice", "Repeat batch collection, storage notes and handling records"],
-      ["Royal Jelly Processing & Packing", "Repeat collection practice, royal jelly processing, pre- and post-harvesting packing"],
-      ["Business Management", "Costing, batch records, market planning, productivity and enterprise management"],
-    ].map(([title, body]) => ({ title, body }));
+      makeDayPlanItem(["Shared Foundation", "Queen cell biology, colony readiness, hygiene discipline and program orientation"], "shared"),
+      makeDayPlanItem(["Shared Grafting Basics", "Cell handling, grafting basics, breeder traits and safe tool workflow"], "shared"),
+      makeDayPlanItem(["Shared Practice", "Repeat grafting practice, cell bar setup and careful correction"], "shared"),
+      makeDayPlanItem(["Shared Colony Preparation", "Starter/finisher colony preparation, feed support and acceptance checks"], "shared"),
+      makeDayPlanItem(["Split Practice", "Queen Bee Breeding in the first half; Royal Jelly Harvesting in the second half"], "split", splitSegments),
+      makeDayPlanItem(["Mating Yard Prep & Royal Jelly Collection", "Baby queen finding, mating yard prep, royal jelly collection"], "split", splitSegments),
+      makeDayPlanItem(["Queen Intro", "Queen acceptance observation first; hygienic royal jelly transfer second"], "split", splitSegments),
+      makeDayPlanItem(["Colony Multiplication", "Mating-yard and field records first; colony multiplication and royal jelly collection second"], "split", splitSegments),
+      makeDayPlanItem(["Processing & Packing", "Queen breeding review first; royal jelly processing, pre-harvesting packing and post-harvesting packing second"], "split", splitSegments),
+      makeDayPlanItem(["Business Management", "Costing, batch records, market planning, productivity and enterprise management"], "business", [
+        { label: "Queen Bee Breeding", kind: "queen" },
+        { label: "Royal Jelly Harvesting", kind: "royal" },
+      ]),
+    ];
   }
 
   if (course.slug.includes("royal-jelly")) {
@@ -832,10 +902,10 @@ function getDayPlan(course: TrainingPreviewCourse) {
       ["Quality Protection", "Temperature control, containers and contamination prevention"],
       ["Packing Records", "Lot details, storage notes and handling documentation"],
       ["Commercial Planning", "Niche product positioning and records"],
-    ].map(([title, body]) => ({ title, body }));
+    ].map((item) => makeDayPlanItem(item as [string, string]));
   }
 
-  return defaults.map(([title, body]) => ({ title, body }));
+  return defaults.map((item) => makeDayPlanItem(item as [string, string]));
 }
 
 function getProgramGallery(course: TrainingPreviewCourse) {
