@@ -248,7 +248,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
             },
             {
               name: "Sree Subba Rao",
-              designation: "Senior Scientist and Technical Adviser | Faculty Member",
+              designation: "Senior Scientist and Technical Adviser",
               role: "Contributes long-standing scientific and R&D knowledge across beekeeping subjects with senior technical credibility.",
               highlights: ["50 years experience", "Retd. scientist", "Technical adviser"],
             },
@@ -457,7 +457,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
             },
             {
               name: "Sree Subba Rao",
-              designation: "Senior Scientist and Technical Adviser | Faculty Member",
+              designation: "Senior Scientist and Technical Adviser",
               role: "తేనెటీగల శిక్షణలో దీర్ఘకాలిక శాస్త్రీయ మరియు R&D పరిజ్ఞానంతో సీనియర్ సాంకేతిక మార్గనిర్దేశం అందిస్తున్నారు.",
               highlights: ["50 ఏళ్ల అనుభవం", "విరమణ పొందిన శాస్త్రవేత్త", "సాంకేతిక సలహాదారు"],
             },
@@ -665,7 +665,7 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
             },
             {
               name: "Sree Subba Rao",
-              designation: "Senior Scientist and Technical Adviser | Faculty Member",
+              designation: "Senior Scientist and Technical Adviser",
               role: "मधुमक्खी पालन विषयों में दीर्घकालिक वैज्ञानिक और R&D अनुभव के साथ वरिष्ठ तकनीकी मार्गदर्शन देते हैं।",
               highlights: ["50 वर्ष अनुभव", "सेवानिवृत्त वैज्ञानिक", "तकनीकी सलाहकार"],
             },
