@@ -124,6 +124,7 @@ function mergeProgramWithCatalog(program: ProgramItem): ProgramItem {
     level: catalog.level,
     fee: catalog.fee || program.fee,
     capacity: catalog.capacity,
+    batchStartsAt: new Date(catalog.batchStartsAt),
     slug: catalog.slug,
   };
 }
