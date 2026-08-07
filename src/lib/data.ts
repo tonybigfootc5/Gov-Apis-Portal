@@ -99,7 +99,7 @@ function buildCatalogProgram(program: (typeof trainingProgramCatalog)[number]): 
     level: program.level,
     fee: program.fee,
     capacity: program.capacity,
-    batchStartsAt: new Date(program.batchStartsAt),
+    batchStartsAt: program.batchStartsAt ? new Date(program.batchStartsAt) : null,
     enrollmentClosed: program.enrollmentClosed,
     popupEnabled: program.popupEnabled,
     published: program.published,
@@ -124,7 +124,7 @@ function mergeProgramWithCatalog(program: ProgramItem): ProgramItem {
     level: catalog.level,
     fee: catalog.fee || program.fee,
     capacity: catalog.capacity,
-    batchStartsAt: new Date(catalog.batchStartsAt),
+    batchStartsAt: catalog.batchStartsAt ? new Date(catalog.batchStartsAt) : null,
     slug: catalog.slug,
   };
 }

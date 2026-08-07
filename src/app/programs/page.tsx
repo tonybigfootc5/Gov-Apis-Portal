@@ -116,7 +116,7 @@ export default async function ProgramsPage() {
       level: override?.level ?? translatedProgram.level,
       fee: translatedProgram.fee ?? t(language, "programs.detail.fallbackFee"),
       capacity: `${translatedProgram.capacity} ${t(language, "programs.seats")}`,
-      batchDate: translatedProgram.batchStartsAt ? formatDate(translatedProgram.batchStartsAt) : "Contact the center for start date",
+      batchDate: translatedProgram.batchStartsAt ? formatDate(translatedProgram.batchStartsAt) : "Coming soon",
       focusLabel: override?.focusLabel ?? presentation?.focusLabel ?? translatedProgram.level,
       focusText: override?.focusText ?? presentation?.focusText ?? translatedProgram.summary,
       targetAudience: override?.targetAudience ?? presentation?.targetAudience ?? "Eligible applicants interested in beekeeping training.",

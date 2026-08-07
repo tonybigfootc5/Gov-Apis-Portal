@@ -39,7 +39,7 @@ export const fallbackPrograms = trainingProgramCatalog.map((program) => ({
   level: program.level,
   fee: program.fee,
   capacity: program.capacity,
-  batchStartsAt: new Date(program.batchStartsAt),
+  batchStartsAt: program.batchStartsAt ? new Date(program.batchStartsAt) : null,
   enrollmentClosed: program.enrollmentClosed,
   popupEnabled: program.popupEnabled,
   published: program.published,

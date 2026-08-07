@@ -10,7 +10,7 @@ export type TrainingProgramCatalogItem = {
   level: ProgramLevelValue;
   fee: string;
   capacity: number;
-  batchStartsAt: string;
+  batchStartsAt: string | null;
   enrollmentClosed: boolean;
   popupEnabled: boolean;
   published: boolean;
@@ -94,7 +94,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     level: "PROFESSIONAL",
     fee: "INR 2,600",
     capacity: 15,
-    batchStartsAt: "2026-07-29T09:00:00.000Z",
+    batchStartsAt: null,
     enrollmentClosed: false,
     popupEnabled: true,
     published: true,
@@ -135,7 +135,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     level: "ADVANCED",
     fee: "INR 10,000",
     capacity: 10,
-    batchStartsAt: "2026-08-05T09:00:00.000Z",
+    batchStartsAt: null,
     enrollmentClosed: false,
     popupEnabled: true,
     published: true,
