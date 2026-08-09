@@ -69,6 +69,7 @@ export type TrainingApplicationRecord = {
 
 export type PaymentOrderSummary = {
   id: string;
+  invoiceNumber: string;
   merchantOrderId: string;
   status: PaymentOrderState;
   amountPaise: number;
@@ -131,6 +132,22 @@ export function buildTrainingBatchCode(serviceName: string, batchNumber: number,
 
 export function formatApplicationCode(applicationNumber?: number | null) {
   return applicationNumber ? `API-${String(applicationNumber).padStart(4, "0")}` : null;
+}
+
+export function formatPaymentInvoiceNumber(input: {
+  createdAt: Date | string;
+  merchantOrderId: string;
+  applicationNumber?: number | null;
+}) {
+  const createdAt = input.createdAt instanceof Date ? input.createdAt : new Date(input.createdAt);
+  const datePart = Number.isNaN(createdAt.getTime())
+    ? "00000000"
+    : `${createdAt.getFullYear()}${String(createdAt.getMonth() + 1).padStart(2, "0")}${String(createdAt.getDate()).padStart(2, "0")}`;
+  const sequencePart = input.applicationNumber
+    ? String(input.applicationNumber).padStart(4, "0")
+    : input.merchantOrderId.replace(/[^a-z0-9]/gi, "").slice(-6).toUpperCase().padStart(6, "0");
+
+  return `API-INV-${datePart}-${sequencePart}`;
 }
 
 function normalizeBatchCodeForEnrollment(batchCode: string) {
@@ -298,6 +315,11 @@ export function mapTrainingApplicationEntity(
     latestPayment: latestPayment
       ? {
           id: latestPayment.id,
+          invoiceNumber: formatPaymentInvoiceNumber({
+            createdAt: latestPayment.createdAt,
+            merchantOrderId: latestPayment.merchantOrderId,
+            applicationNumber: application.applicationNumber,
+          }),
           merchantOrderId: latestPayment.merchantOrderId,
           status: latestPayment.status,
           amountPaise: latestPayment.amountPaise,

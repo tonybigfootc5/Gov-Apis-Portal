@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, Mail, MapPin, MessageCircle, Phone, Timer } from "lucide-react";
+import { ArrowRight, HelpCircle, Mail, MapPin, MessageCircle, Phone, Timer } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingPreviewSwitch, type TrainingPreviewCourse } from "@/components/training-preview-switch";
@@ -16,6 +16,77 @@ import { trainingProgramCatalogBySlug } from "@/lib/training-programs";
 import { cn, formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+const contactFaqCategories = [
+  {
+    category: "Training Enrollment",
+    questions: [
+      {
+        question: "How do I enroll for a training program?",
+        answer: "Open Programs, choose the training, fill the application form, review the details, and complete the online payment.",
+      },
+      {
+        question: "When is my enrollment confirmed?",
+        answer: "Enrollment is confirmed automatically after the payment gateway marks the transaction successful.",
+      },
+      {
+        question: "Can I enroll if a program says Coming soon?",
+        answer: "No. Coming soon means the batch date is not fixed yet. Contact 93955077066 for the next update.",
+      },
+    ],
+  },
+  {
+    category: "Payments",
+    questions: [
+      {
+        question: "What should I do after payment?",
+        answer: "Wait for the success page. It shows the PhonePe transaction ID, invoice number, amount, program, and enrollment ID.",
+      },
+      {
+        question: "What if my payment fails or expires?",
+        answer: "Failed or expired payments do not enroll the student. Start the application payment again or contact the center if money was debited.",
+      },
+      {
+        question: "Where can I find my receipt?",
+        answer: "The successful payment page has a Download Successful Card button with a QR code for verification.",
+      },
+    ],
+  },
+  {
+    category: "Documents",
+    questions: [
+      {
+        question: "Is Aadhaar required?",
+        answer: "Yes. Enter the Aadhaar number carefully because it appears on the successful enrollment confirmation.",
+      },
+      {
+        question: "Do I need to upload a photo?",
+        answer: "Yes. A clear applicant photo is required before submitting the training application.",
+      },
+      {
+        question: "Can I change details after payment?",
+        answer: "Contact the center with your invoice number, enrollment ID, and mobile number for correction support.",
+      },
+    ],
+  },
+  {
+    category: "Batch and Venue",
+    questions: [
+      {
+        question: "Where is the training conducted?",
+        answer: "Training is conducted at the API CULTURE Technology Center facilities in Rajendranagar, Hyderabad.",
+      },
+      {
+        question: "When does enrollment close?",
+        answer: "Enrollment closes automatically at 12:00 AM on the batch start date.",
+      },
+      {
+        question: "Are Honey Processing and Queen Bee batches always available?",
+        answer: "No. These batches are opened manually by admin only when a batch date is fixed.",
+      },
+    ],
+  },
+];
 
 export default async function Home() {
   const language = await getRequestLanguage();
@@ -195,7 +266,33 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="self-start">
+          <div className="grid gap-5 self-start">
+            <section className="overflow-hidden rounded-[1.35rem] border border-[#e2ded4] bg-[#fffdf8] p-4 shadow-[0_18px_42px_rgba(30,34,28,0.08)]">
+              <div className="flex items-center gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#173f33] text-[#fff9ec]">
+                  <HelpCircle className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">FAQ</p>
+                  <h3 className="text-xl font-black text-[#171a16]">Quick answers before calling</h3>
+                </div>
+              </div>
+              <div className="mt-4 flex max-h-[24rem] snap-x gap-3 overflow-x-auto pb-2">
+                {contactFaqCategories.map((category) => (
+                  <article key={category.category} className="w-[18.5rem] shrink-0 snap-start rounded-[1rem] border border-[#ece8de] bg-white p-4">
+                    <p className="text-sm font-black text-[#173f33]">{category.category}</p>
+                    <div className="mt-3 grid gap-3">
+                      {category.questions.map((item) => (
+                        <div key={item.question} className="rounded-[0.85rem] bg-[#f6f4ee] p-3">
+                          <p className="text-sm font-black leading-5 text-[#171a16]">{item.question}</p>
+                          <p className="mt-2 text-xs font-semibold leading-5 text-[#555a51]">{item.answer}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
             <ContactForm language={language} variant="contactPage" />
           </div>
         </div>

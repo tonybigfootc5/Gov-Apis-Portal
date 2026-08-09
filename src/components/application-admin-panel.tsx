@@ -70,6 +70,10 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
         application.payload.serviceName.toLowerCase().includes(normalizedQuery) ||
         application.payload.phone.toLowerCase().includes(normalizedQuery) ||
         application.payload.guardianName.toLowerCase().includes(normalizedQuery) ||
+        application.payload.aadhaarNo.toLowerCase().includes(normalizedQuery) ||
+        (application.latestPayment?.invoiceNumber.toLowerCase().includes(normalizedQuery) ?? false) ||
+        (application.latestPayment?.merchantOrderId.toLowerCase().includes(normalizedQuery) ?? false) ||
+        (application.latestPayment?.paymentReference?.toLowerCase().includes(normalizedQuery) ?? false) ||
         application.payload.applicationDate.toLowerCase().includes(normalizedQuery) ||
         formatDateLabel(application.payload.submittedAt).toLowerCase().includes(normalizedQuery);
 
@@ -263,7 +267,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search name, phone, enrollment ID, batch no."
+              placeholder="Search name, phone, Aadhaar, invoice, transaction, enrollment ID"
               className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#819083]"
               aria-label="Search applications"
             />
@@ -647,6 +651,7 @@ function ApplicationCard({
   const studentDetailRows = [
     { label: "Application number", value: previewMeta.applicationCode ?? "Not assigned yet" },
     { label: "Enrollment ID", value: previewMeta.studentCode ?? "Not assigned yet" },
+    { label: "Invoice number", value: application.latestPayment?.invoiceNumber ?? "Not generated yet" },
     { label: "Student name", value: application.payload.candidateName },
     { label: "Batch number", value: previewMeta.batchNumber },
     { label: "Phone number", value: application.payload.phone || "Not provided" },
@@ -701,6 +706,8 @@ function ApplicationCard({
             <p>Enrollment ID: {previewMeta.studentCode ?? "Not assigned yet"}</p>
           </InfoCard>
           <InfoCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Stored billing data">
+            <p>Invoice number: {application.latestPayment?.invoiceNumber ?? "Not generated yet"}</p>
+            <p>Merchant order: {application.latestPayment?.merchantOrderId ?? "Not available"}</p>
             <p>Payment reference: {paymentReference || "Not provided"}</p>
             <p>Paid at: {application.latestPayment?.paidAt ? formatDateLabel(application.latestPayment.paidAt) : "Captured by gateway"}</p>
             <p>Incoming billing proof is handled by the payment gateway flow.</p>

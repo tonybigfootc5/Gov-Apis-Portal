@@ -12,6 +12,49 @@ type Props = {
   onRefresh?: () => void;
 };
 
+const helpCenterSections = [
+  {
+    title: "Payment Search SOP",
+    items: [
+      "Search Payments by invoice number, PhonePe transaction ID, merchant order ID, PhonePe order ID, enrollment ID, applicant name, mobile number, Aadhaar number, program, or payment status.",
+      "Every payment attempt has an invoice number, whether the gateway status is paid, failed, expired, pending, refunded, or refund failed.",
+      "Open View in Payments to see Transaction first, then Logs, then Applicant details.",
+    ],
+  },
+  {
+    title: "Application Search SOP",
+    items: [
+      "Applications shows only successfully paid enrolled students.",
+      "Search Applications by enrollment ID, application number, invoice number, transaction ID, Aadhaar number, applicant name, guardian name, phone, program, batch, or submission date.",
+      "Failed, expired, rejected, and incomplete payment records stay in Payments instead of Applications.",
+    ],
+  },
+  {
+    title: "Enrollment Rule",
+    items: [
+      "No manual review, approval, rejection, or verification is needed.",
+      "Successful payment automatically enrolls the student into the selected program.",
+      "Honey Processing and Queen Bee/Royal Jelly programs stay closed until admin opens enrollment and sets a future batch date.",
+    ],
+  },
+  {
+    title: "QR Receipt Reader",
+    items: [
+      "Use Payments > Scan QR to upload a downloaded successful payment card image.",
+      "The QR reader checks student name, Aadhaar, invoice, transaction number, amount, program, enrollment ID, and gateway references.",
+      "If no admin record matches, search by the invoice or transaction number shown after scanning.",
+    ],
+  },
+  {
+    title: "Admin Access",
+    items: [
+      "Use the admin login page for dashboard access.",
+      "If a password or login issue occurs, use the configured admin reset flow and keep backup codes offline.",
+      "For security, do not share OTP, backup codes, gateway credentials, or admin session access with applicants.",
+    ],
+  },
+];
+
 export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
   const [query, setQuery] = useState("");
   const [openMessageId, setOpenMessageId] = useState<string>(messages[0]?.id ?? "");
@@ -183,11 +226,25 @@ export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
             <BookOpenCheck className="h-5 w-5" aria-hidden="true" />
           </span>
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Application error codes</p>
-            <h3 className="text-xl font-black text-[#173f33]">Admin cheat sheet</h3>
+            <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Help Center</p>
+            <h3 className="text-xl font-black text-[#173f33]">Admin SOP and search guide</h3>
           </div>
         </div>
         <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {helpCenterSections.map((section) => (
+            <article key={section.title} className="rounded-[1rem] border border-[#e7eee8] bg-[#fbfdfb] p-3">
+              <p className="text-sm font-black text-[#173f33]">{section.title}</p>
+              <div className="mt-3 grid gap-2">
+                {section.items.map((item) => (
+                  <p key={item} className="text-xs font-semibold leading-5 text-[#607366]">{item}</p>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+        <div className="mt-5 border-t border-[#edf2ee] pt-5">
+          <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Application error codes</p>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
           {applicationErrorGuide.map((item) => (
             <article key={item.code} className="rounded-[1rem] border border-[#e7eee8] bg-[#fbfdfb] p-3">
               <p className="text-xs font-black text-[#173f33]">{item.code}</p>
@@ -195,6 +252,7 @@ export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
               <p className="mt-2 text-xs font-semibold leading-5 text-[#607366]">{item.adminMeaning}</p>
             </article>
           ))}
+          </div>
         </div>
       </section>
     </div>

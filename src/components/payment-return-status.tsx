@@ -17,6 +17,7 @@ type PaymentStatus =
   | "REFUND_FAILED";
 
 type PaymentSnapshot = {
+  invoiceNumber: string;
   merchantOrderId: string;
   phonePeOrderId: string | null;
   paymentReference: string | null;
@@ -37,6 +38,7 @@ type ReceiptPayload = {
   aadhaarNumber: string;
   transactionNumber: string;
   merchantOrderId: string;
+  invoiceNumber: string;
   gatewayReference: string | null;
   amountPaid: string;
   amountPaise: number;
@@ -178,6 +180,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       aadhaarNumber: payment.aadhaarNo || "Not available",
       transactionNumber: payment.paymentReference,
       merchantOrderId: payment.merchantOrderId,
+      invoiceNumber: payment.invoiceNumber,
       gatewayReference: payment.phonePeOrderId,
       amountPaid: amountLabel,
       amountPaise: payment.amountPaise,
@@ -206,6 +209,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
           const body = (await response.json().catch(() => null)) as
             | {
                 status?: PaymentStatus;
+                invoiceNumber?: string;
                 merchantOrderId?: string;
                 phonePeOrderId?: string | null;
                 paymentReference?: string | null;
@@ -229,6 +233,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
           if (body && "status" in body && body.status) {
             const nextStatus = body.status;
             setPayment((current) => ({
+              invoiceNumber: body.invoiceNumber ?? current.invoiceNumber,
               merchantOrderId: current.merchantOrderId,
               phonePeOrderId: body.phonePeOrderId ?? current.phonePeOrderId,
               paymentReference: body.paymentReference ?? current.paymentReference,
@@ -264,7 +269,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
 
   const content = getContent(payment, copy);
   const receiptRows: Array<[string, string | React.ReactNode]> = [
-    ["Invoice Number", payment.merchantOrderId],
+    ["Invoice Number", payment.invoiceNumber],
     [receiptCopy.orderTime, paidAtLabel],
     [receiptCopy.paymentMethod, "PhonePe"],
     [receiptCopy.paymentStatus, <span key="status" className="rounded bg-[#16a34a] px-2.5 py-1 text-[10px] font-bold text-white">Successful</span>],

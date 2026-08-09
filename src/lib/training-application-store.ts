@@ -17,6 +17,7 @@ import { buildPhonePeRedirectUrl, getCurrentPaymentEnvironment } from "@/lib/pho
 import {
   buildLegacyMerchantOrderId,
   formatApplicationCode,
+  formatPaymentInvoiceNumber,
   formatStudentCode,
   mapLegacyPaymentStatus,
   mapTrainingApplicationEntity,
@@ -44,6 +45,7 @@ export type PaymentOrderAdminEntity = Prisma.PaymentOrderGetPayload<{
 
 export type PaymentAdminRecord = {
   id: string;
+  invoiceNumber: string;
   merchantOrderId: string;
   phonePeOrderId: string | null;
   provider: "PHONEPE";
@@ -331,6 +333,11 @@ function readPaymentEventDetails(payload: unknown): PaymentGatewayEventDetails {
 export function mapPaymentOrderAdminRecord(order: PaymentOrderAdminEntity): PaymentAdminRecord {
   return {
     id: order.id,
+    invoiceNumber: formatPaymentInvoiceNumber({
+      createdAt: order.createdAt,
+      merchantOrderId: order.merchantOrderId,
+      applicationNumber: order.trainingApplication.applicationNumber,
+    }),
     merchantOrderId: order.merchantOrderId,
     phonePeOrderId: order.phonePeOrderId ?? null,
     provider: order.provider,

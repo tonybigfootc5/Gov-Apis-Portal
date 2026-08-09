@@ -32,6 +32,7 @@ type DetailTab = "transaction" | "logs" | "applicant";
 type ReceiptQrPayload = {
   type?: string;
   status?: string;
+  invoiceNumber?: string;
   fullName?: string;
   aadhaarNumber?: string;
   transactionNumber?: string;
@@ -74,7 +75,11 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
         payment.application.serviceName,
         payment.application.phone,
         payment.application.email,
+        payment.application.aadhaarNo,
+        payment.application.studentCode ?? "",
+        payment.invoiceNumber,
         payment.merchantOrderId,
+        payment.phonePeOrderId ?? "",
         payment.paymentReference ?? "",
         payment.status,
       ].some((value) => value.toLowerCase().includes(normalizedQuery)),
@@ -123,44 +128,9 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
     return nextPayments;
   }
 
-  async function refreshPayment(orderId: string) {
-    if (!databaseConfigured) {
-      setNotice("Payments stay read-only locally until DATABASE_URL is configured.");
-      return null;
-    }
-
-    setLoadingId(orderId);
-    setNotice("");
-    try {
-      const response = await fetch(`/api/admin/payments/${orderId}/refresh`, {
-        method: "POST",
-      });
-      const body = await response.json().catch(() => null);
-      if (!response.ok) {
-        setNotice(body?.error ?? "Unable to refresh payment status.");
-        return null;
-      }
-
-      return await reload();
-    } finally {
-      setLoadingId(null);
-    }
-  }
-
-  async function openPaymentDetails(payment: PaymentAdminRecord, initialTab: DetailTab = "transaction") {
+  function openPaymentDetails(payment: PaymentAdminRecord, initialTab: DetailTab = "transaction") {
     setSelectedPayment(payment);
     setDetailTab(initialTab);
-
-    if (!databaseConfigured) return;
-
-    setLoadingId(`view:${payment.id}`);
-    try {
-      const refreshedPayments = await refreshPayment(payment.id);
-      const refreshedPayment = refreshedPayments?.find((item) => item.id === payment.id);
-      if (refreshedPayment) setSelectedPayment(refreshedPayment);
-    } finally {
-      setLoadingId(null);
-    }
   }
 
   async function initiateRefund(orderId: string) {
@@ -213,6 +183,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   const scannedPayment = scanResult
     ? payments.find(
         (payment) =>
+          payment.invoiceNumber === scanResult.invoiceNumber ||
           payment.merchantOrderId === scanResult.merchantOrderId ||
           payment.paymentReference === scanResult.transactionNumber ||
           payment.application.studentCode === scanResult.enrollmentId,
@@ -234,7 +205,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search applicant, order, reference"
+              placeholder="Search invoice, transaction, enrollment, applicant"
               className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#90a094]"
             />
           </label>
@@ -288,7 +259,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
             <PaymentMetricCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Orders" value={filteredPayments.length.toLocaleString("en-IN")} hint={`${pendingConfirmations.length} pending`} />
             <PaymentMetricCard icon={<CheckCircle2 className="h-4 w-4" aria-hidden="true" />} label="Paid" value={paidPayments.length.toLocaleString("en-IN")} hint={`${successRate}% success`} />
             <PaymentMetricCard icon={<IndianRupee className="h-4 w-4" aria-hidden="true" />} label="Collected" value={formatMoney(paidAmountPaise)} hint="Confirmed" />
-            <PaymentMetricCard icon={<AlertTriangle className="h-4 w-4" aria-hidden="true" />} label="Failed" value={failedPayments.length.toLocaleString("en-IN")} hint="Needs sync" />
+            <PaymentMetricCard icon={<AlertTriangle className="h-4 w-4" aria-hidden="true" />} label="Failed" value={failedPayments.length.toLocaleString("en-IN")} hint="Needs attention" />
             <PaymentMetricCard icon={<RotateCcw className="h-4 w-4" aria-hidden="true" />} label="Refunds" value={formatMoney(refundAmountPaise)} hint={`${refundCandidates.length} tracked`} />
           </div>
 
@@ -329,9 +300,10 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
             {activePayments.length ? (
               <div className="overflow-x-auto">
                 <div className="min-w-[66rem]">
-                  <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_1.25fr] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
+                  <div className="grid grid-cols-[1.35fr_1.15fr_1.05fr_0.9fr_0.85fr_0.9fr_1fr_0.85fr] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
                     <span>Student</span>
-                    <span>Order</span>
+                    <span>Invoice</span>
+                    <span>Transaction</span>
                     <span>Amount</span>
                     <span>Status</span>
                     <span>Gateway</span>
@@ -344,10 +316,8 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
                       payment={payment}
                       loading={loadingId === payment.id}
                       tab={tab}
-                      onRefresh={() => void refreshPayment(payment.id)}
                       onRefund={() => void initiateRefund(payment.id)}
-                      onView={() => void openPaymentDetails(payment)}
-                      onLogs={() => void openPaymentDetails(payment, "logs")}
+                      onView={() => openPaymentDetails(payment)}
                     />
                   ))}
                 </div>
@@ -437,6 +407,7 @@ function ReceiptScannerModal({
     ? [
         ["Full name", result.fullName ?? "Not included"],
         ["Aadhaar number", result.aadhaarNumber ?? "Not included"],
+        ["Invoice number", result.invoiceNumber ?? "Not included"],
         ["Transaction number", result.transactionNumber ?? "Not included"],
         ["Gateway reference", result.gatewayReference ?? "Not received"],
         ["Amount paid", result.amountPaid ?? "Not included"],
@@ -531,31 +502,31 @@ function PaymentRow({
   payment,
   loading,
   tab,
-  onRefresh,
   onRefund,
   onView,
-  onLogs,
 }: {
   payment: PaymentAdminRecord;
   loading: boolean;
   tab: PaymentTab;
-  onRefresh: () => void;
   onRefund: () => void;
   onView: () => void;
-  onLogs: () => void;
 }) {
   const latestRefund = payment.refunds[0];
   const canRefund = tab === "refunds" && payment.refundEligible;
 
   return (
-    <div className="grid grid-cols-[1.35fr_1.15fr_0.9fr_0.85fr_0.9fr_1fr_1.25fr] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-sm last:border-b-0 hover:bg-[#fbf7ee]">
+    <div className="grid grid-cols-[1.35fr_1.15fr_1.05fr_0.9fr_0.85fr_0.9fr_1fr_0.85fr] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-sm last:border-b-0 hover:bg-[#fbf7ee]">
       <div className="min-w-0">
         <p className="truncate font-black text-[#173f33]">{payment.application.candidateName}</p>
         <p className="mt-1 truncate text-xs font-semibold text-[#718477]">{payment.application.serviceName}</p>
       </div>
       <div className="min-w-0">
-        <p className="truncate text-xs font-black text-[#173f33]">{payment.merchantOrderId}</p>
-        <p className="mt-1 truncate text-xs font-semibold text-[#718477]">{payment.paymentReference || "Reference pending"}</p>
+        <p className="truncate text-xs font-black text-[#173f33]">{payment.invoiceNumber}</p>
+        <p className="mt-1 truncate text-xs font-semibold text-[#718477]">{payment.merchantOrderId}</p>
+      </div>
+      <div className="min-w-0">
+        <p className="truncate text-xs font-black text-[#173f33]">{payment.paymentReference || "Reference pending"}</p>
+        <p className="mt-1 truncate text-xs font-semibold text-[#718477]">{payment.phonePeOrderId || "PhonePe order pending"}</p>
       </div>
       <span className="font-black text-[#173f33]">{formatMoney(payment.amountPaise)}</span>
       <StatusBadge label={payment.status} tone={payment.status === "PAID" ? "good" : payment.status === "FAILED" || payment.status === "EXPIRED" ? "bad" : "warn"} />
@@ -570,22 +541,16 @@ function PaymentRow({
           <Eye className="h-3.5 w-3.5" aria-hidden="true" />
           View
         </button>
-        <button
-          type="button"
-          onClick={onLogs}
-          className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#b8871d]/18 bg-[#fff8df] px-2.5 text-[11px] font-black uppercase tracking-[0.08em] text-[#7c5310] hover:bg-[#fff1bd]"
-        >
-          <Clock3 className="h-3.5 w-3.5" aria-hidden="true" />
-          Logs
-        </button>
-        <button
-          type="button"
-          disabled={loading}
-          onClick={canRefund ? onRefund : onRefresh}
-          className="h-9 rounded-full bg-[#173f33] px-3 text-[11px] font-black uppercase tracking-[0.08em] text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? "Working" : canRefund ? "Refund" : "Sync"}
-        </button>
+        {canRefund ? (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={onRefund}
+            className="h-9 rounded-full bg-[#173f33] px-3 text-[11px] font-black uppercase tracking-[0.08em] text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Working" : "Refund"}
+          </button>
+        ) : null}
       </div>
     </div>
   );
@@ -609,6 +574,7 @@ function PaymentDetailModal({
   const latestAttempt = latestDetails?.paymentDetails[0] ?? null;
   const diagnosis = buildPaymentDiagnosis(payment);
   const orderParameterRows: Array<[string, string]> = [
+    ["Invoice number", payment.invoiceNumber],
     ["Internal payment id", payment.id],
     ["Provider", payment.provider],
     ["Environment", payment.environment],
@@ -628,6 +594,7 @@ function PaymentDetailModal({
     ["Latest error detail", payment.latestErrorMessage ?? latestDetails?.detailedErrorCode ?? "None"],
   ];
   const transactionRows: Array<[string, string]> = [
+    ["Invoice number", payment.invoiceNumber],
     ["Merchant order", payment.merchantOrderId],
     ["PhonePe order", payment.phonePeOrderId ?? latestDetails?.orderId ?? "Not received"],
     ["Payment reference", payment.paymentReference ?? latestAttempt?.transactionId ?? "Reference pending"],
@@ -692,7 +659,7 @@ function PaymentDetailModal({
               {loading ? <span className="text-xs font-black uppercase tracking-[0.12em] text-[#f5c65e]">Refreshing gateway</span> : null}
             </div>
             <h3 className="mt-4 truncate text-2xl font-black">{payment.application.candidateName}</h3>
-            <p className="mt-1 break-all text-xs font-semibold text-[#cbd8ce]">{payment.merchantOrderId}</p>
+            <p className="mt-1 break-all text-xs font-semibold text-[#cbd8ce]">{payment.invoiceNumber} / {payment.merchantOrderId}</p>
           </div>
           <button
             type="button"
@@ -798,7 +765,7 @@ function PaymentDetailModal({
                 ) : (
                   <div className="grid gap-3 px-4 py-8 text-center">
                     <p className="text-sm font-black text-[#173f33]">No gateway events stored yet.</p>
-                    <p className="text-xs font-semibold leading-6 text-[#607366]">Use Sync or open this Logs view again after gateway reconciliation to pull the latest PhonePe status into the audit trail.</p>
+                    <p className="text-xs font-semibold leading-6 text-[#607366]">Open the public return page or refresh the payment list after gateway reconciliation to see the latest PhonePe status in the audit trail.</p>
                   </div>
                 )}
               </section>
