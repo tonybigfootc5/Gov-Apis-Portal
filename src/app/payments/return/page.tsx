@@ -102,6 +102,7 @@ export default async function PaymentReturnPage({ searchParams }: Props) {
           paymentOrder.trainingApplication.candidateName,
         ),
         status: paymentOrder.status,
+        paidAt: paymentOrder.paidAt?.toISOString() ?? null,
       }}
     />
   );

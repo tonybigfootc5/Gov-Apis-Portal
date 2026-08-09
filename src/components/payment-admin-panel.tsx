@@ -8,11 +8,13 @@ import {
   Clock3,
   Eye,
   IndianRupee,
+  QrCode,
   RefreshCw,
   ReceiptText,
   RotateCcw,
   Search,
   ShieldCheck,
+  Upload,
   UserRound,
   WalletCards,
   X,
@@ -27,6 +29,22 @@ type Props = {
 
 type PaymentTab = "confirmations" | "refunds" | "history";
 type DetailTab = "transaction" | "logs" | "applicant";
+type ReceiptQrPayload = {
+  type?: string;
+  status?: string;
+  fullName?: string;
+  aadhaarNumber?: string;
+  transactionNumber?: string;
+  merchantOrderId?: string;
+  gatewayReference?: string | null;
+  amountPaid?: string;
+  amountPaise?: number;
+  currency?: string;
+  program?: string;
+  enrollmentId?: string;
+  paidAt?: string | null;
+  issuedAt?: string;
+};
 
 export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPaymentsChange }: Props) {
   const [payments, setPayments] = useState(initialPayments);
@@ -36,6 +54,10 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<PaymentAdminRecord | null>(null);
   const [detailTab, setDetailTab] = useState<DetailTab>("transaction");
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [scanError, setScanError] = useState("");
+  const [scanResult, setScanResult] = useState<ReceiptQrPayload | null>(null);
 
   function setPaymentRecords(nextPayments: PaymentAdminRecord[]) {
     setPayments(nextPayments);
@@ -166,6 +188,37 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
     }
   }
 
+  async function scanReceiptImage(file: File) {
+    setScanLoading(true);
+    setScanError("");
+    setScanResult(null);
+
+    try {
+      const decodedText = await decodeQrFromImage(file);
+      const parsed = JSON.parse(decodedText) as ReceiptQrPayload;
+
+      if (parsed.type !== "API_CULTURE_PAYMENT_SUCCESS" || parsed.status !== "PAID") {
+        setScanError("This QR is not a successful API Culture payment receipt.");
+        return;
+      }
+
+      setScanResult(parsed);
+    } catch (error) {
+      setScanError(error instanceof Error ? error.message : "Unable to read the QR from this image.");
+    } finally {
+      setScanLoading(false);
+    }
+  }
+
+  const scannedPayment = scanResult
+    ? payments.find(
+        (payment) =>
+          payment.merchantOrderId === scanResult.merchantOrderId ||
+          payment.phonePeOrderId === scanResult.transactionNumber ||
+          payment.application.studentCode === scanResult.enrollmentId,
+      ) ?? null
+    : null;
+
   return (
     <section className="grid gap-4">
       {notice ? (
@@ -216,6 +269,14 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" />
               Refresh
+            </button>
+            <button
+              type="button"
+              onClick={() => setScannerOpen(true)}
+              className="inline-flex h-11 items-center gap-2 rounded-[0.9rem] border border-[#173f33]/12 bg-white px-4 text-sm font-black text-[#173f33] shadow-[0_10px_22px_rgba(23,63,51,0.06)] hover:bg-[#eef8f1]"
+            >
+              <QrCode className="h-4 w-4" aria-hidden="true" />
+              Scan QR
             </button>
           </div>
         </div>
@@ -339,7 +400,117 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
           onClose={() => setSelectedPayment(null)}
         />
       ) : null}
+      {scannerOpen ? (
+        <ReceiptScannerModal
+          loading={scanLoading}
+          error={scanError}
+          result={scanResult}
+          matchedPayment={scannedPayment}
+          onScan={(file) => void scanReceiptImage(file)}
+          onClose={() => {
+            setScannerOpen(false);
+            setScanError("");
+            setScanResult(null);
+          }}
+        />
+      ) : null}
     </section>
+  );
+}
+
+function ReceiptScannerModal({
+  loading,
+  error,
+  result,
+  matchedPayment,
+  onScan,
+  onClose,
+}: {
+  loading: boolean;
+  error: string;
+  result: ReceiptQrPayload | null;
+  matchedPayment: PaymentAdminRecord | null;
+  onScan: (file: File) => void;
+  onClose: () => void;
+}) {
+  const rows: Array<[string, string]> = result
+    ? [
+        ["Full name", result.fullName ?? "Not included"],
+        ["Aadhaar number", result.aadhaarNumber ?? "Not included"],
+        ["Transaction number", result.transactionNumber ?? "Not included"],
+        ["Gateway reference", result.gatewayReference ?? "Not received"],
+        ["Amount paid", result.amountPaid ?? "Not included"],
+        ["Program", result.program ?? "Not included"],
+        ["Enrollment ID", result.enrollmentId ?? "Not included"],
+        ["Merchant order", result.merchantOrderId ?? "Not included"],
+        ["Paid at", formatDate(result.paidAt)],
+      ]
+    : [];
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-[#102119]/55 px-3 py-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Scan successful payment QR">
+      <section className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-[1.4rem] bg-[#fffdf8] shadow-[0_30px_90px_rgba(4,18,13,0.35)]">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#e7eee8] bg-[#173f33] px-5 py-5 text-[#fff9ec]">
+          <div className="min-w-0">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-[0.8rem] bg-[#f5c65e] text-[#173f33]">
+              <QrCode className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <h3 className="mt-4 text-2xl font-black">Receipt QR scanner</h3>
+            <p className="mt-1 text-xs font-semibold text-[#cbd8ce]">Upload the downloaded success card image to read its verification QR.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/18"
+            aria-label="Close QR scanner"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="max-h-[calc(92vh-7rem)] overflow-y-auto px-5 py-5">
+          <label className="grid cursor-pointer place-items-center rounded-[1.1rem] border border-dashed border-[#b9c8bd] bg-white px-5 py-8 text-center hover:bg-[#fbf7ee]">
+            <Upload className="h-8 w-8 text-[#9c6a18]" aria-hidden="true" />
+            <span className="mt-3 text-sm font-black text-[#173f33]">{loading ? "Reading QR..." : "Upload receipt image"}</span>
+            <span className="mt-1 text-xs font-semibold text-[#607366]">PNG, JPG, or screenshot from any device</span>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/*"
+              className="sr-only"
+              disabled={loading}
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (file) onScan(file);
+                event.currentTarget.value = "";
+              }}
+            />
+          </label>
+
+          {error ? (
+            <p className="mt-4 rounded-[1rem] border border-[#f3b4a3] bg-[#fff0ec] px-4 py-3 text-sm font-semibold text-[#a74224]">{error}</p>
+          ) : null}
+
+          {result ? (
+            <div className="mt-5 grid gap-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge label="Successful receipt" tone="good" />
+                <StatusBadge label={matchedPayment?.status ?? "No local match"} tone={matchedPayment?.status === "PAID" ? "good" : "warn"} />
+              </div>
+              <DetailGrid rows={rows} />
+              {matchedPayment ? (
+                <div className="rounded-[1rem] bg-[#eef8f1] px-4 py-3 text-sm font-semibold leading-6 text-[#1f6b4b]">
+                  Matched admin record for {matchedPayment.application.candidateName} in {matchedPayment.application.serviceName}.
+                </div>
+              ) : (
+                <div className="rounded-[1rem] bg-[#fff8df] px-4 py-3 text-sm font-semibold leading-6 text-[#7c5310]">
+                  QR decoded successfully, but no visible payment record matched the order, transaction, or enrollment ID.
+                </div>
+              )}
+            </div>
+          ) : null}
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -791,6 +962,45 @@ function EmptyState({ message }: { message: string }) {
       {message}
     </div>
   );
+}
+
+async function decodeQrFromImage(file: File) {
+  const imageUrl = URL.createObjectURL(file);
+
+  try {
+    const image = await loadHtmlImage(imageUrl);
+    const canvas = document.createElement("canvas");
+    const scale = Math.min(1, 1800 / Math.max(image.naturalWidth, image.naturalHeight));
+    const width = Math.max(1, Math.round(image.naturalWidth * scale));
+    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context) throw new Error("This browser could not prepare the image for scanning.");
+
+    context.drawImage(image, 0, 0, width, height);
+    const imageData = context.getImageData(0, 0, width, height);
+    const { default: jsQR } = await import("jsqr");
+    const decoded = jsQR(imageData.data, imageData.width, imageData.height);
+
+    if (!decoded?.data) {
+      throw new Error("No QR code was found in this image.");
+    }
+
+    return decoded.data;
+  } finally {
+    URL.revokeObjectURL(imageUrl);
+  }
+}
+
+function loadHtmlImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("Unable to load this image for QR scanning."));
+    image.src = src;
+  });
 }
 
 function buildPaymentBars(payments: PaymentAdminRecord[]) {

@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Clock3, RefreshCw, XCircle } from "lucide-react";
+import QRCode from "qrcode";
+import { CheckCircle2, Clock3, Download, FileCheck2, QrCode, RefreshCw, X, XCircle } from "lucide-react";
 import type { SiteLanguage } from "@/lib/i18n";
 
 type PaymentStatus =
@@ -26,6 +27,24 @@ type PaymentSnapshot = {
   aadhaarNo: string;
   enrollmentId: string | null;
   status: PaymentStatus;
+  paidAt: string | null;
+};
+
+type ReceiptPayload = {
+  type: "API_CULTURE_PAYMENT_SUCCESS";
+  status: "PAID";
+  fullName: string;
+  aadhaarNumber: string;
+  transactionNumber: string;
+  merchantOrderId: string;
+  gatewayReference: string | null;
+  amountPaid: string;
+  amountPaise: number;
+  currency: string;
+  program: string;
+  enrollmentId: string;
+  paidAt: string | null;
+  issuedAt: string;
 };
 
 type Props = {
@@ -64,6 +83,15 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       needsAction: "Needs action",
       processing: "Processing",
       received: "Payment received",
+      paymentSuccessful: "Payment Successful",
+      paymentDetails: "Payment Details",
+      studentDetails: "Student Details",
+      orderTime: "Order Time",
+      paymentMethod: "Payment Method",
+      paymentStatus: "Payment Status",
+      downloadReceipt: "Download Successful Card",
+      qrTitle: "Verification QR",
+      qrHint: "Admin can scan this QR to verify the successful enrollment receipt.",
       notCompleted: "Payment not completed",
       progress: "Confirmation in progress",
       receivedMessage: (name: string) => `${name} is enrolled successfully. The payment has been captured by the gateway.`,
@@ -117,9 +145,46 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     amountPaid: "Amount paid",
     enrollmentId: "Enrollment ID",
   };
+  const receiptCopy = {
+    paymentSuccessful: "Payment Successful",
+    paymentDetails: "Payment Details",
+    studentDetails: "Student Details",
+    orderTime: "Order Time",
+    paymentMethod: "Payment Method",
+    paymentStatus: "Payment Status",
+    downloadReceipt: "Download Successful Card",
+    qrTitle: "Verification QR",
+    qrHint: "Admin can scan this QR to verify the successful enrollment receipt.",
+  };
   const [payment, setPayment] = useState(initialPayment);
   const [pollError, setPollError] = useState("");
+  const [qrDataUrl, setQrDataUrl] = useState("");
+  const [downloadError, setDownloadError] = useState("");
   const polling = POLLABLE_STATUSES.has(payment.status);
+  const paidAtLabel = formatDate(payment.paidAt);
+  const transactionNumber = payment.phonePeOrderId ?? payment.merchantOrderId;
+  const enrollmentId = payment.enrollmentId ?? "Not assigned yet";
+  const amountLabel = formatMoney(payment.amountPaise, payment.currency);
+  const receiptPayload = useMemo<ReceiptPayload | null>(() => {
+    if (payment.status !== "PAID") return null;
+
+    return {
+      type: "API_CULTURE_PAYMENT_SUCCESS",
+      status: "PAID",
+      fullName: payment.candidateName,
+      aadhaarNumber: payment.aadhaarNo || "Not available",
+      transactionNumber,
+      merchantOrderId: payment.merchantOrderId,
+      gatewayReference: payment.paymentReference,
+      amountPaid: amountLabel,
+      amountPaise: payment.amountPaise,
+      currency: payment.currency,
+      program: payment.serviceName,
+      enrollmentId,
+      paidAt: payment.paidAt,
+      issuedAt: new Date().toISOString(),
+    };
+  }, [amountLabel, enrollmentId, payment, transactionNumber]);
 
   useEffect(() => {
     if (!polling) return;
@@ -143,6 +208,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
                 paymentReference?: string | null;
                 amountPaise?: number;
                 currency?: string;
+                paidAt?: string | null;
                 application?: {
                   serviceName?: string;
                   candidateName?: string;
@@ -170,6 +236,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
               aadhaarNo: body.application?.aadhaarNo ?? current.aadhaarNo,
               enrollmentId: body.application?.studentCode ?? current.enrollmentId,
               status: nextStatus,
+              paidAt: body.paidAt ?? current.paidAt,
             }));
             setPollError("");
 
@@ -193,6 +260,129 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
   }, [payment.merchantOrderId, polling]);
 
   const content = getContent(payment, copy);
+  const receiptRows: Array<[string, string | React.ReactNode]> = [
+    ["Invoice Number", payment.merchantOrderId],
+    [receiptCopy.orderTime, paidAtLabel],
+    [receiptCopy.paymentMethod, "PhonePe"],
+    [receiptCopy.paymentStatus, <span key="status" className="rounded bg-[#16a34a] px-2.5 py-1 text-[10px] font-bold text-white">Successful</span>],
+    [detailCopy.amountPaid, amountLabel],
+  ];
+  const studentRows: Array<[string, string]> = [
+    [detailCopy.fullName, payment.candidateName],
+    [detailCopy.aadhaarNo, payment.aadhaarNo || "Not available"],
+    [copy.program, payment.serviceName],
+    [detailCopy.enrollmentId, enrollmentId],
+    [detailCopy.transactionNumber, transactionNumber],
+    [detailCopy.referenceNumber, payment.paymentReference ?? "Not received from gateway"],
+  ];
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function buildQr() {
+      if (!receiptPayload) {
+        setQrDataUrl("");
+        return;
+      }
+
+      const nextQrDataUrl = await QRCode.toDataURL(JSON.stringify(receiptPayload), {
+        errorCorrectionLevel: "M",
+        margin: 1,
+        width: 208,
+        color: {
+          dark: "#173f33",
+          light: "#ffffff",
+        },
+      });
+      if (!cancelled) setQrDataUrl(nextQrDataUrl);
+    }
+
+    void buildQr();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [receiptPayload]);
+
+  async function downloadReceipt() {
+    if (!receiptPayload || !qrDataUrl) return;
+
+    setDownloadError("");
+    try {
+      const dataUrl = await buildReceiptImage({
+        qrDataUrl,
+        paymentRows: receiptRows.map(([label, value]) => [label, typeof value === "string" ? value : "Successful"]),
+        studentRows,
+      });
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `api-culture-success-${receiptPayload.enrollmentId || receiptPayload.merchantOrderId}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch {
+      setDownloadError("Unable to prepare the offline receipt on this device. Please keep this page open and try again.");
+    }
+  }
+
+  if (payment.status === "PAID") {
+    return (
+      <main className="min-h-screen bg-[#f4f4f4] px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[28rem]">
+          <section className="relative overflow-hidden rounded-t-[1.35rem] bg-white shadow-[0_24px_70px_rgba(15,23,42,0.12)]">
+            <Link
+              href="/programs"
+              className="absolute right-5 top-5 inline-flex h-9 w-9 items-center justify-center rounded-full text-[#111827] hover:bg-[#f3f4f6]"
+              aria-label={copy.back}
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </Link>
+
+            <div className="grid justify-items-center px-4 pb-7 pt-7">
+              <span className="inline-flex h-16 w-16 items-center justify-center text-[#163c8c]">
+                <FileCheck2 className="h-14 w-14" strokeWidth={1.8} aria-hidden="true" />
+              </span>
+              <h1 className="mt-5 text-center text-2xl font-black tracking-normal text-[#111827]">{receiptCopy.paymentSuccessful}</h1>
+            </div>
+
+            <div className="relative border-t border-dashed border-[#e5e7eb] px-4 py-5 before:absolute before:-left-3 before:-top-3 before:h-6 before:w-6 before:rounded-full before:bg-[#f4f4f4] after:absolute after:-right-3 after:-top-3 after:h-6 after:w-6 after:rounded-full after:bg-[#f4f4f4]">
+              <ReceiptSection title={receiptCopy.paymentDetails} rows={receiptRows} />
+              <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
+              <ReceiptSection title={receiptCopy.studentDetails} rows={studentRows} />
+              <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
+
+              <div className="grid gap-4 rounded-[0.9rem] border border-[#e5e7eb] bg-[#fbfdfb] p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
+                <div className="grid h-36 w-36 place-items-center rounded-[0.7rem] bg-white p-2 shadow-[inset_0_0_0_1px_rgba(23,63,51,0.08)]">
+                  {qrDataUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={qrDataUrl} alt="Successful payment verification QR" className="h-full w-full" />
+                  ) : (
+                    <QrCode className="h-12 w-12 animate-pulse text-[#9ca3af]" aria-hidden="true" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-black text-[#111827]">{receiptCopy.qrTitle}</p>
+                  <p className="mt-2 text-xs font-semibold leading-6 text-[#6b7280]">{receiptCopy.qrHint}</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                disabled={!qrDataUrl}
+                onClick={() => void downloadReceipt()}
+                className="mt-4 inline-flex h-14 w-full items-center justify-center gap-3 rounded-[0.8rem] border border-[#d1d5db] bg-gradient-to-b from-white to-[#f3f4f6] px-4 text-base font-black text-[#111827] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Download className="h-5 w-5" aria-hidden="true" />
+                {receiptCopy.downloadReceipt}
+              </button>
+              {downloadError ? <p className="mt-3 text-center text-xs font-semibold text-[#b42318]">{downloadError}</p> : null}
+            </div>
+          </section>
+          <div className="h-5 bg-[radial-gradient(circle_at_10px_-2px,#f4f4f4_11px,#ffffff_12px)] [background-size:20px_20px] shadow-[0_24px_70px_rgba(15,23,42,0.12)]" />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="px-4 py-16 sm:px-6 lg:px-8">
@@ -287,6 +477,161 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
   );
 }
 
+function ReceiptSection({ title, rows }: { title: string; rows: Array<[string, string | React.ReactNode]> }) {
+  return (
+    <section>
+      <h2 className="text-sm font-black text-[#111827]">{title}</h2>
+      <div className="mt-3 grid gap-3">
+        {rows.map(([label, value]) => (
+          <div key={label} className="grid grid-cols-[minmax(0,1fr)_0.75rem_minmax(0,1fr)] items-start gap-3 text-sm">
+            <span className="min-w-0 text-[#6b7280]">{label}</span>
+            <span className="text-center font-semibold text-[#111827]">:</span>
+            <span className="min-w-0 break-words font-semibold text-[#111827]">{value}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+async function buildReceiptImage({
+  qrDataUrl,
+  paymentRows,
+  studentRows,
+}: {
+  qrDataUrl: string;
+  paymentRows: Array<[string, string]>;
+  studentRows: Array<[string, string]>;
+}) {
+  const canvas = document.createElement("canvas");
+  const width = 900;
+  const height = 1400;
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Canvas not available.");
+
+  context.fillStyle = "#f4f4f4";
+  context.fillRect(0, 0, width, height);
+  roundRect(context, 72, 36, width - 144, height - 72, 34, "#ffffff");
+
+  context.strokeStyle = "#e5e7eb";
+  context.setLineDash([10, 12]);
+  context.beginPath();
+  context.moveTo(96, 310);
+  context.lineTo(width - 96, 310);
+  context.stroke();
+  context.setLineDash([]);
+
+  context.fillStyle = "#163c8c";
+  context.font = "700 58px Arial";
+  context.textAlign = "center";
+  context.fillText("✓", width / 2, 130);
+  context.fillStyle = "#111827";
+  context.font = "700 34px Arial";
+  context.fillText("Payment Successful", width / 2, 224);
+
+  let y = 390;
+  y = drawReceiptRows(context, "Payment Details", paymentRows, y);
+  drawDashedLine(context, 96, y + 22, width - 96, y + 22);
+  y += 70;
+  y = drawReceiptRows(context, "Student Details", studentRows, y);
+  drawDashedLine(context, 96, y + 22, width - 96, y + 22);
+
+  const qrImage = await loadImage(qrDataUrl);
+  const qrSize = 230;
+  const qrX = (width - qrSize) / 2;
+  context.drawImage(qrImage, qrX, y + 58, qrSize, qrSize);
+  context.fillStyle = "#111827";
+  context.font = "700 24px Arial";
+  context.fillText("Scan in Admin to verify", width / 2, y + 330);
+
+  return canvas.toDataURL("image/png");
+}
+
+function drawReceiptRows(
+  context: CanvasRenderingContext2D,
+  title: string,
+  rows: Array<[string, string]>,
+  startY: number,
+) {
+  context.textAlign = "left";
+  context.fillStyle = "#111827";
+  context.font = "700 23px Arial";
+  context.fillText(title, 96, startY);
+
+  let y = startY + 52;
+  rows.forEach(([label, value]) => {
+    context.fillStyle = "#6b7280";
+    context.font = "400 22px Arial";
+    context.fillText(label, 96, y);
+    context.fillStyle = "#111827";
+    context.font = "700 22px Arial";
+    context.fillText(":", 430, y);
+    wrapCanvasText(context, value, 472, y, 320, 28);
+    y += value.length > 28 ? 60 : 42;
+  });
+
+  return y;
+}
+
+function wrapCanvasText(context: CanvasRenderingContext2D, value: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+  const words = value.split(" ");
+  let line = "";
+  let lineY = y;
+
+  for (const word of words) {
+    const testLine = line ? `${line} ${word}` : word;
+    if (context.measureText(testLine).width > maxWidth && line) {
+      context.fillText(line, x, lineY);
+      line = word;
+      lineY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  context.fillText(line, x, lineY);
+}
+
+function drawDashedLine(context: CanvasRenderingContext2D, startX: number, startY: number, endX: number, endY: number) {
+  context.strokeStyle = "#e5e7eb";
+  context.setLineDash([10, 12]);
+  context.beginPath();
+  context.moveTo(startX, startY);
+  context.lineTo(endX, endY);
+  context.stroke();
+  context.setLineDash([]);
+}
+
+function roundRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+  fillStyle: string,
+) {
+  context.fillStyle = fillStyle;
+  context.beginPath();
+  context.moveTo(x + radius, y);
+  context.arcTo(x + width, y, x + width, y + height, radius);
+  context.arcTo(x + width, y + height, x, y + height, radius);
+  context.arcTo(x, y + height, x, y, radius);
+  context.arcTo(x, y, x + width, y, radius);
+  context.closePath();
+  context.fill();
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
+
 function getContent(
   payment: PaymentSnapshot,
   copy: {
@@ -337,4 +682,15 @@ function formatMoney(amountPaise: number, currency: string) {
   }
 
   return `${currency} ${amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return "Not available";
+  return new Date(value).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
