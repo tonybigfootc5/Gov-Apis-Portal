@@ -18,6 +18,7 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { optimizeImageForInlineStorage } from "@/lib/client-media";
+import { getApplicationErrorGuideItem, type ApplicationErrorCode } from "@/lib/application-error-codes";
 import type { SiteLanguage } from "@/lib/i18n";
 
 type FormState = {
@@ -32,7 +33,6 @@ type FormState = {
   houseNo: string;
   street: string;
   village: string;
-  post: string;
   addressLine: string;
   mandal: string;
   district: string;
@@ -80,7 +80,6 @@ const INITIAL_FORM: FormState = {
   houseNo: "",
   street: "",
   village: "",
-  post: "",
   addressLine: "",
   mandal: "",
   district: "",
@@ -111,7 +110,6 @@ const physicalFormCopy = {
   houseNo: "H. No.",
   street: "Street",
   village: "Village",
-  post: "Post",
   additionalAddress: "Additional address details",
 };
 
@@ -124,7 +122,6 @@ const requiredFields = new Set([
   "H. No.",
   "Street",
   "Village",
-  "Post",
   "District",
   "State",
   "Pin code",
@@ -153,6 +150,11 @@ function formatDateOfBirthForDisplay(value: string) {
     month: "short",
     year: "numeric",
   });
+}
+
+function formatApplicationErrorMessage(code: ApplicationErrorCode, summary?: string) {
+  const guide = getApplicationErrorGuideItem(code);
+  return `${summary ?? guide.summary} Error code: ${code}.`;
 }
 
 function formatAadhaarInput(value: string) {
@@ -212,7 +214,6 @@ function buildTestFormData(current: FormState): FormState {
     houseNo,
     street: "Training Center Road",
     village: "Rajendranagar",
-    post: "Rajendranagar",
     addressLine: "Near Agriculture University",
     mandal: "Rajendranagar",
     district: "Hyderabad",
@@ -244,12 +245,11 @@ const educationOptions = [
   "Other",
 ];
 
-function buildAddressLine(data: Pick<FormState, "houseNo" | "street" | "village" | "post" | "addressLine">) {
+function buildAddressLine(data: Pick<FormState, "houseNo" | "street" | "village" | "addressLine">) {
   return [
     data.houseNo ? `H. No. ${data.houseNo}` : "",
     data.street ? `Street: ${data.street}` : "",
     data.village ? `Village: ${data.village}` : "",
-    data.post ? `Post: ${data.post}` : "",
     data.addressLine,
   ]
     .map((item) => item.trim())
@@ -272,7 +272,6 @@ function requiredStepFields(stepIndex: number, data: FormState) {
         data.houseNo &&
         data.street &&
         data.village &&
-        data.post &&
         data.mandal &&
         data.district &&
         data.state &&
@@ -323,8 +322,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       houseNo: "H. No.",
       street: "Street",
       village: "Village",
-      post: "Post",
-      mandal: "Revenue mandal",
+      mandal: "Mandal",
       district: "District",
       state: "State",
       pinCode: "Pin code",
@@ -350,7 +348,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       openingPayment: "Submitting application and opening secure payment gateway...",
       redirecting: "Application saved. Redirecting to secure payment...",
       saved: "Application saved successfully.",
-      uploadReady: "Photo prepared and ready.",
+  uploadReady: "Photo prepared and ready.",
       uploadFail: "Photo upload failed.",
     },
     te: {
@@ -585,13 +583,13 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
   async function handleSubmit() {
     if (photoUploadState === "uploading" || submitState === "compressing") {
-      setMessage(copy.waitUpload);
+      setMessage(formatApplicationErrorMessage("APP-PHOTO-001", "Applicant photo is still being prepared."));
       setSubmitState("error");
       return;
     }
 
     if (!requiredStepFields(3, form)) {
-      setMessage(copy.uploadBeforeSubmit);
+      setMessage(formatApplicationErrorMessage("APP-PHOTO-001", "Applicant photo is missing."));
       setSubmitState("error");
       return;
     }
@@ -613,7 +611,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
       if (!response.ok) {
         const body = await response.json().catch(() => null);
-        throw new Error(body?.error ?? "Application submission failed.");
+        throw new Error(body?.error ?? formatApplicationErrorMessage("APP-UNKNOWN-001", "Application submission failed unexpectedly."));
       }
 
       const body = await response.json();
@@ -625,10 +623,10 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
       }
 
       setSubmitState("error");
-      setMessage(body.message ?? "Application saved, but the payment gateway did not return a checkout link. Please try again.");
+      setMessage(body.message ?? formatApplicationErrorMessage("APP-PAY-002", "Application saved, but payment checkout did not return a link."));
     } catch (error) {
       setSubmitState("error");
-      setMessage(error instanceof Error ? error.message : "Application submission failed.");
+      setMessage(error instanceof Error ? error.message : formatApplicationErrorMessage("APP-NET-001", "Browser could not complete the application submit request."));
     }
   }
 
@@ -898,22 +896,13 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                     </Field>
                   </div>
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label={physicalFormCopy.village} required>
-                      <input
-                        value={form.village}
-                        onChange={(event) => updateField("village", event.target.value)}
-                        className={inputClassName}
-                      />
-                    </Field>
-                    <Field label={physicalFormCopy.post} required>
-                      <input
-                        value={form.post}
-                        onChange={(event) => updateField("post", event.target.value)}
-                        className={inputClassName}
-                      />
-                    </Field>
-                  </div>
+                  <Field label={physicalFormCopy.village} required>
+                    <input
+                      value={form.village}
+                      onChange={(event) => updateField("village", event.target.value)}
+                      className={inputClassName}
+                    />
+                  </Field>
 
                   <Field label={physicalFormCopy.additionalAddress}>
                     <textarea
@@ -1277,7 +1266,7 @@ function ApplicationPreview({
     ["Mobile number", form.phone],
     ["Email", form.email],
     ["Address", address],
-    ["Mandal / Block", form.mandal],
+    ["Mandal", form.mandal],
     ["District", form.district],
     ["State", form.state],
     ["Pin code", form.pinCode],

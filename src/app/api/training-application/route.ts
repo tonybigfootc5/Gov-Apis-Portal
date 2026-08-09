@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "crypto";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
-import { badRequest, serviceUnavailable, tooManyRequests } from "@/lib/api-response";
+import { getApplicationErrorGuideItem, type ApplicationErrorCode } from "@/lib/application-error-codes";
 import { createLocalTrainingApplication } from "@/lib/local-training-applications";
 import { createPhonePePayment, isPhonePeConfigured } from "@/lib/phonepe";
 import {
@@ -21,7 +21,14 @@ export async function POST(request: Request) {
   const requestId = randomUUID();
   const parsed = trainingApplicationSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return badRequest("Application details could not be submitted.");
+    const firstIssue = parsed.error.issues[0];
+    const fieldName = formatValidationField(firstIssue?.path.join(".") || "form");
+    return applicationErrorResponse(
+      "APP-VAL-001",
+      `${fieldName} is missing or invalid.`,
+      400,
+      requestId,
+    );
   }
 
   const headerStore = await headers();
@@ -33,7 +40,13 @@ export async function POST(request: Request) {
   const limit = rateLimit("training-application-form", ip, 10, 30 * 60 * 1000);
   if (!limit.allowed) {
     const retryAfterSeconds = Math.max(1, Math.ceil((limit.resetAt - Date.now()) / 1000));
-    return tooManyRequests("Too many applications were submitted from this connection.", retryAfterSeconds);
+    return applicationErrorResponse(
+      "APP-RATE-001",
+      "Too many applications were submitted from this connection.",
+      429,
+      requestId,
+      { "Retry-After": String(retryAfterSeconds) },
+    );
   }
 
   try {
@@ -63,7 +76,23 @@ export async function POST(request: Request) {
     }
 
     const selectedProgramFee = getTrainingProgramFeeByServiceName(parsed.data.serviceName);
-    const amountPaise = getTrainingApplicationAmountPaise(selectedProgramFee);
+    let amountPaise: number;
+    try {
+      amountPaise = getTrainingApplicationAmountPaise(selectedProgramFee);
+    } catch (error) {
+      console.error("Training application fee resolution failed", {
+        requestId,
+        serviceName: parsed.data.serviceName,
+        selectedProgramFee,
+        error,
+      });
+      return applicationErrorResponse(
+        "APP-FEE-001",
+        "Selected program fee is not payable.",
+        400,
+        requestId,
+      );
+    }
 
     const application = await prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(${TRAINING_APPLICATION_SEQUENCE_LOCK_ID})`;
@@ -135,8 +164,11 @@ export async function POST(request: Request) {
         data: { attemptStatus: "PAYMENT_FAILED" },
       });
 
-      return serviceUnavailable(
-        "Application saved successfully, but payment gateway credentials are not configured yet. Please contact the center to complete payment.",
+      return applicationErrorResponse(
+        "APP-PAY-001",
+        "Application saved, but payment gateway credentials are unavailable.",
+        503,
+        requestId,
       );
     }
 
@@ -238,8 +270,11 @@ export async function POST(request: Request) {
           });
         });
 
-      return serviceUnavailable(
-        "Application saved, but the payment gateway could not be opened right now. Please try again in a minute or contact the center.",
+      return applicationErrorResponse(
+        "APP-PAY-002",
+        "Application saved, but payment checkout could not be created.",
+        503,
+        requestId,
       );
     }
 
@@ -254,8 +289,63 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Training application submission failed", { requestId, error });
-    return serviceUnavailable("Application storage is temporarily unavailable.");
+    return applicationErrorResponse(
+      "APP-DB-001",
+      "Application could not be saved in the database.",
+      503,
+      requestId,
+    );
   }
+}
+
+function applicationErrorResponse(
+  code: ApplicationErrorCode,
+  summary: string,
+  status: number,
+  requestId: string,
+  headers?: HeadersInit,
+) {
+  const guide = getApplicationErrorGuideItem(code);
+
+  return NextResponse.json(
+    {
+      ok: false,
+      errorCode: code,
+      summary,
+      error: `${summary} Error code: ${code}.`,
+      adminMeaning: guide.adminMeaning,
+      requestId,
+    },
+    { status, headers },
+  );
+}
+
+function formatValidationField(fieldName: string) {
+  const labels: Record<string, string> = {
+    serviceName: "Selected training program",
+    applicationDate: "Application date",
+    candidateName: "Applicant name",
+    guardianName: "Guardian name",
+    aadhaarNo: "Aadhaar number",
+    email: "Email address",
+    gender: "Gender",
+    dateOfBirth: "Date of birth",
+    addressLine: "Address",
+    mandal: "Mandal",
+    district: "District",
+    state: "State",
+    pinCode: "Pin code",
+    phone: "Mobile number",
+    residencePhone: "Residence phone",
+    educationQualification: "Education qualification",
+    occupation: "Occupation",
+    sponsoringOrganization: "Sponsoring organization",
+    photoName: "Applicant photo name",
+    photoType: "Applicant photo type",
+    photoUrl: "Applicant photo",
+  };
+
+  return labels[fieldName] ?? "Application form";
 }
 
 async function getNextBatchNumberForService(
