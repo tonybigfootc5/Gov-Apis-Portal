@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, ChevronDown, Link2, Mail, MapPin, MessageCircle, Phone, Timer } from "lucide-react";
+import { ArrowRight, Mail, MapPin, MessageCircle, Phone, Timer } from "lucide-react";
+import { ContactFaqSection } from "@/components/contact-faq-section";
 import { ContactForm } from "@/components/contact-form";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingPreviewSwitch, type TrainingPreviewCourse } from "@/components/training-preview-switch";
 import AboutUsSection from "@/components/ui/about-us-section";
-import { contactFaqCategories } from "@/lib/contact-faq";
 import { getPrograms } from "@/lib/data";
 import { institute } from "@/lib/fallback-data";
 import { getTranslatedProgramContent, t } from "@/lib/i18n";
@@ -198,65 +198,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <section className="mx-auto mt-10 max-w-[94rem]">
-          <h2 className="mb-6 text-center text-[clamp(2.25rem,5vw,4.8rem)] font-black leading-[0.9] tracking-[-0.04em] text-[#121512]">
-            Got Questions?
-          </h2>
-          <div className="mb-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 border-b border-[#e4e1d8] pb-5">
-            {contactFaqCategories.map((category, index) => (
-              <a
-                key={category.category}
-                href={`#faq-${category.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                className={cn(
-                  "text-[11px] font-black uppercase tracking-[0.22em] transition hover:text-[#173f33]",
-                  index === 0 ? "text-[#173f33]" : "text-[#a8ada5]",
-                )}
-              >
-                {category.category} ({category.questions.length})
-              </a>
-            ))}
-          </div>
-
-          <div className="max-h-[42rem] overflow-y-auto pr-1">
-            {contactFaqCategories.map((category, categoryIndex) => (
-              <div
-                key={category.category}
-                id={`faq-${category.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                className="scroll-mt-32 pt-2 first:pt-0"
-              >
-                {categoryIndex > 0 ? (
-                  <h3 className="mb-3 mt-6 text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">
-                    {category.category}
-                  </h3>
-                ) : null}
-                <div className="grid gap-3">
-                  {category.questions.map((item, questionIndex) => {
-                    const isFirstQuestion = categoryIndex === 0 && questionIndex === 0;
-
-                    return (
-                      <details
-                        key={item.question}
-                        open={isFirstQuestion}
-                        className="group rounded-[0.35rem] bg-[#f5f6f7] px-4 shadow-[0_8px_22px_rgba(20,28,22,0.035)] open:bg-[#f7f8f8]"
-                      >
-                        <summary className="flex min-h-[4.15rem] cursor-pointer list-none items-center gap-4 py-3 text-left [&::-webkit-details-marker]:hidden">
-                          <Link2 className="h-4 w-4 shrink-0 text-[#aab1af]" aria-hidden="true" />
-                          <span className="min-w-0 flex-1 text-sm font-black leading-5 text-[#5f6b70]">
-                            {item.question}
-                          </span>
-                          <ChevronDown className="h-4 w-4 shrink-0 text-[#b5bbb9] transition group-open:rotate-180 group-open:text-[#4b91d1]" aria-hidden="true" />
-                        </summary>
-                        <p className="border-t border-[#e8ecec] pb-5 pl-8 pr-8 pt-1 text-sm font-semibold leading-6 text-[#6f7b80]">
-                          {item.answer}
-                        </p>
-                      </details>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <ContactFaqSection />
       </section>
     </main>
   );

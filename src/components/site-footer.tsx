@@ -171,7 +171,7 @@ export function SiteFooter({ language }: SiteFooterProps) {
           <div className="space-y-2 text-xs text-[#8b8d83]">
             <div className="flex flex-wrap gap-x-5 gap-y-2">
               <span className="font-black uppercase tracking-[0.16em] text-[#c77b22]">{copy.footer.designedDevelopedBy}</span>
-              <a href="https://wa.me/919700284045" className="transition hover:text-[#f6cf74]">Rahul: +91 9700284045</a>
+              <a href="https://wa.me/919700284045?text=Hi%20Rahul%2C%20I%20need%20help%20with%20API%20CULTURE." className="transition hover:text-[#f6cf74]">Rahul: +91 9700284045</a>
               <a href="https://wa.me/916309465575" className="transition hover:text-[#f6cf74]">Gowtham: +91 63094 65575</a>
             </div>
             <p>{copy.footer.whatsappOnlyNote}</p>
