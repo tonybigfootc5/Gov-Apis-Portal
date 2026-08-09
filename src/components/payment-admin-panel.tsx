@@ -266,7 +266,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
                   </div>
                   {groupedActivePayments.map((group) => (
                     <div key={group.key}>
-                      <div className="grid grid-cols-[1fr_auto] items-center gap-3 bg-[#fbf7ee] px-4 py-2 text-xs font-black text-[#173f33]">
+                      <div className="grid grid-cols-[1fr_auto] items-center gap-3 bg-[#fbf7ee] px-4 py-2 text-xs font-black text-[#111827]">
                         <span>{group.label}</span>
                         <span className="rounded-full bg-white px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-[#607366]">
                           {group.payments.length} transaction{group.payments.length === 1 ? "" : "s"}

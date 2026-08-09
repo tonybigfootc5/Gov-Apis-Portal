@@ -2239,6 +2239,7 @@ function ProgramsWorkspace({
 }) {
   const [selectedProgramId, setSelectedProgramId] = useState<string | "new">(programs[0]?.id ?? "new");
   const [programListCollapsed, setProgramListCollapsed] = useState(false);
+  const [batchCatalogView, setBatchCatalogView] = useState<"current" | "upcoming">("current");
   const selectedProgram =
     selectedProgramId === "new"
       ? null
@@ -2253,10 +2254,22 @@ function ProgramsWorkspace({
     { label: "Upcoming batches", status: "upcoming", programs: sortedPrograms.filter((program) => getAdminProgramBatchStatus(program) === "upcoming") },
     { label: "Coming soon / closed", status: "closed", programs: sortedPrograms.filter((program) => getAdminProgramBatchStatus(program) === "closed") },
   ];
+  const currentCatalogGroups = batchProgramGroups.filter((group) => group.status === "current");
+  const upcomingCatalogGroups = batchProgramGroups.filter((group) => group.status !== "current");
+  const visibleCatalogGroups = batchCatalogView === "current" ? currentCatalogGroups : upcomingCatalogGroups;
+  const visibleCatalogPrograms = visibleCatalogGroups.flatMap((group) => group.programs);
 
   function discardNewTrainingDraft() {
     onDraftChange(emptyProgram);
     setSelectedProgramId(programs[0]?.id ?? "new");
+  }
+
+  function switchBatchCatalogView(nextView: "current" | "upcoming") {
+    setBatchCatalogView(nextView);
+    const nextPrograms = (nextView === "current" ? currentCatalogGroups : upcomingCatalogGroups).flatMap((group) => group.programs);
+    if (nextPrograms.length) {
+      setSelectedProgramId(nextPrograms[0].id);
+    }
   }
 
   return (
@@ -2275,6 +2288,23 @@ function ProgramsWorkspace({
               <h3 className="mt-1 text-2xl font-black text-[#173f33]">Upcoming programs</h3>
             </div>
             <span className="rounded-full bg-[#eef3ef] px-3 py-1.5 text-xs font-black text-[#607366]">{programs.length} programs</span>
+            <div className="flex rounded-full bg-[#eef3ef] p-1">
+              {[
+                ["current", `Current ${batchProgramGroups[0]?.programs.length ?? 0}`],
+                ["upcoming", `Upcoming ${upcomingCatalogGroups.reduce((total, group) => total + group.programs.length, 0)}`],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => switchBatchCatalogView(value as "current" | "upcoming")}
+                  className={`h-8 rounded-full px-3 text-[11px] font-black uppercase tracking-[0.11em] transition ${
+                    batchCatalogView === value ? "bg-[#173f33] text-[#fff9ec]" : "text-[#607366] hover:bg-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
@@ -2297,7 +2327,7 @@ function ProgramsWorkspace({
             <div className={`flex items-center gap-3 px-1 pb-3 ${programListCollapsed ? "justify-center" : "justify-between"}`}>
               {!programListCollapsed ? (
                 <div>
-                  <p className="text-sm font-black text-[#173f33]">Upcoming</p>
+                  <p className="text-sm font-black text-[#173f33]">{batchCatalogView === "current" ? "Current batch" : "Upcoming batches"}</p>
                   <p className="mt-1 text-[11px] font-semibold text-[#718477]">Arranged by batch timing</p>
                 </div>
               ) : null}
@@ -2312,40 +2342,46 @@ function ProgramsWorkspace({
             </div>
             <div className={`grid gap-3 ${programListCollapsed ? "justify-items-center" : ""}`}>
               {sortedPrograms.length ? (
-                batchProgramGroups.map((group) =>
-                  group.programs.length ? (
-                    <div key={group.status} className={`grid gap-2 ${programListCollapsed ? "justify-items-center" : ""}`}>
-                      {!programListCollapsed ? (
-                        <div className="flex items-center justify-between px-1 pt-1">
-                          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#8a7d61]">{group.label}</p>
-                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black text-[#173f33]">{group.programs.length}</span>
-                        </div>
-                      ) : null}
-                      {group.programs.map((program, index) =>
-                        programListCollapsed ? (
-                          <button
-                            key={program.id}
-                            type="button"
-                            onClick={() => setSelectedProgramId(program.id)}
-                            className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-xs font-black ${
-                              selectedProgramId === program.id ? "bg-[#173f33] text-[#fff9ec]" : "bg-white text-[#9c6a18]"
-                            }`}
-                            title={program.title}
-                          >
-                            {getProgramCourseCode(program)}
-                          </button>
-                        ) : (
-                          <ProgramKanbanCard
-                            key={program.id}
-                            program={program}
-                            selected={selectedProgramId === program.id}
-                            index={index}
-                            onSelect={() => setSelectedProgramId(program.id)}
-                          />
-                        ),
-                      )}
-                    </div>
-                  ) : null,
+                visibleCatalogPrograms.length ? (
+                  visibleCatalogGroups.map((group) =>
+                    group.programs.length ? (
+                      <div key={group.status} className={`grid gap-2 ${programListCollapsed ? "justify-items-center" : ""}`}>
+                        {!programListCollapsed ? (
+                          <div className="flex items-center justify-between px-1 pt-1">
+                            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#8a7d61]">{group.label}</p>
+                            <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black text-[#173f33]">{group.programs.length}</span>
+                          </div>
+                        ) : null}
+                        {group.programs.map((program, index) =>
+                          programListCollapsed ? (
+                            <button
+                              key={program.id}
+                              type="button"
+                              onClick={() => setSelectedProgramId(program.id)}
+                              className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-xs font-black ${
+                                selectedProgramId === program.id ? "bg-[#173f33] text-[#fff9ec]" : "bg-white text-[#9c6a18]"
+                              }`}
+                              title={program.title}
+                            >
+                              {getProgramCourseCode(program)}
+                            </button>
+                          ) : (
+                            <ProgramKanbanCard
+                              key={program.id}
+                              program={program}
+                              selected={selectedProgramId === program.id}
+                              index={index}
+                              onSelect={() => setSelectedProgramId(program.id)}
+                            />
+                          ),
+                        )}
+                      </div>
+                    ) : null,
+                  )
+                ) : (
+                  <div className="rounded-[0.95rem] border border-dashed border-[#dce4de] bg-white/65 px-3 py-8 text-center text-xs font-semibold text-[#718477]">
+                    No {batchCatalogView} batches in this view
+                  </div>
                 )
               ) : (
                 <div className="rounded-[0.95rem] border border-dashed border-[#dce4de] bg-white/65 px-3 py-8 text-center text-xs font-semibold text-[#718477]">
@@ -2556,17 +2592,16 @@ function ProgramKanbanCard({
 
 type AdminProgramBatchStatus = "current" | "upcoming" | "closed";
 
-function getAdminProgramBatchStatus(program: Pick<Program, "batchStartsAt" | "enrollmentClosed">, now = new Date()): AdminProgramBatchStatus {
+function getAdminProgramBatchStatus(program: Pick<Program, "batchStartsAt" | "duration" | "enrollmentClosed">, now = new Date()): AdminProgramBatchStatus {
   if (program.enrollmentClosed || !program.batchStartsAt) return "closed";
   const batchDate = new Date(program.batchStartsAt);
   if (Number.isNaN(batchDate.getTime())) return "closed";
 
-  const batchStartDay = new Date(batchDate);
-  batchStartDay.setHours(0, 0, 0, 0);
-  const today = new Date(now);
-  today.setHours(0, 0, 0, 0);
+  const batchEndDate = new Date(batchDate);
+  batchEndDate.setDate(batchEndDate.getDate() + parseProgramDurationDays(program.duration));
 
-  return batchStartDay.getTime() <= today.getTime() ? "current" : "upcoming";
+  if (now.getTime() < batchDate.getTime()) return "upcoming";
+  return now.getTime() <= batchEndDate.getTime() ? "current" : "closed";
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {

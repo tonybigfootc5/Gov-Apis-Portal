@@ -26,7 +26,7 @@ export default async function Home() {
     const translatedProgram = getTranslatedProgramContent(program, language);
     const presentation = trainingProgramCatalogBySlug[program.slug];
     const enrollmentState = getProgramEnrollmentState(program);
-    const showBatchDate = Boolean(translatedProgram.batchStartsAt) && enrollmentState.reason !== "batch-started";
+    const showBatchDate = enrollmentState.canEnroll && Boolean(translatedProgram.batchStartsAt) && enrollmentState.reason !== "batch-started";
 
     return {
       id: program.id,

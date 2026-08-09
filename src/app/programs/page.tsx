@@ -101,7 +101,7 @@ export default async function ProgramsPage() {
     const translatedProgram = getTranslatedProgramContent(program, language);
     const presentation = trainingProgramCatalogBySlug[program.slug];
     const enrollmentState = getProgramEnrollmentState(program);
-    const showBatchDate = Boolean(translatedProgram.batchStartsAt) && enrollmentState.reason !== "batch-started";
+    const showBatchDate = enrollmentState.canEnroll && Boolean(translatedProgram.batchStartsAt) && enrollmentState.reason !== "batch-started";
     const override =
       language === "te" || language === "hi"
         ? programDisplayOverrides[language][program.slug as keyof (typeof programDisplayOverrides)[typeof language]]
