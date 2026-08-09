@@ -5,13 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import {
   BriefcaseBusiness,
   Camera,
+  Calendar,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   LoaderCircle,
   MapPinned,
+  Mars,
   ShieldCheck,
   UserRound,
+  Venus,
   WandSparkles,
 } from "lucide-react";
 import { optimizeImageForInlineStorage } from "@/lib/client-media";
@@ -130,17 +133,26 @@ const requiredFields = new Set([
 ]);
 
 function formatDateOfBirthInput(value: string) {
-  const digits = value.replace(/\D/g, "").slice(0, 8);
-  const parts = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4, 8)].filter(Boolean);
-
-  return parts.join(" ");
+  return value.trim();
 }
 
 function formatDateOfBirthForSubmission(value: string) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
   const digits = value.replace(/\D/g, "");
   if (digits.length !== 8) return value.trim();
 
   return `${digits.slice(4, 8)}-${digits.slice(2, 4)}-${digits.slice(0, 2)}`;
+}
+
+function formatDateOfBirthForDisplay(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+  return new Date(`${value}T00:00:00`).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 function formatAadhaarInput(value: string) {
@@ -196,7 +208,7 @@ function buildTestFormData(current: FormState): FormState {
     aadhaarNo: formatAadhaarInput(aadhaarNo),
     email: `${candidateName.toLowerCase().replace(/\s+/g, ".")}@example.com`,
     gender: Math.random() > 0.5 ? "male" : "female",
-    dateOfBirth: `${String(Math.floor(Math.random() * 18) + 10).padStart(2, "0")} ${String(Math.floor(Math.random() * 12) + 1).padStart(2, "0")} ${Math.floor(Math.random() * 20) + 1985}`,
+    dateOfBirth: `${Math.floor(Math.random() * 20) + 1985}-${String(Math.floor(Math.random() * 12) + 1).padStart(2, "0")}-${String(Math.floor(Math.random() * 18) + 10).padStart(2, "0")}`,
     houseNo,
     street: "Training Center Road",
     village: "Rajendranagar",
@@ -801,14 +813,17 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
                   <div className="grid gap-5 md:grid-cols-2">
                     <Field label={copy.dateOfBirth} required>
-                      <input
-                        value={form.dateOfBirth}
-                        onChange={(event) => updateField("dateOfBirth", formatDateOfBirthInput(event.target.value))}
-                        placeholder="dd mm yyyy"
-                        inputMode="numeric"
-                        maxLength={10}
-                        className={inputClassName}
-                      />
+                      <div className="relative">
+                        <Calendar className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9c6a18]" aria-hidden="true" />
+                        <input
+                          type="date"
+                          value={form.dateOfBirth}
+                          onChange={(event) => updateField("dateOfBirth", formatDateOfBirthInput(event.target.value))}
+                          min="1900-01-01"
+                          max={new Date().toISOString().slice(0, 10)}
+                          className={`${inputClassName} w-full pl-11`}
+                        />
+                      </div>
                     </Field>
 
                     <Field label={physicalFormCopy.aadhaarNo} required>
@@ -825,23 +840,18 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
 
                   <div className="grid gap-2 text-sm font-semibold text-[#516253]">
                     <span>{copy.gender}<RequiredStar /></span>
-                    <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="inline-grid w-fit grid-cols-2 gap-1 rounded-[0.95rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] p-1">
                       {[
-                        { value: "male", label: copy.male },
-                        { value: "female", label: copy.female },
+                        { value: "male", label: copy.male, icon: Mars },
+                        { value: "female", label: copy.female, icon: Venus },
                       ].map((option) => (
-                        <button
+                        <GenderButton
                           key={option.value}
-                          type="button"
+                          icon={option.icon}
+                          label={option.label}
+                          selected={form.gender === option.value}
                           onClick={() => updateField("gender", option.value as "male" | "female")}
-                          className={`rounded-[1.2rem] border px-4 py-4 text-left text-base font-semibold transition ${
-                            form.gender === option.value
-                              ? "border-[#f2b544]/40 bg-[#f2b544]/12 text-bright"
-                              : "border-[rgba(41,56,49,0.1)] bg-[#fffdf8] text-dim"
-                          }`}
-                        >
-                          {option.label}
-                        </button>
+                        />
                       ))}
                     </div>
                   </div>
@@ -1211,6 +1221,34 @@ function Field({ label, children, required = false }: { label: string; children:
   );
 }
 
+function GenderButton({
+  icon: Icon,
+  label,
+  selected,
+  onClick,
+}: {
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`inline-flex h-10 min-w-24 items-center justify-center gap-2 rounded-[0.75rem] px-3 text-sm font-black transition ${
+        selected
+          ? "bg-[#173f33] text-[#fff9ec] shadow-[0_8px_18px_rgba(23,63,51,0.16)]"
+          : "text-[#607366] hover:bg-[#eef3ef] hover:text-[#173f33]"
+      }`}
+    >
+      <Icon className="h-4 w-4" aria-hidden={true} />
+      {label}
+    </button>
+  );
+}
+
 function ApplicationPreview({
   form,
   photoPreviewUrl,
@@ -1235,7 +1273,7 @@ function ApplicationPreview({
     ["Guardian name", form.guardianName],
     ["Aadhaar number", form.aadhaarNo],
     ["Gender", form.gender ? form.gender[0].toUpperCase() + form.gender.slice(1) : ""],
-    ["Date of birth", form.dateOfBirth],
+    ["Date of birth", formatDateOfBirthForDisplay(form.dateOfBirth)],
     ["Mobile number", form.phone],
     ["Email", form.email],
     ["Address", address],
