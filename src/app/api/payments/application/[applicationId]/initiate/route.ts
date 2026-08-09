@@ -5,7 +5,6 @@ import {
   buildPhonePeRedirectUrl,
   getCurrentPaymentEnvironment,
   getTrainingApplicationAmountPaise,
-  getTrainingProgramFeeByServiceName,
 } from "@/lib/phonepe-config";
 import { getProgramEnrollmentState } from "@/lib/program-enrollment";
 import { prisma } from "@/lib/prisma";
@@ -26,7 +25,7 @@ export async function POST(_request: Request, { params }: Props) {
 
   const enrollmentProgram = await getEnrollmentProgramForService(application.serviceName);
   const enrollmentState = enrollmentProgram ? getProgramEnrollmentState(enrollmentProgram) : null;
-  if (!enrollmentState?.canEnroll) {
+  if (!enrollmentProgram || !enrollmentState?.canEnroll) {
     return NextResponse.json(
       {
         ok: false,
@@ -38,7 +37,7 @@ export async function POST(_request: Request, { params }: Props) {
     );
   }
 
-  const amountPaise = getTrainingApplicationAmountPaise(getTrainingProgramFeeByServiceName(application.serviceName));
+  const amountPaise = getTrainingApplicationAmountPaise(enrollmentProgram.fee);
   const merchantOrderId = buildMerchantOrderId(application.id);
   const redirectUrl = buildPhonePeRedirectUrl(merchantOrderId);
   const checkoutUrl = (

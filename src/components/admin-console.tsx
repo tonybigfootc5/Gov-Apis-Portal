@@ -15,11 +15,9 @@ import {
   History,
   LayoutGrid,
   Images,
-  Languages,
   LogOut,
   Mail,
   Menu,
-  MapPin,
   Power,
   Plus,
   RefreshCw,
@@ -39,7 +37,6 @@ import type { ContactInboxRecord } from "@/lib/contact-inbox";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
 import { isFailedPaymentApplication, isSuccessfulPaymentApplication } from "@/lib/training-application";
 import type { PaymentAdminRecord } from "@/lib/training-application-store";
-import { trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
 type Program = {
   id: string;
@@ -52,6 +49,9 @@ type Program = {
   fee?: string | null;
   capacity: number;
   batchStartsAt?: string | null;
+  registrationStartsAt?: string | null;
+  registrationEndsAt?: string | null;
+  scheduledPostAt?: string | null;
   enrollmentClosed: boolean;
   popupEnabled: boolean;
   published: boolean;
@@ -176,6 +176,9 @@ const emptyProgram: Omit<Program, "id"> = {
   fee: "",
   capacity: 30,
   batchStartsAt: "",
+  registrationStartsAt: "",
+  registrationEndsAt: "",
+  scheduledPostAt: "",
   enrollmentClosed: false,
   popupEnabled: true,
   published: true,
@@ -2218,11 +2221,16 @@ function ProgramsWorkspace({
     selectedProgramId === "new"
       ? null
       : programs.find((program) => program.id === selectedProgramId) ?? programs[0] ?? null;
-  const upcomingPrograms = [...programs].sort((left, right) => {
+  const sortedPrograms = [...programs].sort((left, right) => {
     const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.MAX_SAFE_INTEGER;
     const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.MAX_SAFE_INTEGER;
     return leftTime - rightTime;
   });
+  const batchProgramGroups: Array<{ label: string; status: AdminProgramBatchStatus; programs: Program[] }> = [
+    { label: "Current batch", status: "current", programs: sortedPrograms.filter((program) => getAdminProgramBatchStatus(program) === "current") },
+    { label: "Upcoming batches", status: "upcoming", programs: sortedPrograms.filter((program) => getAdminProgramBatchStatus(program) === "upcoming") },
+    { label: "Coming soon / closed", status: "closed", programs: sortedPrograms.filter((program) => getAdminProgramBatchStatus(program) === "closed") },
+  ];
 
   function discardNewTrainingDraft() {
     onDraftChange(emptyProgram);
@@ -2249,17 +2257,6 @@ function ProgramsWorkspace({
               <History className="h-4 w-4" aria-hidden="true" />
               History
             </button>
-            <button
-              onClick={() => setSelectedProgramId("new")}
-              className={`inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-black transition ${
-                selectedProgramId === "new"
-                  ? "bg-[#173f33] text-[#fff9ec] shadow-[0_14px_30px_rgba(23,63,51,0.16)]"
-                  : "bg-[#f5c65e] text-[#173f33]"
-              }`}
-            >
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              New training
-            </button>
           </div>
         </div>
 
@@ -2273,7 +2270,7 @@ function ProgramsWorkspace({
               {!programListCollapsed ? (
                 <div>
                   <p className="text-sm font-black text-[#173f33]">Upcoming</p>
-                  <p className="mt-1 text-[11px] font-semibold text-[#718477]">Existing training programs</p>
+                  <p className="mt-1 text-[11px] font-semibold text-[#718477]">Arranged by batch timing</p>
                 </div>
               ) : null}
               <button
@@ -2286,29 +2283,41 @@ function ProgramsWorkspace({
               </button>
             </div>
             <div className={`grid gap-3 ${programListCollapsed ? "justify-items-center" : ""}`}>
-              {upcomingPrograms.length ? (
-                upcomingPrograms.map((program, index) =>
-                  programListCollapsed ? (
-                    <button
-                      key={program.id}
-                      type="button"
-                      onClick={() => setSelectedProgramId(program.id)}
-                      className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-xs font-black ${
-                        selectedProgramId === program.id ? "bg-[#173f33] text-[#fff9ec]" : "bg-white text-[#9c6a18]"
-                      }`}
-                      title={program.title}
-                    >
-                      {String(index + 1).padStart(2, "0")}
-                    </button>
-                  ) : (
-                    <ProgramKanbanCard
-                      key={program.id}
-                      program={program}
-                      selected={selectedProgramId === program.id}
-                      index={index}
-                      onSelect={() => setSelectedProgramId(program.id)}
-                    />
-                  ),
+              {sortedPrograms.length ? (
+                batchProgramGroups.map((group) =>
+                  group.programs.length ? (
+                    <div key={group.status} className={`grid gap-2 ${programListCollapsed ? "justify-items-center" : ""}`}>
+                      {!programListCollapsed ? (
+                        <div className="flex items-center justify-between px-1 pt-1">
+                          <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#8a7d61]">{group.label}</p>
+                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-black text-[#173f33]">{group.programs.length}</span>
+                        </div>
+                      ) : null}
+                      {group.programs.map((program, index) =>
+                        programListCollapsed ? (
+                          <button
+                            key={program.id}
+                            type="button"
+                            onClick={() => setSelectedProgramId(program.id)}
+                            className={`inline-flex h-11 w-11 items-center justify-center rounded-full text-xs font-black ${
+                              selectedProgramId === program.id ? "bg-[#173f33] text-[#fff9ec]" : "bg-white text-[#9c6a18]"
+                            }`}
+                            title={program.title}
+                          >
+                            {getProgramCourseCode(program)}
+                          </button>
+                        ) : (
+                          <ProgramKanbanCard
+                            key={program.id}
+                            program={program}
+                            selected={selectedProgramId === program.id}
+                            index={index}
+                            onSelect={() => setSelectedProgramId(program.id)}
+                          />
+                        ),
+                      )}
+                    </div>
+                  ) : null,
                 )
               ) : (
                 <div className="rounded-[0.95rem] border border-dashed border-[#dce4de] bg-white/65 px-3 py-8 text-center text-xs font-semibold text-[#718477]">
@@ -2337,8 +2346,6 @@ function ProgramsWorkspace({
                   key={selectedProgram.id}
                   disabled={disabled}
                   program={selectedProgram}
-                  schedules={schedules}
-                  onSchedule={onSchedule}
                   onSave={onProgramSave}
                   onDelete={onProgramDelete}
                 />
@@ -2440,6 +2447,21 @@ function ProgramKanbanCard({
       </div>
     </button>
   );
+}
+
+type AdminProgramBatchStatus = "current" | "upcoming" | "closed";
+
+function getAdminProgramBatchStatus(program: Pick<Program, "batchStartsAt" | "enrollmentClosed">, now = new Date()): AdminProgramBatchStatus {
+  if (program.enrollmentClosed || !program.batchStartsAt) return "closed";
+  const batchDate = new Date(program.batchStartsAt);
+  if (Number.isNaN(batchDate.getTime())) return "closed";
+
+  const batchStartDay = new Date(batchDate);
+  batchStartDay.setHours(0, 0, 0, 0);
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+
+  return batchStartDay.getTime() <= today.getTime() ? "current" : "upcoming";
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -2598,119 +2620,96 @@ function ArticleFields<T extends Omit<ArticleItem, "id">>({
 }
 
 function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { value: T; onChange: (next: T) => void }) {
-  const presentation = trainingProgramCatalogBySlug[value.slug];
-  const outcomes = splitProgramList(presentation?.outcomes);
-  const skills = splitProgramList(presentation?.skills);
-  const audience = splitProgramList(presentation?.targetAudience);
-  const batchLabel = value.batchStartsAt ? formatDateTime(value.batchStartsAt) : "Coming soon";
+  const batchStatus = getAdminProgramBatchStatus(value);
+  const statusLabel = batchStatus === "current" ? "Current batch" : batchStatus === "upcoming" ? "Upcoming batch" : "Coming soon / closed";
+  const scheduleStatus = value.scheduledPostAt
+    ? `Scheduled post time: ${formatDateTime(value.scheduledPostAt)}`
+    : "Post immediately after saving";
 
   return (
     <div className="overflow-hidden rounded-[1.25rem] border border-[#ead9b7] bg-[#fffdf7]">
-      <div className="grid lg:grid-cols-[minmax(18rem,0.44fr)_minmax(0,0.56fr)]">
-        <div className="relative min-h-[28rem] overflow-hidden border-b border-[#ead9b7] bg-[#e8efe4] lg:border-b-0 lg:border-r">
-          {presentation?.imageSrc ? (
-            <Image src={presentation.imageSrc} alt={presentation.imageAlt} fill className="object-cover opacity-45" />
-          ) : null}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#fff7db]/90 via-[#fff9ea]/68 to-[#dfe8d8]/50" />
-          <div className="relative z-10 flex min-h-[28rem] flex-col justify-between p-5">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-md bg-[#f3ad00] px-3 py-2 text-[11px] font-black uppercase text-[#173f33]">
-                <Check className="h-4 w-4" aria-hidden="true" />
-                Selected program
-              </span>
-              <h4 className="mt-8 break-words text-4xl font-black leading-[0.98] text-[#063f2f] sm:text-5xl">
-                {value.title || "Untitled training"}
-              </h4>
-              <p className="mt-4 text-lg font-black text-[#e69b00]">{value.duration || "Duration not set"} Practical Training</p>
-              <p className="mt-5 max-w-xl text-sm font-bold leading-7 text-[#1f2f26]">{value.description || value.summary || "Add a description to preview the public page text."}</p>
-            </div>
-            <div className="mt-6 rounded-xl bg-white/72 p-3 text-xs font-black text-[#173f33] ring-1 ring-[#ead9b7]">
-              Main page uses these saved fields immediately after save.
-            </div>
+      <div className="grid gap-0 border-b border-[#ead9b7] bg-white md:grid-cols-3">
+        <ProgramFact icon={<CalendarDays className="h-6 w-6" aria-hidden="true" />} label="Batch" value={statusLabel} />
+        <ProgramFact icon={<UsersRound className="h-6 w-6" aria-hidden="true" />} label="Batch size" value={`${value.capacity || 0} seats`} />
+        <ProgramFact icon={<CreditCard className="h-6 w-6" aria-hidden="true" />} label="Pricing" value={value.fee || "Not set"} />
+      </div>
+
+      <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <ProgramEditSection title="Batch dates">
+          <div className="rounded-xl border border-[#ead9b7] bg-white p-4">
+            <p className="text-sm font-black text-[#173f33]">{value.title || "Untitled training"}</p>
+            <p className="mt-1 text-xs font-semibold text-[#718477]">{statusLabel}</p>
           </div>
-        </div>
-
-        <div className="min-w-0">
-          <div className="grid border-b border-[#ead9b7] bg-white md:grid-cols-2 xl:grid-cols-5">
-            <ProgramFact icon={<CalendarDays className="h-6 w-6" aria-hidden="true" />} label="Next batch" value={batchLabel} />
-            <ProgramFact icon={<MapPin className="h-6 w-6" aria-hidden="true" />} label="Location" value="Rajendranagar, Hyd" />
-            <ProgramFact icon={<UsersRound className="h-6 w-6" aria-hidden="true" />} label="Batch size" value={`${value.capacity || 0} seats`} />
-            <ProgramFact icon={<Languages className="h-6 w-6" aria-hidden="true" />} label="Languages" value={presentation?.taughtIn ?? "English and Telugu"} />
-            <ProgramFact icon={<Clock3 className="h-6 w-6" aria-hidden="true" />} label="Duration" value={value.duration || "Not set"} />
+          <Field label="New batch start date and time">
+            <input
+              type="datetime-local"
+              className={fieldClass()}
+              value={value.batchStartsAt?.slice(0, 16) ?? ""}
+              onChange={(event) => onChange({ ...value, batchStartsAt: event.target.value })}
+            />
+          </Field>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Registration start date">
+              <input
+                type="datetime-local"
+                className={fieldClass()}
+                value={value.registrationStartsAt?.slice(0, 16) ?? ""}
+                onChange={(event) => onChange({ ...value, registrationStartsAt: event.target.value })}
+              />
+            </Field>
+            <Field label="Last date to register">
+              <input
+                type="datetime-local"
+                className={fieldClass()}
+                value={value.registrationEndsAt?.slice(0, 16) ?? ""}
+                onChange={(event) => onChange({ ...value, registrationEndsAt: event.target.value })}
+              />
+            </Field>
           </div>
+          <Field label="Schedule post date and time">
+            <input
+              type="datetime-local"
+              className={fieldClass()}
+              value={value.scheduledPostAt?.slice(0, 16) ?? ""}
+              onChange={(event) => onChange({ ...value, scheduledPostAt: event.target.value })}
+            />
+          </Field>
+          <p className="rounded-xl bg-[#eef3ef] px-4 py-3 text-xs font-bold leading-5 text-[#607366]">{scheduleStatus}</p>
+        </ProgramEditSection>
 
-          <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(14rem,0.8fr)]">
-            <ProgramEditSection title="Program page content">
-              <Field label="Title">
-                <input className={fieldClass()} value={value.title} onChange={(event) => onChange({ ...value, title: event.target.value })} />
-              </Field>
-              <Field label="Slug">
-                <input className={fieldClass()} value={value.slug} onChange={(event) => onChange({ ...value, slug: event.target.value })} />
-              </Field>
-              <Field label="Summary">
-                <textarea className={fieldClass(true)} rows={3} value={value.summary} onChange={(event) => onChange({ ...value, summary: event.target.value })} />
-              </Field>
-              <Field label="Description">
-                <textarea rows={7} className={fieldClass(true)} value={value.description} onChange={(event) => onChange({ ...value, description: event.target.value })} />
-              </Field>
-            </ProgramEditSection>
-
-            <ProgramEditSection title="Training details">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Duration">
-                  <input className={fieldClass()} value={value.duration} onChange={(event) => onChange({ ...value, duration: event.target.value })} />
-                </Field>
-                <Field label="Capacity">
-                  <input type="number" className={fieldClass()} value={value.capacity} onChange={(event) => onChange({ ...value, capacity: Number(event.target.value) })} />
-                </Field>
-              </div>
-              <Field label="Batch starts at">
-                <input
-                  type="datetime-local"
-                  className={fieldClass()}
-                  value={value.batchStartsAt?.slice(0, 16) ?? ""}
-                  onChange={(event) => onChange({ ...value, batchStartsAt: event.target.value })}
-                />
-              </Field>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Level">
-                  <select className={fieldClass()} value={value.level} onChange={(event) => onChange({ ...value, level: event.target.value as T["level"] })}>
-                    <option>FOUNDATION</option>
-                    <option>ADVANCED</option>
-                    <option>PROFESSIONAL</option>
-                  </select>
-                </Field>
-                <Field label="Fee">
-                  <input className={fieldClass()} value={value.fee ?? ""} onChange={(event) => onChange({ ...value, fee: event.target.value })} />
-                </Field>
-              </div>
-              <ProgramSwitch
-                checked={value.enrollmentClosed}
-                label="Close batch enrollment"
-                description="Closed courses show coming soon/contact message instead of taking payment."
-                onChange={(checked) => onChange({ ...value, enrollmentClosed: checked })}
-              />
-              <ProgramSwitch
-                checked={value.published}
-                label="Published on website"
-                description="Published courses appear on the public training page."
-                onChange={(checked) => onChange({ ...value, published: checked })}
-              />
-              <ProgramSwitch
-                checked={value.popupEnabled}
-                label="Show in upcoming training banner"
-                description="Controls the public training announcement banner."
-                onChange={(checked) => onChange({ ...value, popupEnabled: checked })}
-              />
-            </ProgramEditSection>
-
-            <ProgramEditSection title="Public page guide">
-              <ProgramMiniList title="What you'll learn" items={outcomes} />
-              <ProgramMiniList title="Training breakdown" items={skills} />
-              <ProgramMiniList title="Who can attend?" items={audience} />
-            </ProgramEditSection>
+        <ProgramEditSection title="Seats, price and enrollment">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Field label="Batch size">
+              <input type="number" className={fieldClass()} value={value.capacity} onChange={(event) => onChange({ ...value, capacity: Number(event.target.value) })} />
+            </Field>
+            <Field label="Pricing">
+              <input className={fieldClass()} value={value.fee ?? ""} onChange={(event) => onChange({ ...value, fee: event.target.value })} placeholder="INR 5,000" />
+            </Field>
           </div>
-        </div>
+          <ProgramSwitch
+            checked={!value.enrollmentClosed}
+            label="Enrollment open"
+            description="When open, users can register only inside the registration window and before batch day starts."
+            onChange={(checked) => onChange({ ...value, enrollmentClosed: !checked })}
+          />
+          <ProgramSwitch
+            checked={value.published}
+            label="Post on main page"
+            description="If schedule post time is future, the program becomes visible automatically at that time."
+            onChange={(checked) => onChange({ ...value, published: checked })}
+          />
+          <ProgramSwitch
+            checked={value.popupEnabled}
+            label="Show in training banner"
+            description="Uses the same schedule and enrollment window before appearing publicly."
+            onChange={(checked) => onChange({ ...value, popupEnabled: checked })}
+          />
+          <div className="rounded-xl border border-[#ead9b7] bg-white p-4 text-xs font-semibold leading-6 text-[#607366]">
+            <p><span className="font-black text-[#173f33]">Current batch:</span> batch date is today or already started.</p>
+            <p><span className="font-black text-[#173f33]">Upcoming batch:</span> future batch date with enrollment open.</p>
+            <p><span className="font-black text-[#173f33]">Coming soon/closed:</span> no batch date or enrollment closed.</p>
+          </div>
+        </ProgramEditSection>
       </div>
     </div>
   );
@@ -2718,7 +2717,7 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
 
 function ProgramFact({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
-    <div className="flex min-h-20 items-center gap-3 border-b border-[#ead9b7] px-4 py-3 last:border-b-0 md:[&:nth-child(odd)]:border-r xl:border-b-0 xl:border-r xl:last:border-r-0">
+    <div className="flex min-h-20 items-center gap-3 border-b border-[#ead9b7] px-4 py-3 last:border-b-0 md:border-b-0 md:border-r md:last:border-r-0">
       <span className="text-[#173f33]">{icon}</span>
       <span className="min-w-0">
         <span className="block text-xs font-black text-[#173f33]">{label}</span>
@@ -2730,27 +2729,11 @@ function ProgramFact({ icon, label, value }: { icon: ReactNode; label: string; v
 
 function ProgramEditSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="min-w-0 border-[#ead9b7] xl:border-r xl:pr-5 xl:last:border-r-0 xl:last:pr-0">
+    <section className="min-w-0">
       <h5 className="text-xl font-black text-[#0c3026]">{title}</h5>
       <div className="mt-3 h-0.5 w-12 bg-[#f3ad00]" />
       <div className="mt-5 grid gap-3">{children}</div>
     </section>
-  );
-}
-
-function ProgramMiniList({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="rounded-xl border border-[#ead9b7] bg-white p-3">
-      <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">{title}</p>
-      <div className="mt-3 grid gap-2">
-        {items.slice(0, 5).map((item) => (
-          <div key={item} className="flex gap-2 text-xs font-bold leading-5 text-[#173f33]">
-            <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#e69b00]" aria-hidden="true" />
-            <span>{item}</span>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -2781,16 +2764,6 @@ function ProgramSwitch({
       </span>
     </button>
   );
-}
-
-function splitProgramList(value?: string[] | string | null) {
-  if (Array.isArray(value)) return value.filter(Boolean);
-  if (!value) return ["Admin catalog details will appear here after this program is connected to guide content."];
-
-  return value
-    .split(/,|;|\n/)
-    .map((item) => item.trim())
-    .filter(Boolean);
 }
 
 function EventFields<T extends Omit<EventItem, "id">>({ value, onChange }: { value: T; onChange: (next: T) => void }) {
@@ -2836,15 +2809,11 @@ function EventFields<T extends Omit<EventItem, "id">>({ value, onChange }: { val
 
 function ProgramEditorCard({
   program,
-  schedules,
-  onSchedule,
   onSave,
   onDelete,
   disabled,
 }: {
   program: Program;
-  schedules: PublishSchedule[];
-  onSchedule: (label: string, publishAt: string) => void;
   onSave: (program: Program) => void;
   onDelete: (id: string) => void;
   disabled: boolean;
@@ -2897,12 +2866,6 @@ function ProgramEditorCard({
           <Save className="h-4 w-4" aria-hidden="true" />
           Save changes
         </button>
-        <ScheduleActionRow
-          section="programs"
-          label={draft.title || "Untitled training"}
-          schedules={schedules}
-          onSchedule={onSchedule}
-        />
       </div>
     </article>
   );

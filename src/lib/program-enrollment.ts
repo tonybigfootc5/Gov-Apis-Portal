@@ -11,6 +11,9 @@ type EnrollmentProgram = {
   slug: string;
   title?: string;
   batchStartsAt: Date | string | null;
+  registrationStartsAt?: Date | string | null;
+  registrationEndsAt?: Date | string | null;
+  scheduledPostAt?: Date | string | null;
   enrollmentClosed: boolean;
   published?: boolean;
 };
@@ -18,7 +21,7 @@ type EnrollmentProgram = {
 export type ProgramEnrollmentState = {
   canEnroll: boolean;
   statusLabel: "Enroll Now" | "Coming soon" | "Enrollment closed";
-  reason: "manual-date-missing" | "admin-closed" | "batch-started" | "unpublished" | null;
+  reason: "manual-date-missing" | "admin-closed" | "batch-started" | "unpublished" | "scheduled-post" | "registration-not-started" | "registration-ended" | null;
   message: string;
 };
 
@@ -56,6 +59,16 @@ export function getProgramEnrollmentState(
     };
   }
 
+  const scheduledPostAt = parseDate(program.scheduledPostAt ?? null);
+  if (scheduledPostAt && now.getTime() < scheduledPostAt.getTime()) {
+    return {
+      canEnroll: false,
+      statusLabel: "Coming soon",
+      reason: "scheduled-post",
+      message: `${title} will be posted for registration at the scheduled time.`,
+    };
+  }
+
   if (manualBatchProgramSlugs.has(program.slug) && !program.batchStartsAt) {
     return {
       canEnroll: false,
@@ -71,6 +84,26 @@ export function getProgramEnrollmentState(
       statusLabel: "Enrollment closed",
       reason: "admin-closed",
       message: `${title} enrollment is closed by admin.`,
+    };
+  }
+
+  const registrationStartsAt = parseDate(program.registrationStartsAt ?? null);
+  if (registrationStartsAt && now.getTime() < registrationStartsAt.getTime()) {
+    return {
+      canEnroll: false,
+      statusLabel: "Coming soon",
+      reason: "registration-not-started",
+      message: `${title} registration has not started yet.`,
+    };
+  }
+
+  const registrationEndsAt = parseDate(program.registrationEndsAt ?? null);
+  if (registrationEndsAt && now.getTime() > registrationEndsAt.getTime()) {
+    return {
+      canEnroll: false,
+      statusLabel: "Enrollment closed",
+      reason: "registration-ended",
+      message: `${title} registration last date is over.`,
     };
   }
 

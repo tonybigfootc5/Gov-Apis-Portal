@@ -71,21 +71,24 @@ enum RefundState {
 }
 
 model Program {
-  id               String       @id @default(cuid())
-  title            String
-  slug             String       @unique
-  summary          String
-  description      String
-  duration         String
-  level            ProgramLevel @default(FOUNDATION)
-  fee              String?
-  capacity         Int          @default(30)
-  batchStartsAt    DateTime?
-  enrollmentClosed Boolean      @default(false)
-  popupEnabled     Boolean      @default(true)
-  published        Boolean      @default(true)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id                   String       @id @default(cuid())
+  title                String
+  slug                 String       @unique
+  summary              String
+  description          String
+  duration             String
+  level                ProgramLevel @default(FOUNDATION)
+  fee                  String?
+  capacity             Int          @default(30)
+  batchStartsAt        DateTime?
+  registrationStartsAt DateTime?
+  registrationEndsAt   DateTime?
+  scheduledPostAt      DateTime?
+  enrollmentClosed     Boolean      @default(false)
+  popupEnabled         Boolean      @default(true)
+  published            Boolean      @default(true)
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
 }
 
 model Event {
@@ -104,9 +107,9 @@ model Event {
 }
 
 model Article {
-  id              String   @id @default(cuid())
+  id              String          @id @default(cuid())
   title           String
-  slug            String   @unique
+  slug            String          @unique
   excerpt         String
   body            String
   category        String
@@ -120,9 +123,9 @@ model Article {
   keyPoints       String
   seoTitle        String
   metaDescription String
-  published       Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  published       Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model GalleryImage {
@@ -150,9 +153,9 @@ model ContactMessage {
 }
 
 model TrainingApplication {
-  id                     String                         @id @default(cuid())
-  legacyMessageId        String?                        @unique
-  applicationNumber      Int?                           @unique
+  id                     String                      @id @default(cuid())
+  legacyMessageId        String?                     @unique
+  applicationNumber      Int?                        @unique
   batchCode              String?
   batchSequenceNumber    Int?
   serviceName            String
@@ -178,14 +181,14 @@ model TrainingApplication {
   photoUrl               String?
   photoObjectKey         String?
   photoDataUrl           String?
-  attemptStatus          ApplicationAttemptStatus      @default(SUBMITTED)
-  approvalStatus         ApplicationApprovalStatus     @default(PENDING)
-  crossCheckStatus       ApplicationCrossCheckStatus   @default(PENDING)
-  adminNotes             String                         @default("")
+  attemptStatus          ApplicationAttemptStatus    @default(SUBMITTED)
+  approvalStatus         ApplicationApprovalStatus   @default(PENDING)
+  crossCheckStatus       ApplicationCrossCheckStatus @default(PENDING)
+  adminNotes             String                      @default("")
   approvedAt             DateTime?
   approvedBy             String?
-  createdAt              DateTime                       @default(now())
-  updatedAt              DateTime                       @updatedAt
+  createdAt              DateTime                    @default(now())
+  updatedAt              DateTime                    @updatedAt
   paymentOrders          PaymentOrder[]
 
   @@unique([batchCode, batchSequenceNumber])
@@ -193,29 +196,29 @@ model TrainingApplication {
 }
 
 model PaymentOrder {
-  id                    String             @id @default(cuid())
+  id                    String              @id @default(cuid())
   trainingApplicationId String
   trainingApplication   TrainingApplication @relation(fields: [trainingApplicationId], references: [id], onDelete: Cascade)
-  provider              PaymentProvider    @default(PHONEPE)
+  provider              PaymentProvider     @default(PHONEPE)
   environment           PaymentEnvironment
-  merchantOrderId       String             @unique
+  merchantOrderId       String              @unique
   phonePeOrderId        String?
   checkoutUrl           String?
   redirectUrl           String
-  status                PaymentOrderState  @default(CREATED)
+  status                PaymentOrderState   @default(CREATED)
   amountPaise           Int
-  currency              String             @default("INR")
+  currency              String              @default("INR")
   paymentReference      String?
   paidAt                DateTime?
   failedAt              DateTime?
   expiresAt             DateTime?
-  refundEligible        Boolean            @default(false)
+  refundEligible        Boolean             @default(false)
   latestErrorCode       String?
   latestErrorMessage    String?
   latestEventName       String?
   meta                  Json?
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
   paymentEvents         PaymentEvent[]
   refundRequests        RefundRequest[]
 
@@ -239,21 +242,21 @@ model PaymentEvent {
 }
 
 model RefundRequest {
-  id                    String       @id @default(cuid())
-  paymentOrderId        String
-  paymentOrder          PaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Cascade)
-  merchantRefundId      String       @unique
-  phonePeRefundId       String?
-  amountPaise           Int
-  reason                String
-  requestedBy           String?
-  status                RefundState  @default(REQUESTED)
-  completedAt           DateTime?
-  failedAt              DateTime?
-  failureCode           String?
-  failureMessage        String?
-  createdAt             DateTime     @default(now())
-  updatedAt             DateTime     @updatedAt
+  id               String       @id @default(cuid())
+  paymentOrderId   String
+  paymentOrder     PaymentOrder @relation(fields: [paymentOrderId], references: [id], onDelete: Cascade)
+  merchantRefundId String       @unique
+  phonePeRefundId  String?
+  amountPaise      Int
+  reason           String
+  requestedBy      String?
+  status           RefundState  @default(REQUESTED)
+  completedAt      DateTime?
+  failedAt         DateTime?
+  failureCode      String?
+  failureMessage   String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   @@index([paymentOrderId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])

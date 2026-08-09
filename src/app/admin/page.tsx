@@ -21,6 +21,9 @@ type AdminProgram = {
   fee: string | null;
   capacity: number;
   batchStartsAt: Date | null;
+  registrationStartsAt?: Date | null;
+  registrationEndsAt?: Date | null;
+  scheduledPostAt?: Date | null;
   enrollmentClosed: boolean;
   popupEnabled: boolean;
   published: boolean;
@@ -134,8 +137,8 @@ export default async function AdminPage() {
           description: trainingProgramCatalogBySlug[program.slug]?.description ?? program.description,
           duration: trainingProgramCatalogBySlug[program.slug]?.duration ?? program.duration,
           level: program.level,
-          fee: trainingProgramCatalogBySlug[program.slug]?.fee ?? program.fee ?? null,
-          capacity: trainingProgramCatalogBySlug[program.slug]?.capacity ?? program.capacity,
+          fee: program.fee ?? null,
+          capacity: program.capacity,
         }));
       events = dbEvents.map((event) => ({
         ...event,
@@ -175,6 +178,9 @@ export default async function AdminPage() {
       initialPrograms={programs.map((program: (typeof programs)[number]) => ({
         ...program,
         batchStartsAt: program.batchStartsAt?.toISOString() ?? null,
+        registrationStartsAt: program.registrationStartsAt?.toISOString() ?? null,
+        registrationEndsAt: program.registrationEndsAt?.toISOString() ?? null,
+        scheduledPostAt: program.scheduledPostAt?.toISOString() ?? null,
         updatedAt: program.updatedAt.toISOString(),
       }))}
       initialArticles={articles.map((article: (typeof articles)[number]) => ({

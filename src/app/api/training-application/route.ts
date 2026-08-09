@@ -8,7 +8,6 @@ import {
   buildPhonePeRedirectUrl,
   getCurrentPaymentEnvironment,
   getTrainingApplicationAmountPaise,
-  getTrainingProgramFeeByServiceName,
 } from "@/lib/phonepe-config";
 import { getProgramEnrollmentState } from "@/lib/program-enrollment";
 import { getPrograms } from "@/lib/data";
@@ -90,7 +89,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const selectedProgramFee = getTrainingProgramFeeByServiceName(parsed.data.serviceName);
+    const selectedProgramFee = enrollmentProgram.fee;
     let amountPaise: number;
     try {
       amountPaise = getTrainingApplicationAmountPaise(selectedProgramFee);

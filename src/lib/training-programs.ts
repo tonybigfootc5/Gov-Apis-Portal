@@ -11,6 +11,9 @@ export type TrainingProgramCatalogItem = {
   fee: string;
   capacity: number;
   batchStartsAt: string | null;
+  registrationStartsAt?: string | null;
+  registrationEndsAt?: string | null;
+  scheduledPostAt?: string | null;
   enrollmentClosed: boolean;
   popupEnabled: boolean;
   published: boolean;

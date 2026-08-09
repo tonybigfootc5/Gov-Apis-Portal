@@ -14,6 +14,9 @@ export type ProgramItem = {
   fee: string | null;
   capacity: number;
   batchStartsAt: Date | null;
+  registrationStartsAt?: Date | null;
+  registrationEndsAt?: Date | null;
+  scheduledPostAt?: Date | null;
   enrollmentClosed: boolean;
   popupEnabled: boolean;
   published: boolean;
@@ -101,6 +104,9 @@ function buildCatalogProgram(program: (typeof trainingProgramCatalog)[number]): 
     fee: program.fee,
     capacity: program.capacity,
     batchStartsAt: program.batchStartsAt ? new Date(program.batchStartsAt) : null,
+    registrationStartsAt: null,
+    registrationEndsAt: null,
+    scheduledPostAt: null,
     enrollmentClosed: program.enrollmentClosed,
     popupEnabled: program.popupEnabled,
     published: program.published,
@@ -147,18 +153,21 @@ function isActiveTrainingProgram(program: { slug: string }) {
 export async function getPrograms(): Promise<ProgramItem[]> {
   if (!process.env.DATABASE_URL) return fallbackPrograms;
   try {
+    const now = new Date();
     const programs = await prisma.program.findMany({
-      where: { published: true },
       orderBy: [{ level: "asc" }, { title: "asc" }],
     });
 
     const mergedPrograms = new Map<string, ProgramItem>();
+    const dbProgramSlugs = new Set(programs.map((program) => program.slug));
 
     for (const catalogProgram of trainingProgramCatalog) {
-      mergedPrograms.set(catalogProgram.slug, buildCatalogProgram(catalogProgram));
+      if (!dbProgramSlugs.has(catalogProgram.slug)) {
+        mergedPrograms.set(catalogProgram.slug, buildCatalogProgram(catalogProgram));
+      }
     }
 
-    for (const program of programs.filter(isActiveTrainingProgram)) {
+    for (const program of programs.filter((item) => isActiveTrainingProgram(item) && isProgramPubliclyPosted(item, now))) {
       const normalizedProgram = mergeProgramWithCatalog(program);
       mergedPrograms.set(normalizedProgram.slug, normalizedProgram);
     }
@@ -201,7 +210,7 @@ export async function getPopupAnnouncementPrograms(now = new Date()): Promise<Pr
       orderBy: [{ batchStartsAt: "asc" }, { title: "asc" }],
     });
 
-    return getAnnouncementPrograms(programs.filter(isActiveTrainingProgram).map(mergeProgramWithCatalog), now);
+    return getAnnouncementPrograms(programs.filter((item) => isActiveTrainingProgram(item) && isProgramPubliclyPosted(item, now)).map(mergeProgramWithCatalog), now);
   } catch {
     return getAnnouncementPrograms(fallbackPrograms, now);
   }
@@ -213,9 +222,10 @@ export async function getProgram(slug: string): Promise<ProgramItem | null> {
   }
   try {
     const program = await prisma.program.findFirst({
-      where: { slug, published: true },
+      where: { slug },
     });
     if (program && isActiveTrainingProgram(program)) {
+      if (!isProgramPubliclyPosted(program, new Date())) return null;
       return mergeProgramWithCatalog(program);
     }
 
@@ -224,6 +234,12 @@ export async function getProgram(slug: string): Promise<ProgramItem | null> {
   } catch {
     return fallbackPrograms.find((item) => item.slug === slug) ?? null;
   }
+}
+
+function isProgramPubliclyPosted(program: { published?: boolean; scheduledPostAt?: Date | string | null }, now = new Date()) {
+  if (program.published === false) return false;
+  const scheduledPostAt = program.scheduledPostAt ? new Date(program.scheduledPostAt) : null;
+  return !scheduledPostAt || Number.isNaN(scheduledPostAt.getTime()) || scheduledPostAt.getTime() <= now.getTime();
 }
 
 export async function getEvents(): Promise<EventItem[]> {

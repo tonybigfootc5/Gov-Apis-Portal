@@ -37,9 +37,15 @@ export const programSchema = z.object({
   fee: z.string().trim().max(120).optional().or(z.literal("")),
   capacity: z.coerce.number().int().min(1).max(500),
   batchStartsAt: z.preprocess((value) => (value === "" ? null : value), z.coerce.date().optional().nullable()),
+  registrationStartsAt: z.preprocess((value) => (value === "" ? null : value), z.coerce.date().optional().nullable()),
+  registrationEndsAt: z.preprocess((value) => (value === "" ? null : value), z.coerce.date().optional().nullable()),
+  scheduledPostAt: z.preprocess((value) => (value === "" ? null : value), z.coerce.date().optional().nullable()),
   enrollmentClosed: z.coerce.boolean().default(false),
   popupEnabled: z.coerce.boolean().default(true),
   published: z.coerce.boolean().default(true),
+}).refine((data) => !data.registrationStartsAt || !data.registrationEndsAt || data.registrationEndsAt >= data.registrationStartsAt, {
+  message: "Registration last date must be after the registration start date.",
+  path: ["registrationEndsAt"],
 });
 
 export const eventSchema = z.object({
