@@ -133,7 +133,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
       "This longer module is built for participants who already understand practical hive work. It covers queen cell handling, grafting practice, colony splitting, nucleus colony management, mating yard preparation, repeated royal jelly collection practice, royal jelly processing, pre- and post-harvesting packing, cold handling, records, and business management.",
     duration: "10 days",
     level: "ADVANCED",
-    fee: "INR 10,000",
+    fee: "INR 1",
     capacity: 10,
     batchStartsAt: null,
     enrollmentClosed: false,
