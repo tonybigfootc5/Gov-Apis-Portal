@@ -579,7 +579,13 @@ export async function syncPaymentOrderFromStatus(
   await prisma.$transaction([
     prisma.paymentOrder.update({
       where: { id: order.id },
-      data: paymentUpdate,
+      data: {
+        ...paymentUpdate,
+        phonePeOrderId: paymentUpdate.phonePeOrderId ?? order.phonePeOrderId,
+        paidAt: paymentUpdate.paidAt ?? order.paidAt,
+        failedAt: paymentUpdate.failedAt ?? order.failedAt,
+        paymentReference: paymentUpdate.paymentReference ?? order.paymentReference,
+      },
     }),
     prisma.trainingApplication.update({
       where: { id: order.trainingApplicationId },
@@ -705,7 +711,13 @@ export async function processPhonePeCallback(
   await prisma.$transaction([
     prisma.paymentOrder.update({
       where: { id: order.id },
-      data: paymentUpdate,
+      data: {
+        ...paymentUpdate,
+        phonePeOrderId: paymentUpdate.phonePeOrderId ?? order.phonePeOrderId,
+        paidAt: paymentUpdate.paidAt ?? order.paidAt,
+        failedAt: paymentUpdate.failedAt ?? order.failedAt,
+        paymentReference: paymentUpdate.paymentReference ?? order.paymentReference,
+      },
     }),
     prisma.trainingApplication.update({
       where: { id: order.trainingApplicationId },

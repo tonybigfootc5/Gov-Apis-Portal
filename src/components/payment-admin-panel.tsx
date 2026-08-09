@@ -214,7 +214,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
     ? payments.find(
         (payment) =>
           payment.merchantOrderId === scanResult.merchantOrderId ||
-          payment.phonePeOrderId === scanResult.transactionNumber ||
+          payment.paymentReference === scanResult.transactionNumber ||
           payment.application.studentCode === scanResult.enrollmentId,
       ) ?? null
     : null;

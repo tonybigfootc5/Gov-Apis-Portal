@@ -18,7 +18,10 @@ export async function GET(_request: Request, { params }: Props) {
     return NextResponse.json({ error: "Payment order not found." }, { status: 404 });
   }
 
-  if (["PENDING", "CREATED", "FAILED", "EXPIRED"].includes(paymentOrder.status)) {
+  if (
+    ["PENDING", "CREATED", "FAILED", "EXPIRED"].includes(paymentOrder.status) ||
+    (paymentOrder.status === "PAID" && !paymentOrder.paymentReference)
+  ) {
     try {
       const status = await getPhonePeOrderStatus(paymentOrder.merchantOrderId);
       await syncPaymentOrderFromStatus(paymentOrder, status, "return.status");

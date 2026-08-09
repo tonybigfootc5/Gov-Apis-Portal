@@ -62,7 +62,8 @@ export default async function PaymentReturnPage({ searchParams }: Props) {
   if (
     paymentOrder &&
     hasDatabaseUrl &&
-    ["PENDING", "CREATED", "FAILED", "EXPIRED"].includes(paymentOrder.status)
+    (["PENDING", "CREATED", "FAILED", "EXPIRED"].includes(paymentOrder.status) ||
+      (paymentOrder.status === "PAID" && !paymentOrder.paymentReference))
   ) {
     try {
       const status = await getPhonePeOrderStatus(paymentOrder.merchantOrderId);

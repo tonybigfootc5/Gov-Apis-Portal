@@ -92,6 +92,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       downloadReceipt: "Download Successful Card",
       qrTitle: "Verification QR",
       qrHint: "Admin can scan this QR to verify the successful enrollment receipt.",
+      waitingTransactionId: "Waiting for PhonePe transaction ID...",
       notCompleted: "Payment not completed",
       progress: "Confirmation in progress",
       receivedMessage: (name: string) => `${name} is enrolled successfully. The payment has been captured by the gateway.`,
@@ -155,27 +156,29 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     downloadReceipt: "Download Successful Card",
     qrTitle: "Verification QR",
     qrHint: "Admin can scan this QR to verify the successful enrollment receipt.",
+    waitingTransactionId: "Waiting for PhonePe transaction ID...",
   };
   const [payment, setPayment] = useState(initialPayment);
   const [pollError, setPollError] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [downloadError, setDownloadError] = useState("");
-  const polling = POLLABLE_STATUSES.has(payment.status);
+  const waitingForGatewayTransactionId = payment.status === "PAID" && !payment.paymentReference;
+  const polling = POLLABLE_STATUSES.has(payment.status) || waitingForGatewayTransactionId;
   const paidAtLabel = formatDate(payment.paidAt);
-  const transactionNumber = payment.phonePeOrderId ?? payment.merchantOrderId;
+  const transactionNumber = payment.paymentReference ?? receiptCopy.waitingTransactionId;
   const enrollmentId = payment.enrollmentId ?? "Not assigned yet";
   const amountLabel = formatMoney(payment.amountPaise, payment.currency);
   const receiptPayload = useMemo<ReceiptPayload | null>(() => {
-    if (payment.status !== "PAID") return null;
+    if (payment.status !== "PAID" || !payment.paymentReference) return null;
 
     return {
       type: "API_CULTURE_PAYMENT_SUCCESS",
       status: "PAID",
       fullName: payment.candidateName,
       aadhaarNumber: payment.aadhaarNo || "Not available",
-      transactionNumber,
+      transactionNumber: payment.paymentReference,
       merchantOrderId: payment.merchantOrderId,
-      gatewayReference: payment.paymentReference,
+      gatewayReference: payment.phonePeOrderId,
       amountPaid: amountLabel,
       amountPaise: payment.amountPaise,
       currency: payment.currency,
@@ -184,7 +187,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       paidAt: payment.paidAt,
       issuedAt: new Date().toISOString(),
     };
-  }, [amountLabel, enrollmentId, payment, transactionNumber]);
+  }, [amountLabel, enrollmentId, payment]);
 
   useEffect(() => {
     if (!polling) return;
@@ -240,7 +243,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
             }));
             setPollError("");
 
-            if (FINAL_STATUSES.has(nextStatus)) {
+            if (FINAL_STATUSES.has(nextStatus) && !(nextStatus === "PAID" && !(body.paymentReference ?? payment.paymentReference))) {
               return;
             }
           }
@@ -257,7 +260,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [payment.merchantOrderId, polling]);
+  }, [payment.merchantOrderId, payment.paymentReference, polling]);
 
   const content = getContent(payment, copy);
   const receiptRows: Array<[string, string | React.ReactNode]> = [
@@ -273,7 +276,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     [copy.program, payment.serviceName],
     [detailCopy.enrollmentId, enrollmentId],
     [detailCopy.transactionNumber, transactionNumber],
-    [detailCopy.referenceNumber, payment.paymentReference ?? "Not received from gateway"],
+    [detailCopy.referenceNumber, payment.phonePeOrderId ?? "Not received from gateway"],
   ];
 
   useEffect(() => {
@@ -351,6 +354,13 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
               <ReceiptSection title={receiptCopy.studentDetails} rows={studentRows} />
               <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
 
+              {waitingForGatewayTransactionId ? (
+                <div className="mb-4 flex items-center gap-3 rounded-[0.9rem] border border-[#f2b544]/25 bg-[#fff8df] px-4 py-3 text-xs font-bold leading-5 text-[#8b5d05]">
+                  <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  Payment is successful. Pulling the real PhonePe transaction ID from the gateway.
+                </div>
+              ) : null}
+
               <div className="grid gap-4 rounded-[0.9rem] border border-[#e5e7eb] bg-[#fbfdfb] p-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center">
                 <div className="grid h-36 w-36 place-items-center rounded-[0.7rem] bg-white p-2 shadow-[inset_0_0_0_1px_rgba(23,63,51,0.08)]">
                   {qrDataUrl ? (
@@ -368,7 +378,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
 
               <button
                 type="button"
-                disabled={!qrDataUrl}
+                disabled={!receiptPayload || !qrDataUrl}
                 onClick={() => void downloadReceipt()}
                 className="mt-4 inline-flex h-14 w-full items-center justify-center gap-3 rounded-[0.8rem] border border-[#d1d5db] bg-gradient-to-b from-white to-[#f3f4f6] px-4 text-base font-black text-[#111827] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -424,7 +434,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
               </div>
               <div className="section-frame rounded-[1.4rem] p-4">
                 <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{detailCopy.transactionNumber}</p>
-                <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.phonePeOrderId ?? payment.merchantOrderId}</p>
+                <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.paymentReference ?? "Waiting for PhonePe transaction ID"}</p>
               </div>
               <div className="section-frame rounded-[1.4rem] p-4">
                 <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{copy.orderReference}</p>
@@ -432,7 +442,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
               </div>
               <div className="section-frame rounded-[1.4rem] p-4">
                 <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{detailCopy.referenceNumber}</p>
-                <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.paymentReference ?? "Not received from gateway"}</p>
+                <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.phonePeOrderId ?? "Not received from gateway"}</p>
               </div>
             </div>
 
