@@ -17,7 +17,14 @@ type PaymentStatus =
 
 type PaymentSnapshot = {
   merchantOrderId: string;
+  phonePeOrderId: string | null;
+  paymentReference: string | null;
+  amountPaise: number;
+  currency: string;
   serviceName: string;
+  candidateName: string;
+  aadhaarNo: string;
+  enrollmentId: string | null;
   status: PaymentStatus;
 };
 
@@ -41,6 +48,12 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     en: {
       program: "Program",
       orderReference: "Order reference",
+      fullName: "Full name",
+      aadhaarNo: "Aadhaar number",
+      transactionNumber: "Transaction number",
+      referenceNumber: "Gateway reference",
+      amountPaid: "Amount paid",
+      enrollmentId: "Enrollment ID",
       checking: "Checking PhonePe for the latest confirmation...",
       next: "Next",
       nextLine1: "Your application stays recorded even while the gateway confirms the charge.",
@@ -53,7 +66,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       received: "Payment received",
       notCompleted: "Payment not completed",
       progress: "Confirmation in progress",
-      receivedMessage: (name: string) => `Your payment for ${name} has been captured successfully. The training application is now in the confirmed payment state.`,
+      receivedMessage: (name: string) => `${name} is enrolled successfully. The payment has been captured by the gateway.`,
       notCompletedMessage: "The gateway did not confirm this transaction.",
       progressMessage: "Your application is saved. Payment confirmation is in progress.",
     },
@@ -96,6 +109,14 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       progressMessage: "आपका आवेदन सुरक्षित है। हम भुगतान गेटवे द्वारा लेनदेन अंतिम करने की प्रतीक्षा कर रहे हैं और यह पेज स्वतः जांच करता रहेगा।",
     },
   }[language];
+  const detailCopy = {
+    fullName: "Full name",
+    aadhaarNo: "Aadhaar number",
+    transactionNumber: "Transaction number",
+    referenceNumber: "Gateway reference",
+    amountPaid: "Amount paid",
+    enrollmentId: "Enrollment ID",
+  };
   const [payment, setPayment] = useState(initialPayment);
   const [pollError, setPollError] = useState("");
   const polling = POLLABLE_STATUSES.has(payment.status);
@@ -115,7 +136,20 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
             cache: "no-store",
           });
           const body = (await response.json().catch(() => null)) as
-            | { status?: PaymentStatus; application?: { serviceName?: string } }
+            | {
+                status?: PaymentStatus;
+                merchantOrderId?: string;
+                phonePeOrderId?: string | null;
+                paymentReference?: string | null;
+                amountPaise?: number;
+                currency?: string;
+                application?: {
+                  serviceName?: string;
+                  candidateName?: string;
+                  aadhaarNo?: string;
+                  studentCode?: string | null;
+                };
+              }
             | { error?: string }
             | null;
 
@@ -124,16 +158,22 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
           }
 
           if (body && "status" in body && body.status) {
-            const nextPayment = {
-              merchantOrderId: payment.merchantOrderId,
-              serviceName: body.application?.serviceName ?? payment.serviceName,
-              status: body.status,
-            } satisfies PaymentSnapshot;
-
-            setPayment(nextPayment);
+            const nextStatus = body.status;
+            setPayment((current) => ({
+              merchantOrderId: current.merchantOrderId,
+              phonePeOrderId: body.phonePeOrderId ?? current.phonePeOrderId,
+              paymentReference: body.paymentReference ?? current.paymentReference,
+              amountPaise: body.amountPaise ?? current.amountPaise,
+              currency: body.currency ?? current.currency,
+              serviceName: body.application?.serviceName ?? current.serviceName,
+              candidateName: body.application?.candidateName ?? current.candidateName,
+              aadhaarNo: body.application?.aadhaarNo ?? current.aadhaarNo,
+              enrollmentId: body.application?.studentCode ?? current.enrollmentId,
+              status: nextStatus,
+            }));
             setPollError("");
 
-            if (FINAL_STATUSES.has(nextPayment.status)) {
+            if (FINAL_STATUSES.has(nextStatus)) {
               return;
             }
           }
@@ -150,7 +190,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [payment.merchantOrderId, payment.serviceName, polling]);
+  }, [payment.merchantOrderId, polling]);
 
   const content = getContent(payment, copy);
 
@@ -173,12 +213,36 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
 
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               <div className="section-frame rounded-[1.4rem] p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{detailCopy.fullName}</p>
+                <p className="mt-3 text-lg font-semibold text-bright">{payment.candidateName}</p>
+              </div>
+              <div className="section-frame rounded-[1.4rem] p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{detailCopy.aadhaarNo}</p>
+                <p className="mt-3 text-lg font-semibold text-bright">{payment.aadhaarNo || "Not available"}</p>
+              </div>
+              <div className="section-frame rounded-[1.4rem] p-4">
                 <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{copy.program}</p>
                 <p className="mt-3 text-lg font-semibold text-bright">{payment.serviceName}</p>
               </div>
               <div className="section-frame rounded-[1.4rem] p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{detailCopy.enrollmentId}</p>
+                <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.enrollmentId ?? "Not assigned yet"}</p>
+              </div>
+              <div className="section-frame rounded-[1.4rem] p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{detailCopy.amountPaid}</p>
+                <p className="mt-3 text-lg font-semibold text-bright">{formatMoney(payment.amountPaise, payment.currency)}</p>
+              </div>
+              <div className="section-frame rounded-[1.4rem] p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{detailCopy.transactionNumber}</p>
+                <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.phonePeOrderId ?? payment.merchantOrderId}</p>
+              </div>
+              <div className="section-frame rounded-[1.4rem] p-4">
                 <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{copy.orderReference}</p>
                 <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.merchantOrderId}</p>
+              </div>
+              <div className="section-frame rounded-[1.4rem] p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8ec5ff]">{detailCopy.referenceNumber}</p>
+                <p className="mt-3 break-all text-sm font-semibold text-bright">{payment.paymentReference ?? "Not received from gateway"}</p>
               </div>
             </div>
 
@@ -243,7 +307,7 @@ function getContent(
       badge: "bg-[rgba(42,141,95,0.12)] text-[#215b42]",
       label: copy.confirmed,
       title: copy.received,
-      message: copy.receivedMessage(payment.serviceName),
+      message: copy.receivedMessage(payment.candidateName),
     };
   }
 
@@ -264,4 +328,13 @@ function getContent(
     title: copy.progress,
     message: copy.progressMessage,
   };
+}
+
+function formatMoney(amountPaise: number, currency: string) {
+  const amount = amountPaise / 100;
+  if (currency === "INR") {
+    return `Rs. ${amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  return `${currency} ${amount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

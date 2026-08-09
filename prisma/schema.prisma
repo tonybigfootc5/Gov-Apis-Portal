@@ -159,6 +159,7 @@ model TrainingApplication {
   applicationDate        String
   candidateName          String
   guardianName           String
+  aadhaarNo              String                      @default("")
   email                  String
   gender                 String
   dateOfBirth            String

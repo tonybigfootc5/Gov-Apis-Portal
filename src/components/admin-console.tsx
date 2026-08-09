@@ -35,6 +35,7 @@ import { PaymentAdminPanel } from "@/components/payment-admin-panel";
 import { optimizeImageForInlineStorage } from "@/lib/client-media";
 import type { ContactInboxRecord } from "@/lib/contact-inbox";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
+import { isFailedPaymentApplication, isSuccessfulPaymentApplication } from "@/lib/training-application";
 import type { PaymentAdminRecord } from "@/lib/training-application-store";
 
 type Program = {
@@ -281,12 +282,7 @@ export function AdminConsole({
   const activityPanelRef = useRef<HTMLDivElement | null>(null);
 
   const applicationSummary = useMemo(() => {
-    const ready = applications.filter(
-      (application) =>
-        application.payload.crossCheckStatus === "VERIFIED" &&
-        application.payload.paymentStatus === "PAID" &&
-        application.payload.approvalStatus === "PENDING",
-    ).length;
+    const ready = applications.filter((application) => isSuccessfulPaymentApplication(application)).length;
 
     return { ready };
   }, [applications]);
@@ -379,13 +375,13 @@ export function AdminConsole({
 
     if (applicationSummary.ready > 0) {
       liveNotifications.push({
-        id: "system-pending-approvals",
+        id: "system-paid-enrollments",
         section: "applications",
-        title: "Pending approvals need attention",
-        message: `${applicationSummary.ready} learner${applicationSummary.ready === 1 ? "" : "s"} are waiting for final approval in Applications.`,
+        title: "Paid enrollments updated",
+        message: `${applicationSummary.ready} learner${applicationSummary.ready === 1 ? "" : "s"} are enrolled from successful payments.`,
         timestamp: new Date().toISOString(),
-        read: readSystemNotificationIds.includes("system-pending-approvals"),
-        variant: "warning",
+        read: readSystemNotificationIds.includes("system-paid-enrollments"),
+        variant: "success",
       });
     }
 
@@ -1302,13 +1298,13 @@ function OverviewDashboard({
   onOpenSection: (view: DashboardView) => void;
   theme: SectionTheme;
 }) {
-  const pendingApplications = applications.filter((application) => application.payload.approvalStatus !== "APPROVED").length;
+  const enrolledApplications = applications.filter((application) => isSuccessfulPaymentApplication(application));
+  const failedPaymentApplications = applications.filter((application) => isFailedPaymentApplication(application));
   const pendingPayments = payments.filter((payment) => !["PAID", "SUCCESS", "CAPTURED"].includes(payment.status)).length;
   const contactCount = contactMessages.length;
-  const operationsLoad = pendingApplications + pendingPayments + contactCount;
+  const operationsLoad = pendingPayments + contactCount;
   const publishedAssets = programs.length + events.length + articles.length + galleryImages.length;
   const paidPayments = payments.filter((payment) => ["PAID", "SUCCESS", "CAPTURED"].includes(payment.status));
-  const approvedApplications = applications.filter((application) => application.payload.approvalStatus === "APPROVED").length;
   const latestApplication = [...applications].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
   const latestPayment = [...payments].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
   const latestContact = [...contactMessages].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
@@ -1327,14 +1323,14 @@ function OverviewDashboard({
   const paidAmountPaise = paidPayments.reduce((total, payment) => total + payment.amountPaise, 0);
   const totalPaymentAmountPaise = payments.reduce((total, payment) => total + payment.amountPaise, 0);
   const reviewRows = [
-    { label: "Pending applications", value: pendingApplications, view: "applications" as DashboardView },
-    { label: "Pending payments", value: pendingPayments, view: "payments" as DashboardView },
+    { label: "Enrolled students", value: enrolledApplications.length, view: "applications" as DashboardView },
+    { label: "Payment attention", value: pendingPayments, view: "payments" as DashboardView },
     { label: "Contact messages", value: contactCount, view: "contacts" as DashboardView },
   ];
-  const liveBars = [applications.length, approvedApplications, pendingApplications, payments.length, pendingPayments, contactCount];
+  const liveBars = [enrolledApplications.length, failedPaymentApplications.length, payments.length, pendingPayments, contactCount];
   const maxLiveBar = Math.max(...liveBars, 1);
   const recentPayments = payments.slice(0, 3);
-  const reviewTarget = pendingApplications > 0 ? "applications" : pendingPayments > 0 ? "payments" : "contacts";
+  const reviewTarget = pendingPayments > 0 ? "payments" : contactCount > 0 ? "contacts" : "applications";
 
   return (
     <div className="mt-4 grid gap-4">
@@ -1346,7 +1342,7 @@ function OverviewDashboard({
           </p>
         </div>
         <button onClick={() => onOpenSection(reviewTarget)} className="rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] shadow-[0_12px_28px_rgba(23,63,51,0.14)]">
-          Review queue
+          Open queue
         </button>
       </section>
 
@@ -1356,21 +1352,21 @@ function OverviewDashboard({
             <UsersRound className="h-5 w-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <p className="truncate text-sm font-black">{operationsLoad ? `${operationsLoad} live items need review` : "All live queues are clear"}</p>
+            <p className="truncate text-sm font-black">{operationsLoad ? `${operationsLoad} live items need attention` : "All live queues are clear"}</p>
             <p className="mt-1 truncate text-xs font-semibold text-[#d6f4ed]">
               {latestApplication ? `Latest application: ${latestApplication.payload.candidateName}` : "No applications submitted yet."}
             </p>
           </div>
         </div>
         <button onClick={() => onOpenSection(reviewTarget)} className="rounded-[0.65rem] bg-[#fffdf8] px-3 py-2 text-xs font-black text-[#173f33]">
-          Review
+          Open
         </button>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <OverviewMetricCard label="Applications" value={applications.length} description={`${approvedApplications} approved`} icon={<UsersRound className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("applications")} />
+        <OverviewMetricCard label="Paid enrolled" value={enrolledApplications.length} description="Auto-enrolled after payment" icon={<UsersRound className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("applications")} />
         <OverviewMetricCard label="Payments" value={payments.length} description={`${paidPayments.length} paid`} icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("payments")} />
-        <OverviewMetricCard label="Inbox" value={contactCount} description="Current messages" icon={<Mail className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("contacts")} />
+        <OverviewMetricCard label="Payment issues" value={failedPaymentApplications.length} description="Handled in Payments" icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("payments")} />
         <OverviewMetricCard label="Content" value={publishedAssets} description="Programs, events, articles, gallery" icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("programs")} />
       </div>
 
@@ -1393,9 +1389,9 @@ function OverviewDashboard({
             </div>
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <MiniStat label="Admissions" value={applications.length} />
+            <MiniStat label="Enrolled" value={enrolledApplications.length} />
+            <MiniStat label="Failed" value={failedPaymentApplications.length} />
             <MiniStat label="Payments" value={payments.length} />
-            <MiniStat label="Messages" value={contactCount} />
           </div>
         </section>
 
@@ -1430,7 +1426,7 @@ function OverviewDashboard({
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)]">
         <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
-          <h2 className="text-lg font-black text-[#173f33]">Review Queue</h2>
+          <h2 className="text-lg font-black text-[#173f33]">Operations Queue</h2>
           <div className="mt-4 grid gap-3">
             {reviewRows.map((row) => (
               <button key={row.label} onClick={() => onOpenSection(row.view)} className="flex items-center justify-between rounded-[0.9rem] bg-[#f7faf7] px-4 py-3 text-left">
@@ -1462,27 +1458,23 @@ function OverviewDashboard({
   );
 }
 
-function deriveBatchCode(program: Program, index: number) {
-  const initials = program.title
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? "")
-    .join("")
-    .slice(0, 2) || "BT";
-
-  const date = program.batchStartsAt ? new Date(program.batchStartsAt) : null;
-  if (!date || Number.isNaN(date.getTime())) {
-    return `${initials}-${String(index + 1).padStart(2, "0")}`;
-  }
-
-  const year = String(date.getFullYear()).slice(-2);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  return `${initials}-${year}${month}`;
-}
-
 function normalizeTrainingLabel(value: string) {
   return value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "");
+}
+
+function getProgramCourseCode(program: Program) {
+  const normalized = normalizeTrainingLabel(`${program.title} ${program.slug}`);
+
+  if (normalized.includes("honeyprocessing")) return "HP";
+  if (normalized.includes("queen") || normalized.includes("royaljelly") || normalized.includes("colony")) return "QBB";
+  if (normalized.includes("beekeeping")) return "BK";
+
+  return program.title
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((word) => word[0]?.toUpperCase() ?? "")
+    .join("") || "TRN";
 }
 
 function applicationMatchesProgram(application: TrainingApplicationRecord, program: Program) {
@@ -1505,37 +1497,128 @@ function applicationMatchesProgram(application: TrainingApplicationRecord, progr
   return false;
 }
 
+function parseProgramDurationDays(duration: string) {
+  const match = duration.match(/(\d+)/);
+  return match ? Math.max(1, Number(match[1])) : 1;
+}
+
+function getBatchDateFromCode(batchCode: string) {
+  const currentMatch = batchCode.match(/^[A-Z0-9]+-B\d{2,}-(\d{2})-(\d{4})$/);
+  if (currentMatch) {
+    const [, month, year] = currentMatch;
+    return new Date(Number(year), Number(month) - 1, 1, 9);
+  }
+
+  const legacyMatch = batchCode.match(/^[A-Z0-9]+-(\d{2})-[A-Z]{3}-B\d{2,}$/);
+  if (legacyMatch) {
+    const [, year] = legacyMatch;
+    return new Date(Number(`20${year}`), 0, 1, 9);
+  }
+
+  return null;
+}
+
+function buildBatchCode(program: Program, batchNumber: number, date: Date | null) {
+  const batchDate = date && !Number.isNaN(date.getTime()) ? date : new Date();
+  const month = String(batchDate.getMonth() + 1).padStart(2, "0");
+  const year = String(batchDate.getFullYear());
+
+  return `${getProgramCourseCode(program)}-B${String(batchNumber).padStart(2, "0")}-${month}-${year}`;
+}
+
+function buildEnrollmentPattern(batchCode: string) {
+  const currentMatch = batchCode.match(/^[A-Z0-9]+-B(\d{2,})-(\d{2})-(\d{4})$/);
+  if (currentMatch) {
+    const [, batchNumber, month, year] = currentMatch;
+    return `B${batchNumber}-${month}-0000-${year}`;
+  }
+
+  return `${batchCode}-0000`;
+}
+
+type BatchSeatStatus = "current" | "upcoming" | "past";
+type BatchSeatRow = {
+  id: string;
+  program: Program;
+  batchCode: string;
+  enrollmentPattern: string;
+  status: BatchSeatStatus;
+  statusLabel: string;
+  enrolled: number;
+  seatsLeft: number;
+  capacity: number;
+  fillPercent: number;
+  startsAt: string | null;
+  sortTime: number;
+};
+
+function getBatchStatus(startDate: Date | null, durationDays: number, now: Date): BatchSeatStatus {
+  if (!startDate || Number.isNaN(startDate.getTime())) return "upcoming";
+
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + durationDays);
+
+  if (now.getTime() < startDate.getTime()) return "upcoming";
+  if (now.getTime() <= endDate.getTime()) return "current";
+  return "past";
+}
+
 function getProgramSeatRows(programs: Program[], applications: TrainingApplicationRecord[]) {
-  const sortedPrograms = [...programs].sort((left, right) => {
-    const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
-    const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
-    return leftTime - rightTime;
-  });
+  const now = new Date();
+  const sortedPrograms = [...programs]
+    .filter((program) => program.published)
+    .sort((left, right) => {
+      const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
+      const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
+      return leftTime - rightTime || left.title.localeCompare(right.title);
+    })
+    .slice(0, 3);
 
-  return sortedPrograms.slice(0, 3).map((program, index) => {
-    const matchingApplications = applications.filter((application) => applicationMatchesProgram(application, program));
-    const registeredApplications = matchingApplications.filter((application) => application.payload.approvalStatus !== "REJECTED");
-    const batchCounts = registeredApplications.reduce<Map<string, number>>((counts, application) => {
-      const batchCode = application.batchCode || deriveBatchCode(program, index);
-      counts.set(batchCode, (counts.get(batchCode) ?? 0) + 1);
-      return counts;
+  const rows = sortedPrograms.flatMap((program, index) => {
+    const programStartDate = program.batchStartsAt ? new Date(program.batchStartsAt) : null;
+    const fallbackBatchCode = buildBatchCode(program, index + 1, programStartDate);
+    const registeredApplications = applications.filter((application) => {
+      if (!applicationMatchesProgram(application, program)) return false;
+      return isSuccessfulPaymentApplication(application);
+    });
+    const groupedApplications = registeredApplications.reduce<Map<string, TrainingApplicationRecord[]>>((groups, application) => {
+      const batchCode = application.batchCode || fallbackBatchCode;
+      groups.set(batchCode, [...(groups.get(batchCode) ?? []), application]);
+      return groups;
     }, new Map());
-    const [topBatchCode, topBatchCount] =
-      [...batchCounts.entries()].sort((left, right) => right[1] - left[1])[0] ?? [deriveBatchCode(program, index), 0];
-    const capacity = Math.max(0, program.capacity || 0);
-    const registeredCount = registeredApplications.length;
-    const availableSeats = Math.max(0, capacity - registeredCount);
 
-    return {
-      program,
-      batchCode: topBatchCode,
-      batchRegisteredCount: topBatchCount,
-      registeredCount,
-      availableSeats,
-      capacity,
-      fillPercent: capacity ? Math.min(100, Math.round((registeredCount / capacity) * 100)) : 0,
-    };
+    if (!groupedApplications.size) {
+      groupedApplications.set(fallbackBatchCode, []);
+    }
+
+    return [...groupedApplications.entries()].map(([batchCode, batchApplications]) => {
+      const batchStartDate = getBatchDateFromCode(batchCode) ?? programStartDate;
+      const capacity = Math.max(0, program.capacity || 0);
+      const enrolled = batchApplications.length;
+      const status = getBatchStatus(batchStartDate, parseProgramDurationDays(program.duration), now);
+
+      return {
+        id: `${program.id}-${batchCode}`,
+        program,
+        batchCode,
+        enrollmentPattern: buildEnrollmentPattern(batchCode),
+        status,
+        statusLabel: status === "current" ? "Already started" : status === "upcoming" ? "Upcoming" : "Completed",
+        enrolled,
+        seatsLeft: Math.max(0, capacity - enrolled),
+        capacity,
+        fillPercent: capacity ? Math.min(100, Math.round((enrolled / capacity) * 100)) : 0,
+        startsAt: batchStartDate && !Number.isNaN(batchStartDate.getTime()) ? batchStartDate.toISOString() : null,
+        sortTime: batchStartDate && !Number.isNaN(batchStartDate.getTime()) ? batchStartDate.getTime() : Number.POSITIVE_INFINITY,
+      } satisfies BatchSeatRow;
+    });
   });
+
+  return {
+    current: rows.filter((row) => row.status === "current").sort((left, right) => left.sortTime - right.sortTime),
+    upcoming: rows.filter((row) => row.status === "upcoming").sort((left, right) => left.sortTime - right.sortTime),
+    past: rows.filter((row) => row.status === "past").sort((left, right) => right.sortTime - left.sortTime),
+  };
 }
 
 function OverviewMetricCard({
@@ -1607,7 +1690,9 @@ function ProgramSeatSummary({
   programs: Program[];
   theme: SectionTheme;
 }) {
-  const rows = getProgramSeatRows(programs, applications);
+  const paidApplications = applications.filter((application) => isSuccessfulPaymentApplication(application));
+  const batchGroups = getProgramSeatRows(programs, applications);
+  const rows = [...batchGroups.current, ...batchGroups.upcoming, ...batchGroups.past];
 
   if (!rows.length) {
     return (
@@ -1619,55 +1704,114 @@ function ProgramSeatSummary({
   }
 
   return (
-    <section className={`rounded-[1.3rem] border p-3.5 shadow-[0_16px_32px_rgba(10,5,4,0.1)] ${theme.panelShell}`}>
+    <section className={`rounded-[1.45rem] border p-4 shadow-[0_16px_32px_rgba(10,5,4,0.1)] ${theme.panelShell}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Program seats</p>
-          <p className="mt-1 text-sm font-semibold text-[#607366]">Registered students by batch number and available seats.</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Batch seat overview</p>
+          <p className="mt-1 text-sm font-semibold text-[#607366]">
+            Only successful gateway payments are counted as enrolled seats.
+          </p>
         </div>
         <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${theme.badge}`}>
-          {rows.length} programs
+          {programs.filter((program) => program.published).slice(0, 3).length} programs
         </span>
       </div>
 
-      <div className="mt-3 grid gap-3 lg:grid-cols-3">
-        {rows.map((row) => (
-          <div key={row.program.id} className={`rounded-[1rem] border px-3.5 py-3 ${theme.panelSurface}`}>
-            <div className="flex min-h-[4.5rem] flex-col justify-between">
-              <div>
-                <p className="line-clamp-2 text-sm font-black leading-tight text-[#173f33]">{row.program.title}</p>
-                <p className="mt-1 text-[11px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">
-                  Batch {row.batchCode}
-                </p>
-              </div>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e9eee9]">
-                <div className="h-full rounded-full bg-[#077b76]" style={{ width: `${row.fillPercent}%` }} />
-              </div>
-            </div>
+      <div className="mt-4 rounded-[1rem] bg-[#173f33] px-3 py-2.5 text-[#fff9ec] shadow-[0_10px_22px_rgba(23,63,51,0.14)]">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em]">Successful payment enrolled</p>
+          <p className="mt-1 text-sm font-semibold text-[#d4e1d8]">
+            {paidApplications.length.toLocaleString("en-IN")} paid student{paidApplications.length === 1 ? "" : "s"}
+          </p>
+      </div>
 
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">Registered</p>
-                <p className="mt-1 text-xl font-black leading-none text-[#173f33]">{row.registeredCount}</p>
-              </div>
-              <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">This batch</p>
-                <p className="mt-1 text-xl font-black leading-none text-[#173f33]">{row.batchRegisteredCount}</p>
-              </div>
-              <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
-                <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">Available</p>
-                <p className="mt-1 text-xl font-black leading-none text-[#173f33]">{row.availableSeats}</p>
-              </div>
-            </div>
-
-            <div className="mt-2 flex items-center justify-between gap-3 text-[11px] font-semibold text-[#607366]">
-              <span>Capacity {row.capacity}</span>
-              <span>{row.program.batchStartsAt ? formatDateTime(row.program.batchStartsAt) : "Start date not set"}</span>
-            </div>
-          </div>
-        ))}
+      <div className="mt-4 grid gap-4">
+        <BatchSeatGroup title="Current batch" rows={batchGroups.current} emptyText="No paid students are currently enrolled in a running batch." theme={theme} />
+        <BatchSeatGroup title="Upcoming batch" rows={batchGroups.upcoming} emptyText="No upcoming paid enrollments are available yet." theme={theme} />
+        <BatchSeatGroup title="Past batches" rows={batchGroups.past} emptyText="No past paid batch records are available yet." theme={theme} />
       </div>
     </section>
+  );
+}
+
+function BatchSeatGroup({
+  title,
+  rows,
+  emptyText,
+  theme,
+}: {
+  title: string;
+  rows: BatchSeatRow[];
+  emptyText: string;
+  theme: SectionTheme;
+}) {
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <h3 className="text-xs font-black uppercase tracking-[0.18em] text-[#173f33]">{title}</h3>
+        <span className="rounded-full bg-[#eef3ef] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-[#607366]">
+          {rows.length} batch{rows.length === 1 ? "" : "es"}
+        </span>
+      </div>
+      {rows.length ? (
+        <div className="grid gap-3 xl:grid-cols-3">
+          {rows.map((row) => (
+            <BatchSeatCard key={row.id} row={row} theme={theme} />
+          ))}
+        </div>
+      ) : (
+        <div className={`rounded-[1rem] border border-dashed px-4 py-5 text-sm font-semibold text-[#607366] ${theme.panelSurface}`}>
+          {emptyText}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BatchSeatCard({ row, theme }: { row: BatchSeatRow; theme: SectionTheme }) {
+  return (
+    <article className={`rounded-[1rem] border px-4 py-3.5 ${theme.panelSurface}`}>
+      <div className="flex min-h-[5.4rem] items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">
+            {row.status === "current" ? "Current batch" : row.status === "upcoming" ? "Upcoming batch" : "Past batch"} {row.batchCode}
+          </p>
+          <h3 className="mt-2 line-clamp-2 text-base font-black leading-tight text-[#173f33]">{row.program.title}</h3>
+          <p className="mt-1 text-xs font-semibold text-[#607366]">Enrollment format: {row.enrollmentPattern}</p>
+        </div>
+        <span className={`shrink-0 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.13em] ${
+          row.status === "current"
+            ? "bg-[#173f33] text-[#fff9ec]"
+            : row.status === "upcoming"
+              ? "bg-[#fff4d8] text-[#9c6a18]"
+              : "bg-[#edf2ef] text-[#607366]"
+        }`}>
+          {row.statusLabel}
+        </span>
+      </div>
+
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e9eee9]">
+        <div className="h-full rounded-full bg-[#077b76]" style={{ width: `${row.fillPercent}%` }} />
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <BatchMiniStat label="Joined" value={row.enrolled} />
+        <BatchMiniStat label="Seats left" value={row.seatsLeft} />
+        <BatchMiniStat label="Capacity" value={row.capacity} />
+        <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">Starts</p>
+          <p className="mt-1 text-xs font-black leading-tight text-[#173f33]">{row.startsAt ? formatDateTime(row.startsAt) : "Coming soon"}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function BatchMiniStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
+      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">{label}</p>
+      <p className="mt-1 text-xl font-black leading-none text-[#173f33]">{value.toLocaleString("en-IN")}</p>
+    </div>
   );
 }
 

@@ -70,11 +70,12 @@ export async function POST(request: Request) {
 
       const batchDate = new Date();
       const courseCode = getTrainingCourseCode(parsed.data.serviceName);
-      const year = String(batchDate.getFullYear()).slice(-2);
+      const month = String(batchDate.getMonth() + 1).padStart(2, "0");
+      const year = String(batchDate.getFullYear());
       const existingMonthlyBatch = await tx.trainingApplication.findFirst({
         where: {
           serviceName: parsed.data.serviceName,
-          batchCode: { startsWith: `${courseCode}-${year}-HYD-B` },
+          batchCode: { startsWith: `${courseCode}-B`, endsWith: `-${month}-${year}` },
         },
         orderBy: { createdAt: "asc" },
         select: { batchCode: true },
@@ -105,6 +106,7 @@ export async function POST(request: Request) {
           applicationDate: parsed.data.applicationDate,
           candidateName: parsed.data.candidateName,
           guardianName: parsed.data.guardianName,
+          aadhaarNo: parsed.data.aadhaarNo,
           email: parsed.data.email || "no-email-provided@applicant.local",
           gender: parsed.data.gender,
           dateOfBirth: parsed.data.dateOfBirth,
@@ -270,10 +272,13 @@ async function getNextBatchNumberForService(
     distinct: ["batchCode"],
   });
   const largestBatchNumber = existingBatches.reduce((largest, application) => {
+    const currentBatchMatch = application.batchCode?.match(new RegExp(`^${courseCode}-B(\\d+)-\\d{2}-\\d{4}$`));
     const modernBatchMatch = application.batchCode?.match(new RegExp(`^${courseCode}-\\d{2}-HYD-B(\\d+)$`));
     const legacyParts = application.batchCode?.split("-") ?? [];
-    const batchNumber = modernBatchMatch
-      ? Number(modernBatchMatch[1])
+    const batchNumber = currentBatchMatch
+      ? Number(currentBatchMatch[1])
+      : modernBatchMatch
+        ? Number(modernBatchMatch[1])
       : legacyParts[0] === courseCode && legacyParts.length === 4
         ? Number(legacyParts[1])
         : 0;

@@ -5,6 +5,7 @@ import { getRequestLanguage } from "@/lib/request-language";
 import type { SiteLanguage } from "@/lib/i18n";
 import { getPhonePeOrderStatus } from "@/lib/phonepe";
 import { hasDatabaseUrl } from "@/lib/prisma";
+import { formatStudentCode } from "@/lib/training-application";
 import {
   getPaymentOrderByMerchantOrderId,
   syncPaymentOrderFromStatus,
@@ -88,7 +89,18 @@ export default async function PaymentReturnPage({ searchParams }: Props) {
       language={language}
       initialPayment={{
         merchantOrderId: paymentOrder.merchantOrderId,
+        phonePeOrderId: paymentOrder.phonePeOrderId,
+        paymentReference: paymentOrder.paymentReference,
+        amountPaise: paymentOrder.amountPaise,
+        currency: paymentOrder.currency,
         serviceName: paymentOrder.trainingApplication.serviceName,
+        candidateName: paymentOrder.trainingApplication.candidateName,
+        aadhaarNo: paymentOrder.trainingApplication.aadhaarNo,
+        enrollmentId: formatStudentCode(
+          paymentOrder.trainingApplication.batchCode,
+          paymentOrder.trainingApplication.batchSequenceNumber,
+          paymentOrder.trainingApplication.candidateName,
+        ),
         status: paymentOrder.status,
       }}
     />

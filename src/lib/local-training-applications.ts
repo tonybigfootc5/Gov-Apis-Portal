@@ -28,6 +28,7 @@ type CreateLocalTrainingApplicationInput = {
   applicationDate: string;
   candidateName: string;
   guardianName: string;
+  aadhaarNo: string;
   email: string;
   gender: "male" | "female";
   dateOfBirth: string;
@@ -127,7 +128,8 @@ export async function createLocalTrainingApplication(input: CreateLocalTrainingA
     const batchDate = new Date(now);
     const courseCode = getTrainingCourseCode(input.serviceName);
     const year = String(batchDate.getFullYear());
-    const monthBatchKey = `${input.serviceName.toLowerCase()}|${year}`;
+    const month = String(batchDate.getMonth() + 1).padStart(2, "0");
+    const monthBatchKey = `${input.serviceName.toLowerCase()}|${month}|${year}`;
     const existingBatchCode = store.monthBatchCodes?.[monthBatchKey];
     const nextBatchNumber = store.nextBatchNumbers?.[courseCode] ?? 1;
     const batchCode = existingBatchCode ?? buildTrainingBatchCode(input.serviceName, nextBatchNumber, batchDate);

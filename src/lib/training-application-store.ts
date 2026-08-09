@@ -76,6 +76,7 @@ export type PaymentAdminRecord = {
     applicationDate: string;
     gender: string;
     dateOfBirth: string;
+    aadhaarNo: string;
     addressLine: string;
     mandal: string;
     district: string;
@@ -175,6 +176,34 @@ function mapRefundState(state: string | undefined | null): RefundState {
     default:
       return "REQUESTED";
   }
+}
+
+function buildApplicationUpdateFromPaymentState(status: PaymentOrderState): Prisma.TrainingApplicationUpdateInput {
+  if (status === "PAID") {
+    return {
+      attemptStatus: "PAYMENT_COMPLETED",
+      approvalStatus: "APPROVED",
+      crossCheckStatus: "VERIFIED",
+      approvedAt: new Date(),
+      approvedBy: "Payment gateway",
+    };
+  }
+
+  if (status === "FAILED" || status === "EXPIRED" || status === "REFUNDED" || status === "REFUND_FAILED") {
+    return {
+      attemptStatus: "PAYMENT_FAILED",
+      approvalStatus: "PENDING",
+      crossCheckStatus: "PENDING",
+      approvedAt: null,
+      approvedBy: null,
+    };
+  }
+
+  return {
+    attemptStatus: "PAYMENT_INITIATED",
+    approvalStatus: "PENDING",
+    crossCheckStatus: "PENDING",
+  };
 }
 
 function buildPaymentUpdateFromOrderStatus(status: OrderStatusResponse) {
@@ -338,6 +367,7 @@ export function mapPaymentOrderAdminRecord(order: PaymentOrderAdminEntity): Paym
       applicationDate: order.trainingApplication.applicationDate,
       gender: order.trainingApplication.gender,
       dateOfBirth: order.trainingApplication.dateOfBirth,
+      aadhaarNo: order.trainingApplication.aadhaarNo,
       addressLine: order.trainingApplication.addressLine,
       mandal: order.trainingApplication.mandal,
       district: order.trainingApplication.district,
@@ -412,6 +442,7 @@ export async function backfillLegacyTrainingApplications() {
         applicationDate: payload.applicationDate,
         candidateName: payload.candidateName,
         guardianName: payload.guardianName,
+        aadhaarNo: payload.aadhaarNo ?? "",
         email: payload.email || message.email,
         gender: payload.gender,
         dateOfBirth: payload.dateOfBirth,
@@ -442,6 +473,7 @@ export async function backfillLegacyTrainingApplications() {
         applicationDate: payload.applicationDate,
         candidateName: payload.candidateName,
         guardianName: payload.guardianName,
+        aadhaarNo: payload.aadhaarNo ?? "",
         email: payload.email || message.email,
         gender: payload.gender,
         dateOfBirth: payload.dateOfBirth,
@@ -533,6 +565,7 @@ export async function syncPaymentOrderFromStatus(
   source: "admin.refresh" | "return.status",
 ) {
   const paymentUpdate = buildPaymentUpdateFromOrderStatus(status);
+  const applicationUpdate = buildApplicationUpdateFromPaymentState(paymentUpdate.status);
   const dedupeKey = buildEventDedupeKey([
     order.id,
     source,
@@ -547,6 +580,10 @@ export async function syncPaymentOrderFromStatus(
     prisma.paymentOrder.update({
       where: { id: order.id },
       data: paymentUpdate,
+    }),
+    prisma.trainingApplication.update({
+      where: { id: order.trainingApplicationId },
+      data: applicationUpdate,
     }),
     prisma.paymentEvent.upsert({
       where: { dedupeKey },
@@ -612,6 +649,10 @@ export async function syncRefundRequestFromStatus(
         latestErrorMessage: firstDetail?.detailedErrorCode ?? null,
       },
     }),
+    prisma.trainingApplication.updateMany({
+      where: { paymentOrders: { some: { id: refundRequest.paymentOrderId } } },
+      data: buildApplicationUpdateFromPaymentState(orderState),
+    }),
     prisma.paymentEvent.upsert({
       where: { dedupeKey },
       update: {},
@@ -647,6 +688,7 @@ export async function processPhonePeCallback(
   }
 
   const paymentUpdate = buildPaymentUpdateFromCallback(callback);
+  const applicationUpdate = buildApplicationUpdateFromPaymentState(paymentUpdate.status);
   const firstPaymentDetail = callback.payload.paymentDetails?.[0];
   const dedupeKey = buildEventDedupeKey([
     order.id,
@@ -664,6 +706,10 @@ export async function processPhonePeCallback(
     prisma.paymentOrder.update({
       where: { id: order.id },
       data: paymentUpdate,
+    }),
+    prisma.trainingApplication.update({
+      where: { id: order.trainingApplicationId },
+      data: applicationUpdate,
     }),
     prisma.paymentEvent.upsert({
       where: { dedupeKey },

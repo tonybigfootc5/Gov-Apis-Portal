@@ -20,6 +20,7 @@ export type TrainingApplicationPayload = {
   applicationDate: string;
   candidateName: string;
   guardianName: string;
+  aadhaarNo: string;
   email: string;
   gender: "male" | "female";
   dateOfBirth: string;
@@ -122,9 +123,10 @@ export function getTrainingBatchPeriod(date = new Date()) {
 
 export function buildTrainingBatchCode(serviceName: string, batchNumber: number, date = new Date()) {
   const servicePrefix = getTrainingCourseCode(serviceName);
-  const year = String(date.getFullYear()).slice(-2);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = String(date.getFullYear());
 
-  return `${servicePrefix}-${year}-HYD-B${String(batchNumber).padStart(2, "0")}`;
+  return `${servicePrefix}-B${String(batchNumber).padStart(2, "0")}-${month}-${year}`;
 }
 
 export function formatApplicationCode(applicationNumber?: number | null) {
@@ -132,6 +134,9 @@ export function formatApplicationCode(applicationNumber?: number | null) {
 }
 
 function normalizeBatchCodeForEnrollment(batchCode: string) {
+  const currentMatch = batchCode.match(/^([A-Z0-9]+)-B(\d{2,})-(\d{2})-(\d{4})$/);
+  if (currentMatch) return batchCode;
+
   const modernMatch = batchCode.match(/^([A-Z0-9]+)-(\d{2})-([A-Z]{3})-B(\d{2,})$/);
   if (modernMatch) return batchCode;
 
@@ -245,16 +250,16 @@ export function mapPaymentOrderStateToApplicationPaymentStatus(
 ): ApplicationPaymentStatus {
   switch (state) {
     case "PAID":
-    case "REFUND_PENDING":
-    case "REFUNDED":
-    case "REFUND_FAILED":
       return "PAID";
     case "FAILED":
     case "EXPIRED":
+    case "REFUNDED":
+    case "REFUND_FAILED":
       return "FAILED";
     case "CREATED":
       return "NOT_STARTED";
     case "PENDING":
+    case "REFUND_PENDING":
       return "PENDING";
     default:
       return "NOT_STARTED";
@@ -311,6 +316,7 @@ export function mapTrainingApplicationEntity(
       applicationDate: application.applicationDate,
       candidateName: application.candidateName,
       guardianName: application.guardianName,
+      aadhaarNo: application.aadhaarNo,
       email: application.email,
       gender: application.gender as "male" | "female",
       dateOfBirth: application.dateOfBirth,
@@ -357,6 +363,19 @@ export function mapLegacyPaymentStatus(
     default:
       return "CREATED";
   }
+}
+
+export function isSuccessfulPaymentApplication(application: TrainingApplicationRecord) {
+  return application.latestPayment?.status === "PAID" || (!application.latestPayment && application.payload.paymentStatus === "PAID");
+}
+
+export function isFailedPaymentApplication(application: TrainingApplicationRecord) {
+  return (
+    application.payload.paymentStatus === "FAILED" ||
+    application.payload.attemptStatus === "PAYMENT_FAILED" ||
+    application.latestPayment?.status === "FAILED" ||
+    application.latestPayment?.status === "EXPIRED"
+  );
 }
 
 export function buildLegacyMerchantOrderId(messageId: string) {

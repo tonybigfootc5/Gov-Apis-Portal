@@ -9,7 +9,7 @@ import type {
   ApplicationPaymentStatus,
   TrainingApplicationRecord,
 } from "@/lib/training-application";
-import { formatStudentCode } from "@/lib/training-application";
+import { formatStudentCode, isSuccessfulPaymentApplication } from "@/lib/training-application";
 
 type Props = {
   storageMode: "database" | "local";
@@ -17,26 +17,14 @@ type Props = {
   onApplicationsChange?: (applications: TrainingApplicationRecord[]) => void;
 };
 
-const attemptOptions: ApplicationAttemptStatus[] = [
-  "ATTEMPTED",
-  "SUBMITTED",
-  "PAYMENT_INITIATED",
-  "PAYMENT_FAILED",
-  "PAYMENT_COMPLETED",
-];
-
 const paymentOptions: ApplicationPaymentStatus[] = ["NOT_STARTED", "PENDING", "PAID", "FAILED"];
-const approvalOptions: ApplicationApprovalStatus[] = ["PENDING", "APPROVED", "REJECTED"];
-const crossCheckOptions: ApplicationCrossCheckStatus[] = ["PENDING", "VERIFIED"];
 export function ApplicationAdminPanel({ storageMode, initialApplications, onApplicationsChange }: Props) {
   const [applications, setApplications] = useState(initialApplications);
   const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [serviceFilter, setServiceFilter] = useState("ALL");
-  const [approvalFilter, setApprovalFilter] = useState("ALL");
   const [paymentFilter, setPaymentFilter] = useState("ALL");
-  const [crossCheckFilter, setCrossCheckFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("BATCH");
   const [viewMode, setViewMode] = useState<"batch" | "date">("batch");
@@ -62,11 +50,15 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
     () => Math.max(...applications.map((application) => new Date(application.payload.submittedAt).getTime()), 0),
     [applications],
   );
+  const enrolledApplications = useMemo(
+    () => applications.filter((application) => isSuccessfulPaymentApplication(application)),
+    [applications],
+  );
 
   const filteredApplications = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return applications.filter((application) => {
+    return enrolledApplications.filter((application) => {
       const meta = getPreviewApplicationMeta(application);
       const matchesQuery =
         !normalizedQuery ||
@@ -82,9 +74,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
         formatDateLabel(application.payload.submittedAt).toLowerCase().includes(normalizedQuery);
 
       const matchesService = serviceFilter === "ALL" || application.payload.serviceName === serviceFilter;
-      const matchesApproval = approvalFilter === "ALL" || application.payload.approvalStatus === approvalFilter;
       const matchesPayment = paymentFilter === "ALL" || application.payload.paymentStatus === paymentFilter;
-      const matchesCrossCheck = crossCheckFilter === "ALL" || application.payload.crossCheckStatus === crossCheckFilter;
       const submittedAtMs = new Date(application.payload.submittedAt).getTime();
       const matchesDate =
         dateFilter === "ALL" ||
@@ -95,7 +85,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
         (!fromDate || submittedDate >= fromDate) &&
         (!toDate || submittedDate <= toDate);
 
-      return matchesQuery && matchesService && matchesApproval && matchesPayment && matchesCrossCheck && matchesDate && matchesCustomRange;
+      return matchesQuery && matchesService && matchesPayment && matchesDate && matchesCustomRange;
     }).sort((left, right) => {
       if (sortBy === "OLDEST") {
         return new Date(left.payload.submittedAt).getTime() - new Date(right.payload.submittedAt).getTime();
@@ -117,7 +107,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
 
       return new Date(right.payload.submittedAt).getTime() - new Date(left.payload.submittedAt).getTime();
     });
-  }, [applications, approvalFilter, crossCheckFilter, dateFilter, fromDate, latestSubmissionTime, paymentFilter, query, serviceFilter, sortBy, toDate]);
+  }, [dateFilter, enrolledApplications, fromDate, latestSubmissionTime, paymentFilter, query, serviceFilter, sortBy, toDate]);
 
   const activeSelectedApplicationId =
     selectedApplicationId && applications.some((application) => application.id === selectedApplicationId)
@@ -152,16 +142,14 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
     );
   }, [filteredApplications]);
   const visibleApplicationGroups = viewMode === "batch" ? applicationsByBatch : applicationsByDate;
-  const approvedCount = filteredApplications.filter((application) => application.payload.approvalStatus === "APPROVED").length;
-  const pendingApprovalCount = filteredApplications.filter((application) => application.payload.approvalStatus === "PENDING").length;
   const paidCount = filteredApplications.filter((application) => application.payload.paymentStatus === "PAID").length;
-  const verifiedCount = filteredApplications.filter((application) => application.payload.crossCheckStatus === "VERIFIED").length;
+  const withPhotoCount = filteredApplications.filter((application) => application.payload.photoName).length;
+  const programCount = new Set(filteredApplications.map((application) => application.payload.serviceName)).size;
   const statCards = [
-    { label: "Students", value: filteredApplications.length, hint: "Visible records", dot: "bg-[#d9931f]" },
-    { label: "Approved", value: approvedCount, hint: "Cleared", dot: "bg-[#1b8f63]" },
-    { label: "Pending", value: pendingApprovalCount, hint: "Needs review", dot: "bg-[#f5a524]" },
-    { label: "Paid", value: paidCount, hint: "Fee confirmed", dot: "bg-[#077b76]" },
-    { label: "Verified", value: verifiedCount, hint: "Cross-check done", dot: "bg-[#6b7cff]" },
+    { label: "Enrolled", value: filteredApplications.length, hint: "Payment successful", dot: "bg-[#1b8f63]" },
+    { label: "Paid", value: paidCount, hint: "Gateway confirmed", dot: "bg-[#077b76]" },
+    { label: "Programs", value: programCount, hint: "Active roster", dot: "bg-[#6b7cff]" },
+    { label: "Photos", value: withPhotoCount, hint: "Applicant files", dot: "bg-[#f5a524]" },
   ];
 
   async function load() {
@@ -231,9 +219,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
   function resetFilters() {
     setQuery("");
     setServiceFilter("ALL");
-    setApprovalFilter("ALL");
     setPaymentFilter("ALL");
-    setCrossCheckFilter("ALL");
     setDateFilter("ALL");
     setSortBy("BATCH");
     setViewMode("batch");
@@ -261,6 +247,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
   return (
     <section className="grid gap-4">
       {notice ? <p className="rounded-[1.4rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-4 py-3 text-sm font-semibold text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.05)]">{notice}</p> : null}
+
+      <div className="rounded-[1.35rem] border border-[rgba(23,63,51,0.08)] bg-[#173f33] p-4 text-[#fff9ec] shadow-[0_12px_28px_rgba(23,63,51,0.12)]">
+        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#f5c65e]">Enrollment roster</p>
+        <p className="mt-1 text-sm font-semibold text-[#d4e1d8]">
+          {enrolledApplications.length.toLocaleString("en-IN")} student{enrolledApplications.length === 1 ? "" : "s"} with successful gateway payment.
+        </p>
+      </div>
 
       <div className="rounded-[1.55rem] bg-white p-3 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
         <div className="grid gap-3 xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-center">
@@ -313,9 +306,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                     <SelectField theme="light" label="Service filter" value={serviceFilter} onChange={setServiceFilter} options={["ALL", ...serviceOptions]} />
                     <SelectField theme="light" label="Date range" value={dateFilter} onChange={setDateFilter} options={["ALL", "LAST_7_DAYS", "LAST_30_DAYS"]} />
                     <SelectField theme="light" label="Sort list" value={sortBy} onChange={setSortBy} options={["BATCH", "LATEST", "OLDEST", "SERVICE", "NAME"]} />
-                    <SelectField theme="light" label="Approval filter" value={approvalFilter} onChange={setApprovalFilter} options={["ALL", ...approvalOptions]} />
                     <SelectField theme="light" label="Payment filter" value={paymentFilter} onChange={setPaymentFilter} options={["ALL", ...paymentOptions]} />
-                    <SelectField theme="light" label="Cross-check filter" value={crossCheckFilter} onChange={setCrossCheckFilter} options={["ALL", ...crossCheckOptions]} />
                   </div>
                 </div>
               </div>
@@ -390,8 +381,12 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
       <div className="overflow-hidden rounded-[1.55rem] bg-white shadow-[0_14px_34px_rgba(23,63,51,0.07)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf2ee] px-4 py-4">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Admissions board</p>
-            <h3 className="mt-1 text-xl font-black text-[#173f33]">{filteredApplications.length} visible students</h3>
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">
+              Enrolled students
+            </p>
+            <h3 className="mt-1 text-xl font-black text-[#173f33]">
+              {filteredApplications.length} visible enrolled student{filteredApplications.length === 1 ? "" : "s"}
+            </h3>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button type="button" onClick={expandAllGroups} className="rounded-[0.8rem] border border-[#e6ece7] bg-[#fbfdfb] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]">
@@ -446,7 +441,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                           <span>Phone</span>
                           <span>Submitted</span>
                           <span>Payment</span>
-                          <span>Approval</span>
+                          <span>Status</span>
                           <span>Enrollment ID</span>
                           <span className="text-right">Action</span>
                         </div>
@@ -480,7 +475,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                               <span className="truncate text-sm font-semibold">{application.payload.phone}</span>
                               <span className={`text-xs font-semibold ${isActive ? "text-[#d4e1d8]" : "text-[#718477]"}`}>{formatDateLabel(application.payload.submittedAt)}</span>
                               <StatusBadge status={application.payload.paymentStatus} active={isActive} />
-                              <StatusBadge status={application.payload.approvalStatus} active={isActive} />
+                              <StatusBadge status="ENROLLED" active={isActive} />
                               <span className={`truncate text-xs font-black ${isActive ? "text-[#f5c65e]" : "text-[#9c6a18]"}`}>
                                 {meta.studentCode ?? meta.applicationCode}
                               </span>
@@ -550,8 +545,8 @@ function ApplicationStatCard({
 
 function StatusBadge({ status, active }: { status: string; active: boolean }) {
   const normalized = status.replaceAll("_", " ");
-  const isGood = status === "PAID" || status === "APPROVED" || status === "VERIFIED" || status === "PAYMENT_COMPLETED";
-  const isBad = status === "FAILED" || status === "REJECTED" || status === "PAYMENT_FAILED";
+  const isGood = status === "PAID" || status === "ENROLLED" || status === "PAYMENT_COMPLETED";
+  const isBad = status === "FAILED" || status === "PAYMENT_FAILED";
 
   if (active) {
     return (
@@ -643,14 +638,10 @@ function ApplicationCard({
     },
   ) => void;
 }) {
-  const [attemptStatus, setAttemptStatus] = useState<ApplicationAttemptStatus>(application.payload.attemptStatus);
+  const [attemptStatus] = useState<ApplicationAttemptStatus>(application.payload.attemptStatus);
   const [paymentStatus] = useState<ApplicationPaymentStatus>(application.payload.paymentStatus);
-  const [approvalStatus, setApprovalStatus] = useState<ApplicationApprovalStatus>(application.payload.approvalStatus);
-  const [crossCheckStatus, setCrossCheckStatus] = useState<ApplicationCrossCheckStatus>(application.payload.crossCheckStatus);
   const [adminNotes, setAdminNotes] = useState(application.payload.adminNotes);
   const [paymentReference] = useState(application.payload.paymentReference);
-  const readyToApprove = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "PENDING";
-  const joinReady = crossCheckStatus === "VERIFIED" && paymentStatus === "PAID" && approvalStatus === "APPROVED";
   const photoSrc = application.payload.photoUrl || application.payload.photoDataUrl;
   const previewMeta = getPreviewApplicationMeta(application);
   const studentDetailRows = [
@@ -661,7 +652,7 @@ function ApplicationCard({
     { label: "Phone number", value: application.payload.phone || "Not provided" },
     { label: "Payment sent date", value: previewMeta.paymentSentDate },
     {
-      label: "Payment approved date",
+      label: "Payment confirmed date",
       value: previewMeta.paymentApprovedDate,
     },
     { label: "Passed out date", value: previewMeta.passedOutDate },
@@ -675,22 +666,6 @@ function ApplicationCard({
       value: previewMeta.studentFiles,
     },
   ];
-  const blockers = [
-    crossCheckStatus !== "VERIFIED" ? "Cross-check still pending" : null,
-    paymentStatus !== "PAID" ? "Payment not confirmed" : null,
-    approvalStatus === "REJECTED" ? "Application already rejected" : null,
-  ].filter(Boolean) as string[];
-
-  function saveDecision(nextApprovalStatus: ApplicationApprovalStatus) {
-    onSave(application.id, {
-      attemptStatus,
-      paymentStatus,
-      approvalStatus: nextApprovalStatus,
-      crossCheckStatus,
-      adminNotes,
-      paymentReference,
-    });
-  }
 
   return (
     <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-5 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
@@ -706,8 +681,7 @@ function ApplicationCard({
           <div className="flex flex-wrap gap-2">
             <StatusPill icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={attemptStatus} />
             <StatusPill icon={<CreditCard className="h-4 w-4" aria-hidden="true" />} label={paymentStatus} />
-            <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label={crossCheckStatus} />
-            <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label={approvalStatus} />
+            <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label="ENROLLED" />
           </div>
         </div>
 
@@ -720,17 +694,16 @@ function ApplicationCard({
         </div>
 
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-          <InfoCard icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} label="Review status">
+          <InfoCard icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} label="Enrollment status">
             <p>Attempt status: {attemptStatus.replaceAll("_", " ")}</p>
             <p>Payment status: {paymentStatus.replaceAll("_", " ")}</p>
-            <p>Cross-check status: {crossCheckStatus.replaceAll("_", " ")}</p>
-            <p>Approval status: {approvalStatus.replaceAll("_", " ")}</p>
-            <p>Join readiness: {joinReady ? "Ready to join" : readyToApprove ? "Ready for approval" : "Not ready yet"}</p>
+            <p>Enrollment status: Enrolled automatically after successful payment</p>
+            <p>Enrollment ID: {previewMeta.studentCode ?? "Not assigned yet"}</p>
           </InfoCard>
           <InfoCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Stored billing data">
             <p>Payment reference: {paymentReference || "Not provided"}</p>
-            <p>Approved at: {application.payload.approvedAt ? formatDateLabel(application.payload.approvedAt) : "Pending"}</p>
-            <p>Incoming billing proof is handled from the main site submission flow.</p>
+            <p>Paid at: {application.latestPayment?.paidAt ? formatDateLabel(application.latestPayment.paidAt) : "Captured by gateway"}</p>
+            <p>Incoming billing proof is handled by the payment gateway flow.</p>
           </InfoCard>
         </div>
 
@@ -780,57 +753,16 @@ function ApplicationCard({
         ) : null}
 
         <div className="grid gap-4">
-          <InfoCard icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} label="Current priority">
-            <p>{joinReady ? "Learner cleared to join" : readyToApprove ? "Ready for final approval" : "Needs review before approval"}</p>
-            {blockers.length ? (
-              blockers.map((blocker) => <p key={blocker}>- {blocker}</p>)
-            ) : (
-              <p>This application has passed the required review gates.</p>
-            )}
-          </InfoCard>
-        </div>
-
-        <div className="grid gap-4 xl:grid-cols-2">
           <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#173f33] p-4 text-[#fff9ec] shadow-[0_18px_44px_rgba(23,63,51,0.16)]">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f5c65e]">Verification and payment</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f5c65e]">Admin notes</p>
             <div className="mt-4 grid gap-3">
-              <SelectField theme="dark" label="Submission attempt" value={attemptStatus} onChange={(value) => setAttemptStatus(value as ApplicationAttemptStatus)} options={attemptOptions} />
-              <SelectField theme="dark" label="Cross check status" value={crossCheckStatus} onChange={(value) => setCrossCheckStatus(value as ApplicationCrossCheckStatus)} options={crossCheckOptions} />
-              <div className="rounded-[1.5rem] border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.08)] px-4 py-3 text-sm leading-7 text-[#fff9ec]">
-                <p className="text-xs font-black uppercase tracking-[0.12em] text-[#d4e1d8]">Gateway payment</p>
-                <p className="mt-2">Status: {paymentStatus.replaceAll("_", " ")}</p>
-                <p>Reference: {paymentReference || "Waiting for PhonePe confirmation"}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#173f33] p-4 text-[#fff9ec] shadow-[0_18px_44px_rgba(23,63,51,0.16)]">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f5c65e]">Approval controls</p>
-            <div className="mt-4 grid gap-3">
-              <SelectField theme="dark" label="Approval status" value={approvalStatus} onChange={(value) => setApprovalStatus(value as ApplicationApprovalStatus)} options={approvalOptions} />
-              <TextAreaField label="Admin notes" value={adminNotes} onChange={setAdminNotes} placeholder="Internal note, follow-up detail, payment issue, approval comment..." />
-              <div className="grid gap-2 sm:grid-cols-2">
-                <button
-                  disabled={disabled || !readyToApprove}
-                  onClick={() => saveDecision("APPROVED")}
-                  className="inline-flex items-center justify-center rounded-full bg-[#f5c65e] px-4 py-3 text-sm font-black text-[#173f33] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Approve student
-                </button>
-                <button
-                  disabled={disabled}
-                  onClick={() => saveDecision("REJECTED")}
-                  className="inline-flex items-center justify-center rounded-full border border-[rgba(255,249,236,0.24)] bg-transparent px-4 py-3 text-sm font-black text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Decline application
-                </button>
-              </div>
+              <TextAreaField label="Notes" value={adminNotes} onChange={setAdminNotes} placeholder="Internal note for this enrolled student..." />
               <button
                 disabled={disabled}
-                onClick={() => onSave(application.id, { attemptStatus, paymentStatus, approvalStatus, crossCheckStatus, adminNotes, paymentReference })}
+                onClick={() => onSave(application.id, { attemptStatus, paymentStatus, approvalStatus: "APPROVED", crossCheckStatus: "VERIFIED", adminNotes, paymentReference })}
                 className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#f5c65e] px-4 py-3 text-sm font-black text-[#173f33] shadow-[0_10px_24px_rgba(0,0,0,0.14)] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Save application status
+                Save note
               </button>
             </div>
           </div>
@@ -961,17 +893,19 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
     : application.studentCode ?? null;
 
   if (index >= 0) {
-    const batchNumber = index < 10 ? "BK-26-HYD-B01" : index < 20 ? "QCM-26-HYD-B01" : "BK-26-HYD-B02";
+    const batchNumber = index < 10 ? "BK-B01-08-2026" : index < 20 ? "QBB-B01-08-2026" : "BK-B02-08-2026";
     const previewStudentCode = formatStudentCode(batchNumber, index + 1, application.payload.candidateName);
     const paymentSentDate =
       application.payload.paymentStatus === "NOT_STARTED"
         ? "Not sent yet"
         : formatDateLabel(application.payload.submittedAt);
     const paymentApprovedDate =
-      application.payload.paymentStatus === "PAID" && application.payload.approvedAt
-        ? formatDateLabel(application.payload.approvedAt)
-        : "Pending approval";
-    const passedOutDate = application.payload.approvalStatus === "APPROVED" ? "Batch completed" : "Batch not completed yet";
+      application.latestPayment?.paidAt
+        ? formatDateLabel(application.latestPayment.paidAt)
+        : application.payload.paymentStatus === "PAID"
+          ? "Confirmed by gateway"
+          : "Not confirmed yet";
+    const passedOutDate = "Batch not completed yet";
 
     return {
       applicationCode: applicationCode ?? `API-P${String(index + 1).padStart(3, "0")}`,
@@ -991,7 +925,7 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
     studentCode: studentCode ?? unassignedStudentCode,
     batchNumber: application.batchCode ?? unassignedBatchNumber,
     paymentSentDate: "Not captured yet",
-    paymentApprovedDate: application.payload.approvedAt ? formatDateLabel(application.payload.approvedAt) : "Not approved yet",
+    paymentApprovedDate: application.latestPayment?.paidAt ? formatDateLabel(application.latestPayment.paidAt) : "Not confirmed yet",
     passedOutDate: "Not captured yet",
     studentFiles: application.payload.photoName ? `${application.payload.photoName} (${application.payload.photoType || "file"})` : "No extra student files are stored yet",
   };
@@ -999,9 +933,10 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
 
 function buildUnassignedBatchNumber() {
   const now = new Date();
-  const year = String(now.getFullYear()).slice(-2);
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = String(now.getFullYear());
 
-  return `UN-${year}-HYD-B01`;
+  return `UN-B01-${month}-${year}`;
 }
 
 function buildStableStudentSequence(value: string) {

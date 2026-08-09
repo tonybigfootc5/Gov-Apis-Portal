@@ -30,7 +30,7 @@ type DetailTab = "transaction" | "logs" | "applicant";
 
 export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPaymentsChange }: Props) {
   const [payments, setPayments] = useState(initialPayments);
-  const [tab, setTab] = useState<PaymentTab>("confirmations");
+  const [tab, setTab] = useState<PaymentTab>("history");
   const [notice, setNotice] = useState("");
   const [query, setQuery] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
@@ -483,6 +483,7 @@ function PaymentDetailModal({
     ["Application date", payment.application.applicationDate],
     ["Applicant name", payment.application.candidateName],
     ["Guardian name", payment.application.guardianName],
+    ["Aadhaar number", payment.application.aadhaarNo || "Not available"],
     ["Gender", payment.application.gender],
     ["Date of birth", payment.application.dateOfBirth],
     ["Mobile", payment.application.phone],

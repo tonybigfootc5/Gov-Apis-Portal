@@ -91,6 +91,7 @@ export const trainingApplicationSchema = z.object({
   applicationDate: z.string().trim().min(8).max(30),
   candidateName: z.string().trim().min(2).max(160),
   guardianName: z.string().trim().min(2).max(160),
+  aadhaarNo: z.string().trim().regex(/^\d{12}$/, "Use a 12-digit Aadhaar number."),
   email: z.string().trim().email().max(180).optional().or(z.literal("")),
   gender: z.enum(["male", "female"]),
   dateOfBirth: z.string().trim().min(8).max(30),
