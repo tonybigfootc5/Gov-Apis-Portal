@@ -9,11 +9,13 @@ import {
   Award,
   Bug,
   CalendarDays,
+  ChevronDown,
   CircleCheck,
   Coffee,
   Factory,
   GraduationCap,
   Languages,
+  Link2,
   Lightbulb,
   MapPin,
   Phone,
@@ -28,6 +30,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { SiteLanguage } from "@/lib/i18n";
+import { contactFaqCategories } from "@/lib/contact-faq";
 import { cn } from "@/lib/utils";
 
 const TrainingApplicationForm = dynamic(
@@ -362,6 +365,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
   const [active, setActive] = React.useState(0);
   const [applicationCourse, setApplicationCourse] = React.useState<TrainingPreviewCourse | null>(null);
   const [enrollmentNotice, setEnrollmentNotice] = React.useState("");
+  const [contactHelpOpen, setContactHelpOpen] = React.useState(false);
   const courseOverviewRef = React.useRef<HTMLElement | null>(null);
   const course = courses[active] ?? courses[0];
   const serviceOptions = courses
@@ -414,6 +418,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
             overviewRef={courseOverviewRef}
             enrollmentNotice={enrollmentNotice}
             onEnroll={() => openApplicationForCourse(course)}
+            onContactHelp={() => setContactHelpOpen(true)}
           />
         </div>
       </div>
@@ -426,6 +431,7 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
           onClose={() => setApplicationCourse(null)}
         />
       ) : null}
+      {contactHelpOpen ? <ContactHelpOverlay language={language} onClose={() => setContactHelpOpen(false)} /> : null}
     </section>
   );
 }
@@ -526,12 +532,14 @@ function CourseOverview({
   overviewRef,
   enrollmentNotice,
   onEnroll,
+  onContactHelp,
 }: {
   course: TrainingPreviewCourse;
   copy: TrainingCopy;
   overviewRef: React.RefObject<HTMLElement | null>;
   enrollmentNotice: string;
   onEnroll: () => void;
+  onContactHelp: () => void;
 }) {
   const skills = normalizeSkills(course, copy);
   const audience = getAudienceItems(course, copy);
@@ -686,13 +694,13 @@ function CourseOverview({
       </div>
 
       <div className="grid gap-4 border-t border-[#ead7b0] bg-[#fffaf0] px-5 py-4 lg:grid-cols-[25rem_minmax(0,1fr)] lg:px-7">
-        <a href="tel:9395507766" className="flex min-h-20 items-center justify-center gap-4 rounded-lg bg-[#eef1e6] px-5 text-[#07351f] transition hover:bg-[#e7ecd9]">
+        <button type="button" onClick={onContactHelp} className="flex min-h-20 items-center justify-center gap-4 rounded-lg bg-[#eef1e6] px-5 text-left text-[#07351f] transition hover:bg-[#e7ecd9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]">
           <Phone className="h-9 w-9 shrink-0 fill-[#07351f]/10" strokeWidth={2.2} aria-hidden="true" />
           <span>
             <span className="block text-base font-semibold">{copy.callPrompt}</span>
             <span className="block text-xl font-black leading-tight sm:text-2xl">9395507766</span>
           </span>
-        </a>
+        </button>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {gallery.map((item) => (
             <div key={item.src} className="relative min-h-20 overflow-hidden rounded-lg shadow-[0_10px_20px_rgba(67,45,12,0.12)]">
@@ -726,6 +734,120 @@ function Metric({ icon: Icon, label, value }: { icon: LucideIcon; label: string;
         <p className="mt-1 break-words text-sm font-black leading-5 text-[#102119]">{value}</p>
       </div>
     </div>
+  );
+}
+
+function ContactHelpOverlay({ language, onClose }: { language: SiteLanguage; onClose: () => void }) {
+  const portalElement = typeof document === "undefined" ? null : document.body;
+  const copy = trainingCopy[language] ?? trainingCopy.en;
+
+  React.useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
+  if (!portalElement) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[320] grid place-items-center bg-[#071421]/58 px-3 py-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Frequently asked questions before contacting API Culture">
+      <section className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[1.35rem] bg-[#fffdf8] shadow-[0_30px_90px_rgba(4,18,13,0.35)]">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#e7eee8] bg-[#173f33] px-5 py-5 text-[#fff9ec]">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f5c65e]">Check FAQ first</p>
+            <h3 className="mt-2 text-2xl font-black leading-tight">Most questions are answered here</h3>
+            <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-[#d4e1d8]">
+              Please review these common answers before calling the center. The contact buttons are available below if you still need help.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 text-white hover:bg-white/18 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f5c65e]"
+            aria-label="Close FAQ help"
+          >
+            <X className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-5">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 border-b border-[#e4e1d8] pb-4">
+            {contactFaqCategories.map((category, index) => (
+              <a
+                key={category.category}
+                href={`#program-help-${category.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                className={cn(
+                  "text-[10px] font-black uppercase tracking-[0.2em] transition hover:text-[#173f33]",
+                  index === 0 ? "text-[#173f33]" : "text-[#a8ada5]",
+                )}
+              >
+                {category.category} ({category.questions.length})
+              </a>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-3">
+            {contactFaqCategories.map((category, categoryIndex) => (
+              <div
+                key={category.category}
+                id={`program-help-${category.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                className="scroll-mt-28"
+              >
+                {categoryIndex > 0 ? (
+                  <p className="mb-3 mt-5 text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">{category.category}</p>
+                ) : null}
+                <div className="grid gap-3">
+                  {category.questions.map((item, questionIndex) => {
+                    const isFirstQuestion = categoryIndex === 0 && questionIndex === 0;
+
+                    return (
+                      <details
+                        key={item.question}
+                        open={isFirstQuestion}
+                        className="group rounded-md bg-[#f5f6f7] px-4 shadow-[0_8px_22px_rgba(20,28,22,0.035)] open:bg-[#f7f8f8]"
+                      >
+                        <summary className="flex min-h-[4rem] cursor-pointer list-none items-center gap-4 py-3 text-left [&::-webkit-details-marker]:hidden">
+                          <Link2 className="h-4 w-4 shrink-0 text-[#aab1af]" aria-hidden="true" />
+                          <span className="min-w-0 flex-1 text-sm font-black leading-5 text-[#5f6b70]">{item.question}</span>
+                          <ChevronDown className="h-4 w-4 shrink-0 text-[#b5bbb9] transition group-open:rotate-180 group-open:text-[#4b91d1]" aria-hidden="true" />
+                        </summary>
+                        <p className="border-t border-[#e8ecec] pb-5 pl-8 pr-8 pt-1 text-sm font-semibold leading-6 text-[#6f7b80]">
+                          {item.answer}
+                        </p>
+                      </details>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid gap-3 border-t border-[#e7eee8] bg-[#fffaf0] px-5 py-4 sm:grid-cols-2">
+          <a
+            href="tel:9395507766"
+            className="inline-flex min-h-14 items-center justify-center gap-3 rounded-lg bg-[#173f33] px-5 py-3 text-base font-black text-[#fff9ec] transition hover:bg-[#204d3f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f5c65e]"
+          >
+            <Phone className="h-5 w-5" aria-hidden="true" />
+            {copy.callPrompt}: 9395507766
+          </a>
+          <a
+            href="https://wa.me/919395507766"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-14 items-center justify-center gap-3 rounded-lg border border-[#173f33] bg-white px-5 py-3 text-base font-black text-[#173f33] transition hover:bg-[#eef8f1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#173f33]"
+          >
+            <span className="h-5 w-5" aria-hidden="true">
+              <WhatsAppMark />
+            </span>
+            {copy.whatsapp}
+          </a>
+        </div>
+      </section>
+    </div>,
+    portalElement,
   );
 }
 
