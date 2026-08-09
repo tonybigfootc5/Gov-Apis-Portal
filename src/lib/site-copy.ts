@@ -223,13 +223,13 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           members: [
             {
               name: "Sree Sambashiva Rao",
-              designation: "President, Bee Keepers Association | Faculty Member and Field Expert",
+              designation: "President-Bee Keepers Association | Faculty Member and Field Expert",
               role: "Brings around 40 years of beekeeping experience with emphasis on field practice, bee breeding, colony management, and migration support.",
               highlights: ["40 years experience", "National Bee Board member", "Field expert"],
             },
             {
               name: "P. Ravindra Kumar",
-              designation: "Director, Api Culture Technology Center | Vice President, Bee Keepers Association",
+              designation: "Vice President- Bee Keepers Association | Director-Api Culture Technology Center",
               role: "Supports center direction through training leadership across scientific beekeeping, honey processing, queen rearing, migration, and awareness work.",
               highlights: ["26 years experience", "Director and faculty", "Training lead"],
             },
@@ -432,13 +432,13 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           members: [
             {
               name: "Sree Sambashiva Rao",
-              designation: "President, Bee Keepers Association | Faculty Member and Field Expert",
+              designation: "President-Bee Keepers Association | Faculty Member and Field Expert",
               role: "ఫీల్డ్ ప్రాక్టీస్, తేనెటీగల సంశ్లేషణ, కాలనీ నిర్వహణ మరియు మైగ్రేషన్ మద్దతుపై సుమారు 40 ఏళ్ల అనుభవం కలిగిన నిపుణుడు.",
               highlights: ["40 ఏళ్ల అనుభవం", "National Bee Board సభ్యుడు", "ఫీల్డ్ నిపుణుడు"],
             },
             {
               name: "P. Ravindra Kumar",
-              designation: "Director, Api Culture Technology Center | Vice President, Bee Keepers Association",
+              designation: "Vice President- Bee Keepers Association | Director-Api Culture Technology Center",
               role: "శాస్త్రీయ తేనెటీగల పెంపకం, తేనె ప్రాసెసింగ్, క్వీన్ రేరింగ్ మరియు అవగాహన కార్యక్రమాల్లో శిక్షణ నాయకత్వం అందిస్తారు.",
               highlights: ["26 ఏళ్ల అనుభవం", "డైరెక్టర్ మరియు ఫ్యాకల్టీ", "శిక్షణ నాయకుడు"],
             },
@@ -640,13 +640,13 @@ const siteCopy: Record<SiteLanguage, SiteCopy> = {
           members: [
             {
               name: "Sree Sambashiva Rao",
-              designation: "President, Bee Keepers Association | Faculty Member and Field Expert",
+              designation: "President-Bee Keepers Association | Faculty Member and Field Expert",
               role: "फील्ड अभ्यास, बी ब्रीडिंग, कॉलोनी प्रबंधन और माइग्रेशन सहयोग पर लगभग 40 वर्षों का अनुभव रखते हैं।",
               highlights: ["40 वर्ष अनुभव", "National Bee Board सदस्य", "फील्ड विशेषज्ञ"],
             },
             {
               name: "P. Ravindra Kumar",
-              designation: "Director, Api Culture Technology Center | Vice President, Bee Keepers Association",
+              designation: "Vice President- Bee Keepers Association | Director-Api Culture Technology Center",
               role: "वैज्ञानिक मधुमक्खी पालन, शहद प्रोसेसिंग, क्वीन रियरिंग, माइग्रेशन और जागरूकता कार्यों में प्रशिक्षण नेतृत्व प्रदान करते हैं।",
               highlights: ["26 वर्ष अनुभव", "निदेशक और संकाय", "प्रशिक्षण नेतृत्व"],
             },

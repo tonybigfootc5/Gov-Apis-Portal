@@ -13,7 +13,6 @@ import {
   ReceiptText,
   RotateCcw,
   Search,
-  ShieldCheck,
   Upload,
   UserRound,
   WalletCards,
@@ -104,8 +103,6 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   const activePayments = tab === "confirmations" ? pendingConfirmations : tab === "refunds" ? refundCandidates : filteredPayments;
   const recentPaymentBars = buildPaymentBars(filteredPayments);
   const maxBarAmount = Math.max(...recentPaymentBars.map((bar) => bar.amountPaise), 1);
-  const latestPayment = filteredPayments[0] ?? null;
-  const eventCount = filteredPayments.reduce((total, payment) => total + payment.events.length, 0);
   const relatedSelectedPayments = selectedPayment
     ? getRelatedApplicantPayments(selectedPayment, payments)
     : [];
@@ -256,7 +253,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
         </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_17rem]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_15rem]">
         <div className="grid gap-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             <PaymentMetricCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Orders" value={filteredPayments.length.toLocaleString("en-IN")} hint={`${pendingConfirmations.length} pending`} />
@@ -332,23 +329,6 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
         </div>
 
         <aside className="grid gap-4">
-          <section className="rounded-[1.55rem] bg-[#173f33] p-4 text-[#fff9ec] shadow-[0_14px_34px_rgba(23,63,51,0.14)]">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-[0.9rem] bg-[#f5c65e] text-[#173f33]">
-                <ShieldCheck className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="text-sm font-black">Gateway desk</p>
-                <p className="text-xs font-semibold text-[#cbd8ce]">{databaseConfigured ? "Live database mode" : "Local preview mode"}</p>
-              </div>
-            </div>
-            <div className="mt-5 grid gap-3">
-              <SideStat label="Latest order" value={latestPayment ? latestPayment.status : "None"} />
-              <SideStat label="Gateway events" value={eventCount.toLocaleString("en-IN")} />
-              <SideStat label="Refund candidates" value={refundCandidates.length.toLocaleString("en-IN")} />
-            </div>
-          </section>
-
           <section className="rounded-[1.55rem] bg-white p-4 shadow-[0_14px_34px_rgba(23,63,51,0.07)]">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-black text-[#173f33]">Audit readiness</h3>
@@ -972,15 +952,6 @@ function StatusBadge({ label, tone }: { label: string; tone: "good" | "warn" | "
     >
       {label.replaceAll("_", " ")}
     </span>
-  );
-}
-
-function SideStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[1rem] bg-[rgba(255,255,255,0.08)] px-3 py-2">
-      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#f5c65e]">{label}</p>
-      <p className="mt-1 text-sm font-black text-[#fff9ec]">{value}</p>
-    </div>
   );
 }
 

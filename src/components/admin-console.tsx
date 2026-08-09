@@ -632,20 +632,6 @@ export function AdminConsole({
     }
   }
 
-  async function removeProgram(id: string) {
-    const currentProgram = programs.find((program) => program.id === id);
-    const ok = await mutate(`/api/admin/programs/${id}`, "DELETE");
-    if (ok) {
-      appendHistory("programs", "Delete training", currentProgram?.title ?? "Training", "Training service deleted.");
-      pushNotification({
-        section: "programs",
-        title: "Training service removed",
-        message: `${currentProgram?.title ?? "Training"} was deleted from the dashboard.`,
-        variant: "warning",
-      });
-    }
-  }
-
   async function createEvent() {
     const ok = await mutate("/api/admin/events", "POST", eventDraft);
     if (ok) {
@@ -1119,6 +1105,7 @@ export function AdminConsole({
           className="mt-5"
         >
           <ProgramsWorkspace
+            applications={applications}
             databaseConfigured={databaseConfigured}
             disabled={loading || !databaseConfigured}
             programs={programs}
@@ -1129,7 +1116,6 @@ export function AdminConsole({
             onDraftChange={setProgramDraft}
             onDraftSave={createProgram}
             onProgramSave={saveProgram}
-            onProgramDelete={removeProgram}
           />
         </DashboardSection>
       ) : null}
@@ -2191,6 +2177,7 @@ function ArticlesWorkspace({
 }
 
 function ProgramsWorkspace({
+  applications,
   databaseConfigured,
   disabled,
   programs,
@@ -2201,8 +2188,8 @@ function ProgramsWorkspace({
   onDraftChange,
   onDraftSave,
   onProgramSave,
-  onProgramDelete,
 }: {
+  applications: TrainingApplicationRecord[];
   databaseConfigured: boolean;
   disabled: boolean;
   programs: Program[];
@@ -2213,7 +2200,6 @@ function ProgramsWorkspace({
   onDraftChange: (next: Omit<Program, "id">) => void;
   onDraftSave: () => void;
   onProgramSave: (program: Program) => void;
-  onProgramDelete: (id: string) => void;
 }) {
   const [selectedProgramId, setSelectedProgramId] = useState<string | "new">(programs[0]?.id ?? "new");
   const [programListCollapsed, setProgramListCollapsed] = useState(false);
@@ -2239,6 +2225,12 @@ function ProgramsWorkspace({
 
   return (
     <div className="grid gap-4">
+      <TrainingManagerBatchOverview
+        applications={applications}
+        programs={programs}
+        theme={SECTION_THEMES.overview}
+      />
+
       <section className="overflow-hidden rounded-[1.8rem] bg-white shadow-[0_18px_42px_rgba(23,63,51,0.08)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf2ee] px-4 py-4">
           <div className="flex flex-wrap items-center gap-3">
@@ -2347,7 +2339,6 @@ function ProgramsWorkspace({
                   disabled={disabled}
                   program={selectedProgram}
                   onSave={onProgramSave}
-                  onDelete={onProgramDelete}
                 />
               </>
             ) : (
@@ -2401,6 +2392,85 @@ function ProgramsWorkspace({
   );
 }
 
+function TrainingManagerBatchOverview({
+  applications,
+  programs,
+  theme,
+}: {
+  applications: TrainingApplicationRecord[];
+  programs: Program[];
+  theme: SectionTheme;
+}) {
+  const batchGroups = getProgramSeatRows(programs, applications);
+  const rows = [
+    ...batchGroups.current,
+    ...batchGroups.upcoming,
+    ...batchGroups.comingSoon,
+    ...batchGroups.past,
+  ].sort((left, right) => {
+    const statusOrder: Record<BatchSeatStatus, number> = {
+      current: 0,
+      upcoming: 1,
+      comingSoon: 2,
+      past: 3,
+    };
+
+    return statusOrder[left.status] - statusOrder[right.status] || left.sortTime - right.sortTime || left.program.title.localeCompare(right.program.title);
+  });
+
+  if (!rows.length) return null;
+
+  return (
+    <section className={`rounded-[1.45rem] border p-4 shadow-[0_14px_28px_rgba(10,5,4,0.08)] ${theme.panelShell}`}>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Training batch cards</p>
+          <h3 className="mt-1 text-xl font-black text-[#173f33]">Program / batch applicant status</h3>
+        </div>
+        <span className="rounded-full bg-[#eef3ef] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-[#607366]">
+          {rows.length} active record{rows.length === 1 ? "" : "s"}
+        </span>
+      </div>
+
+      <div className="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+        {rows.map((row) => (
+          <article key={row.id} className={`rounded-[1rem] border p-3 ${theme.panelSurface}`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">
+                  {row.status === "current" ? "Current batch" : row.status === "upcoming" ? "Upcoming batch" : row.status === "comingSoon" ? "Coming soon" : "Past batch"}
+                </p>
+                <h4 className="mt-1 line-clamp-1 text-sm font-black text-[#173f33]">{row.program.title}</h4>
+                <p className="mt-1 truncate text-xs font-bold text-[#607366]">{row.batchCode}</p>
+              </div>
+              <span className={`shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${
+                row.status === "current"
+                  ? "bg-[#173f33] text-[#fff9ec]"
+                  : row.status === "upcoming"
+                    ? "bg-[#fff4d8] text-[#9c6a18]"
+                    : "bg-[#edf2ef] text-[#607366]"
+              }`}>
+                {row.statusLabel}
+              </span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <BatchMiniStat label="Joined" value={row.enrolled} />
+              <BatchMiniStat label="Left" value={row.seatsLeft} />
+              <BatchMiniStat label="Capacity" value={row.capacity} />
+            </div>
+
+            <div className="mt-3 grid gap-1 text-xs font-semibold leading-5 text-[#607366]">
+              <span>Starts: {row.startsAt ? formatDateTime(row.startsAt) : "Date not fixed"}</span>
+              <span>Closes: {row.expiresAt ? formatDateTime(row.expiresAt) : "After batch date is set"}</span>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function ProgramKanbanCard({
   program,
   selected,
@@ -2443,7 +2513,6 @@ function ProgramKanbanCard({
               ? `Starts ${formatDateTime(program.batchStartsAt)}`
               : "No start date"}
         </span>
-        <span>Banner {program.popupEnabled ? "on" : "off"}</span>
       </div>
     </button>
   );
@@ -2466,7 +2535,7 @@ function getAdminProgramBatchStatus(program: Pick<Program, "batchStartsAt" | "en
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="grid gap-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#718477]">
+    <label className="grid min-w-0 gap-1.5 text-[11px] font-black uppercase tracking-[0.16em] text-[#718477]">
       {label}
       {children}
     </label>
@@ -2474,7 +2543,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 }
 
 function fieldClass(multiline?: boolean) {
-  return `${multiline ? "rounded-[1.35rem]" : "rounded-xl"} border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] px-3 py-2.5 text-sm font-medium text-[#173f33] outline-none ring-[#d9a127] transition placeholder:text-[#8ea091] focus:bg-white focus:ring-2`;
+  return `${multiline ? "rounded-[1.35rem]" : "rounded-xl"} block w-full min-w-0 max-w-full border border-[rgba(27,59,43,0.12)] bg-[#f8f4ea] px-3 py-2.5 text-[13px] font-medium normal-case tracking-normal text-[#173f33] outline-none ring-[#d9a127] transition placeholder:text-[#8ea091] focus:bg-white focus:ring-2 sm:text-sm`;
 }
 
 function ArticleMediaUploader<T extends Omit<ArticleItem, "id">>({
@@ -2634,7 +2703,7 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
         <ProgramFact icon={<CreditCard className="h-6 w-6" aria-hidden="true" />} label="Pricing" value={value.fee || "Not set"} />
       </div>
 
-      <div className="grid gap-5 p-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid gap-6 p-4 sm:p-5 2xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.78fr)]">
         <ProgramEditSection title="Batch dates">
           <div className="rounded-xl border border-[#ead9b7] bg-white p-4">
             <p className="text-sm font-black text-[#173f33]">{value.title || "Untitled training"}</p>
@@ -2648,7 +2717,7 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
               onChange={(event) => onChange({ ...value, batchStartsAt: event.target.value })}
             />
           </Field>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3">
             <Field label="Registration start date">
               <input
                 type="datetime-local"
@@ -2691,18 +2760,14 @@ function ProgramFields<T extends Omit<Program, "id">>({ value, onChange }: { val
             label="Enrollment open"
             description="When open, users can register only inside the registration window and before batch day starts."
             onChange={(checked) => onChange({ ...value, enrollmentClosed: !checked })}
+            compact
           />
           <ProgramSwitch
             checked={value.published}
             label="Post on main page"
             description="If schedule post time is future, the program becomes visible automatically at that time."
             onChange={(checked) => onChange({ ...value, published: checked })}
-          />
-          <ProgramSwitch
-            checked={value.popupEnabled}
-            label="Show in training banner"
-            description="Uses the same schedule and enrollment window before appearing publicly."
-            onChange={(checked) => onChange({ ...value, popupEnabled: checked })}
+            compact
           />
           <div className="rounded-xl border border-[#ead9b7] bg-white p-4 text-xs font-semibold leading-6 text-[#607366]">
             <p><span className="font-black text-[#173f33]">Current batch:</span> batch date is today or already started.</p>
@@ -2742,25 +2807,33 @@ function ProgramSwitch({
   label,
   description,
   onChange,
+  compact = false,
 }: {
   checked: boolean;
   label: string;
   description: string;
   onChange: (checked: boolean) => void;
+  compact?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex w-full items-center justify-between gap-4 rounded-xl border border-[rgba(27,59,43,0.1)] bg-[#f8f4ea] px-4 py-3 text-left"
+      className={`flex w-full items-center justify-between border border-[rgba(27,59,43,0.1)] bg-[#f8f4ea] text-left ${
+        compact ? "gap-3 rounded-lg px-3 py-2" : "gap-4 rounded-xl px-4 py-3"
+      }`}
       aria-pressed={checked}
     >
-      <span>
-        <span className="block text-sm font-black text-[#173f33]">{label}</span>
-        <span className="mt-1 block text-xs font-semibold leading-5 text-[#718477]">{description}</span>
+      <span className="min-w-0">
+        <span className={`block font-black text-[#173f33] ${compact ? "text-xs" : "text-sm"}`}>{label}</span>
+        <span className={`mt-1 block font-semibold text-[#718477] ${compact ? "text-[11px] leading-4" : "text-xs leading-5"}`}>{description}</span>
       </span>
-      <span className={`relative inline-flex h-8 w-14 shrink-0 items-center rounded-full p-1 transition ${checked ? "bg-[#34c759]" : "bg-[#d3d9d4]"}`}>
-        <span className={`h-6 w-6 rounded-full bg-white shadow-[0_4px_10px_rgba(0,0,0,0.16)] transition ${checked ? "translate-x-6" : "translate-x-0"}`} />
+      <span className={`relative inline-flex shrink-0 items-center rounded-full transition ${
+        compact ? "h-6 w-11 p-0.5" : "h-8 w-14 p-1"
+      } ${checked ? "bg-[#34c759]" : "bg-[#d3d9d4]"}`}>
+        <span className={`rounded-full bg-white shadow-[0_4px_10px_rgba(0,0,0,0.16)] transition ${
+          compact ? `h-5 w-5 ${checked ? "translate-x-5" : "translate-x-0"}` : `h-6 w-6 ${checked ? "translate-x-6" : "translate-x-0"}`
+        }`} />
       </span>
     </button>
   );
@@ -2810,12 +2883,10 @@ function EventFields<T extends Omit<EventItem, "id">>({ value, onChange }: { val
 function ProgramEditorCard({
   program,
   onSave,
-  onDelete,
   disabled,
 }: {
   program: Program;
   onSave: (program: Program) => void;
-  onDelete: (id: string) => void;
   disabled: boolean;
 }) {
   const [draft, setDraft] = useState(program);
@@ -2836,22 +2907,11 @@ function ProgramEditorCard({
                 ? `Batch starts ${formatDateTime(draft.batchStartsAt)}`
                 : "Batch start date not set"}
           </p>
-          <p className="mt-1 text-xs font-semibold text-[#8a7d61]">
-            Upcoming banner {draft.popupEnabled ? "enabled" : "disabled"}
-          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className={`rounded-full px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.16em] ${draft.published ? "bg-[#eef8f1] text-[#21533f]" : "bg-[#fff5ea] text-[#8c4d1e]"}`}>
             {draft.published ? "Published" : "Draft"}
           </span>
-          <button
-            disabled={disabled}
-            onClick={() => onDelete(program.id)}
-            className="inline-flex items-center gap-2 rounded-full border border-[rgba(146,70,45,0.16)] bg-[#fff8f5] px-3 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#92462d] transition hover:bg-[#fbeee7] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
-            Delete
-          </button>
         </div>
       </div>
 

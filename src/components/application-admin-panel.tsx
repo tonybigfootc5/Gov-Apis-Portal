@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BadgeCheck, CalendarDays, ChevronDown, ChevronUp, CreditCard, FileClock, Phone, RefreshCw, Search, ShieldCheck, SlidersHorizontal, UserRound, WalletCards, X } from "lucide-react";
+import { BadgeCheck, CalendarDays, ChevronDown, ChevronUp, CreditCard, FileClock, Printer, RefreshCw, Search, SlidersHorizontal, UserRound, WalletCards, X } from "lucide-react";
 import type {
   ApplicationApprovalStatus,
   ApplicationAttemptStatus,
@@ -249,6 +249,24 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
     );
   }
 
+  function openRosterPrint(title: string, rosterApplications: TrainingApplicationRecord[]) {
+    const sortedRoster = [...rosterApplications].sort((left, right) => {
+      const leftMeta = getPreviewApplicationMeta(left);
+      const rightMeta = getPreviewApplicationMeta(right);
+      return (leftMeta.studentCode ?? left.payload.candidateName).localeCompare(rightMeta.studentCode ?? right.payload.candidateName);
+    });
+    const batchCodes = Array.from(new Set(sortedRoster.map((application) => getPreviewApplicationMeta(application).batchNumber))).join(", ");
+    const printWindow = window.open("", "_blank", "width=1120,height=800");
+    if (!printWindow) {
+      setNotice("Unable to open print preview. Please allow pop-ups for the admin portal.");
+      return;
+    }
+
+    printWindow.document.write(buildRosterPrintHtml(title, batchCodes || "Not assigned", sortedRoster));
+    printWindow.document.close();
+    printWindow.focus();
+  }
+
   return (
     <section className="grid gap-4">
       {notice ? <p className="rounded-[1.4rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-4 py-3 text-sm font-semibold text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.05)]">{notice}</p> : null}
@@ -429,7 +447,19 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                       </span>
                       <div className="min-w-0">
                         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">{viewMode === "student" ? "Applicant" : viewMode === "batch" ? "Batch" : "Date"}</p>
-                        <h4 className="truncate text-sm font-black text-[#173f33]">{viewMode === "date" ? formatDateGroup(groupLabel) : groupLabel}</h4>
+                        <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
+                          <h4 className="truncate text-sm font-black text-[#173f33]">{viewMode === "date" ? formatDateGroup(groupLabel) : groupLabel}</h4>
+                          {viewMode === "batch" ? (
+                            <button
+                              type="button"
+                              onClick={() => openRosterPrint(groupLabel, groupApplications)}
+                              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#173f33] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[#fff9ec]"
+                            >
+                              <Printer className="h-3.5 w-3.5" aria-hidden="true" />
+                              Print batch
+                            </button>
+                          ) : null}
+                        </div>
                         {viewMode === "student" ? (
                           <p className="mt-1 truncate text-xs font-semibold text-[#718477]">
                             Matching Aadhaar/phone, sorted by newest transaction
@@ -437,6 +467,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                         ) : null}
                       </div>
                     </div>
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
                         onClick={() => toggleGroup(groupLabel)}
@@ -445,12 +476,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                         {isCollapsed ? <ChevronDown className="h-4 w-4" aria-hidden="true" /> : <ChevronUp className="h-4 w-4" aria-hidden="true" />}
                         {isCollapsed ? "Expand" : "Collapse"}
                       </button>
+                    </div>
                   </div>
 
                   {!isCollapsed ? (
                     <div className="overflow-x-auto">
                       <div className="min-w-[62rem]">
-                        <div className="grid grid-cols-[minmax(12rem,1.55fr)_minmax(11rem,1.25fr)_minmax(7rem,0.85fr)_minmax(9rem,1fr)_minmax(7rem,0.8fr)_minmax(7rem,0.85fr)_minmax(10rem,1.15fr)_minmax(5rem,0.45fr)] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
+                        <div className="grid grid-cols-[minmax(12rem,1.55fr)_minmax(11rem,1.25fr)_minmax(7rem,0.85fr)_minmax(9rem,1fr)_minmax(7rem,0.8fr)_minmax(7rem,0.85fr)_minmax(10rem,1.15fr)_minmax(8rem,0.7fr)] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
                           <span>Student</span>
                           <span>Course</span>
                           <span>Phone</span>
@@ -467,7 +499,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                             <button
                           key={application.id}
                           onClick={() => setSelectedApplicationId(application.id)}
-                              className={`grid grid-cols-[minmax(12rem,1.55fr)_minmax(11rem,1.25fr)_minmax(7rem,0.85fr)_minmax(9rem,1fr)_minmax(7rem,0.8fr)_minmax(7rem,0.85fr)_minmax(10rem,1.15fr)_minmax(5rem,0.45fr)] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-left transition last:border-b-0 ${
+                              className={`grid grid-cols-[minmax(12rem,1.55fr)_minmax(11rem,1.25fr)_minmax(7rem,0.85fr)_minmax(9rem,1fr)_minmax(7rem,0.8fr)_minmax(7rem,0.85fr)_minmax(10rem,1.15fr)_minmax(8rem,0.7fr)] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-left transition last:border-b-0 ${
                             isActive
                                   ? "bg-[#173f33] text-[#fff9ec]"
                                   : "bg-white text-[#173f33] hover:bg-[#fbf7ee]"
@@ -494,18 +526,33 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                               <span className={`truncate text-xs font-black ${isActive ? "text-[#f5c65e]" : "text-[#9c6a18]"}`}>
                                 {meta.studentCode ?? meta.applicationCode}
                               </span>
-                              <span
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  openStudentProfile(application.id);
-                                }}
-                                className={`inline-flex items-center justify-center rounded-full px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
-                                isActive
-                                  ? "bg-[rgba(255,255,255,0.14)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.2)]"
-                                  : "bg-[#173f33] text-[#fff9ec] hover:bg-[#204d3f]"
-                              }`}
-                            >
-                              View
+                              <span className="flex items-center justify-end gap-2">
+                                <span
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    openRosterPrint(application.payload.candidateName, [application]);
+                                  }}
+                                  className={`inline-flex items-center justify-center rounded-full px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
+                                  isActive
+                                    ? "bg-[rgba(255,255,255,0.14)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.2)]"
+                                    : "bg-[#f5c65e] text-[#173f33] hover:bg-[#edba36]"
+                                }`}
+                                >
+                                  Print
+                                </span>
+                                <span
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    openStudentProfile(application.id);
+                                  }}
+                                  className={`inline-flex items-center justify-center rounded-full px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
+                                  isActive
+                                    ? "bg-[rgba(255,255,255,0.14)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.2)]"
+                                    : "bg-[#173f33] text-[#fff9ec] hover:bg-[#204d3f]"
+                                }`}
+                              >
+                                View
+                              </span>
                             </span>
                             </button>
                       );
@@ -613,6 +660,131 @@ function maskValue(value: string, visibleDigits: number) {
   const normalized = value.replace(/\D/g, "");
   if (normalized.length <= visibleDigits) return normalized;
   return `${"*".repeat(Math.max(0, normalized.length - visibleDigits))}${normalized.slice(-visibleDigits)}`;
+}
+
+function buildRosterPrintHtml(title: string, batchCode: string, applications: TrainingApplicationRecord[]) {
+  const logoSrc = `${window.location.origin}/api-culture-logo-clean.png`;
+  const printedAt = new Date().toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const rows = applications.map((application, index) => {
+    const meta = getPreviewApplicationMeta(application);
+    return `
+      <tr>
+        <td>${index + 1}</td>
+        <td>
+          <strong>${escapeHtml(application.payload.candidateName)}</strong>
+          <small>${escapeHtml(meta.studentCode ?? meta.applicationCode ?? "Not assigned")}</small>
+        </td>
+        <td>${escapeHtml(calculateAge(application.payload.dateOfBirth))}</td>
+        <td>${escapeHtml(application.payload.aadhaarNo || "Not provided")}</td>
+        <td>${escapeHtml(application.payload.phone || "Not provided")}</td>
+        <td></td>
+      </tr>
+    `;
+  }).join("");
+
+  return `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${escapeHtml(title)} roster</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #eef3ef; color: #173f33; font-family: Arial, sans-serif; }
+    .toolbar { position: sticky; top: 0; display: flex; justify-content: flex-end; gap: 12px; padding: 14px 18px; background: #173f33; }
+    .toolbar button { border: 0; border-radius: 999px; background: #f5c65e; color: #173f33; cursor: pointer; font-size: 13px; font-weight: 800; padding: 10px 18px; text-transform: uppercase; }
+    .sheet { max-width: 1120px; min-height: 780px; margin: 24px auto; background: #fffdf8; padding: 34px; border: 1px solid #d9c89f; }
+    header { text-align: center; border-bottom: 2px solid #173f33; padding-bottom: 18px; }
+    .logo { height: 74px; width: 74px; object-fit: contain; margin: 0 auto 8px; display: block; }
+    h1 { margin: 0; font-size: 26px; letter-spacing: 0.08em; text-transform: uppercase; }
+    h2 { margin: 8px 0 0; font-size: 18px; }
+    .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+    .meta div { border: 1px solid #d9c89f; padding: 10px 12px; }
+    .meta span { display: block; color: #718477; font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+    .meta strong { display: block; margin-top: 4px; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #173f33; padding: 10px 9px; text-align: left; vertical-align: top; }
+    th { background: #f3ecdf; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+    td { height: 46px; font-size: 13px; }
+    td:first-child { width: 44px; text-align: center; }
+    td:nth-child(3) { width: 74px; text-align: center; }
+    td:nth-child(4) { width: 150px; }
+    td:nth-child(5) { width: 130px; }
+    td:nth-child(6) { width: 170px; }
+    small { display: block; margin-top: 4px; color: #718477; font-size: 11px; font-weight: 700; }
+    footer { margin-top: 24px; display: flex; justify-content: space-between; gap: 28px; font-size: 12px; font-weight: 700; }
+    .line { flex: 1; border-top: 1px solid #173f33; padding-top: 8px; text-align: center; }
+    @media print {
+      body { background: white; }
+      .toolbar { display: none; }
+      .sheet { margin: 0; max-width: none; min-height: auto; border: 0; padding: 18mm 12mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="window.print()">Print final</button>
+    <button onclick="window.close()">Close</button>
+  </div>
+  <main class="sheet">
+    <header>
+      <img class="logo" src="${escapeHtml(logoSrc)}" alt="API CULTURE logo" />
+      <h1>API CULTURE</h1>
+      <h2>${escapeHtml(title)} - Enrolled Student Roster</h2>
+    </header>
+    <section class="meta">
+      <div><span>Batch</span><strong>${escapeHtml(batchCode)}</strong></div>
+      <div><span>Total enrolled</span><strong>${applications.length}</strong></div>
+      <div><span>Prepared on</span><strong>${escapeHtml(printedAt)}</strong></div>
+    </section>
+    <table>
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Name of enrolled student</th>
+          <th>Age</th>
+          <th>Aadhaar number</th>
+          <th>Phone number</th>
+          <th>Signature</th>
+        </tr>
+      </thead>
+      <tbody>${rows || `<tr><td colspan="6">No enrolled students found for this roster.</td></tr>`}</tbody>
+    </table>
+    <footer>
+      <div class="line">Training Coordinator</div>
+      <div class="line">Admin Verification</div>
+    </footer>
+  </main>
+</body>
+</html>`;
+}
+
+function calculateAge(dateOfBirth: string) {
+  const parsed = new Date(dateOfBirth);
+  if (Number.isNaN(parsed.getTime())) return "N/A";
+
+  const today = new Date();
+  let age = today.getFullYear() - parsed.getFullYear();
+  const monthDifference = today.getMonth() - parsed.getMonth();
+  if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < parsed.getDate())) {
+    age -= 1;
+  }
+
+  return age >= 0 && age < 130 ? String(age) : "N/A";
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 function ApplicationStatCard({
@@ -743,134 +915,235 @@ function ApplicationCard({
   const [paymentReference] = useState(application.payload.paymentReference);
   const photoSrc = application.payload.photoUrl || application.payload.photoDataUrl;
   const previewMeta = getPreviewApplicationMeta(application);
-  const studentDetailRows = [
-    { label: "Application number", value: previewMeta.applicationCode ?? "Not assigned yet" },
-    { label: "Enrollment ID", value: previewMeta.studentCode ?? "Not assigned yet" },
-    { label: "Invoice number", value: application.latestPayment?.invoiceNumber ?? "Not generated yet" },
-    { label: "Student name", value: application.payload.candidateName },
-    { label: "Batch number", value: previewMeta.batchNumber },
-    { label: "Phone number", value: application.payload.phone || "Not provided" },
-    { label: "Payment sent date", value: previewMeta.paymentSentDate },
-    {
-      label: "Payment confirmed date",
-      value: previewMeta.paymentApprovedDate,
-    },
-    { label: "Passed out date", value: previewMeta.passedOutDate },
-    {
-      label: "Address",
-      value: `${application.payload.addressLine}, ${application.payload.mandal}, ${application.payload.district}, ${application.payload.state}, ${application.payload.pinCode}`,
-    },
-    { label: "Photo", value: photoSrc ? "Uploaded" : "Not uploaded" },
-    {
-      label: "Files sent from student",
-      value: previewMeta.studentFiles,
-    },
+  const paidAmount = application.latestPayment
+    ? `Rs. ${(application.latestPayment.amountPaise / 100).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : "Not captured";
+  const identityRows = [
+    ["Gender", application.payload.gender],
+    ["Age", calculateAge(application.payload.dateOfBirth)],
+    ["DOB", application.payload.dateOfBirth],
+    ["Aadhaar", application.payload.aadhaarNo],
+    ["Phone", application.payload.phone || "Not provided"],
+    ["Email", application.payload.email || "Not provided"],
+    ["Student ID", previewMeta.studentCode ?? "Not assigned yet"],
+  ];
+  const reportRows = [
+    { label: "Application number", value: previewMeta.applicationCode ?? "Not assigned yet", meta: formatDateLabel(application.payload.submittedAt) },
+    { label: "Payment sent", value: previewMeta.paymentSentDate, meta: application.payload.paymentStatus.replaceAll("_", " ") },
+    { label: "Payment confirmed", value: previewMeta.paymentApprovedDate, meta: application.latestPayment?.status ?? paymentStatus },
+  ];
+  const transactionRows = [
+    ["Invoice number", application.latestPayment?.invoiceNumber ?? "Not generated yet"],
+    ["Merchant order", application.latestPayment?.merchantOrderId ?? "Not available"],
+    ["Gateway reference", application.latestPayment?.paymentReference ?? (paymentReference || "Not provided")],
+    ["Paid amount", paidAmount],
+    ["Paid at", application.latestPayment?.paidAt ? formatDateLabel(application.latestPayment.paidAt) : "Captured by gateway"],
+    ["Billing proof", "Handled by payment gateway flow"],
+  ];
+  const backgroundRows = [
+    ["Program", application.payload.serviceName],
+    ["Batch number", previewMeta.batchNumber],
+    ["Education", application.payload.educationQualification || "Not provided"],
+    ["Occupation", application.payload.occupation || "Not provided"],
+    ["Sponsoring organization", application.payload.sponsoringOrganization || "Not provided"],
+    ["Application date", application.payload.applicationDate],
+  ];
+  const contactRows = [
+    ["Guardian", application.payload.guardianName],
+    ["Residence", application.payload.residencePhone || "Not provided"],
+    ["Address", `${application.payload.addressLine}, ${application.payload.mandal}, ${application.payload.district}, ${application.payload.state}, ${application.payload.pinCode}`],
+    ["Files sent from student", previewMeta.studentFiles],
   ];
 
   return (
-    <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.1)] bg-[linear-gradient(180deg,rgba(255,253,248,0.98),rgba(246,239,228,0.98))] p-5 shadow-[0_18px_48px_rgba(64,44,8,0.08)]">
-      <div className="grid gap-4">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9c6a18]">{application.payload.serviceName}</p>
-            <h3 className="font-display mt-2 text-2xl font-semibold text-[#173f33]">{application.payload.candidateName}</h3>
-            <p className="mt-2 text-sm text-[#607366]">
-              Submitted on {formatDateLabel(application.payload.submittedAt)} by {application.payload.guardianName}
-            </p>
+    <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[#f4f7f5] p-3 shadow-[0_18px_48px_rgba(64,44,8,0.08)] sm:p-4">
+      <div className="grid gap-4 xl:grid-cols-[17rem_minmax(0,1fr)]">
+        <aside className="grid gap-4">
+          <section className="rounded-[1.1rem] bg-white p-4 text-center shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+            <div className="mx-auto h-24 w-24 overflow-hidden rounded-[1.2rem] bg-[#d5f1ed]">
+              {photoSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={photoSrc} alt={`${application.payload.candidateName} photo`} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-[#173f33]">
+                  <UserRound className="h-10 w-10" aria-hidden="true" />
+                </div>
+              )}
+            </div>
+            <h3 className="mt-3 text-lg font-black text-[#173f33]">{application.payload.candidateName}</h3>
+            <p className="mt-1 text-xs font-semibold text-[#607366]">Age: {calculateAge(application.payload.dateOfBirth)}</p>
+            <button
+              type="button"
+              onClick={() => {
+                const meta = getPreviewApplicationMeta(application);
+                const printWindow = window.open("", "_blank", "width=1120,height=800");
+                if (!printWindow) return;
+                printWindow.document.write(buildRosterPrintHtml(application.payload.candidateName, meta.batchNumber, [application]));
+                printWindow.document.close();
+                printWindow.focus();
+              }}
+              className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-[0.75rem] bg-[#35b985] px-5 py-2 text-xs font-black text-white shadow-[0_10px_18px_rgba(53,185,133,0.2)]"
+            >
+              <Printer className="h-3.5 w-3.5" aria-hidden="true" />
+              Print
+            </button>
+          </section>
+
+          <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+            <h4 className="text-sm font-black text-[#173f33]">Information:</h4>
+            <dl className="mt-3 grid gap-2">
+              {identityRows.map(([label, value]) => (
+                <DossierKeyValue key={label} label={label} value={value} />
+              ))}
+            </dl>
+          </section>
+        </aside>
+
+        <div className="grid min-w-0 gap-4">
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <DossierMetric icon={<BadgeCheck className="h-5 w-5" aria-hidden="true" />} label="Enrollment ID" value={previewMeta.studentCode ?? "Pending"} tone="green" />
+            <DossierMetric icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} label="Invoice" value={application.latestPayment?.invoiceNumber ?? "Pending"} tone="gold" />
+            <DossierMetric icon={<WalletCards className="h-5 w-5" aria-hidden="true" />} label="Amount paid" value={paidAmount} tone="teal" />
+            <DossierMetric icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />} label="Batch" value={previewMeta.batchNumber} tone="rose" />
           </div>
-          <div className="flex flex-wrap gap-2">
-            <StatusPill icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={attemptStatus} />
-            <StatusPill icon={<CreditCard className="h-4 w-4" aria-hidden="true" />} label={paymentStatus} />
-            <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label="ENROLLED" />
-          </div>
-        </div>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {studentDetailRows.map((detail) => (
-            <InfoCard key={detail.label} icon={<UserRound className="h-4 w-4" aria-hidden="true" />} label={detail.label}>
-              <p>{detail.value}</p>
-            </InfoCard>
-          ))}
-        </div>
+          <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#9c6a18]">{application.payload.serviceName}</p>
+                <h3 className="font-display mt-1 text-2xl font-semibold text-[#173f33]">{application.payload.candidateName}</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <StatusPill icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={attemptStatus} />
+                <StatusPill icon={<CreditCard className="h-4 w-4" aria-hidden="true" />} label={paymentStatus} />
+                <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label="ENROLLED" />
+              </div>
+            </div>
 
-        <div className="grid gap-3 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-          <InfoCard icon={<ShieldCheck className="h-4 w-4" aria-hidden="true" />} label="Enrollment status">
-            <p>Attempt status: {attemptStatus.replaceAll("_", " ")}</p>
-            <p>Payment status: {paymentStatus.replaceAll("_", " ")}</p>
-            <p>Enrollment status: Enrolled automatically after successful payment</p>
-            <p>Enrollment ID: {previewMeta.studentCode ?? "Not assigned yet"}</p>
-          </InfoCard>
-          <InfoCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Stored billing data">
-            <p>Invoice number: {application.latestPayment?.invoiceNumber ?? "Not generated yet"}</p>
-            <p>Merchant order: {application.latestPayment?.merchantOrderId ?? "Not available"}</p>
-            <p>Payment reference: {paymentReference || "Not provided"}</p>
-            <p>Paid at: {application.latestPayment?.paidAt ? formatDateLabel(application.latestPayment.paidAt) : "Captured by gateway"}</p>
-            <p>Incoming billing proof is handled by the payment gateway flow.</p>
-          </InfoCard>
-        </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {reportRows.map((row) => (
+                <DossierReportCard key={row.label} icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={row.label} value={row.value} meta={row.meta} />
+              ))}
+            </div>
+          </section>
 
-        <div className="grid gap-3 md:grid-cols-2">
-          <InfoCard icon={<UserRound className="h-4 w-4" aria-hidden="true" />} label="Applicant identity">
-            <p>Name: {application.payload.candidateName}</p>
-            <p>Gender: {application.payload.gender}</p>
-            <p>DOB: {application.payload.dateOfBirth}</p>
-            <p>Education: {application.payload.educationQualification || "Not provided"}</p>
-          </InfoCard>
-          <InfoCard icon={<Phone className="h-4 w-4" aria-hidden="true" />} label="Contact">
-            <p>Mobile: {application.payload.phone}</p>
-            <p>Residence: {application.payload.residencePhone || "Not provided"}</p>
-            <p>Email: {application.payload.email || "Not provided"}</p>
-            <p>Pin code: {application.payload.pinCode}</p>
-          </InfoCard>
-          <InfoCard icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label="Address">
-            <p>{application.payload.addressLine}</p>
-            <p>{application.payload.mandal}, {application.payload.district}</p>
-            <p>{application.payload.state}</p>
-          </InfoCard>
-          <InfoCard icon={<CreditCard className="h-4 w-4" aria-hidden="true" />} label="Background details">
-            <p>Occupation: {application.payload.occupation || "Not provided"}</p>
-            <p>Sponsoring organization: {application.payload.sponsoringOrganization || "Not provided"}</p>
-            <p>Application date: {application.payload.applicationDate}</p>
-            <p>Submitted at: {formatDateLabel(application.payload.submittedAt)}</p>
-          </InfoCard>
-        </div>
-
-        {photoSrc ? (
-          <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#f3ecdf] p-4">
+          <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#9c6a18]">Stored submission media</p>
-              <span className="rounded-full bg-[#fff8ea] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#8a5612]">
-                Applicant photo
+              <h4 className="text-sm font-black text-[#173f33]">Transactions</h4>
+              <span className="rounded-full bg-[#eef8f1] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#21533f]">
+                Gateway records
               </span>
             </div>
-            <div className="mt-3 relative h-56 w-full overflow-hidden rounded-xl border border-[rgba(27,59,43,0.1)] bg-[#fffdf8]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={photoSrc}
-                alt={`${application.payload.candidateName} photo`}
-                className="h-full w-full object-cover"
-              />
+            <div className="mt-4 grid gap-2 md:grid-cols-2">
+              {transactionRows.map(([label, value]) => (
+                <DossierKeyValue key={label} label={label} value={value} boxed />
+              ))}
             </div>
-          </div>
-        ) : null}
+          </section>
 
-        <div className="grid gap-4">
-          <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#173f33] p-4 text-[#fff9ec] shadow-[0_18px_44px_rgba(23,63,51,0.16)]">
-            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#f5c65e]">Admin notes</p>
-            <div className="mt-4 grid gap-3">
-              <TextAreaField label="Notes" value={adminNotes} onChange={setAdminNotes} placeholder="Internal note for this enrolled student..." />
+          <section className="grid gap-4 lg:grid-cols-2">
+            <DossierPanel title="Training Details" rows={backgroundRows} />
+            <DossierPanel title="Contact & Files" rows={contactRows} />
+          </section>
+
+          <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h4 className="text-sm font-black text-[#173f33]">Admin notes</h4>
               <button
                 disabled={disabled}
                 onClick={() => onSave(application.id, { attemptStatus, paymentStatus, approvalStatus: "APPROVED", crossCheckStatus: "VERIFIED", adminNotes, paymentReference })}
-                className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#f5c65e] px-4 py-3 text-sm font-black text-[#173f33] shadow-[0_10px_24px_rgba(0,0,0,0.14)] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-full bg-[#173f33] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Save note
               </button>
             </div>
-          </div>
+            <textarea
+              rows={5}
+              value={adminNotes}
+              onChange={(event) => setAdminNotes(event.target.value)}
+              placeholder="Internal note for this enrolled student..."
+              className="w-full rounded-[1rem] border border-dashed border-[#dbe5de] bg-[#fbfdfb] px-4 py-3 text-sm font-medium text-[#173f33] outline-none ring-[#35b985] placeholder:text-[#8ca091] focus:ring-2"
+            />
+          </section>
         </div>
       </div>
     </article>
+  );
+}
+
+function DossierMetric({
+  icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  tone: "green" | "gold" | "teal" | "rose";
+}) {
+  const toneClass = {
+    green: "bg-[#e8f8ef] text-[#35b985]",
+    gold: "bg-[#fff6df] text-[#d99a1e]",
+    teal: "bg-[#e7f5f4] text-[#077b76]",
+    rose: "bg-[#fff0ed] text-[#d26955]",
+  }[tone];
+
+  return (
+    <div className="min-h-[7.25rem] rounded-[1.1rem] bg-white p-4 text-center shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+      <span className={`mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full ${toneClass}`}>
+        {icon}
+      </span>
+      <p className="mt-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#718477]">{label}</p>
+      <p className="mt-1 break-words text-lg font-black leading-tight text-[#173f33]">{value}</p>
+    </div>
+  );
+}
+
+function DossierReportCard({
+  icon,
+  label,
+  value,
+  meta,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  meta: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-[0.95rem] border border-[#eef2ef] bg-[#fbfdfb] p-3">
+      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#eef8f1] text-[#35b985]">
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-xs font-black text-[#173f33]">{label}</span>
+        <span className="mt-1 block truncate text-[11px] font-semibold text-[#607366]">{value}</span>
+        <span className="mt-0.5 block truncate text-[10px] font-semibold text-[#9aa99d]">{meta}</span>
+      </span>
+    </div>
+  );
+}
+
+function DossierKeyValue({ label, value, boxed = false }: { label: string; value: string; boxed?: boolean }) {
+  return (
+    <div className={boxed ? "rounded-[0.85rem] bg-[#fbf7ee] px-3 py-2" : "grid grid-cols-[5.6rem_minmax(0,1fr)] gap-2"}>
+      <span className="text-xs font-black text-[#173f33]">{label}:</span>
+      <span className="break-words text-xs font-semibold leading-5 text-[#607366]">{value}</span>
+    </div>
+  );
+}
+
+function DossierPanel({ title, rows }: { title: string; rows: string[][] }) {
+  return (
+    <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+      <h4 className="text-sm font-black text-[#173f33]">{title}</h4>
+      <dl className="mt-3 grid gap-2">
+        {rows.map(([label, value]) => (
+          <DossierKeyValue key={label} label={label} value={value} />
+        ))}
+      </dl>
+    </section>
   );
 }
 
@@ -880,18 +1153,6 @@ function StatusPill({ icon, label }: { icon: React.ReactNode; label: string }) {
       {icon}
       {label.replaceAll("_", " ")}
     </span>
-  );
-}
-
-function InfoCard({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-2xl border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-4 text-sm leading-7 text-[#173f33] shadow-[0_10px_24px_rgba(64,44,8,0.05)]">
-      <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.18em] text-[#9c6a18]">
-        {icon}
-        {label}
-      </div>
-      <div className="mt-3 grid gap-1">{children}</div>
-    </div>
   );
 }
 
@@ -937,25 +1198,6 @@ function SelectField({
           </option>
         ))}
       </select>
-    </label>
-  );
-}
-
-function TextAreaField({
-  label,
-  value,
-  onChange,
-  placeholder,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-}) {
-  return (
-    <label className="grid gap-1 text-xs font-black uppercase tracking-[0.12em] text-[#d4e1d8]">
-      {label}
-      <textarea rows={5} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="rounded-[1.5rem] border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.08)] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#fff9ec] outline-none ring-[#f5c65e] placeholder:text-[#c6d1ca] focus:ring-2" />
     </label>
   );
 }

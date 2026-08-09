@@ -6,7 +6,7 @@ import { getLocalTrainingApplications } from "@/lib/local-training-applications"
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { getAdminPaymentOrders, getAdminTrainingApplications, type PaymentAdminRecord } from "@/lib/training-application-store";
 import { TRAINING_APPLICATION_SUBJECT_PREFIX, type TrainingApplicationRecord } from "@/lib/training-application";
-import { deprecatedTrainingProgramSlugs, trainingProgramCatalogBySlug } from "@/lib/training-programs";
+import { deprecatedTrainingProgramSlugs, trainingProgramCatalog, trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
 export const dynamic = "force-dynamic";
 
@@ -166,6 +166,30 @@ export default async function AdminPage() {
     }
   } else {
     applications = await getLocalTrainingApplications();
+  }
+
+  if (!programs.length) {
+    const now = new Date();
+    programs = trainingProgramCatalog.map((program) => ({
+      id: program.id,
+      title: program.title,
+      slug: program.slug,
+      summary: program.summary,
+      description: program.description,
+      duration: program.duration,
+      level: program.level,
+      fee: program.fee,
+      capacity: program.capacity,
+      batchStartsAt: program.batchStartsAt ? new Date(program.batchStartsAt) : null,
+      registrationStartsAt: null,
+      registrationEndsAt: null,
+      scheduledPostAt: null,
+      enrollmentClosed: program.enrollmentClosed,
+      popupEnabled: program.popupEnabled,
+      published: program.published,
+      createdAt: now,
+      updatedAt: now,
+    }));
   }
 
   return (

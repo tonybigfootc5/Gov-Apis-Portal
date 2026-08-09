@@ -217,6 +217,10 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
       <div className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {members.map((member, index) => {
           const portrait = memberPortraits[member.name];
+          const leadershipFooterDetails = portrait && (
+            member.name === "Sree Sambashiva Rao" || member.name === "P. Ravindra Kumar"
+          );
+          const designationLines = member.designation.split("|").map((line) => line.trim()).filter(Boolean);
 
           return (
           <article
@@ -273,7 +277,7 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
               </div>
             ) : null}
 
-            {portrait ? (
+            {portrait && !leadershipFooterDetails ? (
               <p className="absolute bottom-[6.3rem] left-5 right-5 z-10 text-sm font-bold italic leading-5 text-white/88 drop-shadow-[0_2px_8px_rgba(0,0,0,0.38)]">{member.designation}</p>
             ) : null}
 
@@ -281,12 +285,30 @@ function AboutPeopleSection({ eyebrow, title, body, profileLabel, groups }: Abou
               portrait ? "rounded-[0.9rem] border border-white/18 bg-[#081710]/72 p-3 shadow-[0_18px_34px_rgba(0,0,0,0.24)] backdrop-blur-md" : ""
             }`}>
               <div className="min-w-0">
-                <p className={`text-[10px] font-black uppercase tracking-[0.14em] ${portrait ? "text-[#f6cf74]" : "text-[#6c7b73]"}`}>{member.groupEyebrow}</p>
-                {portrait ? (
-                  <h4 className="mt-1 text-[clamp(1.2rem,1.55vw,1.45rem)] font-black leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.36)]">
-                    {member.name}
-                  </h4>
-                ) : null}
+                {leadershipFooterDetails ? (
+                  <div className="grid gap-1.5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#f6cf74]">
+                      {designationLines[0] ?? member.groupEyebrow}
+                    </p>
+                    <h4 className="text-[clamp(1.15rem,1.45vw,1.38rem)] font-black leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.36)]">
+                      {member.name}
+                    </h4>
+                    {designationLines.slice(1).map((line) => (
+                      <p key={line} className="text-[11px] font-black uppercase leading-4 tracking-[0.1em] text-white/88">
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <p className={`text-[10px] font-black uppercase tracking-[0.14em] ${portrait ? "text-[#f6cf74]" : "text-[#6c7b73]"}`}>{member.groupEyebrow}</p>
+                    {portrait ? (
+                      <h4 className="mt-1 text-[clamp(1.2rem,1.55vw,1.45rem)] font-black leading-none text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.36)]">
+                        {member.name}
+                      </h4>
+                    ) : null}
+                  </>
+                )}
               </div>
             </div>
 
