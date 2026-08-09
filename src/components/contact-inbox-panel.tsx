@@ -259,12 +259,35 @@ export function ContactInboxPanel({ messages, loading, onRefresh, readMessageIds
                           {initials(message.name, absoluteIndex)}
                         </span>
                         <div className="min-w-0">
-                          <p className={`truncate font-black ${isRead ? "text-[#607366]" : "text-[#173f33]"}`}>{message.name}</p>
+                          <div className="flex min-w-0 items-center gap-1.5">
+                            <p className={`truncate font-black ${isRead ? "text-[#607366]" : "text-[#173f33]"}`}>{message.name}</p>
+                            <CopyTextButton
+                              label="name"
+                              copied={copiedLabel === `${message.id}:name`}
+                              onClick={() => void copyText(`${message.id}:name`, message.name)}
+                            />
+                          </div>
                           <p className="mt-1 truncate text-xs font-semibold text-[#90a094]">Inquiry #{String(absoluteIndex + 1).padStart(2, "0")}</p>
                         </div>
                       </div>
-                      <span className="truncate font-semibold text-[#607366]">{message.phone || "Not shared"}</span>
-                      <span className="truncate font-semibold text-[#607366]">{message.email}</span>
+                      <span className="flex min-w-0 items-center gap-1.5 font-semibold text-[#607366]">
+                        <span className="truncate">{message.phone || "Not shared"}</span>
+                        {message.phone ? (
+                          <CopyTextButton
+                            label="phone"
+                            copied={copiedLabel === `${message.id}:phone`}
+                            onClick={() => void copyText(`${message.id}:phone`, message.phone ?? "")}
+                          />
+                        ) : null}
+                      </span>
+                      <span className="flex min-w-0 items-center gap-1.5 font-semibold text-[#607366]">
+                        <span className="truncate">{message.email}</span>
+                        <CopyTextButton
+                          label="email"
+                          copied={copiedLabel === `${message.id}:email`}
+                          onClick={() => void copyText(`${message.id}:email`, message.email)}
+                        />
+                      </span>
                       <span className="truncate font-semibold text-[#607366]">{message.subject}</span>
                       <span className="text-xs font-semibold text-[#607366]">{formatDateTime(message.createdAt)}</span>
                       <span className={`w-fit rounded-md px-3 py-1.5 text-xs font-black ${
@@ -293,16 +316,8 @@ export function ContactInboxPanel({ messages, loading, onRefresh, readMessageIds
                     </div>
 
                     {isOpen ? (
-                      <div className="grid gap-5 border-b border-[#2a86d8] bg-white px-5 py-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
+                      <div className="border-b border-[#2a86d8] bg-white px-5 py-5">
                         <ExpandedInfo label="Message" value={message.message} />
-                        <div className="rounded-[1rem] border border-[#e5ebe6] bg-[#fbfdfb] p-4">
-                          <p className="text-xs font-black text-[#2f3b45]">Copy details</p>
-                          <div className="mt-3 grid gap-2">
-                            <CopyTextButton label="Copy name" copied={copiedLabel === "name"} onClick={() => void copyText("name", message.name)} />
-                            <CopyTextButton label="Copy phone" copied={copiedLabel === "phone"} disabled={!message.phone} onClick={() => void copyText("phone", message.phone ?? "")} />
-                            <CopyTextButton label="Copy email" copied={copiedLabel === "email"} onClick={() => void copyText("email", message.email)} />
-                          </div>
-                        </div>
                       </div>
                     ) : null}
                   </article>
@@ -404,16 +419,16 @@ function StatusChip({ label }: { label: string }) {
   );
 }
 
-function CopyTextButton({ label, copied, disabled = false, onClick }: { label: string; copied: boolean; disabled?: boolean; onClick: () => void }) {
+function CopyTextButton({ label, copied, onClick }: { label: string; copied: boolean; onClick: () => void }) {
   return (
     <button
       type="button"
-      disabled={disabled}
       onClick={onClick}
-      className="inline-flex h-10 items-center justify-between gap-3 rounded-[0.7rem] bg-white px-3 text-xs font-black text-[#173f33] shadow-[inset_0_0_0_1px_#e5ebe6] disabled:cursor-not-allowed disabled:opacity-45"
+      aria-label={`Copy ${label}`}
+      title={copied ? "Copied" : `Copy ${label}`}
+      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-[0.55rem] bg-white text-[#9c6a18] shadow-[inset_0_0_0_1px_#e5ebe6] transition hover:bg-[#fff8e6] hover:text-[#173f33]"
     >
-      <span>{copied ? "Copied" : label}</span>
-      <Copy className="h-4 w-4 text-[#9c6a18]" aria-hidden="true" />
+      {copied ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
     </button>
   );
 }
