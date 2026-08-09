@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import {
+  ChevronDown,
+  ChevronUp,
   Clock3,
   Eye,
   QrCode,
@@ -52,6 +54,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   const [scanLoading, setScanLoading] = useState(false);
   const [scanError, setScanError] = useState("");
   const [scanResult, setScanResult] = useState<ReceiptQrPayload | null>(null);
+  const [collapsedDateGroups, setCollapsedDateGroups] = useState<Record<string, boolean>>({});
 
   function setPaymentRecords(nextPayments: PaymentAdminRecord[]) {
     setPayments(nextPayments);
@@ -115,6 +118,10 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   function openPaymentDetails(payment: PaymentAdminRecord, initialTab: DetailTab = "transaction") {
     setSelectedPayment(payment);
     setDetailTab(initialTab);
+  }
+
+  function toggleDateGroup(groupKey: string) {
+    setCollapsedDateGroups((current) => ({ ...current, [groupKey]: !current[groupKey] }));
   }
 
   async function initiateRefund(orderId: string) {
@@ -266,22 +273,29 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
                   </div>
                   {groupedActivePayments.map((group) => (
                     <div key={group.key}>
-                      <div className="grid grid-cols-[1fr_auto] items-center gap-3 bg-[#fbf7ee] px-4 py-2 text-xs font-black text-[#111827]">
+                      <button
+                        type="button"
+                        onClick={() => toggleDateGroup(group.key)}
+                        className="grid w-full grid-cols-[1fr_auto_auto] items-center gap-3 bg-[#fbf7ee] px-4 py-2 text-left text-xs font-black text-[#111827] transition hover:bg-[#fff1cc]"
+                      >
                         <span>{group.label}</span>
                         <span className="rounded-full bg-white px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-[#607366]">
                           {group.payments.length} transaction{group.payments.length === 1 ? "" : "s"}
                         </span>
-                      </div>
-                      {group.payments.map((payment) => (
-                        <PaymentRow
-                          key={payment.id}
-                          payment={payment}
-                          loading={loadingId === payment.id}
-                          tab={tab}
-                          onRefund={() => void initiateRefund(payment.id)}
-                          onView={() => openPaymentDetails(payment)}
-                        />
-                      ))}
+                        {collapsedDateGroups[group.key] ? <ChevronDown className="h-4 w-4" aria-hidden="true" /> : <ChevronUp className="h-4 w-4" aria-hidden="true" />}
+                      </button>
+                      {!collapsedDateGroups[group.key] ? (
+                        group.payments.map((payment) => (
+                          <PaymentRow
+                            key={payment.id}
+                            payment={payment}
+                            loading={loadingId === payment.id}
+                            tab={tab}
+                            onRefund={() => void initiateRefund(payment.id)}
+                            onView={() => openPaymentDetails(payment)}
+                          />
+                        ))
+                      ) : null}
                     </div>
                   ))}
                 </div>

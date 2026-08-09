@@ -2391,19 +2391,19 @@ function ProgramsWorkspace({
             </div>
           </aside>
 
-          <div className="min-w-0 rounded-[1.15rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+          <div className="min-w-0 rounded-[1.15rem] border border-[#f0b429] bg-[#fffaf0] p-4 shadow-[0_12px_28px_rgba(217,147,31,0.10)]">
             {selectedProgram ? (
               <>
-                <div className="mb-4 grid gap-3 rounded-[1.1rem] bg-[#f7faf7] p-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+                <div className="mb-4 grid gap-3 rounded-[1.1rem] border border-[#f0b429] bg-white p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                   <div>
                     <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Preview</p>
                     <h4 className="mt-1 text-2xl font-black text-[#173f33]">{selectedProgram.title || "Untitled training"}</h4>
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-[#607366]">{selectedProgram.summary || "No summary added yet."}</p>
                   </div>
                   <div className="grid gap-2 text-right text-xs font-black text-[#607366]">
-                    <span className="rounded-full bg-white px-3 py-1.5">{selectedProgram.duration}</span>
-                    <span className="rounded-full bg-white px-3 py-1.5">{selectedProgram.capacity} seats</span>
-                    <span className="rounded-full bg-white px-3 py-1.5">{selectedProgram.published ? "Published" : "Draft"}</span>
+                    <span className="rounded-full bg-[#eef8f1] px-3 py-1.5">{selectedProgram.duration}</span>
+                    <span className="rounded-full bg-[#eef8f1] px-3 py-1.5">{selectedProgram.capacity} seats</span>
+                    <span className="rounded-full bg-[#fff2c7] px-3 py-1.5 text-[#8b5a00]">{selectedProgram.published ? "Published" : "Draft"}</span>
                   </div>
                 </div>
                 <ProgramEditorCard
@@ -2560,23 +2560,23 @@ function ProgramKanbanCard({
       onClick={onSelect}
       className={`rounded-[0.95rem] border p-3 text-left shadow-[0_8px_20px_rgba(23,63,51,0.06)] transition ${
         selected
-          ? "border-[#173f33] bg-[#173f33] text-[#fff9ec]"
+          ? "border-[#f0b429] bg-white text-[#173f33] shadow-[0_14px_30px_rgba(217,147,31,0.18)]"
           : "border-[#e2e8e3] bg-white text-[#173f33] hover:-translate-y-0.5 hover:shadow-[0_14px_24px_rgba(23,63,51,0.10)]"
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${selected ? "bg-[rgba(255,255,255,0.14)] text-[#f5c65e]" : "bg-[#eef8f1] text-[#1f6b4b]"}`}>
+        <span className={`rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${selected ? "bg-[#eef8f1] text-[#1f6b4b]" : "bg-[#eef8f1] text-[#1f6b4b]"}`}>
           {program.level}
         </span>
-        <span className={`text-[10px] font-semibold ${selected ? "text-[#d4e1d8]" : "text-[#718477]"}`}>
+        <span className={`text-[10px] font-semibold ${selected ? "text-[#f0a800]" : "text-[#718477]"}`}>
           {String(index + 1).padStart(2, "0")}
         </span>
       </div>
       <h4 className="mt-3 line-clamp-2 text-sm font-black leading-5">{program.title || "Untitled training"}</h4>
-      <p className={`mt-2 line-clamp-2 text-xs leading-5 ${selected ? "text-[#d4e1d8]" : "text-[#607366]"}`}>
+      <p className={`mt-2 line-clamp-2 text-xs leading-5 ${selected ? "text-[#607366]" : "text-[#607366]"}`}>
         {program.summary || "No summary added yet."}
       </p>
-      <div className={`mt-3 grid gap-1 text-[11px] font-semibold ${selected ? "text-[#f4e7bd]" : "text-[#718477]"}`}>
+      <div className={`mt-3 grid gap-1 text-[11px] font-semibold ${selected ? "text-[#8b5a00]" : "text-[#718477]"}`}>
         <span>{program.duration} | {program.capacity} seats</span>
         <span>
           {program.enrollmentClosed

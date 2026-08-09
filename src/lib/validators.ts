@@ -127,6 +127,32 @@ export const trainingApplicationAdminSchema = z.object({
   paymentReference: z.string().trim().max(160).optional().or(z.literal("")),
 });
 
+export const manualStudentAdminSchema = z.object({
+  serviceName: z.string().trim().min(3).max(160),
+  applicationDate: z.string().trim().min(8).max(30),
+  candidateName: z.string().trim().min(2).max(160),
+  guardianName: z.string().trim().min(2).max(160),
+  aadhaarNo: z.string().trim().regex(/^\d{12}$/, "Use a 12-digit Aadhaar number."),
+  email: z.string().trim().email().max(180).optional().or(z.literal("")),
+  gender: z.enum(["male", "female"]),
+  dateOfBirth: z.string().trim().min(8).max(30),
+  addressLine: z.string().trim().min(2).max(320),
+  mandal: z.string().trim().min(2).max(120),
+  district: z.string().trim().min(2).max(120),
+  state: z.string().trim().min(2).max(120),
+  pinCode: z.string().trim().regex(/^\d{6}$/, "Use a 6-digit pin code."),
+  phone: z.string().trim().regex(/^\d{10}$/, "Use a 10-digit mobile number."),
+  residencePhone: z.string().trim().max(40).optional().or(z.literal("")),
+  educationQualification: z.string().trim().max(160).optional().or(z.literal("")),
+  occupation: z.string().trim().max(160).optional().or(z.literal("")),
+  sponsoringOrganization: z.string().trim().max(200).optional().or(z.literal("")),
+  batchCode: z.string().trim().min(3).max(80),
+  batchSequenceNumber: z.coerce.number().int().min(1).max(9999),
+  amountPaise: z.coerce.number().int().min(0).max(1_000_000_00).default(0),
+  paymentReference: z.string().trim().max(160).optional().or(z.literal("")),
+  adminNotes: z.string().trim().max(1000).optional().or(z.literal("")),
+});
+
 export const refundRequestSchema = z.object({
   reason: z.string().trim().min(3).max(240),
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BadgeCheck, CalendarDays, ChevronDown, ChevronUp, FileClock, Printer, RefreshCw, Search, SlidersHorizontal, UserRound, X } from "lucide-react";
+import { BadgeCheck, CalendarDays, ChevronDown, ChevronUp, FileClock, Plus, Printer, RefreshCw, Search, SlidersHorizontal, UserRound, X } from "lucide-react";
 import type {
   ApplicationApprovalStatus,
   ApplicationAttemptStatus,
@@ -9,7 +9,7 @@ import type {
   ApplicationPaymentStatus,
   TrainingApplicationRecord,
 } from "@/lib/training-application";
-import { formatStudentCode, isSuccessfulPaymentApplication } from "@/lib/training-application";
+import { formatStudentCode, getTrainingCourseCode, isSuccessfulPaymentApplication } from "@/lib/training-application";
 import { deprecatedTrainingProgramSlugs, trainingProgramCatalog } from "@/lib/training-programs";
 
 type Props = {
@@ -19,6 +19,31 @@ type Props = {
 };
 
 const paymentOptions: ApplicationPaymentStatus[] = ["NOT_STARTED", "PENDING", "PAID", "FAILED"];
+type ManualStudentInput = {
+  serviceName: string;
+  applicationDate: string;
+  candidateName: string;
+  guardianName: string;
+  aadhaarNo: string;
+  email: string;
+  gender: "male" | "female";
+  dateOfBirth: string;
+  addressLine: string;
+  mandal: string;
+  district: string;
+  state: string;
+  pinCode: string;
+  phone: string;
+  residencePhone: string;
+  educationQualification: string;
+  occupation: string;
+  sponsoringOrganization: string;
+  batchCode: string;
+  batchSequenceNumber: number;
+  amountPaise: number;
+  paymentReference: string;
+  adminNotes: string;
+};
 
 export function ApplicationProgramCapacityRail({ applications }: { applications: TrainingApplicationRecord[] }) {
   const enrolledApplications = useMemo(
@@ -62,6 +87,10 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
   const [toDate, setToDate] = useState("");
   const [selectedApplicationId, setSelectedApplicationId] = useState(initialApplications[0]?.id ?? "");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [manualStudentOpen, setManualStudentOpen] = useState(false);
+  const [manualStudentMode, setManualStudentMode] = useState<"create" | "edit">("create");
+  const [manualStudentApplicationId, setManualStudentApplicationId] = useState("");
+  const [manualStudentDraft, setManualStudentDraft] = useState<ManualStudentInput>(() => buildEmptyManualStudentDraft(initialApplications));
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const canMutate = storageMode === "database" || storageMode === "local";
@@ -257,6 +286,55 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
     } finally {
       setLoading(false);
     }
+  }
+
+  async function saveManualStudent() {
+    setLoading(true);
+    setNotice("");
+    try {
+      const endpoint = manualStudentMode === "edit" && manualStudentApplicationId
+        ? `/api/admin/applications/${manualStudentApplicationId}`
+        : "/api/admin/applications";
+      const response = await fetch(endpoint, {
+        method: manualStudentMode === "edit" ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(manualStudentDraft),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setNotice(data?.error ?? "Unable to save manual student details.");
+        return;
+      }
+
+      const savedApplication = data as TrainingApplicationRecord;
+      setApplicationRecords(
+        manualStudentMode === "edit"
+          ? applications.map((application) => (application.id === savedApplication.id ? savedApplication : application))
+          : [savedApplication, ...applications],
+      );
+      setSelectedApplicationId(savedApplication.id);
+      setManualStudentOpen(false);
+      setNotice(manualStudentMode === "edit" ? "Student details updated." : "Manual student added and enrolled.");
+      await load();
+    } catch {
+      setNotice("Unable to save manual student details.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function openManualStudentCreate() {
+    setManualStudentMode("create");
+    setManualStudentApplicationId("");
+    setManualStudentDraft(buildEmptyManualStudentDraft(applications));
+    setManualStudentOpen(true);
+  }
+
+  function openManualStudentEdit(application: TrainingApplicationRecord) {
+    setManualStudentMode("edit");
+    setManualStudentApplicationId(application.id);
+    setManualStudentDraft(buildManualStudentDraftFromApplication(application));
+    setManualStudentOpen(true);
   }
 
   function openStudentProfile(applicationId: string) {
@@ -475,6 +553,15 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
 
           <div className="flex flex-wrap items-center justify-end gap-2">
             <button
+              type="button"
+              disabled={loading}
+              onClick={openManualStudentCreate}
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-[#f5c65e] px-4 text-sm font-black text-[#173f33] shadow-[0_10px_22px_rgba(217,147,31,0.2)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Add student
+            </button>
+            <button
               disabled={loading}
               onClick={load}
               className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-[#173f33] px-4 text-sm font-black text-white shadow-[0_10px_22px_rgba(23,63,51,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
@@ -566,7 +653,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                   {!isCollapsed ? (
                     <div className="max-w-full overflow-x-auto">
                       <div className="min-w-[74rem]">
-                        <div className="grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_6.5rem] gap-3 border-b border-[#e7c46f] bg-[#fff8df] px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#61440b]">
+                        <div className="grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_10rem] gap-3 border-b border-[#e7c46f] bg-[#fff8df] px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#61440b]">
                           <span>Student</span>
                           <span>Course</span>
                           <span>Phone</span>
@@ -583,7 +670,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                               <button
                           key={application.id}
                           onClick={() => setSelectedApplicationId(application.id)}
-                              className={`grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_6.5rem] items-center gap-3 border-b border-[#e7eee8] px-4 py-4 text-left transition last:border-b-0 ${
+                              className={`grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_10rem] items-center gap-3 border-b border-[#e7eee8] px-4 py-4 text-left transition last:border-b-0 ${
                             isActive
                                   ? "bg-[#fff8df] text-[#173f33]"
                                   : "bg-white text-[#173f33] hover:bg-[#fbfdfb]"
@@ -624,6 +711,19 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                                 >
                                   Print
                                 </span>
+                              <span
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    openManualStudentEdit(application);
+                                  }}
+                                  className={`inline-flex items-center justify-center rounded-full px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
+                                  isActive
+                                    ? "bg-white text-[#173f33] hover:bg-[#eef8f1]"
+                                    : "bg-[#fff8df] text-[#173f33] hover:bg-[#f3e8c6]"
+                                }`}
+                                >
+                                  Edit
+                                </span>
                                 <span
                                   onClick={(event) => {
                                     event.stopPropagation();
@@ -659,7 +759,182 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
           onSave={updateApplication}
         />
       ) : null}
+      {manualStudentOpen ? (
+        <ManualStudentModal
+          mode={manualStudentMode}
+          draft={manualStudentDraft}
+          disabled={loading}
+          serviceOptions={serviceOptions.length ? serviceOptions : trainingProgramCatalog.map((program) => program.title)}
+          onChange={setManualStudentDraft}
+          onClose={() => setManualStudentOpen(false)}
+          onSave={() => void saveManualStudent()}
+        />
+      ) : null}
     </section>
+  );
+}
+
+function buildEmptyManualStudentDraft(applications: TrainingApplicationRecord[]): ManualStudentInput {
+  const programName = applications[0]?.payload.serviceName ?? trainingProgramCatalog[0]?.title ?? "Scientific Beekeeping";
+  const batchCode = applications[0]?.batchCode ?? `${getTrainingCourseCode(programName)}-01-${new Date().toLocaleString("en-US", { month: "short" })}${String(new Date().getFullYear()).slice(-2)}`;
+  const nextSequence = Math.max(
+    0,
+    ...applications
+      .filter((application) => (application.batchCode ?? "") === batchCode)
+      .map((application) => application.batchSequenceNumber ?? 0),
+  ) + 1;
+
+  return {
+    serviceName: programName,
+    applicationDate: new Date().toISOString().slice(0, 10),
+    candidateName: "",
+    guardianName: "",
+    aadhaarNo: "",
+    email: "",
+    gender: "male",
+    dateOfBirth: "",
+    addressLine: "",
+    mandal: "",
+    district: "Hyderabad",
+    state: "Telangana",
+    pinCode: "",
+    phone: "",
+    residencePhone: "",
+    educationQualification: "",
+    occupation: "",
+    sponsoringOrganization: "",
+    batchCode,
+    batchSequenceNumber: nextSequence,
+    amountPaise: 0,
+    paymentReference: "",
+    adminNotes: "Manual student added by admin.",
+  };
+}
+
+function buildManualStudentDraftFromApplication(application: TrainingApplicationRecord): ManualStudentInput {
+  return {
+    serviceName: application.payload.serviceName,
+    applicationDate: application.payload.applicationDate,
+    candidateName: application.payload.candidateName,
+    guardianName: application.payload.guardianName,
+    aadhaarNo: application.payload.aadhaarNo,
+    email: application.payload.email || "",
+    gender: application.payload.gender === "female" ? "female" : "male",
+    dateOfBirth: application.payload.dateOfBirth,
+    addressLine: application.payload.addressLine,
+    mandal: application.payload.mandal,
+    district: application.payload.district,
+    state: application.payload.state,
+    pinCode: application.payload.pinCode,
+    phone: application.payload.phone,
+    residencePhone: application.payload.residencePhone || "",
+    educationQualification: application.payload.educationQualification || "",
+    occupation: application.payload.occupation || "",
+    sponsoringOrganization: application.payload.sponsoringOrganization || "",
+    batchCode: application.batchCode ?? getPreviewApplicationMeta(application).batchNumber,
+    batchSequenceNumber: application.batchSequenceNumber ?? 1,
+    amountPaise: application.latestPayment?.amountPaise ?? 0,
+    paymentReference: application.latestPayment?.paymentReference ?? application.payload.paymentReference ?? "",
+    adminNotes: application.payload.adminNotes || "",
+  };
+}
+
+function ManualStudentModal({
+  mode,
+  draft,
+  disabled,
+  serviceOptions,
+  onChange,
+  onClose,
+  onSave,
+}: {
+  mode: "create" | "edit";
+  draft: ManualStudentInput;
+  disabled: boolean;
+  serviceOptions: string[];
+  onChange: (draft: ManualStudentInput) => void;
+  onClose: () => void;
+  onSave: () => void;
+}) {
+  function update<K extends keyof ManualStudentInput>(key: K, value: ManualStudentInput[K]) {
+    onChange({ ...draft, [key]: value });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#102119]/45 p-3 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="mx-auto my-4 w-full max-w-5xl overflow-hidden rounded-[1.35rem] bg-white shadow-[0_28px_80px_rgba(16,33,27,0.25)]"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-[#edf2ee] px-4 py-3">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">{mode === "create" ? "Add student" : "Edit student"}</p>
+            <h3 className="mt-1 text-xl font-black text-[#173f33]">{mode === "create" ? "Manual enrolled student" : draft.candidateName}</h3>
+          </div>
+          <button type="button" onClick={onClose} className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#eef3ef] text-[#173f33]">
+            <X className="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="grid max-h-[72vh] gap-4 overflow-y-auto p-4 lg:grid-cols-3">
+          <ManualField label="Student name" value={draft.candidateName} onChange={(value) => update("candidateName", value)} />
+          <ManualField label="Guardian" value={draft.guardianName} onChange={(value) => update("guardianName", value)} />
+          <label className="grid gap-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#718477]">
+            Program
+            <select className={manualFieldClass} value={draft.serviceName} onChange={(event) => update("serviceName", event.target.value)}>
+              {serviceOptions.map((option) => <option key={option} value={option}>{option}</option>)}
+            </select>
+          </label>
+          <ManualField label="Aadhaar" value={draft.aadhaarNo} onChange={(value) => update("aadhaarNo", value.replace(/\D/g, "").slice(0, 12))} />
+          <ManualField label="Phone" value={draft.phone} onChange={(value) => update("phone", value.replace(/\D/g, "").slice(0, 10))} />
+          <ManualField label="Email" value={draft.email} onChange={(value) => update("email", value)} />
+          <ManualField label="Date of birth" type="date" value={draft.dateOfBirth} onChange={(value) => update("dateOfBirth", value)} />
+          <label className="grid gap-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#718477]">
+            Gender
+            <select className={manualFieldClass} value={draft.gender} onChange={(event) => update("gender", event.target.value as "male" | "female")}>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </label>
+          <ManualField label="Application date" type="date" value={draft.applicationDate} onChange={(value) => update("applicationDate", value)} />
+          <ManualField label="Batch code" value={draft.batchCode} onChange={(value) => update("batchCode", value.toUpperCase())} />
+          <ManualField label="Student sequence" type="number" value={String(draft.batchSequenceNumber)} onChange={(value) => update("batchSequenceNumber", Number(value || 1))} />
+          <ManualField label="Amount paid" type="number" value={String(draft.amountPaise / 100)} onChange={(value) => update("amountPaise", Math.round(Number(value || 0) * 100))} />
+          <ManualField label="Payment reference" value={draft.paymentReference} onChange={(value) => update("paymentReference", value)} />
+          <ManualField label="Education" value={draft.educationQualification} onChange={(value) => update("educationQualification", value)} />
+          <ManualField label="Occupation" value={draft.occupation} onChange={(value) => update("occupation", value)} />
+          <ManualField label="Address" value={draft.addressLine} onChange={(value) => update("addressLine", value)} />
+          <ManualField label="Mandal" value={draft.mandal} onChange={(value) => update("mandal", value)} />
+          <ManualField label="District" value={draft.district} onChange={(value) => update("district", value)} />
+          <ManualField label="State" value={draft.state} onChange={(value) => update("state", value)} />
+          <ManualField label="Pin code" value={draft.pinCode} onChange={(value) => update("pinCode", value.replace(/\D/g, "").slice(0, 6))} />
+          <ManualField label="Residence phone" value={draft.residencePhone} onChange={(value) => update("residencePhone", value)} />
+          <ManualField label="Sponsoring organization" value={draft.sponsoringOrganization} onChange={(value) => update("sponsoringOrganization", value)} />
+          <label className="grid gap-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#718477] lg:col-span-3">
+            Admin notes
+            <textarea rows={3} className={`${manualFieldClass} h-auto resize-y`} value={draft.adminNotes} onChange={(event) => update("adminNotes", event.target.value)} />
+          </label>
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-2 border-t border-[#edf2ee] px-4 py-3">
+          <button type="button" onClick={onClose} className="rounded-full bg-[#eef3ef] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#607366]">Cancel</button>
+          <button type="button" disabled={disabled} onClick={onSave} className="rounded-full bg-[#173f33] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#fff9ec] disabled:opacity-60">
+            {mode === "create" ? "Add student" : "Save changes"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const manualFieldClass = "h-10 rounded-[0.75rem] border border-[#dfe8e1] bg-[#fbfdfb] px-3 text-sm font-semibold normal-case tracking-normal text-[#173f33] outline-none ring-[#f5c65e] focus:ring-2";
+
+function ManualField({ label, value, type = "text", onChange }: { label: string; value: string; type?: string; onChange: (value: string) => void }) {
+  return (
+    <label className="grid gap-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#718477]">
+      {label}
+      <input type={type} className={manualFieldClass} value={value} onChange={(event) => onChange(event.target.value)} />
+    </label>
   );
 }
 
