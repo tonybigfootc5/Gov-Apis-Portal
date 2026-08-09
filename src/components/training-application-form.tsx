@@ -812,15 +812,15 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
                   <div className="grid gap-5 md:grid-cols-2">
                     <Field label={copy.dateOfBirth} required>
                       <div className="relative">
-                        <Calendar className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9c6a18]" aria-hidden="true" />
                         <input
                           type="date"
                           value={form.dateOfBirth}
                           onChange={(event) => updateField("dateOfBirth", formatDateOfBirthInput(event.target.value))}
                           min="1900-01-01"
                           max={new Date().toISOString().slice(0, 10)}
-                          className={`${inputClassName} w-full pl-11`}
+                          className={dateInputClassName}
                         />
+                        <Calendar className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#9c6a18]" aria-hidden="true" />
                       </div>
                     </Field>
 
@@ -1361,6 +1361,9 @@ function ReviewRow({ label, value, wide = false }: { label: string; value?: stri
 
 const inputClassName =
   "min-h-12 min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] placeholder:text-[#7d8b83] focus:ring-2";
+
+const dateInputClassName =
+  `${inputClassName} w-full pr-12 tracking-normal [color-scheme:light] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-4 [&::-webkit-calendar-picker-indicator]:h-5 [&::-webkit-calendar-picker-indicator]:w-5 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0`;
 
 const textareaClassName =
   "min-h-28 min-w-0 rounded-[1.2rem] border border-[rgba(41,56,49,0.12)] bg-[#fffdf8] px-4 py-3 text-base text-[#1b3b2b] outline-none ring-[#f2b544] placeholder:text-[#7d8b83] focus:ring-2";
