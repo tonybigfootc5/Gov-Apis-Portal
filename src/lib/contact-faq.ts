@@ -77,6 +77,18 @@ export const contactFaqCategories = [
         answer: "Yes. Refreshments are included for enrolled trainees during the training schedule.",
       },
       {
+        question: "Is paid accommodation provided?",
+        answer: "Yes. Paid accommodation can be provided for trainees who need to stay during the program, subject to room availability.",
+      },
+      {
+        question: "What is the room price for accommodation?",
+        answer: "The room price is Rs. 500 per day, excluding GST. Food charges are extra.",
+      },
+      {
+        question: "Is food included with the accommodation room price?",
+        answer: "No. The Rs. 500 per day room price excludes GST and does not include food. Food is charged separately.",
+      },
+      {
         question: "Are seats limited?",
         answer: "Yes. Each program has limited seats, and enrollment is accepted only while seats and batch registration are available.",
       },
