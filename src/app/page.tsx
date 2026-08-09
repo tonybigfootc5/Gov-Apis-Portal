@@ -202,6 +202,9 @@ export default async function Home() {
         </div>
 
         <section className="mx-auto mt-10 max-w-[94rem]">
+          <h2 className="mb-6 text-center text-[clamp(2.25rem,5vw,4.8rem)] font-black leading-[0.9] tracking-[-0.04em] text-[#121512]">
+            Got Questions?
+          </h2>
           <div className="mb-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 border-b border-[#e4e1d8] pb-5">
             {contactFaqCategories.map((category, index) => (
               <a
