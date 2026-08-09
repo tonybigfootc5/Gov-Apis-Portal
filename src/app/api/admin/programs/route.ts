@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prismaErrorResponse } from "@/lib/api-response";
 import { adminUnauthorized, requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { deprecatedTrainingProgramSlugs, trainingProgramCatalogBySlug } from "@/lib/training-programs";
+import { deprecatedTrainingProgramSlugs } from "@/lib/training-programs";
 import { programSchema } from "@/lib/validators";
 
 export const dynamic = "force-dynamic";
@@ -14,15 +14,6 @@ export async function GET() {
     return NextResponse.json(
       programs
         .filter((program) => !deprecatedTrainingProgramSlugs.has(program.slug))
-        .map((program) => ({
-          ...program,
-          title: trainingProgramCatalogBySlug[program.slug]?.title ?? program.title,
-          summary: trainingProgramCatalogBySlug[program.slug]?.summary ?? program.summary,
-          description: trainingProgramCatalogBySlug[program.slug]?.description ?? program.description,
-          duration: trainingProgramCatalogBySlug[program.slug]?.duration ?? program.duration,
-          fee: trainingProgramCatalogBySlug[program.slug]?.fee ?? program.fee,
-          capacity: trainingProgramCatalogBySlug[program.slug]?.capacity ?? program.capacity,
-        })),
     );
   } catch (error) {
     return prismaErrorResponse(error, "Program list");

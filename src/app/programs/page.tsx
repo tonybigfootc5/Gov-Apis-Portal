@@ -109,7 +109,7 @@ export default async function ProgramsPage() {
     return {
       id: program.id,
       slug: program.slug,
-      serviceTitle: presentation?.title ?? program.title,
+      serviceTitle: program.title,
       tabLabel: override?.title ?? translatedProgram.title,
       title: override?.title ?? translatedProgram.title,
       summary: translatedProgram.summary,

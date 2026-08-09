@@ -118,13 +118,6 @@ function mergeProgramWithCatalog(program: ProgramItem): ProgramItem {
 
   return {
     ...program,
-    title: catalog.title,
-    summary: catalog.summary,
-    description: catalog.description,
-    duration: catalog.duration,
-    level: catalog.level,
-    fee: catalog.fee || program.fee,
-    capacity: catalog.capacity,
     slug: catalog.slug,
   };
 }
