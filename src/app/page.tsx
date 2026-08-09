@@ -266,36 +266,42 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="grid gap-5 self-start">
-            <section className="overflow-hidden rounded-[1.35rem] border border-[#e2ded4] bg-[#fffdf8] p-4 shadow-[0_18px_42px_rgba(30,34,28,0.08)]">
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#173f33] text-[#fff9ec]">
-                  <HelpCircle className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <div>
-                  <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">FAQ</p>
-                  <h3 className="text-xl font-black text-[#171a16]">Quick answers before calling</h3>
-                </div>
-              </div>
-              <div className="mt-4 flex max-h-[24rem] snap-x gap-3 overflow-x-auto pb-2">
-                {contactFaqCategories.map((category) => (
-                  <article key={category.category} className="w-[18.5rem] shrink-0 snap-start rounded-[1rem] border border-[#ece8de] bg-white p-4">
-                    <p className="text-sm font-black text-[#173f33]">{category.category}</p>
-                    <div className="mt-3 grid gap-3">
-                      {category.questions.map((item) => (
-                        <div key={item.question} className="rounded-[0.85rem] bg-[#f6f4ee] p-3">
-                          <p className="text-sm font-black leading-5 text-[#171a16]">{item.question}</p>
-                          <p className="mt-2 text-xs font-semibold leading-5 text-[#555a51]">{item.answer}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
+          <div className="self-start">
             <ContactForm language={language} variant="contactPage" />
           </div>
         </div>
+
+        <section className="mx-auto mt-8 max-w-[94rem] overflow-hidden rounded-[1.35rem] border border-[#e2ded4] bg-[#fffdf8] p-4 shadow-[0_18px_42px_rgba(30,34,28,0.08)] sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#173f33] text-[#fff9ec]">
+                <HelpCircle className="h-5 w-5" aria-hidden="true" />
+              </span>
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">FAQ</p>
+                <h3 className="text-xl font-black text-[#171a16]">Quick answers before calling</h3>
+              </div>
+            </div>
+            <span className="rounded-full bg-[#f1ecdf] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]">
+              Scroll categories
+            </span>
+          </div>
+          <div className="mt-4 flex max-h-[24rem] snap-x gap-3 overflow-x-auto pb-2">
+            {contactFaqCategories.map((category) => (
+              <article key={category.category} className="w-[18.5rem] shrink-0 snap-start rounded-[1rem] border border-[#ece8de] bg-white p-4">
+                <p className="text-sm font-black text-[#173f33]">{category.category}</p>
+                <div className="mt-3 grid gap-3">
+                  {category.questions.map((item) => (
+                    <div key={item.question} className="rounded-[0.85rem] bg-[#f6f4ee] p-3">
+                      <p className="text-sm font-black leading-5 text-[#171a16]">{item.question}</p>
+                      <p className="mt-2 text-xs font-semibold leading-5 text-[#555a51]">{item.answer}</p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
       </section>
     </main>
   );
