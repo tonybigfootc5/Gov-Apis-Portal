@@ -106,6 +106,9 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   const maxBarAmount = Math.max(...recentPaymentBars.map((bar) => bar.amountPaise), 1);
   const latestPayment = filteredPayments[0] ?? null;
   const eventCount = filteredPayments.reduce((total, payment) => total + payment.events.length, 0);
+  const relatedSelectedPayments = selectedPayment
+    ? getRelatedApplicantPayments(selectedPayment, payments)
+    : [];
 
   async function reload() {
     if (!databaseConfigured) {
@@ -364,6 +367,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
       {selectedPayment ? (
         <PaymentDetailModal
           payment={selectedPayment}
+          relatedPayments={relatedSelectedPayments}
           detailTab={detailTab}
           loading={loadingId === `view:${selectedPayment.id}` || loadingId === selectedPayment.id}
           onTabChange={setDetailTab}
@@ -498,6 +502,35 @@ function PaymentMetricCard({ icon, label, value, hint }: { icon: React.ReactNode
   );
 }
 
+function getRelatedApplicantPayments(selectedPayment: PaymentAdminRecord, payments: PaymentAdminRecord[]) {
+  const selectedKeys = getPaymentApplicantKeys(selectedPayment);
+  if (!selectedKeys.length) return [selectedPayment];
+
+  return payments
+    .filter((payment) => getPaymentApplicantKeys(payment).some((key) => selectedKeys.includes(key)))
+    .sort((left, right) => getPaymentTimelineTime(right) - getPaymentTimelineTime(left));
+}
+
+function getPaymentApplicantKeys(payment: PaymentAdminRecord) {
+  const aadhaar = payment.application.aadhaarNo.replace(/\D/g, "");
+  const phone = payment.application.phone.replace(/\D/g, "");
+
+  return [
+    aadhaar.length >= 4 ? `aadhaar:${aadhaar}` : "",
+    phone.length >= 6 ? `phone:${phone}` : "",
+  ].filter(Boolean);
+}
+
+function getPaymentTimelineTime(payment: PaymentAdminRecord) {
+  const paidAt = payment.paidAt ? new Date(payment.paidAt).getTime() : NaN;
+  if (Number.isFinite(paidAt)) return paidAt;
+
+  const updatedAt = new Date(payment.updatedAt).getTime();
+  if (Number.isFinite(updatedAt)) return updatedAt;
+
+  return new Date(payment.createdAt).getTime();
+}
+
 function PaymentRow({
   payment,
   loading,
@@ -558,12 +591,14 @@ function PaymentRow({
 
 function PaymentDetailModal({
   payment,
+  relatedPayments,
   detailTab,
   loading,
   onTabChange,
   onClose,
 }: {
   payment: PaymentAdminRecord;
+  relatedPayments: PaymentAdminRecord[];
   detailTab: DetailTab;
   loading: boolean;
   onTabChange: (tab: DetailTab) => void;
@@ -713,6 +748,32 @@ function PaymentDetailModal({
                 <ReadOnlyStat label="Gateway event" value={payment.latestEventName ?? payment.environment} />
               </div>
               <DetailGrid rows={transactionRows} />
+              {relatedPayments.length > 1 ? (
+                <section className="rounded-[1.1rem] border border-[#e7eee8] bg-white">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e7eee8] px-4 py-3">
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Same applicant transaction history</p>
+                    <span className="rounded-full bg-[#eef3ef] px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#607366]">
+                      {relatedPayments.length} attempt{relatedPayments.length === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                  <div className="divide-y divide-[#eef3ef]">
+                    {relatedPayments.map((relatedPayment) => (
+                      <div key={relatedPayment.id} className="grid gap-3 px-4 py-4 lg:grid-cols-[1fr_1fr_0.7fr_0.85fr]">
+                        <div className="min-w-0">
+                          <p className="truncate text-xs font-black text-[#173f33]">{relatedPayment.invoiceNumber}</p>
+                          <p className="mt-1 truncate text-xs font-semibold text-[#607366]">{relatedPayment.merchantOrderId}</p>
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-xs font-black text-[#173f33]">{relatedPayment.paymentReference ?? "Reference pending"}</p>
+                          <p className="mt-1 truncate text-xs font-semibold text-[#607366]">{relatedPayment.phonePeOrderId ?? "PhonePe order pending"}</p>
+                        </div>
+                        <StatusBadge label={relatedPayment.status} tone={relatedPayment.status === "PAID" ? "good" : relatedPayment.status === "FAILED" || relatedPayment.status === "EXPIRED" ? "bad" : "warn"} />
+                        <p className="text-xs font-semibold text-[#607366]">{formatDate(relatedPayment.createdAt)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
               <section className="rounded-[1.1rem] border border-[#e7eee8] bg-white">
                 <div className="border-b border-[#e7eee8] px-4 py-3">
                   <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Gateway event timeline</p>

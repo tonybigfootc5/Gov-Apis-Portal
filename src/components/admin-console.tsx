@@ -1466,7 +1466,7 @@ function getProgramCourseCode(program: Program) {
   const normalized = normalizeTrainingLabel(`${program.title} ${program.slug}`);
 
   if (normalized.includes("honeyprocessing")) return "HP";
-  if (normalized.includes("queen") || normalized.includes("royaljelly") || normalized.includes("colony")) return "QBB";
+  if (normalized.includes("queen") || normalized.includes("royaljelly") || normalized.includes("colony")) return "QCM";
   if (normalized.includes("beekeeping")) return "BK";
 
   return program.title
@@ -1503,6 +1503,13 @@ function parseProgramDurationDays(duration: string) {
 }
 
 function getBatchDateFromCode(batchCode: string) {
+  const newMatch = batchCode.match(/^[A-Z0-9]+-\d{2,}-([A-Z][a-z]{2})(\d{2})$/);
+  if (newMatch) {
+    const [, monthText, year] = newMatch;
+    const monthIndex = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].indexOf(monthText);
+    return monthIndex >= 0 ? new Date(Number(`20${year}`), monthIndex, 1, 9) : null;
+  }
+
   const currentMatch = batchCode.match(/^[A-Z0-9]+-B\d{2,}-(\d{2})-(\d{4})$/);
   if (currentMatch) {
     const [, month, year] = currentMatch;
@@ -1519,24 +1526,19 @@ function getBatchDateFromCode(batchCode: string) {
 }
 
 function buildBatchCode(program: Program, batchNumber: number, date: Date | null) {
-  const batchDate = date && !Number.isNaN(date.getTime()) ? date : new Date();
-  const month = String(batchDate.getMonth() + 1).padStart(2, "0");
-  const year = String(batchDate.getFullYear());
+  if (!date || Number.isNaN(date.getTime())) return `${getProgramCourseCode(program)}-${String(batchNumber).padStart(2, "0")}-TBD`;
 
-  return `${getProgramCourseCode(program)}-B${String(batchNumber).padStart(2, "0")}-${month}-${year}`;
+  const batchDate = date;
+  const monthYear = batchDate.toLocaleString("en-US", { month: "short", timeZone: "Asia/Kolkata" }) + String(batchDate.getFullYear()).slice(-2);
+
+  return `${getProgramCourseCode(program)}-${String(batchNumber).padStart(2, "0")}-${monthYear}`;
 }
 
 function buildEnrollmentPattern(batchCode: string) {
-  const currentMatch = batchCode.match(/^[A-Z0-9]+-B(\d{2,})-(\d{2})-(\d{4})$/);
-  if (currentMatch) {
-    const [, batchNumber, month, year] = currentMatch;
-    return `B${batchNumber}-${month}-0000-${year}`;
-  }
-
-  return `${batchCode}-0000`;
+  return `${batchCode}-0001 to ${batchCode}-9999`;
 }
 
-type BatchSeatStatus = "current" | "upcoming" | "past";
+type BatchSeatStatus = "current" | "upcoming" | "comingSoon" | "past";
 type BatchSeatRow = {
   id: string;
   program: Program;
@@ -1549,11 +1551,12 @@ type BatchSeatRow = {
   capacity: number;
   fillPercent: number;
   startsAt: string | null;
+  expiresAt: string | null;
   sortTime: number;
 };
 
 function getBatchStatus(startDate: Date | null, durationDays: number, now: Date): BatchSeatStatus {
-  if (!startDate || Number.isNaN(startDate.getTime())) return "upcoming";
+  if (!startDate || Number.isNaN(startDate.getTime())) return "comingSoon";
 
   const endDate = new Date(startDate);
   endDate.setDate(endDate.getDate() + durationDays);
@@ -1571,8 +1574,7 @@ function getProgramSeatRows(programs: Program[], applications: TrainingApplicati
       const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
       const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
       return leftTime - rightTime || left.title.localeCompare(right.title);
-    })
-    .slice(0, 3);
+    });
 
   const rows = sortedPrograms.flatMap((program, index) => {
     const programStartDate = program.batchStartsAt ? new Date(program.batchStartsAt) : null;
@@ -1596,6 +1598,9 @@ function getProgramSeatRows(programs: Program[], applications: TrainingApplicati
       const capacity = Math.max(0, program.capacity || 0);
       const enrolled = batchApplications.length;
       const status = getBatchStatus(batchStartDate, parseProgramDurationDays(program.duration), now);
+      const enrollmentExpiryDate = batchStartDate && !Number.isNaN(batchStartDate.getTime())
+        ? new Date(batchStartDate.getFullYear(), batchStartDate.getMonth(), batchStartDate.getDate(), 0, 0, 0)
+        : null;
 
       return {
         id: `${program.id}-${batchCode}`,
@@ -1603,12 +1608,13 @@ function getProgramSeatRows(programs: Program[], applications: TrainingApplicati
         batchCode,
         enrollmentPattern: buildEnrollmentPattern(batchCode),
         status,
-        statusLabel: status === "current" ? "Already started" : status === "upcoming" ? "Upcoming" : "Completed",
+        statusLabel: status === "current" ? "Live now" : status === "upcoming" ? "Upcoming" : status === "comingSoon" ? "Coming soon" : "Completed",
         enrolled,
         seatsLeft: Math.max(0, capacity - enrolled),
         capacity,
         fillPercent: capacity ? Math.min(100, Math.round((enrolled / capacity) * 100)) : 0,
         startsAt: batchStartDate && !Number.isNaN(batchStartDate.getTime()) ? batchStartDate.toISOString() : null,
+        expiresAt: enrollmentExpiryDate ? enrollmentExpiryDate.toISOString() : null,
         sortTime: batchStartDate && !Number.isNaN(batchStartDate.getTime()) ? batchStartDate.getTime() : Number.POSITIVE_INFINITY,
       } satisfies BatchSeatRow;
     });
@@ -1617,6 +1623,7 @@ function getProgramSeatRows(programs: Program[], applications: TrainingApplicati
   return {
     current: rows.filter((row) => row.status === "current").sort((left, right) => left.sortTime - right.sortTime),
     upcoming: rows.filter((row) => row.status === "upcoming").sort((left, right) => left.sortTime - right.sortTime),
+    comingSoon: rows.filter((row) => row.status === "comingSoon").sort((left, right) => left.program.title.localeCompare(right.program.title)),
     past: rows.filter((row) => row.status === "past").sort((left, right) => right.sortTime - left.sortTime),
   };
 }
@@ -1692,16 +1699,20 @@ function ProgramSeatSummary({
 }) {
   const paidApplications = applications.filter((application) => isSuccessfulPaymentApplication(application));
   const batchGroups = getProgramSeatRows(programs, applications);
-  const rows = [...batchGroups.current, ...batchGroups.upcoming, ...batchGroups.past];
+  const [requestedBatchView, setRequestedBatchView] = useState<"current" | "upcoming" | "comingSoon">(
+    batchGroups.current.length ? "current" : batchGroups.upcoming.length ? "upcoming" : "comingSoon",
+  );
+  const visibleBatchCount = batchGroups.current.length + batchGroups.upcoming.length + batchGroups.comingSoon.length;
+  const activeBatchView = batchGroups[requestedBatchView].length
+    ? requestedBatchView
+    : batchGroups.current.length
+      ? "current"
+      : batchGroups.upcoming.length
+        ? "upcoming"
+        : "comingSoon";
+  const visibleRows = batchGroups[activeBatchView];
 
-  if (!rows.length) {
-    return (
-      <section className={`rounded-[1.45rem] border p-4 shadow-[0_18px_38px_rgba(10,5,4,0.11)] ${theme.panelShell}`}>
-        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Program seats</p>
-        <p className="mt-3 text-sm font-semibold text-[#607366]">No active programs are configured yet.</p>
-      </section>
-    );
-  }
+  if (!visibleBatchCount) return null;
 
   return (
     <section className={`rounded-[1.45rem] border p-4 shadow-[0_16px_32px_rgba(10,5,4,0.1)] ${theme.panelShell}`}>
@@ -1712,9 +1723,24 @@ function ProgramSeatSummary({
             Only successful gateway payments are counted as enrolled seats.
           </p>
         </div>
-        <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.16em] ${theme.badge}`}>
-          {programs.filter((program) => program.published).slice(0, 3).length} programs
-        </span>
+        <div className="flex rounded-[0.95rem] bg-[#eef3ef] p-1">
+          {([
+            ["current", `Current ${batchGroups.current.length}`],
+            ["upcoming", `Upcoming ${batchGroups.upcoming.length}`],
+            ["comingSoon", `Coming soon ${batchGroups.comingSoon.length}`],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setRequestedBatchView(value)}
+              className={`rounded-[0.75rem] px-3 py-2 text-[10px] font-black uppercase tracking-[0.13em] transition ${
+                activeBatchView === value ? "bg-[#173f33] text-[#fff9ec] shadow-[0_10px_18px_rgba(23,63,51,0.18)]" : "text-[#607366] hover:bg-white"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mt-4 rounded-[1rem] bg-[#173f33] px-3 py-2.5 text-[#fff9ec] shadow-[0_10px_22px_rgba(23,63,51,0.14)]">
@@ -1724,10 +1750,13 @@ function ProgramSeatSummary({
           </p>
       </div>
 
-      <div className="mt-4 grid gap-4">
-        <BatchSeatGroup title="Current batch" rows={batchGroups.current} emptyText="No paid students are currently enrolled in a running batch." theme={theme} />
-        <BatchSeatGroup title="Upcoming batch" rows={batchGroups.upcoming} emptyText="No upcoming paid enrollments are available yet." theme={theme} />
-        <BatchSeatGroup title="Past batches" rows={batchGroups.past} emptyText="No past paid batch records are available yet." theme={theme} />
+      <div className="mt-4">
+        <BatchSeatGroup
+          title={activeBatchView === "current" ? "Current batches" : activeBatchView === "upcoming" ? "Upcoming batches" : "Coming soon batches"}
+          rows={visibleRows}
+          emptyText={`No ${activeBatchView === "comingSoon" ? "coming soon" : activeBatchView} batches are available.`}
+          theme={theme}
+        />
       </div>
     </section>
   );
@@ -1773,8 +1802,9 @@ function BatchSeatCard({ row, theme }: { row: BatchSeatRow; theme: SectionTheme 
       <div className="flex min-h-[5.4rem] items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">
-            {row.status === "current" ? "Current batch" : row.status === "upcoming" ? "Upcoming batch" : "Past batch"} {row.batchCode}
+            {row.status === "current" ? "Current batch" : row.status === "upcoming" ? "Upcoming batch" : row.status === "comingSoon" ? "Coming soon" : "Past batch"}
           </p>
+          <p className="mt-1 truncate text-xs font-black text-[#173f33]">Batch: {row.batchCode}</p>
           <h3 className="mt-2 line-clamp-2 text-base font-black leading-tight text-[#173f33]">{row.program.title}</h3>
           <p className="mt-1 text-xs font-semibold text-[#607366]">Enrollment format: {row.enrollmentPattern}</p>
         </div>
@@ -1800,6 +1830,10 @@ function BatchSeatCard({ row, theme }: { row: BatchSeatRow; theme: SectionTheme 
         <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2">
           <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">Starts</p>
           <p className="mt-1 text-xs font-black leading-tight text-[#173f33]">{row.startsAt ? formatDateTime(row.startsAt) : "Coming soon"}</p>
+        </div>
+        <div className="rounded-[0.8rem] bg-white/70 px-2.5 py-2 sm:col-span-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#718477]">Enrollment expires</p>
+          <p className="mt-1 text-xs font-black leading-tight text-[#173f33]">{row.expiresAt ? formatDateTime(row.expiresAt) : "After admin fixes batch date"}</p>
         </div>
       </div>
     </article>

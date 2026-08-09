@@ -27,7 +27,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
   const [paymentFilter, setPaymentFilter] = useState("ALL");
   const [dateFilter, setDateFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("BATCH");
-  const [viewMode, setViewMode] = useState<"batch" | "date">("batch");
+  const [viewMode, setViewMode] = useState<"student" | "batch" | "date">("student");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedApplicationId, setSelectedApplicationId] = useState(initialApplications[0]?.id ?? "");
@@ -119,6 +119,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
       : applications[0]?.id ?? "";
   const selectedApplication =
     filteredApplications.find((application) => application.id === activeSelectedApplicationId) ?? filteredApplications[0] ?? null;
+  const applicationsByStudent = useMemo(() => groupApplicationsByStudentIdentity(filteredApplications), [filteredApplications]);
   const applicationsByBatch = useMemo(() => {
     const grouped = new Map<string, TrainingApplicationRecord[]>();
 
@@ -145,7 +146,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
       ([left], [right]) => new Date(right).getTime() - new Date(left).getTime(),
     );
   }, [filteredApplications]);
-  const visibleApplicationGroups = viewMode === "batch" ? applicationsByBatch : applicationsByDate;
+  const visibleApplicationGroups = viewMode === "student" ? applicationsByStudent : viewMode === "batch" ? applicationsByBatch : applicationsByDate;
   const paidCount = filteredApplications.filter((application) => application.payload.paymentStatus === "PAID").length;
   const withPhotoCount = filteredApplications.filter((application) => application.payload.photoName).length;
   const programCount = new Set(filteredApplications.map((application) => application.payload.serviceName)).size;
@@ -225,8 +226,8 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
     setServiceFilter("ALL");
     setPaymentFilter("ALL");
     setDateFilter("ALL");
-    setSortBy("BATCH");
-    setViewMode("batch");
+    setSortBy("LATEST");
+    setViewMode("student");
     setFromDate("");
     setToDate("");
   }
@@ -342,23 +343,26 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                   type="button"
                   onClick={() => {
                     setViewMode((current) => {
-                      const next = current === "batch" ? "date" : "batch";
+                      const next = current === "student" ? "batch" : current === "batch" ? "date" : "student";
                       setSortBy(next === "batch" ? "BATCH" : "LATEST");
                       return next;
                     });
                   }}
-                className="relative inline-flex h-9 w-[12.5rem] items-center rounded-[0.75rem]"
+                className="relative inline-flex h-9 w-[18.75rem] items-center rounded-[0.75rem]"
                   aria-label="Toggle roster view mode"
                 >
                   <span
                   className={`absolute top-0 h-9 rounded-[0.75rem] bg-[#173f33] shadow-[0_10px_18px_rgba(23,63,51,0.18)] transition-all ${
-                    viewMode === "batch" ? "left-0 w-[6rem]" : "left-[6.35rem] w-[6.15rem]"
+                    viewMode === "student" ? "left-0 w-[6.05rem]" : viewMode === "batch" ? "left-[6.25rem] w-[6.05rem]" : "left-[12.5rem] w-[6.05rem]"
                     }`}
                   />
-                  <span className={`relative z-10 flex w-1/2 items-center justify-center text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "batch" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
+                  <span className={`relative z-10 flex w-1/3 items-center justify-center text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "student" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
+                    Student
+                  </span>
+                  <span className={`relative z-10 flex w-1/3 items-center justify-center text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "batch" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
                     Batch Wise
                   </span>
-                  <span className={`relative z-10 flex w-1/2 items-center justify-center gap-1 text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "date" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
+                  <span className={`relative z-10 flex w-1/3 items-center justify-center gap-1 text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "date" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
                     <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
                     Date
                   </span>
@@ -389,7 +393,9 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
               Enrolled students
             </p>
             <h3 className="mt-1 text-xl font-black text-[#173f33]">
-              {filteredApplications.length} visible enrolled student{filteredApplications.length === 1 ? "" : "s"}
+              {viewMode === "student"
+                ? `${visibleApplicationGroups.length} applicant profile${visibleApplicationGroups.length === 1 ? "" : "s"} from ${filteredApplications.length} paid record${filteredApplications.length === 1 ? "" : "s"}`
+                : `${filteredApplications.length} visible enrolled student${filteredApplications.length === 1 ? "" : "s"}`}
             </h3>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -413,7 +419,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
 
               return (
                 <section
-                  key={groupLabel}
+                  key={`${groupLabel}-${groupApplications[0]?.id ?? "group"}`}
                   className="border-b border-[#edf2ee] last:border-b-0"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3 bg-[#fbfdfb] px-4 py-3">
@@ -422,8 +428,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                         {String(groupApplications.length).padStart(2, "0")}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">{viewMode === "batch" ? "Batch" : "Date"}</p>
-                        <h4 className="truncate text-sm font-black text-[#173f33]">{viewMode === "batch" ? groupLabel : formatDateGroup(groupLabel)}</h4>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">{viewMode === "student" ? "Applicant" : viewMode === "batch" ? "Batch" : "Date"}</p>
+                        <h4 className="truncate text-sm font-black text-[#173f33]">{viewMode === "date" ? formatDateGroup(groupLabel) : groupLabel}</h4>
+                        {viewMode === "student" ? (
+                          <p className="mt-1 truncate text-xs font-semibold text-[#718477]">
+                            Matching Aadhaar/phone, sorted by newest transaction
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                       <button
@@ -518,6 +529,90 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
       ) : null}
     </section>
   );
+}
+
+function groupApplicationsByStudentIdentity(applications: TrainingApplicationRecord[]) {
+  const parent = new Map<string, string>();
+  const identityOwner = new Map<string, string>();
+
+  function find(id: string): string {
+    const current = parent.get(id) ?? id;
+    if (current === id) return current;
+    const root = find(current);
+    parent.set(id, root);
+    return root;
+  }
+
+  function union(left: string, right: string) {
+    const leftRoot = find(left);
+    const rightRoot = find(right);
+    if (leftRoot !== rightRoot) parent.set(rightRoot, leftRoot);
+  }
+
+  for (const application of applications) {
+    parent.set(application.id, application.id);
+  }
+
+  for (const application of applications) {
+    for (const identity of getStudentIdentityKeys(application)) {
+      const owner = identityOwner.get(identity);
+      if (owner) {
+        union(owner, application.id);
+      } else {
+        identityOwner.set(identity, application.id);
+      }
+    }
+  }
+
+  const groups = new Map<string, TrainingApplicationRecord[]>();
+  for (const application of applications) {
+    const root = find(application.id);
+    groups.set(root, [...(groups.get(root) ?? []), application]);
+  }
+
+  return Array.from(groups.values())
+    .map((groupApplications) => {
+      const sorted = [...groupApplications].sort(
+        (left, right) => getApplicationTimelineTime(right) - getApplicationTimelineTime(left),
+      );
+      const primary = sorted[0];
+      const identitySummary = [
+        primary.payload.aadhaarNo ? `Aadhaar ${maskValue(primary.payload.aadhaarNo, 4)}` : "",
+        primary.payload.phone ? `Phone ${primary.payload.phone}` : "",
+      ].filter(Boolean).join(" / ");
+      const label = `${primary.payload.candidateName}${identitySummary ? ` - ${identitySummary}` : ""}`;
+
+      return [label, sorted] as [string, TrainingApplicationRecord[]];
+    })
+    .sort(([, leftApplications], [, rightApplications]) =>
+      getApplicationTimelineTime(rightApplications[0]) - getApplicationTimelineTime(leftApplications[0]),
+    );
+}
+
+function getStudentIdentityKeys(application: TrainingApplicationRecord) {
+  const aadhaar = application.payload.aadhaarNo.replace(/\D/g, "");
+  const phone = application.payload.phone.replace(/\D/g, "");
+
+  return [
+    aadhaar.length >= 4 ? `aadhaar:${aadhaar}` : "",
+    phone.length >= 6 ? `phone:${phone}` : "",
+  ].filter(Boolean);
+}
+
+function getApplicationTimelineTime(application: TrainingApplicationRecord) {
+  const paidAt = application.latestPayment?.paidAt ? new Date(application.latestPayment.paidAt).getTime() : NaN;
+  if (Number.isFinite(paidAt)) return paidAt;
+
+  const submittedAt = new Date(application.payload.submittedAt).getTime();
+  if (Number.isFinite(submittedAt)) return submittedAt;
+
+  return new Date(application.createdAt).getTime();
+}
+
+function maskValue(value: string, visibleDigits: number) {
+  const normalized = value.replace(/\D/g, "");
+  if (normalized.length <= visibleDigits) return normalized;
+  return `${"*".repeat(Math.max(0, normalized.length - visibleDigits))}${normalized.slice(-visibleDigits)}`;
 }
 
 function ApplicationStatCard({
