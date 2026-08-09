@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import {
   ArrowRight,
   Award,
+  BedDouble,
   Bug,
   CalendarDays,
   ChevronDown,
@@ -119,6 +120,7 @@ const trainingCopy = {
     trainingBreakdown: "Training Breakdown",
     programFee: "Program Fee",
     certificateShort: "Certificate on Completion",
+    accommodation: "Paid Accommodation Provided",
     refreshments: "Refreshments Included",
     limitedSeats: "Limited Seats",
     callPrompt: "Have questions? Call us",
@@ -173,6 +175,7 @@ const trainingCopy = {
     trainingBreakdown: "Training Breakdown",
     programFee: "Program Fee",
     certificateShort: "Certificate on Completion",
+    accommodation: "Paid Accommodation Provided",
     refreshments: "Refreshments Included",
     limitedSeats: "Limited Seats",
     callPrompt: "Have questions? Call us",
@@ -227,6 +230,7 @@ const trainingCopy = {
     trainingBreakdown: "Training Breakdown",
     programFee: "Program Fee",
     certificateShort: "Certificate on Completion",
+    accommodation: "Paid Accommodation Provided",
     refreshments: "Refreshments Included",
     limitedSeats: "Limited Seats",
     callPrompt: "Have questions? Call us",
@@ -281,6 +285,7 @@ const trainingCopy = {
   trainingBreakdown: string;
   programFee: string;
   certificateShort: string;
+  accommodation: string;
   refreshments: string;
   limitedSeats: string;
   callPrompt: string;
@@ -648,43 +653,44 @@ function CourseOverview({
         </section>
       </div>
 
-      <div className="grid items-center gap-4 border-t border-[#ead7b0] bg-[#fffdf8] px-5 py-4 lg:grid-cols-[minmax(13rem,0.9fr)_repeat(3,minmax(7rem,0.52fr))_minmax(12rem,0.8fr)_minmax(12rem,0.8fr)] lg:px-7">
+      <div className="grid items-center gap-3 border-t border-[#ead7b0] bg-[#fffdf8] px-5 py-4 lg:grid-cols-[minmax(12rem,0.95fr)_repeat(4,minmax(6.25rem,0.46fr))_minmax(10.75rem,0.75fr)_minmax(10.75rem,0.75fr)] lg:px-6">
         {enrollmentNotice ? (
           <p className="rounded-lg border border-[#f2c45f] bg-[#fff7e2] px-4 py-3 text-sm font-black leading-6 text-[#6d4300] lg:col-span-full">
             {enrollmentNotice}
           </p>
         ) : null}
-        <div className="flex items-center gap-4">
-          <Bug className="h-12 w-12 shrink-0 text-[#f2a900]" strokeWidth={1.7} aria-hidden="true" />
+        <div className="flex items-center gap-3">
+          <Bug className="h-11 w-11 shrink-0 text-[#f2a900]" strokeWidth={1.7} aria-hidden="true" />
           <div>
             <p className="text-sm font-black text-[#102119]">{copy.programFee}</p>
-            <p className="flex flex-wrap items-end gap-2 text-[2rem] font-black leading-none text-[#07351f]">
+            <p className="flex flex-wrap items-end gap-2 text-[1.72rem] font-black leading-none text-[#07351f]">
               {feeLabel}
               <span className="mb-1 rounded bg-[#07351f] px-2 py-1 text-[10px] uppercase text-white">{copy.gstIncluded}</span>
             </p>
           </div>
         </div>
         <FeaturePill icon={ReceiptText} label={copy.certificateShort} />
+        <FeaturePill icon={BedDouble} label={copy.accommodation} />
         <FeaturePill icon={Coffee} label={copy.refreshments} />
         <FeaturePill icon={Award} label={copy.limitedSeats} />
         <button
           type="button"
           onClick={handleEnrollClick}
           className={cn(
-            "group inline-flex min-h-14 items-center justify-center gap-5 rounded-lg px-6 py-3 text-base font-black shadow-[0_14px_28px_rgba(242,169,0,0.22)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]",
+            "group inline-flex min-h-14 items-center justify-center gap-3 rounded-lg px-4 py-3 text-sm font-black shadow-[0_14px_28px_rgba(242,169,0,0.22)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]",
             course.enrollmentOpen
               ? "bg-[#f2a900] text-[#102119] hover:bg-[#ffb81f]"
               : "border border-[#d2bd8b] bg-[#fff4d5] text-[#6d4300] hover:bg-[#ffe8a8]",
           )}
         >
           {course.enrollmentOpen ? copy.enrollNow : course.enrollmentStatusLabel}
-          <ArrowRight className="h-6 w-6 transition group-hover:translate-x-1" aria-hidden="true" />
+          <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" aria-hidden="true" />
         </button>
         <a
           href="https://wa.me/919395507766"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex min-h-14 items-center justify-center gap-3 rounded-lg border border-[#07351f] bg-white px-5 py-3 text-base font-black text-[#07351f] transition hover:-translate-y-0.5 hover:bg-[#f3fff7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]"
+          className="inline-flex min-h-14 items-center justify-center gap-2.5 rounded-lg border border-[#07351f] bg-white px-4 py-3 text-sm font-black text-[#07351f] transition hover:-translate-y-0.5 hover:bg-[#f3fff7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]"
         >
           <span className="h-6 w-6" aria-hidden="true">
             <WhatsAppMark />
