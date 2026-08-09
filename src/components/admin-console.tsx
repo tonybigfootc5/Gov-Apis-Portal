@@ -6,7 +6,6 @@ import {
   Bell,
   BookOpenText,
   CalendarDays,
-  Check,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -22,7 +21,6 @@ import {
   Plus,
   RefreshCw,
   Save,
-  Search,
   Trash2,
   UsersRound,
   X,
@@ -35,7 +33,7 @@ import { PaymentAdminPanel } from "@/components/payment-admin-panel";
 import { optimizeImageForInlineStorage } from "@/lib/client-media";
 import type { ContactInboxRecord } from "@/lib/contact-inbox";
 import type { TrainingApplicationRecord } from "@/lib/training-application";
-import { isFailedPaymentApplication, isSuccessfulPaymentApplication } from "@/lib/training-application";
+import { isSuccessfulPaymentApplication } from "@/lib/training-application";
 import type { PaymentAdminRecord } from "@/lib/training-application-store";
 
 type Program = {
@@ -744,6 +742,159 @@ export function AdminConsole({
     ]);
   }
 
+  function renderAdminUtilityDock(compact = false) {
+    return (
+      <div className={`${compact ? "mt-4" : "mt-5"} rounded-[1.2rem] border border-[rgba(255,249,236,0.12)] bg-[rgba(255,255,255,0.055)] p-2`}>
+        {!compact ? (
+          <p className="px-2 pb-2 text-[10px] font-black uppercase tracking-[0.22em] text-[rgba(245,198,94,0.8)]">
+            Admin deck
+          </p>
+        ) : null}
+        <div className={`flex ${compact ? "justify-center" : "justify-between"} gap-2`}>
+          <button
+            disabled={loading}
+            onClick={load}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#fffdf8] text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
+            aria-label="Refresh data"
+            title="Refresh"
+          >
+            <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
+          </button>
+
+          <div className="relative" ref={notificationPanelRef}>
+            <button
+              onClick={() => setNotificationOpen((current) => !current)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#fffdf8] text-[#173f33] transition hover:scale-105"
+              aria-label="Open notifications"
+              aria-expanded={notificationOpen}
+              title="Notifications"
+            >
+              <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full">
+                <Bell className="h-4 w-4" aria-hidden="true" />
+                {unreadNotifications ? (
+                  <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d12e2e] px-1.5 py-0.5 text-[10px] font-black text-white">
+                    {unreadNotifications}
+                  </span>
+                ) : null}
+              </span>
+            </button>
+
+            {notificationOpen ? (
+              <div className="absolute left-0 top-[calc(100%+0.75rem)] z-40 w-[24rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] text-[#173f33] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
+                <div className="flex items-center justify-between gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Admin notifications</p>
+                    <p className="mt-1 text-sm font-semibold text-[#607366]">{unreadNotifications} unread</p>
+                  </div>
+                  <button
+                    onClick={clearNotifications}
+                    className="rounded-full bg-[#f3ecdf] px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-[#173f33]"
+                  >
+                    Clear All
+                  </button>
+                </div>
+
+                <div className="max-h-[26rem] overflow-y-auto p-3">
+                  {allNotifications.length ? (
+                    <div className="grid gap-3">
+                      {allNotifications.map((notification) => (
+                        <button
+                          key={notification.id}
+                          onClick={() => markNotificationRead(notification.id)}
+                          className={`rounded-[1.2rem] border p-4 text-left transition ${
+                            notification.read
+                              ? "border-[rgba(27,59,43,0.08)] bg-[#f7f4ed]"
+                              : "border-[rgba(28,95,212,0.16)] bg-[rgba(214,230,255,0.55)]"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm font-black text-[#173f33]">{notification.title}</p>
+                              <p className="mt-2 text-sm leading-6 text-[#607366]">{notification.message}</p>
+                            </div>
+                            <span
+                              className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
+                                notification.variant === "success"
+                                  ? "bg-[#eef8f1] text-[#21533f]"
+                                  : notification.variant === "warning"
+                                    ? "bg-[#fff5ea] text-[#8c4d1e]"
+                                    : "bg-[#fff0ea] text-[#99462d]"
+                              }`}
+                            >
+                              {notification.section}
+                            </span>
+                          </div>
+                          <p className="mt-3 text-xs font-semibold text-[#7a8b80]">{timeAgo(notification.timestamp)}</p>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
+                      No critical notifications right now.
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          <div
+            className="relative"
+            ref={activityPanelRef}
+            onMouseLeave={() => setActivityOpen(false)}
+          >
+            <button
+              type="button"
+              onClick={() => setActivityOpen((current) => !current)}
+              onMouseEnter={() => setActivityOpen(true)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#fffdf8] text-[#173f33] transition hover:scale-105"
+              aria-label="Open activity log"
+              aria-expanded={activityOpen}
+              title="Activity log"
+            >
+              <History className="h-4 w-4" aria-hidden="true" />
+            </button>
+
+            {activityOpen ? (
+              <div className="absolute left-0 top-[calc(100%+0.75rem)] z-40 w-[26rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] text-[#173f33] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
+                <div className="flex items-center gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#eef3ef] text-[#173f33]">
+                    <History className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Activity log</p>
+                    <p className="mt-1 text-sm font-semibold text-[#607366]">{historyEntries.length} entries</p>
+                  </div>
+                </div>
+
+                <div className="max-h-[26rem] overflow-y-auto p-3">
+                  {historyEntries.length ? (
+                    <div className="grid gap-2.5">
+                      {historyEntries.map((entry) => (
+                        <div key={entry.id} className="rounded-[1.1rem] border border-[rgba(27,59,43,0.08)] bg-[#f9f6ef] px-3.5 py-3 text-left">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-[12px] font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
+                            <p className="text-xs font-semibold text-[#7a8b80]">{timeAgo(entry.timestamp)}</p>
+                          </div>
+                          <p className="mt-1 text-[13px] font-semibold text-[#395547]">{entry.label}</p>
+                          {entry.details ? <p className="mt-1 text-[13px] leading-5 text-[#607366]">{entry.details}</p> : null}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
+                      No activity yet.
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#173f33] px-3 py-3 sm:px-4 lg:px-5">
       <div className={`mx-auto grid max-w-[108rem] gap-0 overflow-hidden rounded-[2rem] bg-[#173f33] shadow-[0_30px_90px_rgba(7,23,17,0.35)] ${
@@ -783,6 +934,8 @@ export function AdminConsole({
                 <X className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
+
+            {renderAdminUtilityDock()}
 
             <nav className="mt-5 grid gap-5">
               {navGroups.map((group, index) => (
@@ -867,6 +1020,8 @@ export function AdminConsole({
               </div>
             )}
 
+            {renderAdminUtilityDock(sidebarCollapsed)}
+
             <nav className="mt-5 grid gap-4">
               {navGroups.map((group, index) => (
                 <div key={group.title ?? `desktop-group-${index}`} className="grid gap-2.5">
@@ -933,160 +1088,11 @@ export function AdminConsole({
 
         <main className="relative min-w-0 bg-[#f4f7f3] p-3 sm:p-4 lg:rounded-l-[2rem] lg:p-5 lg:shadow-[-24px_0_45px_rgba(244,247,243,0.18)]">
           <div className="grid gap-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.2rem] bg-[#ffffff] px-4 py-3 shadow-[0_10px_28px_rgba(23,63,51,0.06)]">
-              <div>
-                <p className="text-xs font-semibold text-[#718477]">Application / Dashboard</p>
-                <h1 className="mt-1 text-xl font-black text-[#173f33]">{activeNavItem.label}</h1>
+            {view !== "overview" ? (
+              <div className="rounded-[1.2rem] bg-[#ffffff] px-4 py-3 shadow-[0_10px_28px_rgba(23,63,51,0.06)]">
+                <h1 className="text-xl font-black text-[#173f33]">{activeNavItem.label}</h1>
               </div>
-              <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
-                <label className="hidden h-10 min-w-[16rem] max-w-xl flex-1 items-center rounded-full bg-[#edf2ef] px-4 text-[#607366] md:flex">
-                  <input
-                    className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#8b9a90]"
-                    placeholder="Search..."
-                    aria-label="Admin quick search"
-                  />
-                  <Search className="h-4 w-4" aria-hidden="true" />
-                </label>
-                <div className="flex items-center gap-2.5 rounded-full bg-[#f6faf7] p-1 shadow-[inset_0_0_0_1px_rgba(23,63,51,0.05)]">
-                  <button
-                    disabled={loading}
-                    onClick={load}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#edf2ef] text-[#173f33] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60"
-                    aria-label="Refresh data"
-                  >
-                    <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
-                  </button>
-
-                  <div className="relative" ref={notificationPanelRef}>
-                    <button
-                      onClick={() => setNotificationOpen((current) => !current)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#edf2ef] text-[#173f33] transition hover:scale-105"
-                      aria-label="Open notifications"
-                      aria-expanded={notificationOpen}
-                    >
-                      <span className="relative inline-flex h-10 w-10 items-center justify-center rounded-full">
-                        <Bell className="h-4 w-4" aria-hidden="true" />
-                        {unreadNotifications ? (
-                          <span className="absolute -right-1 -top-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#d12e2e] px-1.5 py-0.5 text-[10px] font-black text-white">
-                            {unreadNotifications}
-                          </span>
-                        ) : null}
-                      </span>
-                    </button>
-
-                    {notificationOpen ? (
-                      <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[24rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
-                        <div className="flex items-center justify-between gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
-                          <div>
-                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Admin notifications</p>
-                            <p className="mt-1 text-sm font-semibold text-[#607366]">{unreadNotifications} unread</p>
-                          </div>
-                          <button
-                            onClick={clearNotifications}
-                            className="rounded-full bg-[#f3ecdf] px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-[#173f33]"
-                          >
-                            Clear All
-                          </button>
-                        </div>
-
-                        <div className="max-h-[26rem] overflow-y-auto p-3">
-                          {allNotifications.length ? (
-                            <div className="grid gap-3">
-                              {allNotifications.map((notification) => (
-                                <button
-                                  key={notification.id}
-                                  onClick={() => markNotificationRead(notification.id)}
-                                  className={`rounded-[1.2rem] border p-4 text-left transition ${
-                                    notification.read
-                                      ? "border-[rgba(27,59,43,0.08)] bg-[#f7f4ed]"
-                                      : "border-[rgba(28,95,212,0.16)] bg-[rgba(214,230,255,0.55)]"
-                                  }`}
-                                >
-                                  <div className="flex items-start justify-between gap-3">
-                                    <div>
-                                      <p className="text-sm font-black text-[#173f33]">{notification.title}</p>
-                                      <p className="mt-2 text-sm leading-6 text-[#607366]">{notification.message}</p>
-                                    </div>
-                                    <span
-                                      className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] ${
-                                        notification.variant === "success"
-                                          ? "bg-[#eef8f1] text-[#21533f]"
-                                          : notification.variant === "warning"
-                                            ? "bg-[#fff5ea] text-[#8c4d1e]"
-                                            : "bg-[#fff0ea] text-[#99462d]"
-                                      }`}
-                                    >
-                                      {notification.section}
-                                    </span>
-                                  </div>
-                                  <p className="mt-3 text-xs font-semibold text-[#7a8b80]">{timeAgo(notification.timestamp)}</p>
-                                </button>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
-                              No critical notifications right now.
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div
-                    className="relative"
-                    ref={activityPanelRef}
-                    onMouseLeave={() => setActivityOpen(false)}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => setActivityOpen((current) => !current)}
-                      onMouseEnter={() => setActivityOpen(true)}
-                      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[#edf2ef] text-[#173f33] transition hover:scale-105"
-                      aria-label="Open activity log"
-                      aria-expanded={activityOpen}
-                    >
-                      <History className="h-4 w-4" aria-hidden="true" />
-                    </button>
-
-                    {activityOpen ? (
-                      <div className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[26rem] max-w-[calc(100vw-3rem)] overflow-hidden rounded-[1.6rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] shadow-[0_24px_50px_rgba(64,44,8,0.16)]">
-                        <div className="flex items-center gap-3 border-b border-[rgba(27,59,43,0.08)] px-4 py-4">
-                          <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#eef3ef] text-[#173f33]">
-                            <History className="h-4 w-4" aria-hidden="true" />
-                          </span>
-                          <div>
-                            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-[#9c6a18]">Activity log</p>
-                            <p className="mt-1 text-sm font-semibold text-[#607366]">{historyEntries.length} entries</p>
-                          </div>
-                        </div>
-
-                        <div className="max-h-[26rem] overflow-y-auto p-3">
-                          {historyEntries.length ? (
-                            <div className="grid gap-2.5">
-                              {historyEntries.map((entry) => (
-                                <div key={entry.id} className="rounded-[1.1rem] border border-[rgba(27,59,43,0.08)] bg-[#f9f6ef] px-3.5 py-3 text-left">
-                                  <div className="flex flex-wrap items-center justify-between gap-2">
-                                    <p className="text-[12px] font-black uppercase tracking-[0.14em] text-[#173f33]">{entry.action}</p>
-                                    <p className="text-xs font-semibold text-[#7a8b80]">{timeAgo(entry.timestamp)}</p>
-                                  </div>
-                                  <p className="mt-1 text-[13px] font-semibold text-[#395547]">{entry.label}</p>
-                                  {entry.details ? <p className="mt-1 text-[13px] leading-5 text-[#607366]">{entry.details}</p> : null}
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="rounded-[1.2rem] border border-dashed border-[rgba(27,59,43,0.12)] bg-[#faf7ef] px-4 py-8 text-center text-sm font-semibold text-[#607366]">
-                              No activity yet.
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              </div>
-            </div>
+            ) : null}
 
             {view === "overview" ? (
               <ProgramSeatSummary applications={applications} programs={programs} theme={activeTheme} />
@@ -1104,9 +1110,6 @@ export function AdminConsole({
           payments={payments}
           contactMessages={contactMessages}
           programs={programs}
-          events={events}
-          articles={articles}
-          galleryImages={galleryImages}
           onOpenSection={setView}
           theme={SECTION_THEMES.overview}
         />
@@ -1301,174 +1304,155 @@ function OverviewDashboard({
   payments,
   contactMessages,
   programs,
-  events,
-  articles,
-  galleryImages,
   onOpenSection,
 }: {
   applications: TrainingApplicationRecord[];
   payments: PaymentAdminRecord[];
   contactMessages: ContactInboxRecord[];
   programs: Program[];
-  events: EventItem[];
-  articles: ArticleItem[];
-  galleryImages: GalleryAdminItem[];
   onOpenSection: (view: DashboardView) => void;
   theme: SectionTheme;
 }) {
   const enrolledApplications = applications.filter((application) => isSuccessfulPaymentApplication(application));
-  const failedPaymentApplications = applications.filter((application) => isFailedPaymentApplication(application));
-  const pendingPayments = payments.filter((payment) => !["PAID", "SUCCESS", "CAPTURED"].includes(payment.status)).length;
-  const contactCount = contactMessages.length;
-  const operationsLoad = pendingPayments + contactCount;
-  const publishedAssets = programs.length + events.length + articles.length + galleryImages.length;
   const paidPayments = payments.filter((payment) => ["PAID", "SUCCESS", "CAPTURED"].includes(payment.status));
+  const failedPayments = payments.filter((payment) => !["PAID", "SUCCESS", "CAPTURED"].includes(payment.status));
+  const unreadContacts = contactMessages.length;
+  const activePrograms = programs.filter((program) => program.published && !program.enrollmentClosed).length;
   const latestApplication = [...applications].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
   const latestPayment = [...payments].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
   const latestContact = [...contactMessages].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] ?? null;
-  const latestTimes = [
-    latestApplication?.createdAt,
-    latestPayment?.createdAt,
-    latestContact?.createdAt,
-    programs[0]?.updatedAt,
-    events[0]?.updatedAt,
-    articles[0]?.publishedAt,
-  ].filter(Boolean) as string[];
+  const latestTimes = [latestApplication?.createdAt, latestPayment?.createdAt, latestContact?.createdAt, programs[0]?.updatedAt].filter(Boolean) as string[];
   const lastUpdated = latestTimes
     .map((value) => new Date(value).getTime())
     .filter((value) => Number.isFinite(value))
     .sort((left, right) => right - left)[0];
   const paidAmountPaise = paidPayments.reduce((total, payment) => total + payment.amountPaise, 0);
-  const totalPaymentAmountPaise = payments.reduce((total, payment) => total + payment.amountPaise, 0);
-  const reviewRows = [
-    { label: "Enrolled students", value: enrolledApplications.length, view: "applications" as DashboardView },
-    { label: "Payment attention", value: pendingPayments, view: "payments" as DashboardView },
-    { label: "Contact messages", value: contactCount, view: "contacts" as DashboardView },
+  const recentSuccessfulPayments = paidPayments.slice(0, 3);
+  const recentFailedPayments = failedPayments.slice(0, 3);
+  const latestActivityItems: Array<{ label: string; title: string; time: string; view: DashboardView }> = [
+    latestApplication ? { label: "Application", title: latestApplication.payload.candidateName, time: latestApplication.createdAt, view: "applications" } : null,
+    latestPayment ? { label: "Payment", title: latestPayment.application.candidateName, time: latestPayment.createdAt, view: "payments" } : null,
+    latestContact ? { label: "Contact", title: latestContact.name, time: latestContact.createdAt, view: "contacts" } : null,
+  ].filter((item): item is { label: string; title: string; time: string; view: DashboardView } => Boolean(item));
+  const glanceCards = [
+    {
+      label: "Applications",
+      value: enrolledApplications.length,
+      helper: `${applications.length.toLocaleString("en-IN")} total records`,
+      detail: latestApplication ? `Latest: ${latestApplication.payload.candidateName}` : "No application activity yet",
+      view: "applications" as DashboardView,
+      icon: <UsersRound className="h-4 w-4" aria-hidden="true" />,
+    },
+    {
+      label: "Payments",
+      value: paidPayments.length,
+      helper: `${failedPayments.length.toLocaleString("en-IN")} failed / pending`,
+      detail: `${formatRupees(paidAmountPaise)} collected`,
+      view: "payments" as DashboardView,
+      icon: <CreditCard className="h-4 w-4" aria-hidden="true" />,
+    },
+    {
+      label: "Contact Inbox",
+      value: unreadContacts,
+      helper: "Open enquiries",
+      detail: latestContact ? `Latest: ${latestContact.name}` : "No contact messages yet",
+      view: "contacts" as DashboardView,
+      icon: <Mail className="h-4 w-4" aria-hidden="true" />,
+    },
+    {
+      label: "Open Training",
+      value: activePrograms,
+      helper: `${programs.length.toLocaleString("en-IN")} catalog programs`,
+      detail: "Enrollment-open programs only",
+      view: "programs" as DashboardView,
+      icon: <LayoutGrid className="h-4 w-4" aria-hidden="true" />,
+    },
   ];
-  const liveBars = [enrolledApplications.length, failedPaymentApplications.length, payments.length, pendingPayments, contactCount];
-  const maxLiveBar = Math.max(...liveBars, 1);
-  const recentPayments = payments.slice(0, 3);
-  const reviewTarget = pendingPayments > 0 ? "payments" : contactCount > 0 ? "contacts" : "applications";
 
   return (
     <div className="mt-4 grid gap-4">
-      <section className="flex flex-wrap items-center justify-between gap-4">
+      <section className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-3xl font-black text-[#173f33]">Hello, Admin!</h2>
-          <p className="mt-1 text-sm font-semibold text-[#607366]">
+          <p className="text-[11px] font-black uppercase tracking-[0.24em] text-[#9c6a18]">Admin glance</p>
+          <h2 className="mt-1 text-2xl font-black text-[#173f33]">Applications, payments, contacts</h2>
+          <p className="mt-1 text-xs font-semibold text-[#607366]">
             Last updated: {lastUpdated ? formatDateTime(new Date(lastUpdated).toISOString()) : "No activity yet"}
           </p>
         </div>
-        <button onClick={() => onOpenSection(reviewTarget)} className="rounded-full bg-[#173f33] px-4 py-2.5 text-sm font-black text-[#fff9ec] shadow-[0_12px_28px_rgba(23,63,51,0.14)]">
-          Open queue
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => onOpenSection("applications")} className="rounded-full bg-[#173f33] px-3 py-2 text-xs font-black text-[#fff9ec] shadow-[0_10px_22px_rgba(23,63,51,0.14)]">
+            Applications
+          </button>
+          <button onClick={() => onOpenSection("payments")} className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#173f33] shadow-[0_10px_22px_rgba(23,63,51,0.08)]">
+            Payments
+          </button>
+          <button onClick={() => onOpenSection("contacts")} className="rounded-full bg-white px-3 py-2 text-xs font-black text-[#173f33] shadow-[0_10px_22px_rgba(23,63,51,0.08)]">
+            Inbox
+          </button>
+        </div>
       </section>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1rem] bg-[#077b76] px-4 py-3 text-[#f9fffb] shadow-[0_14px_34px_rgba(7,123,118,0.18)]">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.85rem] bg-[#fffdf8] text-[#173f33] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-            <UsersRound className="h-5 w-5" aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-black">{operationsLoad ? `${operationsLoad} live items need attention` : "All live queues are clear"}</p>
-            <p className="mt-1 truncate text-xs font-semibold text-[#d6f4ed]">
-              {latestApplication ? `Latest application: ${latestApplication.payload.candidateName}` : "No applications submitted yet."}
-            </p>
-          </div>
-        </div>
-        <button onClick={() => onOpenSection(reviewTarget)} className="rounded-[0.65rem] bg-[#fffdf8] px-3 py-2 text-xs font-black text-[#173f33]">
-          Open
-        </button>
-      </div>
-
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-        <OverviewMetricCard label="Paid enrolled" value={enrolledApplications.length} description="Auto-enrolled after payment" icon={<UsersRound className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("applications")} />
-        <OverviewMetricCard label="Payments" value={payments.length} description={`${paidPayments.length} paid`} icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("payments")} />
-        <OverviewMetricCard label="Payment issues" value={failedPaymentApplications.length} description="Handled in Payments" icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("payments")} />
-        <OverviewMetricCard label="Content" value={publishedAssets} description="Programs, events, articles, gallery" icon={<FolderKanban className="h-5 w-5" aria-hidden="true" />} onClick={() => onOpenSection("programs")} />
+        {glanceCards.map((card) => (
+          <button
+            key={card.label}
+            type="button"
+            onClick={() => onOpenSection(card.view)}
+            className="min-h-[8rem] rounded-[1rem] border border-[rgba(23,63,51,0.08)] bg-white p-4 text-left shadow-[0_12px_28px_rgba(23,63,51,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_34px_rgba(23,63,51,0.10)]"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#fff8df] text-[#b87912]">
+                {card.icon}
+              </span>
+              <span className="text-2xl font-black leading-none text-[#173f33]">{card.value.toLocaleString("en-IN")}</span>
+            </div>
+            <p className="mt-3 text-sm font-black text-[#173f33]">{card.label}</p>
+            <p className="mt-1 text-xs font-bold text-[#607366]">{card.helper}</p>
+            <p className="mt-2 truncate text-xs font-semibold text-[#7a8b80]">{card.detail}</p>
+          </button>
+        ))}
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.8fr)_minmax(16rem,0.7fr)]">
-        <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(18rem,0.85fr)]">
+        <section className="rounded-[1rem] border border-[rgba(23,63,51,0.08)] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-black text-[#173f33]">Live Balance</h2>
-            <span className="rounded-full bg-[#edf2ef] px-3 py-1.5 text-xs font-black text-[#607366]">Current</span>
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Recent payment</p>
+              <h2 className="mt-1 text-lg font-black text-[#173f33]">Successful and failed</h2>
+            </div>
+            <button onClick={() => onOpenSection("payments")} className="rounded-full bg-[#eef3ef] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]">
+              Open
+            </button>
           </div>
-          <div className="mt-5 h-44 rounded-[0.9rem] bg-[linear-gradient(180deg,#fbfdfb_0%,#f2f6f3_100%)] p-4">
-            <div className="relative flex h-full items-end gap-3">
-              <div className="absolute inset-x-0 top-1/4 border-t border-dashed border-[#dfe7e2]" />
-              <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-[#dfe7e2]" />
-              <div className="absolute inset-x-0 top-3/4 border-t border-dashed border-[#dfe7e2]" />
-              {liveBars.map((value, index) => (
-                <div key={`${value}-${index}`} className="relative z-10 flex flex-1 flex-col items-center gap-2">
-                  <div className="w-full rounded-t-[0.7rem] bg-[#077b76]" style={{ height: `${Math.max(10, (value / maxLiveBar) * 100)}%` }} />
+
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <PaymentMiniList title="Successful" tone="success" payments={recentSuccessfulPayments} emptyText="No successful payments yet." />
+            <PaymentMiniList title="Failed / Pending" tone="failed" payments={recentFailedPayments} emptyText="No failed payments right now." />
+          </div>
+        </section>
+
+        <section className="rounded-[1rem] border border-[rgba(23,63,51,0.08)] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Latest activity</p>
+              <h2 className="mt-1 text-lg font-black text-[#173f33]">What changed last</h2>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-2.5">
+            {latestActivityItems.map((item) => (
+              <button key={`${item.label}-${item.time}`} onClick={() => onOpenSection(item.view)} className="flex items-center justify-between gap-3 rounded-[0.9rem] bg-[#f7faf7] px-3 py-2.5 text-left">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#9c6a18]">{item.label}</p>
+                  <p className="mt-1 truncate text-sm font-black text-[#173f33]">{item.title}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <MiniStat label="Enrolled" value={enrolledApplications.length} />
-            <MiniStat label="Failed" value={failedPaymentApplications.length} />
-            <MiniStat label="Payments" value={payments.length} />
-          </div>
-        </section>
-
-        <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-lg font-black text-[#173f33]">Payments</h2>
-            <span className="text-xs font-black text-[#077b76]">Live</span>
-          </div>
-          <p className="mt-3 text-xs font-semibold text-[#718477]">Paid amount</p>
-          <p className="mt-1 text-3xl font-black text-[#173f33]">{formatRupees(paidAmountPaise)}</p>
-          <p className="mt-2 text-xs font-semibold text-[#607366]">Total initiated: {formatRupees(totalPaymentAmountPaise)}</p>
-          <div className="mt-5 rounded-[1rem] bg-[#eef5ef] p-4">
-            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border-[1rem] border-[#077b76] bg-[#fffdf8]">
-              <span className="text-xl font-black text-[#173f33]">{payments.length ? Math.round((paidPayments.length / payments.length) * 100) : 0}%</span>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-[1rem] bg-white p-4 text-center shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#fff8df] text-[#d9931f]">
-            <BadgeMark />
-          </div>
-          <h2 className="mt-4 text-lg font-black text-[#173f33]">System Status</h2>
-          <p className="mt-1 text-sm font-semibold text-[#607366]">Live admin state</p>
-          <div className="mt-5 grid grid-cols-3 gap-2">
-            <MiniStat label="Programs" value={programs.length} />
-            <MiniStat label="Events" value={events.length} />
-            <MiniStat label="Media" value={galleryImages.length} />
-          </div>
-        </section>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,0.8fr)]">
-        <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
-          <h2 className="text-lg font-black text-[#173f33]">Operations Queue</h2>
-          <div className="mt-4 grid gap-3">
-            {reviewRows.map((row) => (
-              <button key={row.label} onClick={() => onOpenSection(row.view)} className="flex items-center justify-between rounded-[0.9rem] bg-[#f7faf7] px-4 py-3 text-left">
-                <span className="text-sm font-black text-[#173f33]">{row.label}</span>
-                <span className="rounded-full bg-[#173f33] px-3 py-1 text-xs font-black text-[#fff9ec]">{row.value}</span>
+                <span className="shrink-0 text-xs font-semibold text-[#607366]">{timeAgo(item.time)}</span>
               </button>
             ))}
-          </div>
-        </section>
-
-        <section className="rounded-[1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
-          <h2 className="text-lg font-black text-[#173f33]">Recent Payments</h2>
-          <div className="mt-4 grid gap-3">
-            {recentPayments.length ? recentPayments.map((payment) => (
-              <div key={payment.id} className="rounded-[0.9rem] bg-[#f7faf7] px-4 py-3">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-sm font-black text-[#173f33]">{payment.application.candidateName}</p>
-                  <span className="text-xs font-black text-[#077b76]">{formatRupees(payment.amountPaise)}</span>
-                </div>
-                <p className="mt-1 text-xs font-semibold text-[#607366]">{payment.status} - {formatDateTime(payment.createdAt)}</p>
+            {!latestApplication && !latestPayment && !latestContact ? (
+              <div className="rounded-[0.9rem] bg-[#f7faf7] px-4 py-6 text-center text-sm font-semibold text-[#607366]">
+                No application, payment, or inbox activity yet.
               </div>
-            )) : (
-              <p className="rounded-[0.9rem] bg-[#f7faf7] px-4 py-6 text-center text-sm font-semibold text-[#607366]">No payment records yet.</p>
-            )}
+            ) : null}
           </div>
         </section>
       </div>
@@ -1650,51 +1634,6 @@ function getProgramSeatRows(
   };
 }
 
-function OverviewMetricCard({
-  label,
-  value,
-  description,
-  icon,
-  onClick,
-}: {
-  label: string;
-  value: number;
-  description: string;
-  icon: ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="min-h-[8.2rem] rounded-[1rem] bg-white p-4 text-left shadow-[0_12px_30px_rgba(23,63,51,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_36px_rgba(23,63,51,0.1)]"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-[0.75rem] bg-[#fff8df] text-[#d9931f]">
-          {icon}
-        </span>
-        <span className="rounded-full bg-[#eef5ef] px-2.5 py-1 text-[10px] font-black text-[#077b76]">Live</span>
-      </div>
-      <div className="mt-4">
-        <p className="text-xs font-semibold text-[#607366]">{label}</p>
-        <div className="mt-1">
-          <p className="text-3xl font-black leading-none text-[#173f33]">{value.toLocaleString("en-IN")}</p>
-        </div>
-        <p className="mt-3 text-xs font-semibold text-[#718477]">{description}</p>
-      </div>
-    </button>
-  );
-}
-
-function MiniStat({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-[0.85rem] bg-[#f7faf7] px-3 py-2">
-      <p className="text-[11px] font-semibold text-[#718477]">{label}</p>
-      <p className="mt-1 text-lg font-black text-[#173f33]">{value.toLocaleString("en-IN")}</p>
-    </div>
-  );
-}
-
 function formatRupees(amountPaise: number) {
   return `Rs. ${(amountPaise / 100).toLocaleString("en-IN", {
     minimumFractionDigits: 2,
@@ -1702,11 +1641,41 @@ function formatRupees(amountPaise: number) {
   })}`;
 }
 
-function BadgeMark() {
+function PaymentMiniList({
+  title,
+  tone,
+  payments,
+  emptyText,
+}: {
+  title: string;
+  tone: "success" | "failed";
+  payments: PaymentAdminRecord[];
+  emptyText: string;
+}) {
   return (
-    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-current">
-      <Check className="h-3 w-3" aria-hidden="true" />
-    </span>
+    <div className="rounded-[0.9rem] bg-[#f7faf7] p-3">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-sm font-black text-[#173f33]">{title}</h3>
+        <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] ${
+          tone === "success" ? "bg-[#e6f6e9] text-[#1f6b4b]" : "bg-[#fff0ea] text-[#a3442d]"
+        }`}>
+          {payments.length}
+        </span>
+      </div>
+      <div className="mt-3 grid gap-2">
+        {payments.length ? payments.map((payment) => (
+          <div key={payment.id} className="rounded-[0.75rem] bg-white px-3 py-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="truncate text-xs font-black text-[#173f33]">{payment.application.candidateName}</p>
+              <span className="shrink-0 text-[11px] font-black text-[#077b76]">{formatRupees(payment.amountPaise)}</span>
+            </div>
+            <p className="mt-1 truncate text-[11px] font-semibold text-[#607366]">{payment.status} - {formatDateTime(payment.createdAt)}</p>
+          </div>
+        )) : (
+          <p className="rounded-[0.75rem] bg-white px-3 py-4 text-center text-xs font-semibold text-[#607366]">{emptyText}</p>
+        )}
+      </div>
+    </div>
   );
 }
 
