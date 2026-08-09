@@ -10,6 +10,7 @@ import type {
   TrainingApplicationRecord,
 } from "@/lib/training-application";
 import { formatStudentCode, isSuccessfulPaymentApplication } from "@/lib/training-application";
+import { deprecatedTrainingProgramSlugs, trainingProgramCatalog } from "@/lib/training-programs";
 
 type Props = {
   storageMode: "database" | "local";
@@ -18,6 +19,34 @@ type Props = {
 };
 
 const paymentOptions: ApplicationPaymentStatus[] = ["NOT_STARTED", "PENDING", "PAID", "FAILED"];
+
+export function ApplicationProgramCapacityRail({ applications }: { applications: TrainingApplicationRecord[] }) {
+  const enrolledApplications = useMemo(
+    () => applications.filter((application) => isSuccessfulPaymentApplication(application)),
+    [applications],
+  );
+  const programRosterCards = useMemo(() => buildProgramRosterCards(enrolledApplications), [enrolledApplications]);
+
+  return (
+    <section className="grid gap-4 rounded-[1.45rem] border border-[#edf0f2] bg-white px-5 py-5 shadow-[0_18px_45px_rgba(18,28,39,0.04)]">
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9a6a20]">Program capacity</p>
+          <h2 className="mt-1 text-xl font-black text-[#173f33]">Enrollment by program</h2>
+        </div>
+        <span className="hidden rounded-full bg-[#f7f8fa] px-3 py-1.5 text-xs font-black text-[#75808a] sm:inline-flex">
+          {programRosterCards.length} cards
+        </span>
+      </div>
+      <div className="flex gap-4 overflow-x-auto pb-2 pr-2 [scrollbar-width:thin]">
+        {programRosterCards.map((card) => (
+          <ProgramRosterCard key={card.key} card={card} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function ApplicationAdminPanel({ storageMode, initialApplications, onApplicationsChange }: Props) {
   const [applications, setApplications] = useState(initialApplications);
   const [notice, setNotice] = useState("");
@@ -28,6 +57,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
   const [dateFilter, setDateFilter] = useState("ALL");
   const [sortBy, setSortBy] = useState("BATCH");
   const [viewMode, setViewMode] = useState<"student" | "batch" | "date">("student");
+  const [selectedBatchCode, setSelectedBatchCode] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedApplicationId, setSelectedApplicationId] = useState(initialApplications[0]?.id ?? "");
@@ -119,7 +149,10 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
       : applications[0]?.id ?? "";
   const selectedApplication =
     filteredApplications.find((application) => application.id === activeSelectedApplicationId) ?? filteredApplications[0] ?? null;
-  const applicationsByStudent = useMemo(() => groupApplicationsByStudentIdentity(filteredApplications), [filteredApplications]);
+  const studentApplications = useMemo(
+    () => [...filteredApplications].sort((left, right) => getApplicationTimelineTime(right) - getApplicationTimelineTime(left)),
+    [filteredApplications],
+  );
   const applicationsByBatch = useMemo(() => {
     const grouped = new Map<string, TrainingApplicationRecord[]>();
 
@@ -130,7 +163,12 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
       grouped.set(batchNumber, current);
     }
 
-    return Array.from(grouped.entries()).sort(([left], [right]) => left.localeCompare(right));
+    return Array.from(grouped.entries())
+      .map(([batchCode, batchApplications]) => [
+        batchCode,
+        [...batchApplications].sort((left, right) => getApplicationTimelineTime(right) - getApplicationTimelineTime(left)),
+      ] as [string, TrainingApplicationRecord[]])
+      .sort(([left], [right]) => left.localeCompare(right));
   }, [filteredApplications]);
   const applicationsByDate = useMemo(() => {
     const grouped = new Map<string, TrainingApplicationRecord[]>();
@@ -146,16 +184,21 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
       ([left], [right]) => new Date(right).getTime() - new Date(left).getTime(),
     );
   }, [filteredApplications]);
-  const visibleApplicationGroups = viewMode === "student" ? applicationsByStudent : viewMode === "batch" ? applicationsByBatch : applicationsByDate;
-  const paidCount = filteredApplications.filter((application) => application.payload.paymentStatus === "PAID").length;
-  const withPhotoCount = filteredApplications.filter((application) => application.payload.photoName).length;
-  const programCount = new Set(filteredApplications.map((application) => application.payload.serviceName)).size;
-  const statCards = [
-    { label: "Enrolled", value: filteredApplications.length, hint: "Payment successful", dot: "bg-[#1b8f63]" },
-    { label: "Paid", value: paidCount, hint: "Gateway confirmed", dot: "bg-[#077b76]" },
-    { label: "Programs", value: programCount, hint: "Active roster", dot: "bg-[#6b7cff]" },
-    { label: "Photos", value: withPhotoCount, hint: "Applicant files", dot: "bg-[#f5a524]" },
-  ];
+  const batchSummaries = useMemo(() => applicationsByBatch.map(([batchCode, batchApplications]) => buildBatchSummary(batchCode, batchApplications)), [applicationsByBatch]);
+  const effectiveSelectedBatchCode =
+    selectedBatchCode && applicationsByBatch.some(([batchCode]) => batchCode === selectedBatchCode)
+      ? selectedBatchCode
+      : applicationsByBatch[0]?.[0] ?? "";
+  const selectedBatchApplications = applicationsByBatch.find(([batchCode]) => batchCode === effectiveSelectedBatchCode)?.[1] ?? [];
+  const selectedBatchSummary = batchSummaries.find((batch) => batch.batchCode === effectiveSelectedBatchCode) ?? null;
+  const visibleApplicationGroups =
+    viewMode === "student"
+      ? ([["Recently joined", studentApplications]] as [string, TrainingApplicationRecord[]][])
+      : viewMode === "batch" && effectiveSelectedBatchCode
+        ? ([[effectiveSelectedBatchCode, selectedBatchApplications]] as [string, TrainingApplicationRecord[]][])
+        : viewMode === "date"
+          ? applicationsByDate
+          : [];
 
   async function load() {
     setLoading(true);
@@ -268,33 +311,108 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
   }
 
   return (
-    <section className="grid gap-4">
-      {notice ? <p className="rounded-[1.4rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] px-4 py-3 text-sm font-semibold text-[#173f33] shadow-[0_12px_28px_rgba(64,44,8,0.05)]">{notice}</p> : null}
+    <section className="grid gap-5 text-[#18212a]">
+      {notice ? <p className="rounded-md border border-[#d8eadf] bg-[#f4fbf7] px-4 py-3 text-sm font-semibold text-[#173f33]">{notice}</p> : null}
 
-      <div className="rounded-[1.35rem] border border-[rgba(23,63,51,0.08)] bg-[#173f33] p-4 text-[#fff9ec] shadow-[0_12px_28px_rgba(23,63,51,0.12)]">
-        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#f5c65e]">Enrollment roster</p>
-        <p className="mt-1 text-sm font-semibold text-[#d4e1d8]">
-          {enrolledApplications.length.toLocaleString("en-IN")} student{enrolledApplications.length === 1 ? "" : "s"} with successful gateway payment.
-        </p>
-      </div>
+      <div className="grid min-w-0 gap-4 rounded-[1.25rem] border border-[#edf0f2] bg-white px-4 py-4 shadow-[0_18px_45px_rgba(18,28,39,0.04)]">
+        <div className="flex flex-wrap items-center gap-8 border-b border-[#eef1f4]">
+          {(["student", "batch", "date"] as const).map((mode) => {
+            const active = viewMode === mode;
+            const label = mode === "student" ? "Student" : mode === "batch" ? "Batch Wise" : "Date";
 
-      <div className="rounded-[1.55rem] bg-white p-3 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => {
+                  setViewMode(mode);
+                  setSortBy(mode === "batch" ? "BATCH" : "LATEST");
+                }}
+                aria-pressed={active}
+                className={`relative inline-flex min-h-12 items-center gap-2 text-sm font-black transition ${
+                  active ? "text-[#2654d9]" : "text-[#9aa2ad] hover:text-[#173f33]"
+                }`}
+              >
+                {mode === "date" ? <CalendarDays className="h-4 w-4" aria-hidden="true" /> : null}
+                {label}
+                {active ? <span className="absolute inset-x-0 bottom-[-1px] h-0.5 rounded-full bg-[#2654d9]" /> : null}
+              </button>
+            );
+          })}
+        </div>
+
+        {viewMode === "batch" ? (
+          <div className="grid gap-4 rounded-lg border border-[#edf0f2] bg-[#fbfcfd] p-3">
+            <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:thin]">
+              {batchSummaries.length ? (
+                batchSummaries.map((batch) => {
+                  const active = batch.batchCode === effectiveSelectedBatchCode;
+
+                  return (
+                    <button
+                      key={batch.batchCode}
+                      type="button"
+                      onClick={() => setSelectedBatchCode(batch.batchCode)}
+                      className={`grid w-[14.5rem] shrink-0 gap-2 rounded-lg border p-3 text-left transition ${
+                        active
+                          ? "border-[#2654d9] bg-white shadow-[0_12px_26px_rgba(38,84,217,0.12)]"
+                          : "border-[#edf0f2] bg-white hover:border-[#cfd8e3]"
+                      }`}
+                    >
+                      <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9aa2ad]">Batch</span>
+                      <span className="truncate text-base font-black text-[#18212a]">{batch.batchCode}</span>
+                      <span className="truncate text-xs font-semibold text-[#75808a]">{batch.programName}</span>
+                      <span className="w-fit rounded-full bg-[#eef8e9] px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#4c8f35]">
+                        {batch.totalStudents} students
+                      </span>
+                    </button>
+                  );
+                })
+              ) : (
+                <p className="px-2 py-6 text-sm font-semibold text-[#75808a]">No batches match the current filters.</p>
+              )}
+            </div>
+
+            {selectedBatchSummary ? (
+              <div className="grid gap-3 rounded-lg border border-[#edf0f2] bg-white p-4 lg:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(8rem,0.7fr))_auto] lg:items-center">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9aa2ad]">Selected batch</p>
+                  <h3 className="mt-1 truncate text-lg font-black text-[#173f33]">{selectedBatchSummary.batchCode}</h3>
+                  <p className="mt-1 truncate text-sm font-semibold text-[#75808a]">{selectedBatchSummary.programName}</p>
+                </div>
+                <BatchSummaryMetric label="Students" value={selectedBatchSummary.totalStudents.toLocaleString("en-IN")} />
+                <BatchSummaryMetric label="Vacancies" value={selectedBatchSummary.vacancies === null ? "Not set" : selectedBatchSummary.vacancies.toLocaleString("en-IN")} />
+                <BatchSummaryMetric label="Capacity" value={selectedBatchSummary.capacity === null ? "Not set" : `${selectedBatchSummary.capacity} seats`} />
+                <BatchSummaryMetric label="Collected" value={formatRosterMoney(selectedBatchSummary.collectedPaise)} />
+                <button
+                  type="button"
+                  onClick={() => openRosterPrint(selectedBatchSummary.batchCode, selectedBatchApplications)}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2654d9] px-3 text-xs font-black uppercase tracking-[0.1em] text-white"
+                >
+                  <Printer className="h-4 w-4" aria-hidden="true" />
+                  Print batch
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+
         <div className="grid gap-3 xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-center">
           <div className="flex flex-wrap items-center gap-3">
-          <label className="flex min-w-[18rem] flex-1 items-center rounded-[0.9rem] border border-[#e5ebe6] bg-[#fbfdfb] px-4">
-            <Search className="h-4 w-4 shrink-0 text-[#9c6a18]" aria-hidden="true" />
+          <label className="flex min-w-[18rem] flex-1 items-center rounded-full border border-[#edf0f2] bg-[#f7f8fa] px-4">
+            <Search className="h-4 w-4 shrink-0 text-[#9aa2ad]" aria-hidden="true" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search name, phone, Aadhaar, invoice, transaction, enrollment ID"
-              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#819083]"
+              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#18212a] outline-none placeholder:text-[#9aa2ad]"
               aria-label="Search applications"
             />
             {query ? (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#f3ecdf] text-[#173f33]"
+                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#5d6670]"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
@@ -305,7 +423,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             <button
               type="button"
               onClick={() => setFiltersOpen((current) => !current)}
-              className="inline-flex h-11 items-center gap-2 rounded-[0.9rem] border border-[#e5ebe6] bg-[#fbfdfb] px-4 text-sm font-black text-[#173f33]"
+              className="inline-flex h-11 items-center gap-2 rounded-md border border-[#edf0f2] bg-white px-4 text-sm font-black text-[#5d6670] shadow-[0_6px_18px_rgba(18,28,39,0.04)]"
             >
               <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
               Filters
@@ -313,13 +431,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             </button>
 
             {filtersOpen ? (
-              <div className="absolute left-0 top-[calc(100%+0.75rem)] z-20 w-[22rem] rounded-[1.45rem] border border-[rgba(27,59,43,0.1)] bg-[#fffdf8] p-3 shadow-[0_20px_45px_rgba(64,44,8,0.14)]">
+              <div className="absolute left-0 top-[calc(100%+0.75rem)] z-20 w-[22rem] rounded-lg border border-[#edf0f2] bg-white p-3 shadow-[0_20px_45px_rgba(18,28,39,0.12)]">
                 <div className="flex items-center justify-between gap-3 px-1">
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Admissions filters</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#68727d]">Admissions filters</p>
                   <button
                     type="button"
                     onClick={resetFilters}
-                    className="rounded-full bg-[#f3ecdf] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#173f33]"
+                    className="rounded-full bg-[#f2f5f8] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#2654d9]"
                   >
                     Reset
                   </button>
@@ -336,91 +454,57 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             ) : null}
           </div>
           {viewMode === "date" ? (
-            <div className="flex flex-wrap items-center gap-2 rounded-[0.9rem] border border-[#e5ebe6] bg-[#fbfdfb] px-3 py-2">
-              <CalendarDays className="h-4 w-4 text-[#9c6a18]" aria-hidden="true" />
+            <div className="flex flex-wrap items-center gap-2 rounded-md border border-[#edf0f2] bg-white px-3 py-2 shadow-[0_6px_18px_rgba(18,28,39,0.04)]">
+              <CalendarDays className="h-4 w-4 text-[#68727d]" aria-hidden="true" />
               <input
                 type="date"
                 value={fromDate}
                 onChange={(event) => setFromDate(event.target.value)}
-                className="bg-transparent text-sm font-semibold text-[#173f33] outline-none"
+                className="bg-transparent text-sm font-semibold text-[#18212a] outline-none"
               />
-              <span className="text-xs font-black uppercase tracking-[0.12em] text-[#718477]">to</span>
+              <span className="text-xs font-black uppercase tracking-[0.12em] text-[#9aa2ad]">to</span>
               <input
                 type="date"
                 value={toDate}
                 onChange={(event) => setToDate(event.target.value)}
-                className="bg-transparent text-sm font-semibold text-[#173f33] outline-none"
+                className="bg-transparent text-sm font-semibold text-[#18212a] outline-none"
               />
             </div>
           ) : null}
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <div className="flex items-center rounded-[0.95rem] bg-[#eef3ef] p-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setViewMode((current) => {
-                      const next = current === "student" ? "batch" : current === "batch" ? "date" : "student";
-                      setSortBy(next === "batch" ? "BATCH" : "LATEST");
-                      return next;
-                    });
-                  }}
-                className="relative inline-flex h-9 w-[18.75rem] items-center rounded-[0.75rem]"
-                  aria-label="Toggle roster view mode"
-                >
-                  <span
-                  className={`absolute top-0 h-9 rounded-[0.75rem] bg-[#173f33] shadow-[0_10px_18px_rgba(23,63,51,0.18)] transition-all ${
-                    viewMode === "student" ? "left-0 w-[6.05rem]" : viewMode === "batch" ? "left-[6.25rem] w-[6.05rem]" : "left-[12.5rem] w-[6.05rem]"
-                    }`}
-                  />
-                  <span className={`relative z-10 flex w-1/3 items-center justify-center text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "student" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
-                    Student
-                  </span>
-                  <span className={`relative z-10 flex w-1/3 items-center justify-center text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "batch" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
-                    Batch Wise
-                  </span>
-                  <span className={`relative z-10 flex w-1/3 items-center justify-center gap-1 text-[11px] font-black uppercase tracking-[0.16em] ${viewMode === "date" ? "text-[#fff9ec]" : "text-[#607366]"}`}>
-                    <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
-                    Date
-                  </span>
-                </button>
-            </div>
             <button
               disabled={loading}
               onClick={load}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-[0.9rem] bg-[#f5c65e] px-4 text-sm font-black text-[#173f33] shadow-[0_10px_22px_rgba(217,147,31,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-[#2654d9] px-4 text-sm font-black text-white shadow-[0_10px_22px_rgba(38,84,217,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
               Refresh
             </button>
           </div>
         </div>
-
-        <div className="mt-3 grid gap-1 overflow-hidden rounded-[1.1rem] bg-[#f5f8f5] sm:grid-cols-2 lg:grid-cols-5">
-          {statCards.map((stat) => (
-            <ApplicationStatCard key={stat.label} {...stat} />
-          ))}
-        </div>
       </div>
 
-      <div className="overflow-hidden rounded-[1.55rem] bg-white shadow-[0_14px_34px_rgba(23,63,51,0.07)]">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf2ee] px-4 py-4">
+      <div className="min-w-0 overflow-hidden rounded-lg border border-[#edf0f2] bg-white">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf0f2] px-4 py-4">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#68727d]">
               Enrolled students
             </p>
-            <h3 className="mt-1 text-xl font-black text-[#173f33]">
+            <h3 className="mt-1 text-xl font-black text-[#18212a]">
               {viewMode === "student"
-                ? `${visibleApplicationGroups.length} applicant profile${visibleApplicationGroups.length === 1 ? "" : "s"} from ${filteredApplications.length} paid record${filteredApplications.length === 1 ? "" : "s"}`
+                ? `${studentApplications.length} student${studentApplications.length === 1 ? "" : "s"} sorted by recently joined`
+                : viewMode === "batch" && selectedBatchSummary
+                  ? `${selectedBatchSummary.batchCode} - ${selectedBatchSummary.totalStudents} student${selectedBatchSummary.totalStudents === 1 ? "" : "s"}`
                 : `${filteredApplications.length} visible enrolled student${filteredApplications.length === 1 ? "" : "s"}`}
             </h3>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={expandAllGroups} className="rounded-[0.8rem] border border-[#e6ece7] bg-[#fbfdfb] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]">
+            <button type="button" onClick={expandAllGroups} className="rounded-md border border-[#edf0f2] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#5d6670]">
               Expand all
             </button>
-            <button type="button" onClick={collapseAllGroups} className="rounded-[0.8rem] border border-[#e6ece7] bg-[#eef3ef] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]">
+            <button type="button" onClick={collapseAllGroups} className="rounded-md border border-[#edf0f2] bg-[#f7f8fa] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#5d6670]">
               Collapse all
             </button>
           </div>
@@ -438,22 +522,22 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
               return (
                 <section
                   key={`${groupLabel}-${groupApplications[0]?.id ?? "group"}`}
-                  className="border-b border-[#edf2ee] last:border-b-0"
+                  className="min-w-0 border-b border-[#edf0f2] last:border-b-0"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#fbfdfb] px-4 py-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#fbfcfd] px-4 py-3">
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#fff8df] text-xs font-black text-[#9c6a18]">
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#eef5ff] text-xs font-black text-[#2654d9]">
                         {String(groupApplications.length).padStart(2, "0")}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">{viewMode === "student" ? "Applicant" : viewMode === "batch" ? "Batch" : "Date"}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9aa2ad]">{viewMode === "student" ? "Students" : viewMode === "batch" ? "Batch" : "Date"}</p>
                         <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
-                          <h4 className="truncate text-sm font-black text-[#173f33]">{viewMode === "date" ? formatDateGroup(groupLabel) : groupLabel}</h4>
+                          <h4 className="truncate text-sm font-black text-[#18212a]">{viewMode === "date" ? formatDateGroup(groupLabel) : viewMode === "student" ? "All enrolled students" : groupLabel}</h4>
                           {viewMode === "batch" ? (
                             <button
                               type="button"
                               onClick={() => openRosterPrint(groupLabel, groupApplications)}
-                              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#173f33] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[#fff9ec]"
+                              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#eef5ff] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[#2654d9]"
                             >
                               <Printer className="h-3.5 w-3.5" aria-hidden="true" />
                               Print batch
@@ -461,8 +545,8 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                           ) : null}
                         </div>
                         {viewMode === "student" ? (
-                          <p className="mt-1 truncate text-xs font-semibold text-[#718477]">
-                            Matching Aadhaar/phone, sorted by newest transaction
+                          <p className="mt-1 truncate text-xs font-semibold text-[#75808a]">
+                            Recently joined students appear first
                           </p>
                         ) : null}
                       </div>
@@ -471,7 +555,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                       <button
                         type="button"
                         onClick={() => toggleGroup(groupLabel)}
-                      className="inline-flex items-center gap-2 rounded-[0.8rem] border border-[#e6ece7] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]"
+                      className="inline-flex items-center gap-2 rounded-md border border-[#edf0f2] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#5d6670]"
                       >
                         {isCollapsed ? <ChevronDown className="h-4 w-4" aria-hidden="true" /> : <ChevronUp className="h-4 w-4" aria-hidden="true" />}
                         {isCollapsed ? "Expand" : "Collapse"}
@@ -480,9 +564,9 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                   </div>
 
                   {!isCollapsed ? (
-                    <div className="overflow-x-auto">
-                      <div className="min-w-[62rem]">
-                        <div className="grid grid-cols-[minmax(12rem,1.55fr)_minmax(11rem,1.25fr)_minmax(7rem,0.85fr)_minmax(9rem,1fr)_minmax(7rem,0.8fr)_minmax(7rem,0.85fr)_minmax(10rem,1.15fr)_minmax(8rem,0.7fr)] gap-3 border-b border-[#edf2ee] px-4 py-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#718477]">
+                    <div className="max-w-full overflow-x-auto">
+                      <div className="min-w-[74rem]">
+                        <div className="grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_6.5rem] gap-3 border-b border-[#edf0f2] bg-[#fafbfc] px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#8a949f]">
                           <span>Student</span>
                           <span>Course</span>
                           <span>Phone</span>
@@ -496,13 +580,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                       const isActive = selectedApplication?.id === application.id;
                       const meta = getPreviewApplicationMeta(application);
                       return (
-                            <button
+                              <button
                           key={application.id}
                           onClick={() => setSelectedApplicationId(application.id)}
-                              className={`grid grid-cols-[minmax(12rem,1.55fr)_minmax(11rem,1.25fr)_minmax(7rem,0.85fr)_minmax(9rem,1fr)_minmax(7rem,0.8fr)_minmax(7rem,0.85fr)_minmax(10rem,1.15fr)_minmax(8rem,0.7fr)] items-center gap-3 border-b border-[#edf2ee] px-4 py-3 text-left transition last:border-b-0 ${
+                              className={`grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_6.5rem] items-center gap-3 border-b border-[#edf0f2] px-4 py-4 text-left transition last:border-b-0 ${
                             isActive
-                                  ? "bg-[#173f33] text-[#fff9ec]"
-                                  : "bg-white text-[#173f33] hover:bg-[#fbf7ee]"
+                                  ? "bg-[#f4f7ff] text-[#18212a]"
+                                  : "bg-white text-[#18212a] hover:bg-[#fafbfc]"
                           }`}
                           onKeyDown={(event) => {
                             if (event.key === "Enter" || event.key === " ") {
@@ -512,21 +596,21 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                           }}
                         >
                               <div className="min-w-0">
-                                <p className="truncate text-sm font-black">{application.payload.candidateName}</p>
-                                <p className={`mt-1 truncate text-xs font-semibold ${isActive ? "text-[#d4e1d8]" : "text-[#718477]"}`}>Guardian: {application.payload.guardianName}</p>
+                                <p className="line-clamp-2 break-words text-sm font-black leading-5 text-[#2654d9]">{application.payload.candidateName}</p>
+                                <p className="mt-1 line-clamp-1 break-words text-xs font-semibold text-[#75808a]">Guardian: {application.payload.guardianName}</p>
                             </div>
                               <div className="min-w-0">
-                                <p className="truncate text-xs font-black uppercase tracking-[0.08em]">{application.payload.serviceName}</p>
-                                <p className={`mt-1 truncate text-xs font-semibold ${isActive ? "text-[#d4e1d8]" : "text-[#718477]"}`}>{meta.batchNumber}</p>
+                                <p className="line-clamp-2 break-words text-xs font-black uppercase leading-4 tracking-[0.08em]">{application.payload.serviceName}</p>
+                                <p className="mt-1 truncate text-xs font-semibold text-[#75808a]">{meta.batchNumber}</p>
                               </div>
                               <span className="truncate text-sm font-semibold">{application.payload.phone}</span>
-                              <span className={`text-xs font-semibold ${isActive ? "text-[#d4e1d8]" : "text-[#718477]"}`}>{formatDateLabel(application.payload.submittedAt)}</span>
+                              <span className="text-xs font-semibold text-[#75808a]">{formatDateLabel(application.payload.submittedAt)}</span>
                               <StatusBadge status={application.payload.paymentStatus} active={isActive} />
                               <StatusBadge status="ENROLLED" active={isActive} />
-                              <span className={`truncate text-xs font-black ${isActive ? "text-[#f5c65e]" : "text-[#9c6a18]"}`}>
+                              <span className="truncate text-xs font-black text-[#5d6670]">
                                 {meta.studentCode ?? meta.applicationCode}
                               </span>
-                              <span className="flex items-center justify-end gap-2">
+                              <span className="flex items-center justify-end gap-1.5">
                                 <span
                                   onClick={(event) => {
                                     event.stopPropagation();
@@ -534,8 +618,8 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                                   }}
                                   className={`inline-flex items-center justify-center rounded-full px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
                                   isActive
-                                    ? "bg-[rgba(255,255,255,0.14)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.2)]"
-                                    : "bg-[#f5c65e] text-[#173f33] hover:bg-[#edba36]"
+                                    ? "bg-white text-[#2654d9] hover:bg-[#eef5ff]"
+                                    : "bg-[#eef5ff] text-[#2654d9] hover:bg-[#dfeaff]"
                                 }`}
                                 >
                                   Print
@@ -547,8 +631,8 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                                   }}
                                   className={`inline-flex items-center justify-center rounded-full px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
                                   isActive
-                                    ? "bg-[rgba(255,255,255,0.14)] text-[#fff9ec] hover:bg-[rgba(255,255,255,0.2)]"
-                                    : "bg-[#173f33] text-[#fff9ec] hover:bg-[#204d3f]"
+                                    ? "bg-[#2654d9] text-white hover:bg-[#1f45b8]"
+                                    : "bg-[#18212a] text-white hover:bg-[#2b3540]"
                                 }`}
                               >
                                 View
@@ -578,74 +662,6 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
   );
 }
 
-function groupApplicationsByStudentIdentity(applications: TrainingApplicationRecord[]) {
-  const parent = new Map<string, string>();
-  const identityOwner = new Map<string, string>();
-
-  function find(id: string): string {
-    const current = parent.get(id) ?? id;
-    if (current === id) return current;
-    const root = find(current);
-    parent.set(id, root);
-    return root;
-  }
-
-  function union(left: string, right: string) {
-    const leftRoot = find(left);
-    const rightRoot = find(right);
-    if (leftRoot !== rightRoot) parent.set(rightRoot, leftRoot);
-  }
-
-  for (const application of applications) {
-    parent.set(application.id, application.id);
-  }
-
-  for (const application of applications) {
-    for (const identity of getStudentIdentityKeys(application)) {
-      const owner = identityOwner.get(identity);
-      if (owner) {
-        union(owner, application.id);
-      } else {
-        identityOwner.set(identity, application.id);
-      }
-    }
-  }
-
-  const groups = new Map<string, TrainingApplicationRecord[]>();
-  for (const application of applications) {
-    const root = find(application.id);
-    groups.set(root, [...(groups.get(root) ?? []), application]);
-  }
-
-  return Array.from(groups.values())
-    .map((groupApplications) => {
-      const sorted = [...groupApplications].sort(
-        (left, right) => getApplicationTimelineTime(right) - getApplicationTimelineTime(left),
-      );
-      const primary = sorted[0];
-      const identitySummary = [
-        primary.payload.aadhaarNo ? `Aadhaar ${maskValue(primary.payload.aadhaarNo, 4)}` : "",
-        primary.payload.phone ? `Phone ${primary.payload.phone}` : "",
-      ].filter(Boolean).join(" / ");
-      const label = `${primary.payload.candidateName}${identitySummary ? ` - ${identitySummary}` : ""}`;
-
-      return [label, sorted] as [string, TrainingApplicationRecord[]];
-    })
-    .sort(([, leftApplications], [, rightApplications]) =>
-      getApplicationTimelineTime(rightApplications[0]) - getApplicationTimelineTime(leftApplications[0]),
-    );
-}
-
-function getStudentIdentityKeys(application: TrainingApplicationRecord) {
-  const aadhaar = application.payload.aadhaarNo.replace(/\D/g, "");
-  const phone = application.payload.phone.replace(/\D/g, "");
-
-  return [
-    aadhaar.length >= 4 ? `aadhaar:${aadhaar}` : "",
-    phone.length >= 6 ? `phone:${phone}` : "",
-  ].filter(Boolean);
-}
-
 function getApplicationTimelineTime(application: TrainingApplicationRecord) {
   const paidAt = application.latestPayment?.paidAt ? new Date(application.latestPayment.paidAt).getTime() : NaN;
   if (Number.isFinite(paidAt)) return paidAt;
@@ -656,10 +672,201 @@ function getApplicationTimelineTime(application: TrainingApplicationRecord) {
   return new Date(application.createdAt).getTime();
 }
 
-function maskValue(value: string, visibleDigits: number) {
-  const normalized = value.replace(/\D/g, "");
-  if (normalized.length <= visibleDigits) return normalized;
-  return `${"*".repeat(Math.max(0, normalized.length - visibleDigits))}${normalized.slice(-visibleDigits)}`;
+type ProgramRosterCardData = {
+  key: string;
+  title: string;
+  shortName: string;
+  enrolled: number;
+  capacity: number | null;
+  vacancies: number | null;
+  batchCount: number;
+  latestEnrollment: string;
+  collectedPaise: number;
+};
+
+type BatchSummaryCardData = {
+  batchCode: string;
+  programName: string;
+  totalStudents: number;
+  capacity: number | null;
+  vacancies: number | null;
+  collectedPaise: number;
+  latestEnrollment: string;
+  firstEnrollment: string;
+};
+
+function buildBatchSummary(batchCode: string, applications: TrainingApplicationRecord[]): BatchSummaryCardData {
+  const programNames = Array.from(new Set(applications.map((application) => getRosterDisplayProgramName(application.payload.serviceName)))).sort();
+  const primaryProgramName = programNames[0] ?? "Program not assigned";
+  const capacity = programNames.length === 1 ? getRosterProgramCapacity(primaryProgramName) : null;
+  const latestApplication = [...applications].sort((left, right) => getApplicationTimelineTime(right) - getApplicationTimelineTime(left))[0] ?? null;
+  const firstApplication = [...applications].sort((left, right) => getApplicationTimelineTime(left) - getApplicationTimelineTime(right))[0] ?? null;
+  const collectedPaise = applications.reduce((total, application) => total + (application.latestPayment?.amountPaise ?? 0), 0);
+
+  return {
+    batchCode,
+    programName: programNames.length > 1 ? `${programNames.length} programs` : primaryProgramName,
+    totalStudents: applications.length,
+    capacity,
+    vacancies: capacity === null ? null : Math.max(capacity - applications.length, 0),
+    collectedPaise,
+    latestEnrollment: latestApplication ? formatDateLabel(latestApplication.payload.submittedAt) : "No students yet",
+    firstEnrollment: firstApplication ? formatDateLabel(firstApplication.payload.submittedAt) : "No students yet",
+  };
+}
+
+function getRosterProgramCapacity(serviceName: string) {
+  return findRosterCatalogProgram(serviceName)?.capacity ?? null;
+}
+
+function getRosterDisplayProgramName(serviceName: string) {
+  return findRosterCatalogProgram(serviceName)?.title ?? serviceName;
+}
+
+function buildProgramRosterCards(applications: TrainingApplicationRecord[]): ProgramRosterCardData[] {
+  const catalogPrograms = trainingProgramCatalog.filter((program) => !deprecatedTrainingProgramSlugs.has(program.slug));
+  const cards = new Map<string, ProgramRosterCardData>();
+
+  for (const program of catalogPrograms) {
+    cards.set(program.slug, {
+      key: program.slug,
+      title: program.title,
+      shortName: getProgramShortName(program.title),
+      enrolled: 0,
+      capacity: program.capacity,
+      vacancies: program.capacity,
+      batchCount: 0,
+      latestEnrollment: "No students yet",
+      collectedPaise: 0,
+    });
+  }
+
+  const batchCodesByProgram = new Map<string, Set<string>>();
+  const latestByProgram = new Map<string, number>();
+
+  for (const application of applications) {
+    const catalogProgram = findRosterCatalogProgram(application.payload.serviceName);
+    const key = catalogProgram?.slug ?? normalizeRosterKey(application.payload.serviceName);
+    const existing = cards.get(key) ?? {
+      key,
+      title: application.payload.serviceName,
+      shortName: getProgramShortName(application.payload.serviceName),
+      enrolled: 0,
+      capacity: null,
+      vacancies: null,
+      batchCount: 0,
+      latestEnrollment: "No students yet",
+      collectedPaise: 0,
+    };
+    const submittedAt = new Date(application.payload.submittedAt).getTime();
+    const meta = getPreviewApplicationMeta(application);
+
+    existing.enrolled += 1;
+    existing.collectedPaise += application.latestPayment?.amountPaise ?? 0;
+    if (existing.capacity !== null) {
+      existing.vacancies = Math.max(existing.capacity - existing.enrolled, 0);
+    }
+
+    const batchCodes = batchCodesByProgram.get(key) ?? new Set<string>();
+    batchCodes.add(meta.batchNumber);
+    batchCodesByProgram.set(key, batchCodes);
+    existing.batchCount = batchCodes.size;
+
+    if (Number.isFinite(submittedAt) && submittedAt > (latestByProgram.get(key) ?? 0)) {
+      latestByProgram.set(key, submittedAt);
+      existing.latestEnrollment = formatDateLabel(application.payload.submittedAt);
+    }
+
+    cards.set(key, existing);
+  }
+
+  return Array.from(cards.values()).sort((left, right) => {
+    if (right.enrolled !== left.enrolled) return right.enrolled - left.enrolled;
+    return left.title.localeCompare(right.title);
+  });
+}
+
+function BatchSummaryMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md bg-[#fbfcfd] px-3 py-2">
+      <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[#9aa2ad]">{label}</p>
+      <p className="mt-1 truncate text-sm font-black text-[#18212a]">{value}</p>
+    </div>
+  );
+}
+
+function findRosterCatalogProgram(serviceName: string) {
+  const normalizedServiceName = normalizeRosterKey(serviceName);
+  if (normalizedServiceName === "beekeeping") {
+    return trainingProgramCatalog.find((program) => program.slug === "scientific-beekeeping-foundation") ?? null;
+  }
+
+  return trainingProgramCatalog.find((program) => normalizeRosterKey(program.title) === normalizedServiceName) ?? null;
+}
+
+function normalizeRosterKey(value: string) {
+  return value.trim().toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "");
+}
+
+function getProgramShortName(title: string) {
+  if (title.toLowerCase().includes("scientific")) return "BK";
+  if (title.toLowerCase().includes("honey")) return "HP";
+  if (title.toLowerCase().includes("queen")) return "QBRJ";
+
+  return title
+    .split(/\s+/)
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 4)
+    .toUpperCase();
+}
+
+function ProgramRosterCard({ card }: { card: ProgramRosterCardData }) {
+  const vacancyLabel = card.vacancies === null ? "Not set" : card.vacancies.toLocaleString("en-IN");
+  const capacityLabel = card.capacity === null ? "Capacity not set" : `${card.capacity.toLocaleString("en-IN")} seats`;
+
+  return (
+    <article className="grid min-h-[12rem] w-[21rem] shrink-0 gap-3 rounded-lg border border-[#edf0f2] bg-[#fbfcfd] p-4 xl:w-[22rem]">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <span className="inline-flex rounded-full bg-[#eef5ff] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#2654d9]">
+            {card.shortName}
+          </span>
+          <h3 className="mt-3 line-clamp-2 max-w-[14rem] text-base font-black leading-5 text-[#18212a]">{card.title}</h3>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#9aa2ad]">Students</p>
+          <p className="text-3xl font-black leading-none text-[#173f33]">{card.enrolled.toLocaleString("en-IN")}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2.5">
+        <ProgramRosterMetric label="Vacancies" value={vacancyLabel} />
+        <ProgramRosterMetric label="Capacity" value={capacityLabel} />
+        <ProgramRosterMetric label="Batches" value={card.batchCount.toLocaleString("en-IN")} />
+        <ProgramRosterMetric label="Collected" value={formatRosterMoney(card.collectedPaise)} />
+      </div>
+
+      <p className="truncate border-t border-[#edf0f2] pt-2 text-xs font-semibold text-[#75808a]">
+        Latest: <span className="font-black text-[#5d6670]">{card.latestEnrollment}</span>
+      </p>
+    </article>
+  );
+}
+
+function ProgramRosterMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0 rounded-md bg-white px-3 py-2">
+      <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[#9aa2ad]">{label}</p>
+      <p className="mt-1 truncate text-sm font-black text-[#18212a]">{value}</p>
+    </div>
+  );
+}
+
+function formatRosterMoney(amountPaise: number) {
+  return `Rs. ${(amountPaise / 100).toLocaleString("en-IN", {
+    maximumFractionDigits: 0,
+  })}`;
 }
 
 function buildRosterPrintHtml(title: string, batchCode: string, applications: TrainingApplicationRecord[]) {
@@ -787,33 +994,6 @@ function escapeHtml(value: string) {
     .replaceAll("'", "&#039;");
 }
 
-function ApplicationStatCard({
-  label,
-  value,
-  hint,
-  dot,
-}: {
-  label: string;
-  value: number;
-  hint: string;
-  dot: string;
-}) {
-  return (
-    <div className="bg-white px-4 py-3">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-2xl font-black leading-none text-[#173f33]">{value.toLocaleString("en-IN")}</p>
-          <div className="mt-2 flex items-center gap-2">
-            <span className={`h-2 w-2 rounded-full ${dot}`} />
-            <p className="text-xs font-semibold text-[#607366]">{label}</p>
-          </div>
-        </div>
-        <span className="rounded-full bg-[#eef3ef] px-2 py-1 text-[10px] font-black text-[#607366]">{hint}</span>
-      </div>
-    </div>
-  );
-}
-
 function StatusBadge({ status, active }: { status: string; active: boolean }) {
   const normalized = status.replaceAll("_", " ");
   const isGood = status === "PAID" || status === "ENROLLED" || status === "PAYMENT_COMPLETED";
@@ -821,7 +1001,7 @@ function StatusBadge({ status, active }: { status: string; active: boolean }) {
 
   if (active) {
     return (
-      <span className="w-fit rounded-full bg-[rgba(255,255,255,0.14)] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#fff9ec]">
+      <span className="w-fit rounded-full bg-[#eef5ff] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#2654d9]">
         {normalized}
       </span>
     );
@@ -831,9 +1011,9 @@ function StatusBadge({ status, active }: { status: string; active: boolean }) {
     <span
       className={`w-fit rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${
         isGood
-          ? "bg-[#eef8f1] text-[#1f6b4b]"
+          ? "bg-[#eef8e9] text-[#4c8f35]"
           : isBad
-            ? "bg-[#fff0ec] text-[#a74224]"
+            ? "bg-[#fff0f4] text-[#d9476f]"
             : "bg-[#fff5e7] text-[#9c6a18]"
       }`}
     >

@@ -101,6 +101,7 @@ export default async function ProgramsPage() {
     const translatedProgram = getTranslatedProgramContent(program, language);
     const presentation = trainingProgramCatalogBySlug[program.slug];
     const enrollmentState = getProgramEnrollmentState(program);
+    const showBatchDate = Boolean(translatedProgram.batchStartsAt) && enrollmentState.reason !== "batch-started";
     const override =
       language === "te" || language === "hi"
         ? programDisplayOverrides[language][program.slug as keyof (typeof programDisplayOverrides)[typeof language]]
@@ -118,7 +119,7 @@ export default async function ProgramsPage() {
       level: override?.level ?? translatedProgram.level,
       fee: translatedProgram.fee ?? t(language, "programs.detail.fallbackFee"),
       capacity: `${translatedProgram.capacity} ${t(language, "programs.seats")}`,
-      batchDate: translatedProgram.batchStartsAt ? formatDate(translatedProgram.batchStartsAt) : "Coming soon",
+      batchDate: showBatchDate && translatedProgram.batchStartsAt ? formatDate(translatedProgram.batchStartsAt) : "Coming soon",
       focusLabel: override?.focusLabel ?? presentation?.focusLabel ?? translatedProgram.level,
       focusText: override?.focusText ?? presentation?.focusText ?? translatedProgram.summary,
       targetAudience: override?.targetAudience ?? presentation?.targetAudience ?? "Eligible applicants interested in beekeeping training.",

@@ -6,7 +6,7 @@ import {
   getCurrentPaymentEnvironment,
   getTrainingApplicationAmountPaise,
 } from "@/lib/phonepe-config";
-import { getProgramEnrollmentState } from "@/lib/program-enrollment";
+import { getProgramEnrollmentState, MANUAL_BATCH_CONTACT_PHONE } from "@/lib/program-enrollment";
 import { prisma } from "@/lib/prisma";
 import { buildMerchantOrderId } from "@/lib/training-application";
 import { getTrainingApplicationEntityById } from "@/lib/training-application-store";
@@ -35,6 +35,30 @@ export async function POST(_request: Request, { params }: Props) {
       },
       { status: 400 },
     );
+  }
+
+  if (application.batchCode && enrollmentProgram.capacity > 0) {
+    const paidSeats = await prisma.trainingApplication.count({
+      where: {
+        batchCode: application.batchCode,
+        paymentOrders: {
+          some: { status: "PAID" },
+        },
+      },
+    });
+
+    if (paidSeats >= enrollmentProgram.capacity) {
+      const summary = `${enrollmentProgram.title} batch is full. Please wait for the next batch update or contact ${MANUAL_BATCH_CONTACT_PHONE}.`;
+      return NextResponse.json(
+        {
+          ok: false,
+          errorCode: "APP-ENROLL-001",
+          summary,
+          error: `${summary} Error code: APP-ENROLL-001.`,
+        },
+        { status: 400 },
+      );
+    }
   }
 
   const amountPaise = getTrainingApplicationAmountPaise(enrollmentProgram.fee);

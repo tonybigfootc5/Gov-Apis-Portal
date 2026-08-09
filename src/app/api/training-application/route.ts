@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "crypto";
+import type { Prisma } from "@/generated/prisma/client";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { getApplicationErrorGuideItem, type ApplicationErrorCode } from "@/lib/application-error-codes";
@@ -9,7 +10,7 @@ import {
   getCurrentPaymentEnvironment,
   getTrainingApplicationAmountPaise,
 } from "@/lib/phonepe-config";
-import { getProgramEnrollmentState } from "@/lib/program-enrollment";
+import { getProgramEnrollmentState, MANUAL_BATCH_CONTACT_PHONE } from "@/lib/program-enrollment";
 import { getPrograms } from "@/lib/data";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
@@ -17,6 +18,8 @@ import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingBatchMonthYear
 import { trainingApplicationSchema } from "@/lib/validators";
 
 const TRAINING_APPLICATION_SEQUENCE_LOCK_ID = 84152026;
+
+class EnrollmentBlockedError extends Error {}
 
 export async function POST(request: Request) {
   const requestId = randomUUID();
@@ -129,6 +132,9 @@ export async function POST(request: Request) {
           await getNextBatchNumberForService(tx, courseCode, parsed.data.serviceName),
           batchDate,
         );
+
+      await assertBatchHasVacancy(tx, batchCode, enrollmentProgram.capacity, enrollmentProgram.title);
+
       const [applicationCounter, batchCounter] = await Promise.all([
         tx.trainingApplication.aggregate({ _max: { applicationNumber: true } }),
         tx.trainingApplication.aggregate({
@@ -301,12 +307,45 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
+    if (error instanceof EnrollmentBlockedError) {
+      return applicationErrorResponse(
+        "APP-ENROLL-001",
+        error.message,
+        400,
+        requestId,
+      );
+    }
+
     console.error("Training application submission failed", { requestId, error });
     return applicationErrorResponse(
       "APP-DB-001",
       "Application could not be saved in the database.",
       503,
       requestId,
+    );
+  }
+}
+
+async function assertBatchHasVacancy(
+  tx: Prisma.TransactionClient,
+  batchCode: string,
+  capacity: number | null | undefined,
+  programTitle?: string,
+) {
+  if (!capacity || capacity <= 0) return;
+
+  const paidSeats = await tx.trainingApplication.count({
+    where: {
+      batchCode,
+      paymentOrders: {
+        some: { status: "PAID" },
+      },
+    },
+  });
+
+  if (paidSeats >= capacity) {
+    throw new EnrollmentBlockedError(
+      `${programTitle || "Selected program"} batch is full. Please wait for the next batch update or contact ${MANUAL_BATCH_CONTACT_PHONE}.`,
     );
   }
 }

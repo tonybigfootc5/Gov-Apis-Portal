@@ -1,6 +1,6 @@
 import { trainingProgramCatalog } from "@/lib/training-programs";
 
-export const MANUAL_BATCH_CONTACT_PHONE = "93955077066";
+export const MANUAL_BATCH_CONTACT_PHONE = "9395507766";
 
 export const manualBatchProgramSlugs = new Set([
   "honey-processing",
@@ -16,12 +16,23 @@ type EnrollmentProgram = {
   scheduledPostAt?: Date | string | null;
   enrollmentClosed: boolean;
   published?: boolean;
+  capacity?: number | null;
+  enrolledCount?: number | null;
 };
 
 export type ProgramEnrollmentState = {
   canEnroll: boolean;
   statusLabel: "Enroll Now" | "Coming soon" | "Enrollment closed";
-  reason: "manual-date-missing" | "admin-closed" | "batch-started" | "unpublished" | "scheduled-post" | "registration-not-started" | "registration-ended" | null;
+  reason:
+    | "manual-date-missing"
+    | "admin-closed"
+    | "batch-started"
+    | "batch-full"
+    | "unpublished"
+    | "scheduled-post"
+    | "registration-not-started"
+    | "registration-ended"
+    | null;
   message: string;
 };
 
@@ -78,12 +89,21 @@ export function getProgramEnrollmentState(
     };
   }
 
-  if (program.enrollmentClosed) {
+  if (isBatchFull(program)) {
     return {
       canEnroll: false,
       statusLabel: "Enrollment closed",
-      reason: "admin-closed",
-      message: `${title} enrollment is closed by admin.`,
+      reason: "batch-full",
+      message: `${title} batch is full. Please wait for the next batch update or contact ${MANUAL_BATCH_CONTACT_PHONE}.`,
+    };
+  }
+
+  if (hasBatchDayStarted(program.batchStartsAt, now)) {
+    return {
+      canEnroll: false,
+      statusLabel: "Enrollment closed",
+      reason: "batch-started",
+      message: `${title} enrollment is closed because the batch date has started. Please contact ${MANUAL_BATCH_CONTACT_PHONE} for further instructions.`,
     };
   }
 
@@ -107,12 +127,12 @@ export function getProgramEnrollmentState(
     };
   }
 
-  if (hasBatchDayStarted(program.batchStartsAt, now)) {
+  if (program.enrollmentClosed) {
     return {
       canEnroll: false,
       statusLabel: "Enrollment closed",
-      reason: "batch-started",
-      message: `${title} enrollment is closed because the batch date has started.`,
+      reason: "admin-closed",
+      message: `${title} enrollment is closed by admin.`,
     };
   }
 
@@ -129,6 +149,13 @@ export function hasBatchDayStarted(batchStartsAt: Date | string | null, now = ne
   if (!batchDate) return false;
 
   return getIndiaDateNumber(now) >= getIndiaDateNumber(batchDate);
+}
+
+function isBatchFull(program: EnrollmentProgram) {
+  const capacity = typeof program.capacity === "number" ? program.capacity : null;
+  const enrolledCount = typeof program.enrolledCount === "number" ? program.enrolledCount : null;
+
+  return capacity !== null && capacity > 0 && enrolledCount !== null && enrolledCount >= capacity;
 }
 
 function parseDate(value: Date | string | null) {

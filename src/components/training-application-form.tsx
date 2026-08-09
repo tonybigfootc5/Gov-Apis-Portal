@@ -488,7 +488,7 @@ export function TrainingApplicationForm({ language, serviceOptions, selectedServ
   const galleryInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const hasUploadedPhoto = Boolean(form.photoUrl && form.photoName);
-  const showTestAutofill = process.env.NODE_ENV !== "production";
+  const showTestAutofill = process.env.NEXT_PUBLIC_ENABLE_TEST_AUTOFILL === "true";
 
   const progress = ((step + 1) / STEPS.length) * 100;
   const canAdvance = requiredStepFields(step, form);

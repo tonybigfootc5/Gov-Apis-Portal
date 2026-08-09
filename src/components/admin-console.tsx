@@ -28,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { ApplicationAdminPanel } from "@/components/application-admin-panel";
+import { ApplicationAdminPanel, ApplicationProgramCapacityRail } from "@/components/application-admin-panel";
 import { ContactInboxPanel } from "@/components/contact-inbox-panel";
 import { GalleryWorkspace, type GalleryAdminItem, type GalleryDraftInput } from "@/components/gallery-workspace";
 import { PaymentAdminPanel } from "@/components/payment-admin-panel";
@@ -1143,19 +1143,24 @@ export function AdminConsole({
       ) : null}
 
       {view === "applications" ? (
-        <DashboardSection
-          view="applications"
-          eyebrow="Admissions desk"
-          title=""
-          className="mt-5"
-        >
-          <ApplicationAdminPanel
-            key={applications.map((application) => `${application.id}:${application.updatedAt}`).join("|")}
-            storageMode={applicationStorageMode}
-            initialApplications={applications}
-            onApplicationsChange={setApplications}
-          />
-        </DashboardSection>
+        <>
+          <div className="mt-5">
+            <ApplicationProgramCapacityRail applications={applications} />
+          </div>
+          <DashboardSection
+            view="applications"
+            eyebrow="Admissions desk"
+            title=""
+            className="mt-5"
+          >
+            <ApplicationAdminPanel
+              key={applications.map((application) => `${application.id}:${application.updatedAt}`).join("|")}
+              storageMode={applicationStorageMode}
+              initialApplications={applications}
+              onApplicationsChange={setApplications}
+            />
+          </DashboardSection>
+        </>
       ) : null}
 
       {view === "payments" ? (

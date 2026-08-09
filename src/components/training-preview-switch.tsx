@@ -708,8 +708,8 @@ function CourseOverview({
           </span>
         </button>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {gallery.map((item) => (
-            <div key={item.src} className="relative min-h-20 overflow-hidden rounded-lg shadow-[0_10px_20px_rgba(67,45,12,0.12)]">
+          {gallery.map((item, index) => (
+            <div key={`${item.src}-${index}`} className="relative min-h-20 overflow-hidden rounded-lg shadow-[0_10px_20px_rgba(67,45,12,0.12)]">
               <Image src={item.src} alt={item.alt} fill sizes="(max-width: 640px) 50vw, 16vw" className="object-cover" />
             </div>
           ))}

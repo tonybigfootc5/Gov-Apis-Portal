@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { fallbackArticles, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
-import { getProgramEnrollmentState } from "@/lib/program-enrollment";
+import { getProgramEnrollmentState, normalizeProgramName } from "@/lib/program-enrollment";
+import { getTrainingBatchMonthYear, getTrainingCourseCode } from "@/lib/training-application";
 import { deprecatedTrainingProgramSlugs, trainingProgramCatalog, trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
 export type ProgramItem = {
@@ -13,6 +14,7 @@ export type ProgramItem = {
   level: string;
   fee: string | null;
   capacity: number;
+  enrolledCount?: number;
   batchStartsAt: Date | null;
   registrationStartsAt?: Date | null;
   registrationEndsAt?: Date | null;
@@ -103,6 +105,7 @@ function buildCatalogProgram(program: (typeof trainingProgramCatalog)[number]): 
     level: program.level,
     fee: program.fee,
     capacity: program.capacity,
+    enrolledCount: 0,
     batchStartsAt: program.batchStartsAt ? new Date(program.batchStartsAt) : null,
     registrationStartsAt: null,
     registrationEndsAt: null,
@@ -172,7 +175,7 @@ export async function getPrograms(): Promise<ProgramItem[]> {
       mergedPrograms.set(normalizedProgram.slug, normalizedProgram);
     }
 
-    return orderPrograms(Array.from(mergedPrograms.values()));
+    return orderPrograms(await attachProgramSeatCounts(Array.from(mergedPrograms.values())));
   } catch {
     return fallbackPrograms;
   }
@@ -210,7 +213,10 @@ export async function getPopupAnnouncementPrograms(now = new Date()): Promise<Pr
       orderBy: [{ batchStartsAt: "asc" }, { title: "asc" }],
     });
 
-    return getAnnouncementPrograms(programs.filter((item) => isActiveTrainingProgram(item) && isProgramPubliclyPosted(item, now)).map(mergeProgramWithCatalog), now);
+    return getAnnouncementPrograms(
+      await attachProgramSeatCounts(programs.filter((item) => isActiveTrainingProgram(item) && isProgramPubliclyPosted(item, now)).map(mergeProgramWithCatalog)),
+      now,
+    );
   } catch {
     return getAnnouncementPrograms(fallbackPrograms, now);
   }
@@ -226,14 +232,58 @@ export async function getProgram(slug: string): Promise<ProgramItem | null> {
     });
     if (program && isActiveTrainingProgram(program)) {
       if (!isProgramPubliclyPosted(program, new Date())) return null;
-      return mergeProgramWithCatalog(program);
+      return (await attachProgramSeatCounts([mergeProgramWithCatalog(program)]))[0] ?? null;
     }
 
     const catalogProgram = trainingProgramCatalogBySlug[slug];
-    return catalogProgram ? buildCatalogProgram(catalogProgram) : fallbackPrograms.find((item) => item.slug === slug) ?? null;
+    return catalogProgram ? (await attachProgramSeatCounts([buildCatalogProgram(catalogProgram)]))[0] ?? null : fallbackPrograms.find((item) => item.slug === slug) ?? null;
   } catch {
     return fallbackPrograms.find((item) => item.slug === slug) ?? null;
   }
+}
+
+type PaidSeatApplication = {
+  serviceName: string;
+  batchCode: string | null;
+};
+
+async function attachProgramSeatCounts(programs: ProgramItem[]) {
+  if (!process.env.DATABASE_URL || programs.length === 0) {
+    return programs.map((program) => ({ ...program, enrolledCount: program.enrolledCount ?? 0 }));
+  }
+
+  const paidApplications = await prisma.trainingApplication.findMany({
+    where: {
+      paymentOrders: {
+        some: { status: "PAID" },
+      },
+    },
+    select: {
+      serviceName: true,
+      batchCode: true,
+    },
+  });
+
+  return programs.map((program) => ({
+    ...program,
+    enrolledCount: countPaidSeatsForProgramBatch(program, paidApplications),
+  }));
+}
+
+function countPaidSeatsForProgramBatch(program: ProgramItem, paidApplications: PaidSeatApplication[]) {
+  const programName = normalizeProgramName(program.title);
+  const serviceMatches = paidApplications.filter((application) => normalizeProgramName(application.serviceName) === programName);
+
+  if (!program.batchStartsAt) return serviceMatches.length;
+
+  const courseCode = getTrainingCourseCode(program.title);
+  const batchMonthYear = getTrainingBatchMonthYear(program.batchStartsAt);
+  const currentBatchSeats = serviceMatches.filter((application) => {
+    const batchCode = application.batchCode ?? "";
+    return batchCode.startsWith(`${courseCode}-`) && batchCode.endsWith(`-${batchMonthYear}`);
+  }).length;
+
+  return currentBatchSeats || serviceMatches.length;
 }
 
 function isProgramPubliclyPosted(program: { published?: boolean; scheduledPostAt?: Date | string | null }, now = new Date()) {

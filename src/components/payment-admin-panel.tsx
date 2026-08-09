@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
-  BarChart3,
   CheckCircle2,
   Clock3,
   Eye,
@@ -253,8 +252,7 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
         </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_15rem]">
-        <div className="grid gap-4">
+      <div className="grid gap-4">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             <PaymentMetricCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Orders" value={filteredPayments.length.toLocaleString("en-IN")} hint={`${pendingConfirmations.length} pending`} />
             <PaymentMetricCard icon={<CheckCircle2 className="h-4 w-4" aria-hidden="true" />} label="Paid" value={paidPayments.length.toLocaleString("en-IN")} hint={`${successRate}% success`} />
@@ -326,22 +324,6 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
               <EmptyState message={tab === "confirmations" ? "No pending or failed gateway confirmations need attention." : tab === "refunds" ? "No paid orders are currently eligible for refunds." : "No payment history matches the current search."} />
             )}
           </section>
-        </div>
-
-        <aside className="grid gap-4">
-          <section className="rounded-[1.55rem] bg-white p-4 shadow-[0_14px_34px_rgba(23,63,51,0.07)]">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black text-[#173f33]">Audit readiness</h3>
-              <BarChart3 className="h-4 w-4 text-[#9c6a18]" aria-hidden="true" />
-            </div>
-            <div className="mt-4 flex items-center justify-center">
-              <div className="flex h-32 w-32 items-center justify-center rounded-full border-[1rem] border-[#173f33] bg-[#fff8df]">
-                <span className="text-2xl font-black text-[#173f33]">{successRate}%</span>
-              </div>
-            </div>
-            <p className="mt-4 text-center text-xs font-semibold text-[#607366]">Paid orders as a share of visible payment records.</p>
-          </section>
-        </aside>
       </div>
 
       {selectedPayment ? (
@@ -543,7 +525,7 @@ function PaymentRow({
       </div>
       <span className="font-black text-[#173f33]">{formatMoney(payment.amountPaise)}</span>
       <StatusBadge label={payment.status} tone={payment.status === "PAID" ? "good" : payment.status === "FAILED" || payment.status === "EXPIRED" ? "bad" : "warn"} />
-      <span className="text-xs font-semibold text-[#607366]">{payment.latestEventName || payment.environment}</span>
+      <span className="text-xs font-semibold text-[#607366]">{formatGatewayEventName(payment.latestEventName || payment.environment)}</span>
       <span className="text-xs font-semibold text-[#607366]">{formatDate(payment.updatedAt)}{latestRefund ? ` / refund ${latestRefund.status}` : ""}</span>
       <div className="flex justify-end gap-2">
         <button
@@ -604,7 +586,7 @@ function PaymentDetailModal({
     ["Paid at", formatDate(payment.paidAt)],
     ["Failed at", formatDate(payment.failedAt)],
     ["Expires at", formatGatewayTime(latestDetails?.expireAt) ?? formatDate(payment.expiresAt)],
-    ["Latest event", payment.latestEventName ?? "None"],
+    ["Latest event", formatGatewayEventName(payment.latestEventName)],
     ["Latest error code", payment.latestErrorCode ?? latestDetails?.errorCode ?? "None"],
     ["Latest error detail", payment.latestErrorMessage ?? latestDetails?.detailedErrorCode ?? "None"],
   ];
@@ -625,7 +607,7 @@ function PaymentDetailModal({
     ["Failed at", formatDate(payment.failedAt)],
     ["Expires at", formatGatewayTime(latestDetails?.expireAt) ?? formatDate(payment.expiresAt)],
     ["Checkout link", payment.checkoutUrl ? "Available" : "Not stored"],
-    ["Latest event", payment.latestEventName ?? "None"],
+    ["Latest event", formatGatewayEventName(payment.latestEventName)],
   ];
   const applicantRows: Array<[string, string]> = [
     ["Application code", payment.application.applicationCode ?? "Not assigned"],
@@ -725,7 +707,7 @@ function PaymentDetailModal({
               <div className="grid gap-3 sm:grid-cols-3">
                 <ReadOnlyStat label="Amount" value={formatMoney(payment.amountPaise)} />
                 <ReadOnlyStat label="Reference" value={payment.paymentReference ?? "Pending"} />
-                <ReadOnlyStat label="Gateway event" value={payment.latestEventName ?? payment.environment} />
+                <ReadOnlyStat label="Gateway event" value={formatGatewayEventName(payment.latestEventName ?? payment.environment)} />
               </div>
               <DetailGrid rows={transactionRows} />
               {relatedPayments.length > 1 ? (
@@ -763,7 +745,7 @@ function PaymentDetailModal({
                     {payment.events.map((event) => (
                       <div key={event.id} className="grid gap-3 px-4 py-4 lg:grid-cols-[12rem_minmax(0,1fr)]">
                         <div>
-                          <p className="text-xs font-black text-[#173f33]">{event.eventName}</p>
+                          <p className="text-xs font-black text-[#173f33]">{formatGatewayEventName(event.eventName)}</p>
                           <p className="mt-1 text-xs font-semibold text-[#607366]">{event.source} / {formatDate(event.receivedAt)}</p>
                         </div>
                         <div className="grid gap-2 text-xs font-semibold text-[#607366] sm:grid-cols-3">
@@ -877,8 +859,8 @@ function PaymentLogEntry({ event, index }: { event: PaymentAdminRecord["events"]
   const firstAttempt = event.details.paymentDetails[0] ?? null;
   const rows: Array<[string, string]> = [
     ["Log number", `#${index + 1}`],
-    ["Stored event", event.eventName],
-    ["Sync source", event.source],
+    ["Stored event", formatGatewayEventName(event.eventName)],
+    ["Source", formatGatewayEventName(event.source)],
     ["Stored state", event.state ?? "Unknown"],
     ["PhonePe state", event.details.state ?? "Unknown"],
     ["PhonePe order", event.details.orderId ?? "Not received"],
@@ -901,8 +883,8 @@ function PaymentLogEntry({ event, index }: { event: PaymentAdminRecord["events"]
     <article className="px-4 py-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-black text-[#173f33]">{event.eventName}</p>
-          <p className="mt-1 text-xs font-semibold text-[#607366]">{event.source} / {formatDate(event.receivedAt)}</p>
+          <p className="text-sm font-black text-[#173f33]">{formatGatewayEventName(event.eventName)}</p>
+          <p className="mt-1 text-xs font-semibold text-[#607366]">{formatGatewayEventName(event.source)} / {formatDate(event.receivedAt)}</p>
         </div>
         <StatusBadge
           label={event.details.errorCode ?? event.details.state ?? event.state ?? "log"}
@@ -1028,13 +1010,31 @@ function formatMoney(amountPaise: number) {
   })}`;
 }
 
+function formatGatewayEventName(value?: string | null) {
+  if (!value) return "None";
+
+  const labels: Record<string, string> = {
+    "checkout.created": "Checkout created",
+    "order.status.sync": "Gateway status check",
+    "callback.received": "Gateway callback received",
+    "refund.created": "Refund created",
+    "refund.status.sync": "Refund status check",
+    database: "Database",
+    live: "Live gateway",
+  };
+
+  return labels[value] ?? value.replaceAll(".", " ").replaceAll("_", " ");
+}
+
 function buildPaymentDiagnosis(payment: PaymentAdminRecord) {
   const latestEvent = payment.events[0] ?? null;
   const details = latestEvent?.details ?? null;
   const errorCode = payment.latestErrorCode ?? details?.errorCode ?? "";
   const errorDetail = payment.latestErrorMessage ?? details?.detailedErrorCode ?? "";
   const paymentMode = details?.paymentDetails[0]?.paymentMode ?? "mode not captured";
-  const source = latestEvent ? `${latestEvent.eventName} from ${latestEvent.source}` : payment.latestEventName ?? "No event stored";
+  const source = latestEvent
+    ? `${formatGatewayEventName(latestEvent.eventName)} from ${formatGatewayEventName(latestEvent.source)}`
+    : formatGatewayEventName(payment.latestEventName) || "No event stored";
 
   if (payment.status === "PAID") {
     return {
@@ -1048,7 +1048,7 @@ function buildPaymentDiagnosis(payment: PaymentAdminRecord) {
     return {
       reason: "Gateway has not returned a final result yet.",
       source,
-      nextCheck: "Use Sync to pull latest PhonePe status, especially for old pending orders.",
+      nextCheck: "Use Refresh to pull latest PhonePe status, especially for old pending orders.",
     };
   }
 
