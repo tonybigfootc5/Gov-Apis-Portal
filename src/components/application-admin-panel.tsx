@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BadgeCheck, CalendarDays, ChevronDown, ChevronUp, CreditCard, FileClock, Printer, RefreshCw, Search, SlidersHorizontal, UserRound, WalletCards, X } from "lucide-react";
+import { BadgeCheck, CalendarDays, ChevronDown, ChevronUp, FileClock, Printer, RefreshCw, Search, SlidersHorizontal, UserRound, X } from "lucide-react";
 import type {
   ApplicationApprovalStatus,
   ApplicationAttemptStatus,
@@ -653,6 +653,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
       {profileOpen && selectedApplication ? (
         <ApplicationProfileOverlay
           application={selectedApplication}
+          applications={applications}
           disabled={loading || !canMutate}
           onClose={() => setProfileOpen(false)}
           onSave={updateApplication}
@@ -1024,11 +1025,13 @@ function StatusBadge({ status, active }: { status: string; active: boolean }) {
 
 function ApplicationProfileOverlay({
   application,
+  applications,
   disabled,
   onSave,
   onClose,
 }: {
   application: TrainingApplicationRecord;
+  applications: TrainingApplicationRecord[];
   disabled: boolean;
   onSave: (
     id: string,
@@ -1063,7 +1066,7 @@ function ApplicationProfileOverlay({
           </button>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-6">
-          <ApplicationCard application={application} disabled={disabled} onSave={onSave} />
+          <ApplicationCard application={application} applications={applications} disabled={disabled} onSave={onSave} />
         </div>
       </div>
     </div>
@@ -1072,10 +1075,12 @@ function ApplicationProfileOverlay({
 
 function ApplicationCard({
   application,
+  applications,
   onSave,
   disabled,
 }: {
   application: TrainingApplicationRecord;
+  applications: TrainingApplicationRecord[];
   disabled: boolean;
   onSave: (
     id: string,
@@ -1093,215 +1098,183 @@ function ApplicationCard({
   const [paymentStatus] = useState<ApplicationPaymentStatus>(application.payload.paymentStatus);
   const [adminNotes, setAdminNotes] = useState(application.payload.adminNotes);
   const [paymentReference] = useState(application.payload.paymentReference);
+  const [activeTab, setActiveTab] = useState<"details" | "transactions" | "logs">("details");
   const photoSrc = application.payload.photoUrl || application.payload.photoDataUrl;
   const previewMeta = getPreviewApplicationMeta(application);
+  const age = calculateAge(application.payload.dateOfBirth);
   const paidAmount = application.latestPayment
     ? `Rs. ${(application.latestPayment.amountPaise / 100).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : "Not captured";
-  const identityRows = [
+  const duplicateMatches = applications
+    .filter((candidate) => candidate.id !== application.id)
+    .filter((candidate) =>
+      candidate.payload.aadhaarNo === application.payload.aadhaarNo ||
+      (candidate.payload.phone && candidate.payload.phone === application.payload.phone) ||
+      (candidate.payload.email && candidate.payload.email.toLowerCase() === application.payload.email.toLowerCase()),
+    );
+  const personalRows = [
     ["Gender", application.payload.gender],
-    ["Age", calculateAge(application.payload.dateOfBirth)],
-    ["DOB", application.payload.dateOfBirth],
+    ["Age", age],
+    ["Date of birth", application.payload.dateOfBirth],
     ["Aadhaar", application.payload.aadhaarNo],
+    ["Guardian", application.payload.guardianName],
+  ];
+  const contactRows = [
     ["Phone", application.payload.phone || "Not provided"],
     ["Email", application.payload.email || "Not provided"],
-    ["Student ID", previewMeta.studentCode ?? "Not assigned yet"],
+    ["Residence phone", application.payload.residencePhone || "Not provided"],
+    ["Address", `${application.payload.addressLine}, ${application.payload.mandal}, ${application.payload.district}, ${application.payload.state}, ${application.payload.pinCode}`],
   ];
-  const reportRows = [
-    { label: "Application number", value: previewMeta.applicationCode ?? "Not assigned yet", meta: formatDateLabel(application.payload.submittedAt) },
-    { label: "Payment sent", value: previewMeta.paymentSentDate, meta: application.payload.paymentStatus.replaceAll("_", " ") },
-    { label: "Payment confirmed", value: previewMeta.paymentApprovedDate, meta: application.latestPayment?.status ?? paymentStatus },
+  const trainingRows = [
+    ["Program", application.payload.serviceName],
+    ["Batch number", previewMeta.batchNumber],
+    ["Enrollment ID", previewMeta.studentCode ?? "Not assigned yet"],
+    ["Application number", previewMeta.applicationCode ?? "Not assigned yet"],
+    ["Education", application.payload.educationQualification || "Not provided"],
+    ["Occupation", application.payload.occupation || "Not provided"],
+    ["Sponsoring organization", application.payload.sponsoringOrganization || "Not provided"],
+    ["Application date", application.payload.applicationDate],
+    ["Files sent from student", previewMeta.studentFiles],
   ];
   const transactionRows = [
     ["Invoice number", application.latestPayment?.invoiceNumber ?? "Not generated yet"],
     ["Merchant order", application.latestPayment?.merchantOrderId ?? "Not available"],
     ["Gateway reference", application.latestPayment?.paymentReference ?? (paymentReference || "Not provided")],
+    ["Payment status", application.latestPayment?.status ?? paymentStatus],
     ["Paid amount", paidAmount],
     ["Paid at", application.latestPayment?.paidAt ? formatDateLabel(application.latestPayment.paidAt) : "Captured by gateway"],
-    ["Billing proof", "Handled by payment gateway flow"],
+    ["Expires at", application.latestPayment?.expiresAt ? formatDateLabel(application.latestPayment.expiresAt) : "Not available"],
+    ["Environment", application.latestPayment?.environment ?? "Not available"],
+    ["Refund eligible", application.latestPayment?.refundEligible ? "Yes" : "No"],
+    ["Latest gateway event", application.latestPayment?.latestEventName ?? "No gateway event stored"],
   ];
-  const backgroundRows = [
-    ["Program", application.payload.serviceName],
-    ["Batch number", previewMeta.batchNumber],
-    ["Education", application.payload.educationQualification || "Not provided"],
-    ["Occupation", application.payload.occupation || "Not provided"],
-    ["Sponsoring organization", application.payload.sponsoringOrganization || "Not provided"],
-    ["Application date", application.payload.applicationDate],
-  ];
-  const contactRows = [
-    ["Guardian", application.payload.guardianName],
-    ["Residence", application.payload.residencePhone || "Not provided"],
-    ["Address", `${application.payload.addressLine}, ${application.payload.mandal}, ${application.payload.district}, ${application.payload.state}, ${application.payload.pinCode}`],
-    ["Files sent from student", previewMeta.studentFiles],
+  const logRows = [
+    ["Application created", formatDateLabel(application.createdAt), previewMeta.applicationCode ?? "Application number pending"],
+    ["Application updated", formatDateLabel(application.updatedAt), "Latest admin or gateway update"],
+    ["Payment sent", previewMeta.paymentSentDate, application.payload.paymentStatus.replaceAll("_", " ")],
+    ["Payment confirmed", previewMeta.paymentApprovedDate, application.latestPayment?.status ?? paymentStatus],
+    ["Duplicate check", `${duplicateMatches.length} possible match${duplicateMatches.length === 1 ? "" : "es"}`, "Matched by Aadhaar, phone, or email"],
   ];
 
   return (
     <article className="rounded-[1.75rem] border border-[rgba(27,59,43,0.08)] bg-[#f4f7f5] p-3 shadow-[0_18px_48px_rgba(64,44,8,0.08)] sm:p-4">
-      <div className="grid gap-4 xl:grid-cols-[17rem_minmax(0,1fr)]">
-        <aside className="grid gap-4">
-          <section className="rounded-[1.1rem] bg-white p-4 text-center shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
-            <div className="mx-auto h-24 w-24 overflow-hidden rounded-[1.2rem] bg-[#d5f1ed]">
-              {photoSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={photoSrc} alt={`${application.payload.candidateName} photo`} className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-[#173f33]">
-                  <UserRound className="h-10 w-10" aria-hidden="true" />
-                </div>
-              )}
-            </div>
-            <h3 className="mt-3 text-lg font-black text-[#173f33]">{application.payload.candidateName}</h3>
-            <p className="mt-1 text-xs font-semibold text-[#607366]">Age: {calculateAge(application.payload.dateOfBirth)}</p>
-            <button
-              type="button"
-              onClick={() => {
-                const meta = getPreviewApplicationMeta(application);
-                const printWindow = window.open("", "_blank", "width=1120,height=800");
-                if (!printWindow) return;
-                printWindow.document.write(buildRosterPrintHtml(application.payload.candidateName, meta.batchNumber, [application]));
-                printWindow.document.close();
-                printWindow.focus();
-              }}
-              className="mt-4 inline-flex items-center justify-center gap-1.5 rounded-[0.75rem] bg-[#35b985] px-5 py-2 text-xs font-black text-white shadow-[0_10px_18px_rgba(53,185,133,0.2)]"
-            >
-              <Printer className="h-3.5 w-3.5" aria-hidden="true" />
-              Print
-            </button>
-          </section>
-
-          <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
-            <h4 className="text-sm font-black text-[#173f33]">Information:</h4>
-            <dl className="mt-3 grid gap-2">
-              {identityRows.map(([label, value]) => (
-                <DossierKeyValue key={label} label={label} value={value} />
-              ))}
-            </dl>
-          </section>
+      <div className="grid gap-4 xl:grid-cols-[15rem_minmax(0,1fr)]">
+        <aside className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+          <div className="mx-auto h-24 w-24 overflow-hidden rounded-[1.2rem] bg-[#d5f1ed]">
+            {photoSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photoSrc} alt={`${application.payload.candidateName} photo`} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-[#173f33]">
+                <UserRound className="h-10 w-10" aria-hidden="true" />
+              </div>
+            )}
+          </div>
+          <div className="mt-4 grid gap-2">
+            <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label="ENROLLED" />
+            <StatusPill icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={attemptStatus} />
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const meta = getPreviewApplicationMeta(application);
+              const printWindow = window.open("", "_blank", "width=1120,height=800");
+              if (!printWindow) return;
+              printWindow.document.write(buildRosterPrintHtml(application.payload.candidateName, meta.batchNumber, [application]));
+              printWindow.document.close();
+              printWindow.focus();
+            }}
+            className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-[0.75rem] bg-[#35b985] px-4 py-2.5 text-xs font-black text-white shadow-[0_10px_18px_rgba(53,185,133,0.2)]"
+          >
+            <Printer className="h-3.5 w-3.5" aria-hidden="true" />
+            Print
+          </button>
         </aside>
 
-        <div className="grid min-w-0 gap-4">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <DossierMetric icon={<BadgeCheck className="h-5 w-5" aria-hidden="true" />} label="Enrollment ID" value={previewMeta.studentCode ?? "Pending"} tone="green" />
-            <DossierMetric icon={<CreditCard className="h-5 w-5" aria-hidden="true" />} label="Invoice" value={application.latestPayment?.invoiceNumber ?? "Pending"} tone="gold" />
-            <DossierMetric icon={<WalletCards className="h-5 w-5" aria-hidden="true" />} label="Amount paid" value={paidAmount} tone="teal" />
-            <DossierMetric icon={<CalendarDays className="h-5 w-5" aria-hidden="true" />} label="Batch" value={previewMeta.batchNumber} tone="rose" />
+        <div className="min-w-0 overflow-hidden rounded-[1.15rem] bg-white shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf2ee] px-4 py-3">
+            <div className="flex rounded-full bg-[#eef3ef] p-1">
+              {[
+                ["details", "Details"],
+                ["transactions", "Transactions"],
+                ["logs", `Logs ${duplicateMatches.length ? `(${duplicateMatches.length})` : ""}`],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setActiveTab(value as "details" | "transactions" | "logs")}
+                  className={`h-9 rounded-full px-4 text-xs font-black uppercase tracking-[0.12em] transition ${
+                    activeTab === value ? "bg-[#173f33] text-[#fff9ec]" : "text-[#607366] hover:bg-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#9c6a18]">{application.payload.serviceName}</p>
-                <h3 className="font-display mt-1 text-2xl font-semibold text-[#173f33]">{application.payload.candidateName}</h3>
+          <div className="p-4">
+            {activeTab === "details" ? (
+              <div className="grid gap-4 2xl:grid-cols-[0.85fr_1fr_1.15fr]">
+                <DossierPanel title="Student details" rows={personalRows} />
+                <DossierPanel title="Contact details" rows={contactRows} />
+                <DossierPanel title="Program details" rows={trainingRows} />
               </div>
-              <div className="flex flex-wrap gap-2">
-                <StatusPill icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={attemptStatus} />
-                <StatusPill icon={<CreditCard className="h-4 w-4" aria-hidden="true" />} label={paymentStatus} />
-                <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label="ENROLLED" />
-              </div>
-            </div>
+            ) : null}
 
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
-              {reportRows.map((row) => (
-                <DossierReportCard key={row.label} icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={row.label} value={row.value} meta={row.meta} />
-              ))}
-            </div>
-          </section>
+            {activeTab === "transactions" ? (
+              <section className="grid gap-4">
+                <DossierPanel title="Gateway transaction details" rows={transactionRows} columns />
+              </section>
+            ) : null}
 
-          <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h4 className="text-sm font-black text-[#173f33]">Transactions</h4>
-              <span className="rounded-full bg-[#eef8f1] px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-[#21533f]">
-                Gateway records
-              </span>
-            </div>
-            <div className="mt-4 grid gap-2 md:grid-cols-2">
-              {transactionRows.map(([label, value]) => (
-                <DossierKeyValue key={label} label={label} value={value} boxed />
-              ))}
-            </div>
-          </section>
+            {activeTab === "logs" ? (
+              <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
+                <div className="rounded-[1.1rem] border border-[#e7eee8] bg-[#fbfdfb] p-4">
+                  <h4 className="text-sm font-black text-[#173f33]">Activity log</h4>
+                  <div className="mt-4 grid gap-3">
+                    {logRows.map(([label, value, meta]) => (
+                      <DossierLogItem key={label} label={label} value={value} meta={meta} />
+                    ))}
+                    {duplicateMatches.map((match) => {
+                      const matchMeta = getPreviewApplicationMeta(match);
+                      return (
+                        <DossierLogItem
+                          key={match.id}
+                          label="Possible duplicate student"
+                          value={`${match.payload.candidateName} / ${matchMeta.studentCode ?? matchMeta.applicationCode}`}
+                          meta={`Phone ${match.payload.phone || "not shared"} / Aadhaar ${match.payload.aadhaarNo}`}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
 
-          <section className="grid gap-4 lg:grid-cols-2">
-            <DossierPanel title="Training Details" rows={backgroundRows} />
-            <DossierPanel title="Contact & Files" rows={contactRows} />
-          </section>
-
-          <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h4 className="text-sm font-black text-[#173f33]">Admin notes</h4>
-              <button
-                disabled={disabled}
-                onClick={() => onSave(application.id, { attemptStatus, paymentStatus, approvalStatus: "APPROVED", crossCheckStatus: "VERIFIED", adminNotes, paymentReference })}
-                className="inline-flex items-center justify-center rounded-full bg-[#173f33] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Save note
-              </button>
-            </div>
-            <textarea
-              rows={5}
-              value={adminNotes}
-              onChange={(event) => setAdminNotes(event.target.value)}
-              placeholder="Internal note for this enrolled student..."
-              className="w-full rounded-[1rem] border border-dashed border-[#dbe5de] bg-[#fbfdfb] px-4 py-3 text-sm font-medium text-[#173f33] outline-none ring-[#35b985] placeholder:text-[#8ca091] focus:ring-2"
-            />
-          </section>
+                <div className="rounded-[1.1rem] border border-[#e7eee8] bg-white p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <h4 className="text-sm font-black text-[#173f33]">Admin notes</h4>
+                    <button
+                      disabled={disabled}
+                      onClick={() => onSave(application.id, { attemptStatus, paymentStatus, approvalStatus: "APPROVED", crossCheckStatus: "VERIFIED", adminNotes, paymentReference })}
+                      className="inline-flex items-center justify-center rounded-full bg-[#173f33] px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-[#fff9ec] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      Save
+                    </button>
+                  </div>
+                  <textarea
+                    rows={9}
+                    value={adminNotes}
+                    onChange={(event) => setAdminNotes(event.target.value)}
+                    placeholder="Internal note for this enrolled student..."
+                    className="w-full rounded-[1rem] border border-dashed border-[#dbe5de] bg-[#fbfdfb] px-4 py-3 text-sm font-medium text-[#173f33] outline-none ring-[#35b985] placeholder:text-[#8ca091] focus:ring-2"
+                  />
+                </div>
+              </section>
+            ) : null}
+          </div>
         </div>
       </div>
     </article>
-  );
-}
-
-function DossierMetric({
-  icon,
-  label,
-  value,
-  tone,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  tone: "green" | "gold" | "teal" | "rose";
-}) {
-  const toneClass = {
-    green: "bg-[#e8f8ef] text-[#35b985]",
-    gold: "bg-[#fff6df] text-[#d99a1e]",
-    teal: "bg-[#e7f5f4] text-[#077b76]",
-    rose: "bg-[#fff0ed] text-[#d26955]",
-  }[tone];
-
-  return (
-    <div className="min-h-[7.25rem] rounded-[1.1rem] bg-white p-4 text-center shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
-      <span className={`mx-auto inline-flex h-9 w-9 items-center justify-center rounded-full ${toneClass}`}>
-        {icon}
-      </span>
-      <p className="mt-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#718477]">{label}</p>
-      <p className="mt-1 break-words text-lg font-black leading-tight text-[#173f33]">{value}</p>
-    </div>
-  );
-}
-
-function DossierReportCard({
-  icon,
-  label,
-  value,
-  meta,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  meta: string;
-}) {
-  return (
-    <div className="flex items-center gap-3 rounded-[0.95rem] border border-[#eef2ef] bg-[#fbfdfb] p-3">
-      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#eef8f1] text-[#35b985]">
-        {icon}
-      </span>
-      <span className="min-w-0">
-        <span className="block text-xs font-black text-[#173f33]">{label}</span>
-        <span className="mt-1 block truncate text-[11px] font-semibold text-[#607366]">{value}</span>
-        <span className="mt-0.5 block truncate text-[10px] font-semibold text-[#9aa99d]">{meta}</span>
-      </span>
-    </div>
   );
 }
 
@@ -1314,16 +1287,28 @@ function DossierKeyValue({ label, value, boxed = false }: { label: string; value
   );
 }
 
-function DossierPanel({ title, rows }: { title: string; rows: string[][] }) {
+function DossierPanel({ title, rows, columns = false }: { title: string; rows: string[][]; columns?: boolean }) {
   return (
     <section className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_28px_rgba(23,63,51,0.06)]">
       <h4 className="text-sm font-black text-[#173f33]">{title}</h4>
-      <dl className="mt-3 grid gap-2">
+      <dl className={`mt-3 grid gap-2 ${columns ? "md:grid-cols-2" : ""}`}>
         {rows.map(([label, value]) => (
-          <DossierKeyValue key={label} label={label} value={value} />
+          <DossierKeyValue key={label} label={label} value={value} boxed={columns} />
         ))}
       </dl>
     </section>
+  );
+}
+
+function DossierLogItem({ label, value, meta }: { label: string; value: string; meta: string }) {
+  return (
+    <div className="grid gap-2 rounded-[0.95rem] border border-[#eef2ef] bg-white p-3 sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-center">
+      <p className="text-xs font-black text-[#173f33]">{label}</p>
+      <div className="min-w-0">
+        <p className="break-words text-sm font-black text-[#173f33]">{value}</p>
+        <p className="mt-1 break-words text-xs font-semibold leading-5 text-[#607366]">{meta}</p>
+      </div>
+    </div>
   );
 }
 
