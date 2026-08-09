@@ -122,12 +122,17 @@ export function getTrainingBatchPeriod(date = new Date()) {
   return { month, year };
 }
 
+export function getTrainingBatchMonthYear(date = new Date()) {
+  const month = date.toLocaleString("en-US", { month: "short", timeZone: "Asia/Kolkata" });
+  const year = String(date.getFullYear()).slice(-2);
+
+  return `${month}${year}`;
+}
+
 export function buildTrainingBatchCode(serviceName: string, batchNumber: number, date = new Date()) {
   const servicePrefix = getTrainingCourseCode(serviceName);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = String(date.getFullYear());
 
-  return `${servicePrefix}-B${String(batchNumber).padStart(2, "0")}-${month}-${year}`;
+  return `${servicePrefix}-${String(batchNumber).padStart(2, "0")}-${getTrainingBatchMonthYear(date)}`;
 }
 
 export function formatApplicationCode(applicationNumber?: number | null) {
@@ -151,32 +156,55 @@ export function formatPaymentInvoiceNumber(input: {
 }
 
 function normalizeBatchCodeForEnrollment(batchCode: string) {
+  const newMatch = batchCode.match(/^([A-Z0-9]+)-(\d{2,})-([A-Z][a-z]{2}\d{2})$/);
+  if (newMatch) return batchCode;
+
   const currentMatch = batchCode.match(/^([A-Z0-9]+)-B(\d{2,})-(\d{2})-(\d{4})$/);
-  if (currentMatch) return batchCode;
+  if (currentMatch) {
+    const [, servicePrefix, batchNumber, month, year] = currentMatch;
+    return `${servicePrefix}-${String(Number(batchNumber)).padStart(2, "0")}-${formatLegacyBatchMonthYear(month, year)}`;
+  }
+
+  const pastLocationMatch = batchCode.match(/^([A-Z0-9]+)-(\d{2})-HYD-B(\d{2,})$/);
+  if (pastLocationMatch) {
+    const [, servicePrefix, year, batchNumber] = pastLocationMatch;
+    return `${servicePrefix}-${String(Number(batchNumber)).padStart(2, "0")}-Aug${year}`;
+  }
 
   const modernMatch = batchCode.match(/^([A-Z0-9]+)-(\d{2})-([A-Z]{3})-B(\d{2,})$/);
-  if (modernMatch) return batchCode;
+  if (modernMatch) {
+    const [, servicePrefix, year, monthText, batchNumber] = modernMatch;
+    return `${servicePrefix}-${String(Number(batchNumber)).padStart(2, "0")}-${formatLegacyBatchMonthYear(monthText, year)}`;
+  }
 
   const legacyMatch = batchCode.match(/^([A-Z0-9]+)-(\d+)-(\d{2})-(\d{4})$/);
   if (legacyMatch) {
-    const [, servicePrefix, batchNumber, , year] = legacyMatch;
-    return `${servicePrefix}-${year.slice(-2)}-HYD-B${String(Number(batchNumber)).padStart(2, "0")}`;
+    const [, servicePrefix, batchNumber, month, year] = legacyMatch;
+    return `${servicePrefix}-${String(Number(batchNumber)).padStart(2, "0")}-${formatLegacyBatchMonthYear(month, year)}`;
   }
 
   return batchCode;
+}
+
+function formatLegacyBatchMonthYear(month: string, year: string) {
+  const monthNumber = Number(month);
+  const date = Number.isFinite(monthNumber) && monthNumber >= 1 && monthNumber <= 12
+    ? new Date(Date.UTC(Number(year.length === 2 ? `20${year}` : year), monthNumber - 1, 1))
+    : null;
+
+  if (date) return getTrainingBatchMonthYear(date);
+
+  const normalizedMonth = month.slice(0, 1).toUpperCase() + month.slice(1, 3).toLowerCase();
+  return `${normalizedMonth}${year.slice(-2)}`;
 }
 
 export function getEnrollmentVerificationCharacter(candidateName?: string | null) {
   return candidateName?.trim().match(/[A-Za-z]/)?.[0]?.toUpperCase() ?? "X";
 }
 
-export function formatStudentCode(
-  batchCode?: string | null,
-  batchSequenceNumber?: number | null,
-  candidateName?: string | null,
-) {
+export function formatStudentCode(batchCode?: string | null, batchSequenceNumber?: number | null) {
   return batchCode && batchSequenceNumber
-    ? `API-${normalizeBatchCodeForEnrollment(batchCode)}-${String(batchSequenceNumber).padStart(4, "0")}-${getEnrollmentVerificationCharacter(candidateName)}`
+    ? `${normalizeBatchCodeForEnrollment(batchCode)}-${String(batchSequenceNumber).padStart(4, "0")}`
     : null;
 }
 
@@ -308,7 +336,7 @@ export function mapTrainingApplicationEntity(
     applicationCode: formatApplicationCode(application.applicationNumber),
     batchCode: application.batchCode,
     batchSequenceNumber: application.batchSequenceNumber,
-    studentCode: formatStudentCode(application.batchCode, application.batchSequenceNumber, application.candidateName),
+    studentCode: formatStudentCode(application.batchCode, application.batchSequenceNumber),
     name: application.candidateName,
     email: application.email,
     phone: application.phone,

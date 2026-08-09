@@ -143,7 +143,7 @@ export async function createLocalTrainingApplication(input: CreateLocalTrainingA
       applicationCode: formatApplicationCode(applicationNumber),
       batchCode,
       batchSequenceNumber,
-      studentCode: formatStudentCode(batchCode, batchSequenceNumber, input.candidateName),
+      studentCode: formatStudentCode(batchCode, batchSequenceNumber),
       name: input.candidateName,
       email: input.email || "no-email-provided@applicant.local",
       phone: input.phone,

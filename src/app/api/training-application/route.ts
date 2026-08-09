@@ -14,7 +14,7 @@ import { getProgramEnrollmentState } from "@/lib/program-enrollment";
 import { getPrograms } from "@/lib/data";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
-import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingCourseCode } from "@/lib/training-application";
+import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingBatchMonthYear, getTrainingCourseCode } from "@/lib/training-application";
 import { trainingApplicationSchema } from "@/lib/validators";
 
 const TRAINING_APPLICATION_SEQUENCE_LOCK_ID = 84152026;
@@ -112,14 +112,13 @@ export async function POST(request: Request) {
     const application = await prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(${TRAINING_APPLICATION_SEQUENCE_LOCK_ID})`;
 
-      const batchDate = new Date();
+      const batchDate = enrollmentProgram.batchStartsAt ? new Date(enrollmentProgram.batchStartsAt) : new Date();
       const courseCode = getTrainingCourseCode(parsed.data.serviceName);
-      const month = String(batchDate.getMonth() + 1).padStart(2, "0");
-      const year = String(batchDate.getFullYear());
+      const batchMonthYear = getTrainingBatchMonthYear(batchDate);
       const existingMonthlyBatch = await tx.trainingApplication.findFirst({
         where: {
           serviceName: parsed.data.serviceName,
-          batchCode: { startsWith: `${courseCode}-B`, endsWith: `-${month}-${year}` },
+          batchCode: { startsWith: `${courseCode}-`, endsWith: `-${batchMonthYear}` },
         },
         orderBy: { createdAt: "asc" },
         select: { batchCode: true },
@@ -387,16 +386,19 @@ async function getNextBatchNumberForService(
     distinct: ["batchCode"],
   });
   const largestBatchNumber = existingBatches.reduce((largest, application) => {
+    const newBatchMatch = application.batchCode?.match(new RegExp(`^${courseCode}-(\\d+)-[A-Z][a-z]{2}\\d{2}$`));
     const currentBatchMatch = application.batchCode?.match(new RegExp(`^${courseCode}-B(\\d+)-\\d{2}-\\d{4}$`));
     const modernBatchMatch = application.batchCode?.match(new RegExp(`^${courseCode}-\\d{2}-HYD-B(\\d+)$`));
     const legacyParts = application.batchCode?.split("-") ?? [];
-    const batchNumber = currentBatchMatch
-      ? Number(currentBatchMatch[1])
-      : modernBatchMatch
-        ? Number(modernBatchMatch[1])
-      : legacyParts[0] === courseCode && legacyParts.length === 4
-        ? Number(legacyParts[1])
-        : 0;
+    const batchNumber = newBatchMatch
+      ? Number(newBatchMatch[1])
+      : currentBatchMatch
+        ? Number(currentBatchMatch[1])
+        : modernBatchMatch
+          ? Number(modernBatchMatch[1])
+          : legacyParts[0] === courseCode && legacyParts.length === 4
+            ? Number(legacyParts[1])
+            : 0;
 
     return Number.isFinite(batchNumber) ? Math.max(largest, batchNumber) : largest;
   }, 0);

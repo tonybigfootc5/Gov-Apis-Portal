@@ -890,18 +890,17 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
   const unassignedStudentCode = formatStudentCode(
     unassignedBatchNumber,
     buildStableStudentSequence(application.id),
-    application.payload.candidateName,
   );
   const applicationCode = application.applicationCode ?? (
     application.applicationNumber ? `API-${String(application.applicationNumber).padStart(4, "0")}` : null
   );
   const studentCode = application.batchCode && application.batchSequenceNumber
-    ? formatStudentCode(application.batchCode, application.batchSequenceNumber, application.payload.candidateName)
+    ? formatStudentCode(application.batchCode, application.batchSequenceNumber)
     : application.studentCode ?? null;
 
   if (index >= 0) {
-    const batchNumber = index < 10 ? "BK-B01-08-2026" : index < 20 ? "QBB-B01-08-2026" : "BK-B02-08-2026";
-    const previewStudentCode = formatStudentCode(batchNumber, index + 1, application.payload.candidateName);
+    const batchNumber = index < 10 ? "BK-01-Aug26" : index < 20 ? "QCM-01-Aug26" : "BK-02-Aug26";
+    const previewStudentCode = formatStudentCode(batchNumber, index + 1);
     const paymentSentDate =
       application.payload.paymentStatus === "NOT_STARTED"
         ? "Not sent yet"
@@ -940,10 +939,9 @@ function getPreviewApplicationMeta(application: TrainingApplicationRecord) {
 
 function buildUnassignedBatchNumber() {
   const now = new Date();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const year = String(now.getFullYear());
+  const monthYear = now.toLocaleString("en-US", { month: "short", timeZone: "Asia/Kolkata" }) + String(now.getFullYear()).slice(-2);
 
-  return `UN-B01-${month}-${year}`;
+  return `UN-01-${monthYear}`;
 }
 
 function buildStableStudentSequence(value: string) {

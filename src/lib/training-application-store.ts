@@ -366,7 +366,6 @@ export function mapPaymentOrderAdminRecord(order: PaymentOrderAdminEntity): Paym
       studentCode: formatStudentCode(
         order.trainingApplication.batchCode,
         order.trainingApplication.batchSequenceNumber,
-        order.trainingApplication.candidateName,
       ),
       candidateName: order.trainingApplication.candidateName,
       guardianName: order.trainingApplication.guardianName,

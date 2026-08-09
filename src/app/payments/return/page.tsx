@@ -105,7 +105,6 @@ export default async function PaymentReturnPage({ searchParams }: Props) {
         enrollmentId: formatStudentCode(
           paymentOrder.trainingApplication.batchCode,
           paymentOrder.trainingApplication.batchSequenceNumber,
-          paymentOrder.trainingApplication.candidateName,
         ),
         status: paymentOrder.status,
         paidAt: paymentOrder.paidAt?.toISOString() ?? null,

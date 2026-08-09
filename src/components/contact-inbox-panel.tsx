@@ -25,6 +25,7 @@ const helpCenterSections = [
     title: "Application Search SOP",
     items: [
       "Applications shows only successfully paid enrolled students.",
+      "Enrollment IDs follow Program-Batch-MonthYear-StudentCode, for example BK-01-Aug26-0001.",
       "Search Applications by enrollment ID, application number, invoice number, transaction ID, Aadhaar number, applicant name, guardian name, phone, program, batch, or submission date.",
       "Failed, expired, rejected, and incomplete payment records stay in Payments instead of Applications.",
     ],
