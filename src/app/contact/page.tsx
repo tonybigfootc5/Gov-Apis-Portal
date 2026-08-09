@@ -20,37 +20,34 @@ export default async function ContactPage() {
 
   return (
     <section className="px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto mb-7 max-w-7xl">
+        <span className="inline-flex items-center gap-2 rounded-full bg-[#ecebe6] px-3 py-2 text-sm font-semibold text-[#171a16]">
+          <MessageCircle className="h-4 w-4" aria-hidden="true" />
+          {t(language, "contact.eyebrow")}
+        </span>
+        <h1 className="mt-4 max-w-4xl text-[clamp(3rem,6vw,5.6rem)] font-black leading-[0.86] tracking-[-0.06em] text-[#121512]">
+          {t(language, "contact.title")}
+        </h1>
+      </div>
       <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-[#ece8de] bg-[#f4f3ee] shadow-[0_28px_80px_rgba(30,34,28,0.12)]">
-        <div className="grid gap-10 px-8 pb-16 pt-12 lg:grid-cols-[0.92fr_1.08fr] lg:px-10 lg:pb-20 lg:pt-14">
-          <div className="flex min-h-[29rem] flex-col justify-between">
-            <div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#ecebe6] px-3 py-2 text-sm font-semibold text-[#171a16]">
-                <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                {t(language, "contact.eyebrow")}
-              </span>
-              <h1 className="mt-6 text-[clamp(3rem,6vw,5.6rem)] font-black leading-[0.86] tracking-[-0.06em] text-[#121512]">
-                {t(language, "contact.title")}
-              </h1>
-            </div>
-
-            <div className="grid gap-5 text-[#171a16]">
-              {institute.offices.map((office) => (
-                <ContactLine key={office.label} icon={<MapPin className="h-5 w-5" aria-hidden="true" />} title={office.label}>
-                  <a href={office.mapsUrl} target="_blank" rel="noreferrer" className="underline decoration-[#c8a65c]/50 underline-offset-4 transition hover:text-[#121512]">
-                    {office.address}
-                  </a>
-                </ContactLine>
-              ))}
-              <ContactLine icon={<Timer className="h-5 w-5" aria-hidden="true" />} title="Office Working Hours">
-                {institute.officeHours}
+        <div className="grid gap-10 px-8 pb-14 pt-10 lg:grid-cols-[0.92fr_1.08fr] lg:px-10 lg:pb-16 lg:pt-12">
+          <div className="grid content-center gap-5 text-[#171a16]">
+            {institute.offices.map((office) => (
+              <ContactLine key={office.label} icon={<MapPin className="h-5 w-5" aria-hidden="true" />} title={office.label}>
+                <a href={office.mapsUrl} target="_blank" rel="noreferrer" className="underline decoration-[#c8a65c]/50 underline-offset-4 transition hover:text-[#121512]">
+                  {office.address}
+                </a>
               </ContactLine>
-              <ContactLine icon={<Phone className="h-5 w-5" aria-hidden="true" />} title={t(language, "contact.phone")}>
-                {phoneLabel}
-              </ContactLine>
-              <ContactLine icon={<Mail className="h-5 w-5" aria-hidden="true" />} title={t(language, "contact.email")}>
-                {institute.email}
-              </ContactLine>
-            </div>
+            ))}
+            <ContactLine icon={<Timer className="h-5 w-5" aria-hidden="true" />} title="Office Working Hours">
+              {institute.officeHours}
+            </ContactLine>
+            <ContactLine icon={<Phone className="h-5 w-5" aria-hidden="true" />} title={t(language, "contact.phone")}>
+              {phoneLabel}
+            </ContactLine>
+            <ContactLine icon={<Mail className="h-5 w-5" aria-hidden="true" />} title={t(language, "contact.email")}>
+              {institute.email}
+            </ContactLine>
           </div>
 
           <div className="self-start">
