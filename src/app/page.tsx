@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight, HelpCircle, Mail, MapPin, MessageCircle, Phone, Timer } from "lucide-react";
+import { ArrowRight, ChevronDown, Link2, Mail, MapPin, MessageCircle, Phone, Timer } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { HeroBackgroundVideo } from "@/components/hero-background-video";
 import { TrainingPreviewSwitch, type TrainingPreviewCourse } from "@/components/training-preview-switch";
@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 const contactFaqCategories = [
   {
-    category: "Training Enrollment",
+    category: "Enrollment",
     questions: [
       {
         question: "How do I enroll for a training program?",
@@ -30,13 +30,29 @@ const contactFaqCategories = [
         answer: "Enrollment is confirmed automatically after the payment gateway marks the transaction successful.",
       },
       {
+        question: "Do I need admin approval after payment?",
+        answer: "No. Successful gateway payment automatically enrolls the student into the selected program.",
+      },
+      {
         question: "Can I enroll if a program says Coming soon?",
         answer: "No. Coming soon means the batch date is not fixed yet. Contact 93955077066 for the next update.",
+      },
+      {
+        question: "What details are required in the application?",
+        answer: "Applicant name, Aadhaar number, date of birth, gender, address, phone number, education details, selected program, and applicant photo are required.",
+      },
+      {
+        question: "Can I edit details after submitting?",
+        answer: "For corrections after payment, contact the center with your invoice number, enrollment ID, and registered mobile number.",
+      },
+      {
+        question: "Where can I see my enrollment ID?",
+        answer: "The enrollment ID appears on the successful payment confirmation card after the gateway confirms payment.",
       },
     ],
   },
   {
-    category: "Payments",
+    category: "Payments & Receipt",
     questions: [
       {
         question: "What should I do after payment?",
@@ -50,27 +66,63 @@ const contactFaqCategories = [
         question: "Where can I find my receipt?",
         answer: "The successful payment page has a Download Successful Card button with a QR code for verification.",
       },
+      {
+        question: "Is an invoice number generated for failed payments too?",
+        answer: "Yes. Every payment attempt gets an invoice number so the admin can search and trace the transaction.",
+      },
+      {
+        question: "Which transaction ID should I keep?",
+        answer: "Keep the PhonePe transaction ID shown on the success page, along with the invoice number and enrollment ID.",
+      },
+      {
+        question: "What if money is debited but the page shows failed or pending?",
+        answer: "Contact the center with your invoice number, PhonePe transaction details, registered mobile number, and program name.",
+      },
+      {
+        question: "Can the QR code verify my receipt?",
+        answer: "Yes. The downloaded success card includes a QR code that admin can scan to read the receipt details.",
+      },
     ],
   },
   {
-    category: "Documents",
+    category: "Training & Facilities",
     questions: [
       {
-        question: "Is Aadhaar required?",
-        answer: "Yes. Enter the Aadhaar number carefully because it appears on the successful enrollment confirmation.",
+        question: "Will I get a certificate on completion?",
+        answer: "Yes. A physical certificate is issued after successful completion of the training program.",
       },
       {
-        question: "Do I need to upload a photo?",
-        answer: "Yes. A clear applicant photo is required before submitting the training application.",
+        question: "Are refreshments included?",
+        answer: "Yes. Refreshments are included for enrolled trainees during the training schedule.",
       },
       {
-        question: "Can I change details after payment?",
-        answer: "Contact the center with your invoice number, enrollment ID, and mobile number for correction support.",
+        question: "Are seats limited?",
+        answer: "Yes. Each program has limited seats, and enrollment is accepted only while seats and batch registration are available.",
+      },
+      {
+        question: "Is the training practical or only classroom-based?",
+        answer: "The programs include practical training, demonstrations, field-led learning, and classroom grounding depending on the course.",
+      },
+      {
+        question: "What language is used during training?",
+        answer: "Training is generally conducted in English and Telugu, with support based on the batch group.",
+      },
+      {
+        question: "Who can attend the training?",
+        answer: "Farmers, rural youth, women, existing beekeepers, entrepreneurs, agriculture workers, and interested learners can apply.",
+      },
+      {
+        question: "Do I need previous beekeeping experience?",
+        answer: "Scientific Beekeeping is beginner friendly. Advanced programs such as Queen Bee and Royal Jelly training are better for learners with hive experience.",
+      },
+      {
+        question: "Will tools or equipment be shown during training?",
+        answer: "Yes. Relevant hive tools, bee boxes, extractors, processing tools, and practical equipment are introduced based on the course.",
       },
     ],
   },
   {
-    category: "Batch and Venue",
+    category: "Batches & Location",
     questions: [
       {
         question: "Where is the training conducted?",
@@ -83,6 +135,26 @@ const contactFaqCategories = [
       {
         question: "Are Honey Processing and Queen Bee batches always available?",
         answer: "No. These batches are opened manually by admin only when a batch date is fixed.",
+      },
+      {
+        question: "What time does training usually run?",
+        answer: "Training hours are normally 10:00 AM to 5:00 PM unless the center announces a different schedule for a specific batch.",
+      },
+      {
+        question: "How do I know the next batch date?",
+        answer: "The program page shows the next batch date when it is available. If it says Coming soon, the date has not been fixed.",
+      },
+      {
+        question: "Can I pay on the batch start date?",
+        answer: "No. Online enrollment closes automatically at 12:00 AM on the batch start date.",
+      },
+      {
+        question: "How do I contact the center for location help?",
+        answer: "Use the phone numbers in the Contact section or open the map link for the listed Rajendranagar office.",
+      },
+      {
+        question: "Will I be informed if a batch is changed?",
+        answer: "The center will use the registered contact details when a batch update needs to be communicated.",
       },
     ],
   },
@@ -271,34 +343,59 @@ export default async function Home() {
           </div>
         </div>
 
-        <section className="mx-auto mt-8 max-w-[94rem] overflow-hidden rounded-[1.35rem] border border-[#e2ded4] bg-[#fffdf8] p-4 shadow-[0_18px_42px_rgba(30,34,28,0.08)] sm:p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#173f33] text-[#fff9ec]">
-                <HelpCircle className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">FAQ</p>
-                <h3 className="text-xl font-black text-[#171a16]">Quick answers before calling</h3>
-              </div>
-            </div>
-            <span className="rounded-full bg-[#f1ecdf] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-[#173f33]">
-              Scroll categories
-            </span>
+        <section className="mx-auto mt-10 max-w-[94rem]">
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-3 border-b border-[#e4e1d8] pb-5">
+            {contactFaqCategories.map((category, index) => (
+              <a
+                key={category.category}
+                href={`#faq-${category.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                className={cn(
+                  "text-[11px] font-black uppercase tracking-[0.22em] transition hover:text-[#173f33]",
+                  index === 0 ? "text-[#173f33]" : "text-[#a8ada5]",
+                )}
+              >
+                {category.category} ({category.questions.length})
+              </a>
+            ))}
           </div>
-          <div className="mt-4 flex max-h-[24rem] snap-x gap-3 overflow-x-auto pb-2">
-            {contactFaqCategories.map((category) => (
-              <article key={category.category} className="w-[18.5rem] shrink-0 snap-start rounded-[1rem] border border-[#ece8de] bg-white p-4">
-                <p className="text-sm font-black text-[#173f33]">{category.category}</p>
-                <div className="mt-3 grid gap-3">
-                  {category.questions.map((item) => (
-                    <div key={item.question} className="rounded-[0.85rem] bg-[#f6f4ee] p-3">
-                      <p className="text-sm font-black leading-5 text-[#171a16]">{item.question}</p>
-                      <p className="mt-2 text-xs font-semibold leading-5 text-[#555a51]">{item.answer}</p>
-                    </div>
-                  ))}
+
+          <div className="max-h-[42rem] overflow-y-auto pr-1">
+            {contactFaqCategories.map((category, categoryIndex) => (
+              <div
+                key={category.category}
+                id={`faq-${category.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                className="scroll-mt-32 pt-2 first:pt-0"
+              >
+                {categoryIndex > 0 ? (
+                  <h3 className="mb-3 mt-6 text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">
+                    {category.category}
+                  </h3>
+                ) : null}
+                <div className="grid gap-3">
+                  {category.questions.map((item, questionIndex) => {
+                    const isFirstQuestion = categoryIndex === 0 && questionIndex === 0;
+
+                    return (
+                      <details
+                        key={item.question}
+                        open={isFirstQuestion}
+                        className="group rounded-[0.35rem] bg-[#f5f6f7] px-4 shadow-[0_8px_22px_rgba(20,28,22,0.035)] open:bg-[#f7f8f8]"
+                      >
+                        <summary className="flex min-h-[4.15rem] cursor-pointer list-none items-center gap-4 py-3 text-left [&::-webkit-details-marker]:hidden">
+                          <Link2 className="h-4 w-4 shrink-0 text-[#aab1af]" aria-hidden="true" />
+                          <span className="min-w-0 flex-1 text-sm font-black leading-5 text-[#5f6b70]">
+                            {item.question}
+                          </span>
+                          <ChevronDown className="h-4 w-4 shrink-0 text-[#b5bbb9] transition group-open:rotate-180 group-open:text-[#4b91d1]" aria-hidden="true" />
+                        </summary>
+                        <p className="border-t border-[#e8ecec] pb-5 pl-8 pr-8 pt-1 text-sm font-semibold leading-6 text-[#6f7b80]">
+                          {item.answer}
+                        </p>
+                      </details>
+                    );
+                  })}
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         </section>
