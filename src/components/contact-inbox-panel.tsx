@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
-import { BookOpenCheck, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Mail, MailOpen, Phone, RefreshCw, Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { BookOpenCheck, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Copy, Mail, MailOpen, RefreshCw, Search } from "lucide-react";
 import { applicationErrorGuide } from "@/lib/application-error-codes";
 import type { ContactInboxRecord } from "@/lib/contact-inbox";
 
@@ -10,6 +9,8 @@ type Props = {
   messages: ContactInboxRecord[];
   loading: boolean;
   onRefresh?: () => void;
+  readMessageIds: string[];
+  onReadMessageIdsChange: (messageIds: string[]) => void;
 };
 
 const helpCenterSections = [
@@ -56,24 +57,16 @@ const helpCenterSections = [
   },
 ];
 
-const READ_STORAGE_KEY = "api-culture-contact-inbox-read-ids";
 const INBOX_PAGE_SIZE = 8;
 
-export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
+export function ContactInboxPanel({ messages, loading, onRefresh, readMessageIds, onReadMessageIdsChange }: Props) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">("all");
   const [page, setPage] = useState(1);
   const [openMessageId, setOpenMessageId] = useState<string>(messages[0]?.id ?? "");
-  const [readIds, setReadIds] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set();
-    try {
-      const saved = JSON.parse(window.localStorage.getItem(READ_STORAGE_KEY) ?? "[]") as string[];
-      return new Set(saved);
-    } catch {
-      return new Set();
-    }
-  });
+  const [copiedLabel, setCopiedLabel] = useState("");
   const [now] = useState(() => Date.now());
+  const readIds = useMemo(() => new Set(readMessageIds), [readMessageIds]);
 
   const filteredMessages = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -118,29 +111,27 @@ export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
   const phoneSharedCount = filteredMessages.filter((message) => Boolean(message.phone)).length;
   const unreadCount = messages.filter((message) => !readIds.has(message.id)).length;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(READ_STORAGE_KEY, JSON.stringify(Array.from(readIds)));
-  }, [readIds]);
-
   function markMessage(messageId: string, read: boolean) {
-    setReadIds((current) => {
-      const next = new Set(current);
-      if (read) {
-        next.add(messageId);
-      } else {
-        next.delete(messageId);
-      }
-      return next;
-    });
+    const next = new Set(readMessageIds);
+    if (read) {
+      next.add(messageId);
+    } else {
+      next.delete(messageId);
+    }
+    onReadMessageIdsChange(Array.from(next));
   }
 
   function markAllVisibleRead() {
-    setReadIds((current) => {
-      const next = new Set(current);
-      filteredMessages.forEach((message) => next.add(message.id));
-      return next;
-    });
+    const next = new Set(readMessageIds);
+    filteredMessages.forEach((message) => next.add(message.id));
+    onReadMessageIdsChange(Array.from(next));
+  }
+
+  async function copyText(label: string, value: string) {
+    if (!value.trim()) return;
+    await navigator.clipboard.writeText(value);
+    setCopiedLabel(label);
+    window.setTimeout(() => setCopiedLabel(""), 1400);
   }
 
   return (
@@ -302,12 +293,16 @@ export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
                     </div>
 
                     {isOpen ? (
-                      <div className="grid gap-5 border-b border-[#2a86d8] bg-white px-5 py-5 lg:grid-cols-[1.25fr_1fr_0.75fr_0.8fr_1.35fr]">
-                        <ExpandedInfo label="Message" value={message.message} wide />
-                        <ExpandedInfo label="Phone" value={message.phone || "Phone not shared"} icon={<Phone className="h-4 w-4" aria-hidden="true" />} />
-                        <ExpandedInfo label="Status" value={isRead ? "Read enquiry" : "Unread enquiry"} icon={<MailOpen className="h-4 w-4" aria-hidden="true" />} />
-                        <ExpandedInfo label="Received" value={formatDateTime(message.createdAt)} />
-                        <ExpandedInfo label="Email" value={message.email} icon={<Mail className="h-4 w-4" aria-hidden="true" />} />
+                      <div className="grid gap-5 border-b border-[#2a86d8] bg-white px-5 py-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
+                        <ExpandedInfo label="Message" value={message.message} />
+                        <div className="rounded-[1rem] border border-[#e5ebe6] bg-[#fbfdfb] p-4">
+                          <p className="text-xs font-black text-[#2f3b45]">Copy details</p>
+                          <div className="mt-3 grid gap-2">
+                            <CopyTextButton label="Copy name" copied={copiedLabel === "name"} onClick={() => void copyText("name", message.name)} />
+                            <CopyTextButton label="Copy phone" copied={copiedLabel === "phone"} disabled={!message.phone} onClick={() => void copyText("phone", message.phone ?? "")} />
+                            <CopyTextButton label="Copy email" copied={copiedLabel === "email"} onClick={() => void copyText("email", message.email)} />
+                          </div>
+                        </div>
                       </div>
                     ) : null}
                   </article>
@@ -409,14 +404,25 @@ function StatusChip({ label }: { label: string }) {
   );
 }
 
-function ExpandedInfo({ icon, label, value, wide = false }: { icon?: ReactNode; label: string; value: string; wide?: boolean }) {
+function CopyTextButton({ label, copied, disabled = false, onClick }: { label: string; copied: boolean; disabled?: boolean; onClick: () => void }) {
   return (
-    <div className={wide ? "lg:col-span-1" : ""}>
-      <div className="flex items-center gap-2">
-        {icon ? <span className="text-[#90a094]">{icon}</span> : null}
-        <p className="text-xs font-black text-[#2f3b45]">{label}</p>
-      </div>
-      <p className="mt-2 whitespace-pre-wrap text-xs font-semibold leading-6 text-[#7a8490]">{value}</p>
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className="inline-flex h-10 items-center justify-between gap-3 rounded-[0.7rem] bg-white px-3 text-xs font-black text-[#173f33] shadow-[inset_0_0_0_1px_#e5ebe6] disabled:cursor-not-allowed disabled:opacity-45"
+    >
+      <span>{copied ? "Copied" : label}</span>
+      <Copy className="h-4 w-4 text-[#9c6a18]" aria-hidden="true" />
+    </button>
+  );
+}
+
+function ExpandedInfo({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs font-black text-[#2f3b45]">{label}</p>
+      <p className="mt-2 whitespace-pre-wrap text-sm font-semibold leading-7 text-[#607366]">{value}</p>
     </div>
   );
 }

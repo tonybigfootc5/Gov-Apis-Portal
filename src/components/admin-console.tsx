@@ -218,6 +218,7 @@ const emptyArticle: Omit<ArticleItem, "id"> = {
 const HISTORY_STORAGE_KEY = "api-culture-admin-history";
 const SCHEDULE_STORAGE_KEY = "api-culture-admin-schedules";
 const NOTIFICATION_STORAGE_KEY = "api-culture-admin-notifications";
+const CONTACT_READ_STORAGE_KEY = "api-culture-contact-inbox-read-ids";
 const HISTORY_RETENTION_MS = 30 * 24 * 60 * 60 * 1000;
 
 function readStoredArray<Value>(storageKey: string): Value[] {
@@ -243,6 +244,10 @@ function readStoredHistory() {
 
 function readStoredSchedules() {
   return readStoredArray<PublishSchedule>(SCHEDULE_STORAGE_KEY);
+}
+
+function readStoredContactReadIds() {
+  return readStoredArray<string>(CONTACT_READ_STORAGE_KEY);
 }
 
 function readStoredNotifications() {
@@ -281,6 +286,7 @@ export function AdminConsole({
   const [notifications, setNotifications] = useState<NotificationItem[]>(readStoredNotifications);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
+  const [readContactMessageIds, setReadContactMessageIds] = useState<string[]>(readStoredContactReadIds);
   const [readSystemNotificationIds, setReadSystemNotificationIds] = useState<string[]>([]);
   const [dismissedSystemNotificationIds, setDismissedSystemNotificationIds] = useState<string[]>([]);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
@@ -307,6 +313,11 @@ export function AdminConsole({
     if (typeof window === "undefined") return;
     window.localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(notifications));
   }, [notifications]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(CONTACT_READ_STORAGE_KEY, JSON.stringify(readContactMessageIds));
+  }, [readContactMessageIds]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -358,11 +369,13 @@ export function AdminConsole({
     return () => window.clearInterval(timer);
   }, []);
 
-  const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode }[] = [
+  const contactUnreadCount = contactMessages.filter((message) => !readContactMessageIds.includes(message.id)).length;
+
+  const viewItems: { id: DashboardView; label: string; description: string; icon: ReactNode; notificationCount?: number }[] = [
     { id: "overview", label: "Overview", description: "Today at a glance", icon: <LayoutGrid className="h-4 w-4" aria-hidden="true" /> },
-    { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
+    { id: "applications", label: "Applications", description: "Admissions desk", icon: <UsersRound className="h-4 w-4" aria-hidden="true" />, notificationCount: applicationSummary.ready },
     { id: "payments", label: "Payments", description: "Gateway control", icon: <CreditCard className="h-4 w-4" aria-hidden="true" /> },
-    { id: "contacts", label: "Contact Inbox", description: "Student inbox", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
+    { id: "contacts", label: "Contact Inbox", description: "Student inbox", icon: <Mail className="h-4 w-4" aria-hidden="true" />, notificationCount: contactUnreadCount },
     { id: "articles", label: "Articles", description: "Content publishing", icon: <BookOpenText className="h-4 w-4" aria-hidden="true" /> },
     { id: "gallery", label: "Gallery", description: "Media showcase", icon: <Images className="h-4 w-4" aria-hidden="true" /> },
     { id: "events", label: "Events", description: "Schedule control", icon: <CalendarDays className="h-4 w-4" aria-hidden="true" /> },
@@ -796,10 +809,11 @@ export function AdminConsole({
                             : "border border-[rgba(255,249,236,0.14)] bg-[rgba(255,255,255,0.06)] text-[#fff9ec]"
                         }`}
                       >
-                        <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
+                        <span className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full ${
                           view === item.id ? "bg-[#e4ece6] text-[#173f33]" : "bg-[rgba(245,198,94,0.16)] text-[#fff9ec]"
                         }`}>
                           {item.icon}
+                          <NavNotificationBadge count={item.notificationCount ?? 0} />
                         </span>
                         <span className="min-w-0">
                           <span className="block text-sm font-black uppercase tracking-[0.16em]">{item.label}</span>
@@ -900,6 +914,7 @@ export function AdminConsole({
                           view === item.id ? "bg-[#fff8df] text-[#b87912]" : "bg-[rgba(245,198,94,0.14)] text-[#f6d783]"
                         }`}>
                           {item.icon}
+                          <NavNotificationBadge count={item.notificationCount ?? 0} />
                         </span>
                         {!sidebarCollapsed ? (
                           <span className="relative z-10 min-w-0">
@@ -1185,7 +1200,13 @@ export function AdminConsole({
           title=""
           className="mt-5"
         >
-          <ContactInboxPanel messages={contactMessages} loading={loading} onRefresh={load} />
+          <ContactInboxPanel
+            messages={contactMessages}
+            loading={loading}
+            onRefresh={load}
+            readMessageIds={readContactMessageIds}
+            onReadMessageIdsChange={setReadContactMessageIds}
+          />
         </DashboardSection>
       ) : null}
 
@@ -1681,6 +1702,16 @@ function BadgeMark() {
   return (
     <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border-2 border-current">
       <Check className="h-3 w-3" aria-hidden="true" />
+    </span>
+  );
+}
+
+function NavNotificationBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+
+  return (
+    <span className="absolute -right-1.5 -top-1.5 z-20 inline-flex min-h-5 min-w-5 items-center justify-center rounded-full border-2 border-[#fffdf8] bg-[#e53e2f] px-1 text-[10px] font-black leading-none text-white shadow-[0_6px_14px_rgba(229,62,47,0.3)]">
+      {count > 99 ? "99+" : count}
     </span>
   );
 }
