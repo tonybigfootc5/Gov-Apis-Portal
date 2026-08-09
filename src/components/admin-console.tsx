@@ -1584,10 +1584,14 @@ function getBatchStatus(startDate: Date | null, durationDays: number, now: Date)
   return "past";
 }
 
-function getProgramSeatRows(programs: Program[], applications: TrainingApplicationRecord[]) {
+function getProgramSeatRows(
+  programs: Program[],
+  applications: TrainingApplicationRecord[],
+  options: { onlyEnrollmentOpen?: boolean } = {},
+) {
   const now = new Date();
   const sortedPrograms = [...programs]
-    .filter((program) => program.published)
+    .filter((program) => program.published && (!options.onlyEnrollmentOpen || !program.enrollmentClosed))
     .sort((left, right) => {
       const leftTime = left.batchStartsAt ? new Date(left.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
       const rightTime = right.batchStartsAt ? new Date(right.batchStartsAt).getTime() : Number.POSITIVE_INFINITY;
@@ -1726,7 +1730,7 @@ function ProgramSeatSummary({
   theme: SectionTheme;
 }) {
   const paidApplications = applications.filter((application) => isSuccessfulPaymentApplication(application));
-  const batchGroups = getProgramSeatRows(programs, applications);
+  const batchGroups = getProgramSeatRows(programs, applications, { onlyEnrollmentOpen: true });
   const [requestedBatchView, setRequestedBatchView] = useState<"current" | "upcoming" | "comingSoon">(
     batchGroups.current.length ? "current" : batchGroups.upcoming.length ? "upcoming" : "comingSoon",
   );
