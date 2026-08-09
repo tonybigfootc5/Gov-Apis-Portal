@@ -1047,25 +1047,25 @@ function ApplicationProfileOverlay({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 bg-[rgba(16,33,27,0.18)] p-3 backdrop-blur-[18px] sm:p-5" onClick={onClose}>
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-[rgba(16,33,27,0.16)] p-3 backdrop-blur-[18px] sm:p-4" onClick={onClose}>
       <div
-        className="mx-auto flex h-full max-h-[88vh] w-full max-w-[88rem] flex-col overflow-hidden rounded-[1.55rem] border border-white/40 bg-white/25 shadow-[0_11px_38px_rgba(16,33,27,0.18),inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(23,63,51,0.08)] backdrop-blur-[18px]"
+        className="mx-auto flex max-h-[82vh] w-full max-w-[74rem] flex-col overflow-hidden rounded-[1.2rem] border border-white/55 bg-white/55 shadow-[0_11px_32px_rgba(16,33,27,0.16),inset_0_1px_0_rgba(255,255,255,0.72),inset_0_-1px_0_rgba(23,63,51,0.08)] backdrop-blur-[18px]"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-white/35 bg-white/20 px-4 py-3 backdrop-blur-[18px] sm:px-5">
-          <div>
+        <div className="flex items-center justify-between gap-3 border-b border-white/45 bg-white/60 px-3 py-2.5 backdrop-blur-[18px] sm:px-4">
+          <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#7a5a12]">Student dossier</p>
-            <h3 className="font-display mt-1 text-xl font-semibold text-[#173f33]">{application.payload.candidateName}</h3>
+            <h3 className="font-display mt-0.5 truncate text-lg font-semibold text-[#173f33]">{application.payload.candidateName}</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/45 bg-white/30 text-[#173f33] shadow-[0_11px_24px_rgba(16,33,27,0.12)] backdrop-blur-[18px]"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/60 bg-white/65 text-[#173f33] shadow-[0_11px_22px_rgba(16,33,27,0.12)] backdrop-blur-[18px]"
           >
-            <X className="h-5 w-5" aria-hidden="true" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+        <div className="min-h-0 flex-1 overflow-y-auto p-2.5 sm:p-3">
           <ApplicationCard application={application} applications={applications} disabled={disabled} onSave={onSave} />
         </div>
       </div>
@@ -1157,20 +1157,20 @@ function ApplicationCard({
   ];
 
   return (
-    <article className="rounded-[1.35rem] border border-white/35 bg-white/20 p-3 shadow-[0_11px_30px_rgba(16,33,27,0.12),inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-[18px]">
-      <div className="grid gap-3 xl:grid-cols-[12.5rem_minmax(0,1fr)]">
-        <aside className="rounded-[1rem] border border-white/35 bg-white/25 p-3 shadow-[0_11px_22px_rgba(23,63,51,0.08),inset_0_1px_0_rgba(255,255,255,0.48)] backdrop-blur-[18px]">
-          <div className="mx-auto h-20 w-20 overflow-hidden rounded-[1rem] bg-white/30">
+    <article className="rounded-[1rem] border border-white/55 bg-white/50 p-2.5 shadow-[0_11px_26px_rgba(16,33,27,0.12),inset_0_1px_0_rgba(255,255,255,0.68)] backdrop-blur-[18px]">
+      <div className="grid gap-2.5 xl:grid-cols-[10.5rem_minmax(0,1fr)]">
+        <aside className="rounded-[0.85rem] border border-white/55 bg-white/62 p-2.5 shadow-[0_11px_18px_rgba(23,63,51,0.08),inset_0_1px_0_rgba(255,255,255,0.68)] backdrop-blur-[18px]">
+          <div className="mx-auto h-16 w-16 overflow-hidden rounded-[0.8rem] bg-white/70">
             {photoSrc ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={photoSrc} alt={`${application.payload.candidateName} photo`} className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center text-[#173f33]">
-                <UserRound className="h-10 w-10" aria-hidden="true" />
+                  <UserRound className="h-8 w-8" aria-hidden="true" />
               </div>
             )}
           </div>
-          <div className="mt-3 grid gap-2">
+          <div className="mt-2.5 grid gap-1.5">
             <StatusPill icon={<BadgeCheck className="h-4 w-4" aria-hidden="true" />} label="ENROLLED" />
             <StatusPill icon={<FileClock className="h-4 w-4" aria-hidden="true" />} label={attemptStatus} />
           </div>
@@ -1184,16 +1184,16 @@ function ApplicationCard({
               printWindow.document.close();
               printWindow.focus();
             }}
-            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-[0.75rem] bg-[#173f33] px-4 py-2.5 text-xs font-black text-[#fff9ec] shadow-[0_11px_22px_rgba(23,63,51,0.18)]"
+            className="mt-2.5 inline-flex w-full items-center justify-center gap-1.5 rounded-[0.65rem] bg-[#173f33] px-3 py-2 text-xs font-black text-[#fff9ec] shadow-[0_11px_20px_rgba(23,63,51,0.18)]"
           >
             <Printer className="h-3.5 w-3.5" aria-hidden="true" />
             Print
           </button>
         </aside>
 
-        <div className="min-w-0 overflow-hidden rounded-[1rem] border border-white/35 bg-white/25 shadow-[0_11px_24px_rgba(23,63,51,0.09),inset_0_1px_0_rgba(255,255,255,0.48)] backdrop-blur-[18px]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/30 bg-white/15 px-3 py-2.5 backdrop-blur-[18px]">
-            <div className="flex rounded-full border border-white/30 bg-white/20 p-1 backdrop-blur-[18px]">
+        <div className="min-w-0 overflow-hidden rounded-[0.85rem] border border-white/55 bg-white/62 shadow-[0_11px_20px_rgba(23,63,51,0.08),inset_0_1px_0_rgba(255,255,255,0.68)] backdrop-blur-[18px]">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/55 bg-white/72 px-2.5 py-2 backdrop-blur-[18px]">
+            <div className="flex rounded-full border border-white/55 bg-white/70 p-1 backdrop-blur-[18px]">
               {[
                 ["details", "Details"],
                 ["transactions", "Transactions"],
@@ -1203,7 +1203,7 @@ function ApplicationCard({
                   key={value}
                   type="button"
                   onClick={() => setActiveTab(value as "details" | "transactions" | "logs")}
-                  className={`h-8 rounded-full px-3 text-[11px] font-black uppercase tracking-[0.12em] transition ${
+                  className={`h-7 rounded-full px-2.5 text-[10px] font-black uppercase tracking-[0.12em] transition ${
                     activeTab === value ? "bg-[#173f33] text-[#fff9ec] shadow-[0_11px_22px_rgba(23,63,51,0.16)]" : "text-[#4e6358] hover:bg-white/30"
                   }`}
                 >
@@ -1213,9 +1213,9 @@ function ApplicationCard({
             </div>
           </div>
 
-          <div className="p-3">
+          <div className="p-2.5">
             {activeTab === "details" ? (
-              <div className="grid gap-3 2xl:grid-cols-[0.85fr_1fr_1.15fr]">
+              <div className="grid gap-2.5 2xl:grid-cols-[0.85fr_1fr_1.15fr]">
                 <DossierPanel title="Student details" rows={personalRows} />
                 <DossierPanel title="Contact details" rows={contactRows} />
                 <DossierPanel title="Program details" rows={trainingRows} />
@@ -1223,16 +1223,16 @@ function ApplicationCard({
             ) : null}
 
             {activeTab === "transactions" ? (
-              <section className="grid gap-3">
+              <section className="grid gap-2.5">
                 <DossierPanel title="Gateway transaction details" rows={transactionRows} columns />
               </section>
             ) : null}
 
             {activeTab === "logs" ? (
-              <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_18rem]">
-                <div className="rounded-[1rem] border border-white/35 bg-white/25 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-[18px]">
+              <section className="grid gap-2.5 xl:grid-cols-[minmax(0,1fr)_16rem]">
+                <div className="rounded-[0.85rem] border border-white/55 bg-white/62 p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] backdrop-blur-[18px]">
                   <h4 className="text-sm font-black text-[#173f33]">Activity log</h4>
-                  <div className="mt-3 grid gap-2">
+                  <div className="mt-2 grid gap-1.5">
                     {logRows.map(([label, value, meta]) => (
                       <DossierLogItem key={label} label={label} value={value} meta={meta} />
                     ))}
@@ -1250,7 +1250,7 @@ function ApplicationCard({
                   </div>
                 </div>
 
-                <div className="rounded-[1rem] border border-white/35 bg-white/25 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-[18px]">
+                <div className="rounded-[0.85rem] border border-white/55 bg-white/62 p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] backdrop-blur-[18px]">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <h4 className="text-sm font-black text-[#173f33]">Admin notes</h4>
                     <button
@@ -1262,11 +1262,11 @@ function ApplicationCard({
                     </button>
                   </div>
                   <textarea
-                    rows={7}
+                    rows={5}
                     value={adminNotes}
                     onChange={(event) => setAdminNotes(event.target.value)}
                     placeholder="Internal note for this enrolled student..."
-                    className="w-full rounded-[0.9rem] border border-white/40 bg-white/25 px-3 py-2.5 text-sm font-medium text-[#173f33] outline-none ring-[#35b985] backdrop-blur-[18px] placeholder:text-[#6f8176] focus:ring-2"
+                    className="w-full rounded-[0.75rem] border border-white/55 bg-white/70 px-3 py-2 text-sm font-medium text-[#173f33] outline-none ring-[#35b985] backdrop-blur-[18px] placeholder:text-[#6f8176] focus:ring-2"
                   />
                 </div>
               </section>
@@ -1280,18 +1280,18 @@ function ApplicationCard({
 
 function DossierKeyValue({ label, value, boxed = false }: { label: string; value: string; boxed?: boolean }) {
   return (
-    <div className={boxed ? "rounded-[0.8rem] border border-white/30 bg-white/25 px-3 py-2 backdrop-blur-[18px]" : "grid grid-cols-[5.4rem_minmax(0,1fr)] gap-2"}>
-      <span className="text-xs font-black text-[#173f33]">{label}:</span>
-      <span className="break-words text-xs font-semibold leading-5 text-[#607366]">{value}</span>
+    <div className={boxed ? "rounded-[0.7rem] border border-white/55 bg-white/70 px-2.5 py-1.5 backdrop-blur-[18px]" : "grid grid-cols-[5rem_minmax(0,1fr)] gap-1.5"}>
+      <span className="text-[11px] font-black leading-5 text-[#123b2f]">{label}:</span>
+      <span className="break-words text-[11px] font-bold leading-5 text-[#3c5147]">{value}</span>
     </div>
   );
 }
 
 function DossierPanel({ title, rows, columns = false }: { title: string; rows: string[][]; columns?: boolean }) {
   return (
-    <section className="rounded-[1rem] border border-white/35 bg-white/25 p-3 shadow-[0_11px_22px_rgba(23,63,51,0.07),inset_0_1px_0_rgba(255,255,255,0.42)] backdrop-blur-[18px]">
-      <h4 className="text-sm font-black text-[#173f33]">{title}</h4>
-      <dl className={`mt-3 grid gap-2 ${columns ? "md:grid-cols-2" : ""}`}>
+    <section className="rounded-[0.85rem] border border-white/55 bg-white/68 p-2.5 shadow-[0_11px_18px_rgba(23,63,51,0.07),inset_0_1px_0_rgba(255,255,255,0.72)] backdrop-blur-[18px]">
+      <h4 className="text-[13px] font-black text-[#123b2f]">{title}</h4>
+      <dl className={`mt-2 grid gap-1.5 ${columns ? "md:grid-cols-2" : ""}`}>
         {rows.map(([label, value]) => (
           <DossierKeyValue key={label} label={label} value={value} boxed={columns} />
         ))}
@@ -1302,11 +1302,11 @@ function DossierPanel({ title, rows, columns = false }: { title: string; rows: s
 
 function DossierLogItem({ label, value, meta }: { label: string; value: string; meta: string }) {
   return (
-    <div className="grid gap-2 rounded-[0.9rem] border border-white/35 bg-white/25 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.38)] backdrop-blur-[18px] sm:grid-cols-[10rem_minmax(0,1fr)] sm:items-center">
-      <p className="text-xs font-black text-[#173f33]">{label}</p>
+    <div className="grid gap-1.5 rounded-[0.75rem] border border-white/55 bg-white/70 p-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] backdrop-blur-[18px] sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:items-center">
+      <p className="text-[11px] font-black text-[#123b2f]">{label}</p>
       <div className="min-w-0">
-        <p className="break-words text-sm font-black text-[#173f33]">{value}</p>
-        <p className="mt-1 break-words text-xs font-semibold leading-5 text-[#607366]">{meta}</p>
+        <p className="break-words text-xs font-black text-[#173f33]">{value}</p>
+        <p className="mt-0.5 break-words text-[11px] font-bold leading-4 text-[#4f6259]">{meta}</p>
       </div>
     </div>
   );
@@ -1314,7 +1314,7 @@ function DossierLogItem({ label, value, meta }: { label: string; value: string; 
 
 function StatusPill({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/25 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-[#173f33] shadow-[inset_0_1px_0_rgba(255,255,255,0.38)] backdrop-blur-[18px]">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-white/55 bg-white/70 px-2.5 py-1.5 text-[11px] font-black uppercase tracking-[0.12em] text-[#123b2f] shadow-[inset_0_1px_0_rgba(255,255,255,0.68)] backdrop-blur-[18px]">
       {icon}
       {label.replaceAll("_", " ")}
     </span>
