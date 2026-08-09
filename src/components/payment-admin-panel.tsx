@@ -2,19 +2,14 @@
 
 import { useMemo, useState } from "react";
 import {
-  AlertTriangle,
-  CheckCircle2,
   Clock3,
   Eye,
-  IndianRupee,
   QrCode,
   RefreshCw,
   ReceiptText,
-  RotateCcw,
   Search,
   Upload,
   UserRound,
-  WalletCards,
   X,
 } from "lucide-react";
 import type { PaymentAdminRecord } from "@/lib/training-application-store";
@@ -90,18 +85,8 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
   const refundCandidates = filteredPayments.filter(
     (payment) => payment.refundEligible || payment.refunds.length > 0,
   );
-  const paidPayments = filteredPayments.filter((payment) => payment.status === "PAID");
-  const failedPayments = filteredPayments.filter((payment) => ["FAILED", "EXPIRED"].includes(payment.status));
-  const totalAmountPaise = filteredPayments.reduce((total, payment) => total + payment.amountPaise, 0);
-  const paidAmountPaise = paidPayments.reduce((total, payment) => total + payment.amountPaise, 0);
-  const refundAmountPaise = filteredPayments.reduce(
-    (total, payment) => total + payment.refunds.reduce((sum, refund) => sum + refund.amountPaise, 0),
-    0,
-  );
-  const successRate = filteredPayments.length ? Math.round((paidPayments.length / filteredPayments.length) * 100) : 0;
   const activePayments = tab === "confirmations" ? pendingConfirmations : tab === "refunds" ? refundCandidates : filteredPayments;
-  const recentPaymentBars = buildPaymentBars(filteredPayments);
-  const maxBarAmount = Math.max(...recentPaymentBars.map((bar) => bar.amountPaise), 1);
+  const groupedActivePayments = groupPaymentsByPaymentDate(activePayments);
   const relatedSelectedPayments = selectedPayment
     ? getRelatedApplicantPayments(selectedPayment, payments)
     : [];
@@ -210,27 +195,6 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
           </label>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <div className="flex rounded-[0.95rem] bg-[#eef3ef] p-1">
-              {([
-                ["confirmations", "Confirmations"],
-                ["refunds", "Refunds"],
-                ["history", "History"],
-              ] as const).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setTab(value)}
-                  className={`rounded-[0.75rem] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] ${
-                    tab === value
-                      ? "bg-[#173f33] text-[#fff9ec]"
-                      : "text-[#607366] hover:bg-white"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
             <button
               type="button"
               disabled={!databaseConfigured}
@@ -253,46 +217,38 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
       </div>
 
       <div className="grid gap-4">
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-            <PaymentMetricCard icon={<WalletCards className="h-4 w-4" aria-hidden="true" />} label="Orders" value={filteredPayments.length.toLocaleString("en-IN")} hint={`${pendingConfirmations.length} pending`} />
-            <PaymentMetricCard icon={<CheckCircle2 className="h-4 w-4" aria-hidden="true" />} label="Paid" value={paidPayments.length.toLocaleString("en-IN")} hint={`${successRate}% success`} />
-            <PaymentMetricCard icon={<IndianRupee className="h-4 w-4" aria-hidden="true" />} label="Collected" value={formatMoney(paidAmountPaise)} hint="Confirmed" />
-            <PaymentMetricCard icon={<AlertTriangle className="h-4 w-4" aria-hidden="true" />} label="Failed" value={failedPayments.length.toLocaleString("en-IN")} hint="Needs attention" />
-            <PaymentMetricCard icon={<RotateCcw className="h-4 w-4" aria-hidden="true" />} label="Refunds" value={formatMoney(refundAmountPaise)} hint={`${refundCandidates.length} tracked`} />
-          </div>
-
-          <section className="rounded-[1.55rem] bg-white p-4 shadow-[0_14px_34px_rgba(23,63,51,0.07)]">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Payment movement</p>
-                <h3 className="mt-1 text-xl font-black text-[#173f33]">{formatMoney(totalAmountPaise)} total order value</h3>
-              </div>
-              <span className="rounded-full bg-[#eef3ef] px-3 py-1.5 text-[11px] font-black text-[#607366]">Last 7 days</span>
-            </div>
-            <div className="mt-5 h-52 rounded-[1.15rem] bg-[#f7faf7] p-4">
-              <div className="flex h-full items-end gap-3">
-                {recentPaymentBars.map((bar) => (
-                  <div key={bar.label} className="flex h-full flex-1 flex-col justify-end gap-2">
-                    <div className="flex flex-1 items-end rounded-full bg-white px-1.5 py-1.5">
-                      <div
-                        className="w-full rounded-full bg-[#173f33] shadow-[0_10px_20px_rgba(23,63,51,0.16)]"
-                        style={{ height: `${Math.max(8, (bar.amountPaise / maxBarAmount) * 100)}%` }}
-                      />
-                    </div>
-                    <span className="whitespace-pre-line text-center text-[10px] font-black text-[#718477]">{bar.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-
           <section className="overflow-hidden rounded-[1.55rem] bg-white shadow-[0_14px_34px_rgba(23,63,51,0.07)]">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf2ee] px-4 py-4">
+            <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#edf2ee] px-4 py-4">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">{tab}</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9c6a18]">Payment desk</p>
                 <h3 className="mt-1 text-xl font-black text-[#173f33]">{activePayments.length} payment records</h3>
+                <p className="mt-1 text-xs font-semibold text-[#607366]">
+                  Grouped by payment date, with latest transactions first.
+                </p>
               </div>
-              <StatusBadge label={databaseConfigured ? "Gateway connected" : "Local read-only"} tone={databaseConfigured ? "good" : "warn"} />
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex rounded-[0.95rem] bg-[#eef3ef] p-1">
+                  {([
+                    ["history", "History"],
+                    ["refunds", "Refunds"],
+                    ["confirmations", "Confirmations"],
+                  ] as const).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setTab(value)}
+                      className={`rounded-[0.75rem] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] ${
+                        tab === value
+                          ? "bg-[#173f33] text-[#fff9ec]"
+                          : "text-[#607366] hover:bg-white"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <StatusBadge label={databaseConfigured ? "Gateway connected" : "Local read-only"} tone={databaseConfigured ? "good" : "warn"} />
+              </div>
             </div>
 
             {activePayments.length ? (
@@ -308,15 +264,25 @@ export function PaymentAdminPanel({ databaseConfigured, initialPayments, onPayme
                     <span>Updated</span>
                     <span className="text-right">Action</span>
                   </div>
-                  {activePayments.map((payment) => (
-                    <PaymentRow
-                      key={payment.id}
-                      payment={payment}
-                      loading={loadingId === payment.id}
-                      tab={tab}
-                      onRefund={() => void initiateRefund(payment.id)}
-                      onView={() => openPaymentDetails(payment)}
-                    />
+                  {groupedActivePayments.map((group) => (
+                    <div key={group.key}>
+                      <div className="grid grid-cols-[1fr_auto] items-center gap-3 bg-[#fbf7ee] px-4 py-2 text-xs font-black text-[#173f33]">
+                        <span>{group.label}</span>
+                        <span className="rounded-full bg-white px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-[#607366]">
+                          {group.payments.length} transaction{group.payments.length === 1 ? "" : "s"}
+                        </span>
+                      </div>
+                      {group.payments.map((payment) => (
+                        <PaymentRow
+                          key={payment.id}
+                          payment={payment}
+                          loading={loadingId === payment.id}
+                          tab={tab}
+                          onRefund={() => void initiateRefund(payment.id)}
+                          onView={() => openPaymentDetails(payment)}
+                        />
+                      ))}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -451,19 +417,6 @@ function ReceiptScannerModal({
   );
 }
 
-function PaymentMetricCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: string; hint: string }) {
-  return (
-    <div className="rounded-[1.1rem] bg-white p-4 shadow-[0_12px_30px_rgba(23,63,51,0.06)]">
-      <div className="flex items-center justify-between gap-3">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-[0.8rem] bg-[#fff8df] text-[#9c6a18]">{icon}</span>
-        <span className="rounded-full bg-[#eef3ef] px-2 py-1 text-[10px] font-black text-[#607366]">{hint}</span>
-      </div>
-      <p className="mt-4 text-2xl font-black leading-none text-[#173f33]">{value}</p>
-      <p className="mt-2 text-xs font-semibold text-[#607366]">{label}</p>
-    </div>
-  );
-}
-
 function getRelatedApplicantPayments(selectedPayment: PaymentAdminRecord, payments: PaymentAdminRecord[]) {
   const selectedKeys = getPaymentApplicantKeys(selectedPayment);
   if (!selectedKeys.length) return [selectedPayment];
@@ -491,6 +444,27 @@ function getPaymentTimelineTime(payment: PaymentAdminRecord) {
   if (Number.isFinite(updatedAt)) return updatedAt;
 
   return new Date(payment.createdAt).getTime();
+}
+
+function groupPaymentsByPaymentDate(payments: PaymentAdminRecord[]) {
+  const sortedPayments = [...payments].sort((left, right) => getPaymentTimelineTime(right) - getPaymentTimelineTime(left));
+  const formatter = new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+  const groups = new Map<string, { key: string; label: string; payments: PaymentAdminRecord[] }>();
+
+  for (const payment of sortedPayments) {
+    const date = new Date(getPaymentTimelineTime(payment));
+    const key = Number.isNaN(date.getTime()) ? "unknown" : date.toISOString().slice(0, 10);
+    const label = Number.isNaN(date.getTime()) ? "Date not available" : formatter.format(date);
+    const current = groups.get(key) ?? { key, label, payments: [] };
+    current.payments.push(payment);
+    groups.set(key, current);
+  }
+
+  return Array.from(groups.values());
 }
 
 function PaymentRow({
@@ -982,25 +956,6 @@ function loadHtmlImage(src: string) {
     image.onerror = () => reject(new Error("Unable to load this image for QR scanning."));
     image.src = src;
   });
-}
-
-function buildPaymentBars(payments: PaymentAdminRecord[]) {
-  const formatter = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short" });
-  const now = new Date();
-  const days = Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(now);
-    date.setDate(now.getDate() - (6 - index));
-    const key = date.toISOString().slice(0, 10);
-    return { key, label: formatter.format(date).replace(" ", "\n"), amountPaise: 0 };
-  });
-
-  for (const payment of payments) {
-    const key = payment.createdAt.slice(0, 10);
-    const match = days.find((day) => day.key === key);
-    if (match) match.amountPaise += payment.amountPaise;
-  }
-
-  return days;
 }
 
 function formatMoney(amountPaise: number) {

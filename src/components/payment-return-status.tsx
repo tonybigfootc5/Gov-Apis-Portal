@@ -88,6 +88,8 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       paymentSuccessful: "Payment Successful",
       paymentDetails: "Payment Details",
       studentDetails: "Student Details",
+      welcomeTitle: "Welcome to the program",
+      enrollmentDetails: "Enrollment Details",
       orderTime: "Order Time",
       paymentMethod: "Payment Method",
       paymentStatus: "Payment Status",
@@ -152,6 +154,8 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     paymentSuccessful: "Payment Successful",
     paymentDetails: "Payment Details",
     studentDetails: "Student Details",
+    welcomeTitle: "Welcome to the program",
+    enrollmentDetails: "Enrollment Details",
     orderTime: "Order Time",
     paymentMethod: "Payment Method",
     paymentStatus: "Payment Status",
@@ -268,20 +272,23 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
   }, [payment.merchantOrderId, payment.paymentReference, polling]);
 
   const content = getContent(payment, copy);
-  const receiptRows: Array<[string, string | React.ReactNode]> = [
+  const enrollmentRows: Array<[string, string | React.ReactNode]> = [
+    [copy.program, payment.serviceName],
+    [detailCopy.enrollmentId, enrollmentId],
+    [detailCopy.amountPaid, amountLabel],
+    [detailCopy.transactionNumber, transactionNumber],
+  ];
+  const paymentRows: Array<[string, string | React.ReactNode]> = [
     ["Invoice Number", payment.invoiceNumber],
     [receiptCopy.orderTime, paidAtLabel],
     [receiptCopy.paymentMethod, "PhonePe"],
     [receiptCopy.paymentStatus, <span key="status" className="rounded bg-[#16a34a] px-2.5 py-1 text-[10px] font-bold text-white">Successful</span>],
-    [detailCopy.amountPaid, amountLabel],
+    [detailCopy.referenceNumber, payment.phonePeOrderId ?? "Not received from gateway"],
   ];
   const studentRows: Array<[string, string]> = [
     [detailCopy.fullName, payment.candidateName],
     [detailCopy.aadhaarNo, payment.aadhaarNo || "Not available"],
-    [copy.program, payment.serviceName],
-    [detailCopy.enrollmentId, enrollmentId],
-    [detailCopy.transactionNumber, transactionNumber],
-    [detailCopy.referenceNumber, payment.phonePeOrderId ?? "Not received from gateway"],
+    ["Invoice Number", payment.invoiceNumber],
   ];
 
   useEffect(() => {
@@ -319,8 +326,11 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     try {
       const dataUrl = await buildReceiptImage({
         qrDataUrl,
-        paymentRows: receiptRows.map(([label, value]) => [label, typeof value === "string" ? value : "Successful"]),
+        enrollmentRows: enrollmentRows.map(([label, value]) => [label, typeof value === "string" ? value : "Successful"]),
+        paymentRows: paymentRows.map(([label, value]) => [label, typeof value === "string" ? value : "Successful"]),
         studentRows,
+        candidateName: payment.candidateName,
+        programName: payment.serviceName,
       });
       const link = document.createElement("a");
       link.href = dataUrl;
@@ -351,10 +361,21 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
                 <FileCheck2 className="h-14 w-14" strokeWidth={1.8} aria-hidden="true" />
               </span>
               <h1 className="mt-5 text-center text-2xl font-black tracking-normal text-[#111827]">{receiptCopy.paymentSuccessful}</h1>
+              <p className="mt-2 text-center text-sm font-semibold leading-6 text-[#4b5563]">
+                Welcome {payment.candidateName} to {payment.serviceName}.
+              </p>
             </div>
 
             <div className="relative border-t border-dashed border-[#e5e7eb] px-4 py-5 before:absolute before:-left-3 before:-top-3 before:h-6 before:w-6 before:rounded-full before:bg-[#f4f4f4] after:absolute after:-right-3 after:-top-3 after:h-6 after:w-6 after:rounded-full after:bg-[#f4f4f4]">
-              <ReceiptSection title={receiptCopy.paymentDetails} rows={receiptRows} />
+              <section className="mb-4 rounded-[1rem] border border-[#dceee3] bg-[#f4fbf6] p-4">
+                <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#1f6b4b]">{receiptCopy.welcomeTitle}</p>
+                <p className="mt-2 text-sm font-semibold leading-6 text-[#173f33]">
+                  Your seat is confirmed. Please keep this card offline for admission verification and future reference.
+                </p>
+              </section>
+              <ReceiptSection title={receiptCopy.enrollmentDetails} rows={enrollmentRows} />
+              <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
+              <ReceiptSection title={receiptCopy.paymentDetails} rows={paymentRows} />
               <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
               <ReceiptSection title={receiptCopy.studentDetails} rows={studentRows} />
               <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
@@ -511,16 +532,22 @@ function ReceiptSection({ title, rows }: { title: string; rows: Array<[string, s
 
 async function buildReceiptImage({
   qrDataUrl,
+  enrollmentRows,
   paymentRows,
   studentRows,
+  candidateName,
+  programName,
 }: {
   qrDataUrl: string;
+  enrollmentRows: Array<[string, string]>;
   paymentRows: Array<[string, string]>;
   studentRows: Array<[string, string]>;
+  candidateName: string;
+  programName: string;
 }) {
   const canvas = document.createElement("canvas");
   const width = 900;
-  const height = 1400;
+  const height = 1650;
   canvas.width = width;
   canvas.height = height;
   const context = canvas.getContext("2d");
@@ -545,8 +572,14 @@ async function buildReceiptImage({
   context.fillStyle = "#111827";
   context.font = "700 34px Arial";
   context.fillText("Payment Successful", width / 2, 224);
+  context.fillStyle = "#4b5563";
+  context.font = "700 21px Arial";
+  wrapCenteredCanvasText(context, `Welcome ${candidateName} to ${programName}`, width / 2, 268, 620, 28);
 
-  let y = 390;
+  let y = 360;
+  y = drawReceiptRows(context, "Enrollment Details", enrollmentRows, y);
+  drawDashedLine(context, 96, y + 22, width - 96, y + 22);
+  y += 70;
   y = drawReceiptRows(context, "Payment Details", paymentRows, y);
   drawDashedLine(context, 96, y + 22, width - 96, y + 22);
   y += 70;
@@ -594,6 +627,25 @@ function wrapCanvasText(context: CanvasRenderingContext2D, value: string, x: num
   const words = value.split(" ");
   let line = "";
   let lineY = y;
+
+  for (const word of words) {
+    const testLine = line ? `${line} ${word}` : word;
+    if (context.measureText(testLine).width > maxWidth && line) {
+      context.fillText(line, x, lineY);
+      line = word;
+      lineY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  context.fillText(line, x, lineY);
+}
+
+function wrapCenteredCanvasText(context: CanvasRenderingContext2D, value: string, x: number, y: number, maxWidth: number, lineHeight: number) {
+  const words = value.split(" ");
+  let line = "";
+  let lineY = y;
+  context.textAlign = "center";
 
   for (const word of words) {
     const testLine = line ? `${line} ${word}` : word;
