@@ -28,13 +28,13 @@ export function ApplicationProgramCapacityRail({ applications }: { applications:
   const programRosterCards = useMemo(() => buildProgramRosterCards(enrolledApplications), [enrolledApplications]);
 
   return (
-    <section className="grid gap-4 rounded-[1.45rem] border border-[#edf0f2] bg-white px-5 py-5 shadow-[0_18px_45px_rgba(18,28,39,0.04)]">
+    <section className="grid gap-4 rounded-[1.45rem] border border-[#e7eee8] bg-white px-5 py-5 shadow-[0_18px_45px_rgba(18,28,39,0.04)]">
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#9a6a20]">Program capacity</p>
           <h2 className="mt-1 text-xl font-black text-[#173f33]">Enrollment by program</h2>
         </div>
-        <span className="hidden rounded-full bg-[#f7f8fa] px-3 py-1.5 text-xs font-black text-[#75808a] sm:inline-flex">
+        <span className="hidden rounded-full bg-[#fbfdfb] px-3 py-1.5 text-xs font-black text-[#607366] sm:inline-flex">
           {programRosterCards.length} cards
         </span>
       </div>
@@ -311,10 +311,10 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
   }
 
   return (
-    <section className="grid gap-5 text-[#18212a]">
+    <section className="grid gap-5 text-[#173f33]">
       {notice ? <p className="rounded-md border border-[#d8eadf] bg-[#f4fbf7] px-4 py-3 text-sm font-semibold text-[#173f33]">{notice}</p> : null}
 
-      <div className="grid min-w-0 gap-4 rounded-[1.25rem] border border-[#edf0f2] bg-white px-4 py-4 shadow-[0_18px_45px_rgba(18,28,39,0.04)]">
+      <div className="grid min-w-0 gap-4 rounded-[1.25rem] border border-[#e7eee8] bg-white px-4 py-4 shadow-[0_18px_45px_rgba(18,28,39,0.04)]">
         <div className="flex flex-wrap items-center gap-8 border-b border-[#eef1f4]">
           {(["student", "batch", "date"] as const).map((mode) => {
             const active = viewMode === mode;
@@ -330,19 +330,19 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                 }}
                 aria-pressed={active}
                 className={`relative inline-flex min-h-12 items-center gap-2 text-sm font-black transition ${
-                  active ? "text-[#2654d9]" : "text-[#9aa2ad] hover:text-[#173f33]"
+                  active ? "text-[#173f33]" : "text-[#90a094] hover:text-[#173f33]"
                 }`}
               >
                 {mode === "date" ? <CalendarDays className="h-4 w-4" aria-hidden="true" /> : null}
                 {label}
-                {active ? <span className="absolute inset-x-0 bottom-[-1px] h-0.5 rounded-full bg-[#2654d9]" /> : null}
+                {active ? <span className="absolute inset-x-0 bottom-[-1px] h-0.5 rounded-full bg-[#173f33]" /> : null}
               </button>
             );
           })}
         </div>
 
         {viewMode === "batch" ? (
-          <div className="grid gap-4 rounded-lg border border-[#edf0f2] bg-[#fbfcfd] p-3">
+          <div className="grid gap-4 rounded-lg border border-[#e7eee8] bg-[#fbfcfd] p-3">
             <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:thin]">
               {batchSummaries.length ? (
                 batchSummaries.map((batch) => {
@@ -355,13 +355,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                       onClick={() => setSelectedBatchCode(batch.batchCode)}
                       className={`grid w-[14.5rem] shrink-0 gap-2 rounded-lg border p-3 text-left transition ${
                         active
-                          ? "border-[#2654d9] bg-white shadow-[0_12px_26px_rgba(38,84,217,0.12)]"
-                          : "border-[#edf0f2] bg-white hover:border-[#cfd8e3]"
+                          ? "border-[#173f33] bg-white shadow-[0_12px_26px_rgba(23,63,51,0.12)]"
+                          : "border-[#e7eee8] bg-white hover:border-[#d8eadf]"
                       }`}
                     >
-                      <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9aa2ad]">Batch</span>
-                      <span className="truncate text-base font-black text-[#18212a]">{batch.batchCode}</span>
-                      <span className="truncate text-xs font-semibold text-[#75808a]">{batch.programName}</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.16em] text-[#90a094]">Batch</span>
+                      <span className="truncate text-base font-black text-[#173f33]">{batch.batchCode}</span>
+                      <span className="truncate text-xs font-semibold text-[#607366]">{batch.programName}</span>
                       <span className="w-fit rounded-full bg-[#eef8e9] px-2 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#4c8f35]">
                         {batch.totalStudents} students
                       </span>
@@ -369,16 +369,16 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                   );
                 })
               ) : (
-                <p className="px-2 py-6 text-sm font-semibold text-[#75808a]">No batches match the current filters.</p>
+                <p className="px-2 py-6 text-sm font-semibold text-[#607366]">No batches match the current filters.</p>
               )}
             </div>
 
             {selectedBatchSummary ? (
-              <div className="grid gap-3 rounded-lg border border-[#edf0f2] bg-white p-4 lg:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(8rem,0.7fr))_auto] lg:items-center">
+              <div className="grid gap-3 rounded-lg border border-[#e7eee8] bg-white p-4 lg:grid-cols-[minmax(0,1.4fr)_repeat(4,minmax(8rem,0.7fr))_auto] lg:items-center">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9aa2ad]">Selected batch</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#90a094]">Selected batch</p>
                   <h3 className="mt-1 truncate text-lg font-black text-[#173f33]">{selectedBatchSummary.batchCode}</h3>
-                  <p className="mt-1 truncate text-sm font-semibold text-[#75808a]">{selectedBatchSummary.programName}</p>
+                  <p className="mt-1 truncate text-sm font-semibold text-[#607366]">{selectedBatchSummary.programName}</p>
                 </div>
                 <BatchSummaryMetric label="Students" value={selectedBatchSummary.totalStudents.toLocaleString("en-IN")} />
                 <BatchSummaryMetric label="Vacancies" value={selectedBatchSummary.vacancies === null ? "Not set" : selectedBatchSummary.vacancies.toLocaleString("en-IN")} />
@@ -387,7 +387,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                 <button
                   type="button"
                   onClick={() => openRosterPrint(selectedBatchSummary.batchCode, selectedBatchApplications)}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#2654d9] px-3 text-xs font-black uppercase tracking-[0.1em] text-white"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#173f33] px-3 text-xs font-black uppercase tracking-[0.1em] text-white"
                 >
                   <Printer className="h-4 w-4" aria-hidden="true" />
                   Print batch
@@ -399,20 +399,20 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
 
         <div className="grid gap-3 xl:grid-cols-[minmax(18rem,1fr)_auto] xl:items-center">
           <div className="flex flex-wrap items-center gap-3">
-          <label className="flex min-w-[18rem] flex-1 items-center rounded-full border border-[#edf0f2] bg-[#f7f8fa] px-4">
-            <Search className="h-4 w-4 shrink-0 text-[#9aa2ad]" aria-hidden="true" />
+          <label className="flex min-w-[18rem] flex-1 items-center rounded-full border border-[#e7eee8] bg-[#fbfdfb] px-4">
+            <Search className="h-4 w-4 shrink-0 text-[#90a094]" aria-hidden="true" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search name, phone, Aadhaar, invoice, transaction, enrollment ID"
-              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#18212a] outline-none placeholder:text-[#9aa2ad]"
+              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#90a094]"
               aria-label="Search applications"
             />
             {query ? (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#5d6670]"
+                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#607366]"
                 aria-label="Clear search"
               >
                 <X className="h-4 w-4" aria-hidden="true" />
@@ -423,7 +423,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             <button
               type="button"
               onClick={() => setFiltersOpen((current) => !current)}
-              className="inline-flex h-11 items-center gap-2 rounded-md border border-[#edf0f2] bg-white px-4 text-sm font-black text-[#5d6670] shadow-[0_6px_18px_rgba(18,28,39,0.04)]"
+              className="inline-flex h-11 items-center gap-2 rounded-md border border-[#e7eee8] bg-white px-4 text-sm font-black text-[#607366] shadow-[0_6px_18px_rgba(18,28,39,0.04)]"
             >
               <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
               Filters
@@ -431,13 +431,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             </button>
 
             {filtersOpen ? (
-              <div className="absolute left-0 top-[calc(100%+0.75rem)] z-20 w-[22rem] rounded-lg border border-[#edf0f2] bg-white p-3 shadow-[0_20px_45px_rgba(18,28,39,0.12)]">
+              <div className="absolute left-0 top-[calc(100%+0.75rem)] z-20 w-[22rem] rounded-lg border border-[#e7eee8] bg-white p-3 shadow-[0_20px_45px_rgba(18,28,39,0.12)]">
                 <div className="flex items-center justify-between gap-3 px-1">
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#68727d]">Admissions filters</p>
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#718477]">Admissions filters</p>
                   <button
                     type="button"
                     onClick={resetFilters}
-                    className="rounded-full bg-[#f2f5f8] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#2654d9]"
+                    className="rounded-full bg-[#fff8df] px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#173f33]"
                   >
                     Reset
                   </button>
@@ -454,20 +454,20 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             ) : null}
           </div>
           {viewMode === "date" ? (
-            <div className="flex flex-wrap items-center gap-2 rounded-md border border-[#edf0f2] bg-white px-3 py-2 shadow-[0_6px_18px_rgba(18,28,39,0.04)]">
-              <CalendarDays className="h-4 w-4 text-[#68727d]" aria-hidden="true" />
+            <div className="flex flex-wrap items-center gap-2 rounded-md border border-[#e7eee8] bg-white px-3 py-2 shadow-[0_6px_18px_rgba(18,28,39,0.04)]">
+              <CalendarDays className="h-4 w-4 text-[#718477]" aria-hidden="true" />
               <input
                 type="date"
                 value={fromDate}
                 onChange={(event) => setFromDate(event.target.value)}
-                className="bg-transparent text-sm font-semibold text-[#18212a] outline-none"
+                className="bg-transparent text-sm font-semibold text-[#173f33] outline-none"
               />
-              <span className="text-xs font-black uppercase tracking-[0.12em] text-[#9aa2ad]">to</span>
+              <span className="text-xs font-black uppercase tracking-[0.12em] text-[#90a094]">to</span>
               <input
                 type="date"
                 value={toDate}
                 onChange={(event) => setToDate(event.target.value)}
-                className="bg-transparent text-sm font-semibold text-[#18212a] outline-none"
+                className="bg-transparent text-sm font-semibold text-[#173f33] outline-none"
               />
             </div>
           ) : null}
@@ -477,7 +477,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             <button
               disabled={loading}
               onClick={load}
-              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-[#2654d9] px-4 text-sm font-black text-white shadow-[0_10px_22px_rgba(38,84,217,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-[#173f33] px-4 text-sm font-black text-white shadow-[0_10px_22px_rgba(23,63,51,0.18)] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCw className={`h-4 w-4${loading ? " animate-spin" : ""}`} aria-hidden="true" />
               Refresh
@@ -486,13 +486,13 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
         </div>
       </div>
 
-      <div className="min-w-0 overflow-hidden rounded-lg border border-[#edf0f2] bg-white">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#edf0f2] px-4 py-4">
+      <div className="min-w-0 overflow-hidden rounded-lg border border-[#e7eee8] bg-white">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e7eee8] px-4 py-4">
           <div>
-            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#68727d]">
+            <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#718477]">
               Enrolled students
             </p>
-            <h3 className="mt-1 text-xl font-black text-[#18212a]">
+            <h3 className="mt-1 text-xl font-black text-[#173f33]">
               {viewMode === "student"
                 ? `${studentApplications.length} student${studentApplications.length === 1 ? "" : "s"} sorted by recently joined`
                 : viewMode === "batch" && selectedBatchSummary
@@ -501,10 +501,10 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
             </h3>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <button type="button" onClick={expandAllGroups} className="rounded-md border border-[#edf0f2] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#5d6670]">
+            <button type="button" onClick={expandAllGroups} className="rounded-md border border-[#e7eee8] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#607366]">
               Expand all
             </button>
-            <button type="button" onClick={collapseAllGroups} className="rounded-md border border-[#edf0f2] bg-[#f7f8fa] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#5d6670]">
+            <button type="button" onClick={collapseAllGroups} className="rounded-md border border-[#e7eee8] bg-[#fbfdfb] px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#607366]">
               Collapse all
             </button>
           </div>
@@ -522,22 +522,22 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
               return (
                 <section
                   key={`${groupLabel}-${groupApplications[0]?.id ?? "group"}`}
-                  className="min-w-0 border-b border-[#edf0f2] last:border-b-0"
+                  className="min-w-0 border-b border-[#e7eee8] last:border-b-0"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3 bg-[#fbfcfd] px-4 py-3">
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#eef5ff] text-xs font-black text-[#2654d9]">
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#eef8f1] text-xs font-black text-[#173f33]">
                         {String(groupApplications.length).padStart(2, "0")}
                       </span>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#9aa2ad]">{viewMode === "student" ? "Students" : viewMode === "batch" ? "Batch" : "Date"}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#90a094]">{viewMode === "student" ? "Students" : viewMode === "batch" ? "Batch" : "Date"}</p>
                         <div className="mt-1 flex min-w-0 flex-wrap items-center gap-2">
-                          <h4 className="truncate text-sm font-black text-[#18212a]">{viewMode === "date" ? formatDateGroup(groupLabel) : viewMode === "student" ? "All enrolled students" : groupLabel}</h4>
+                          <h4 className="truncate text-sm font-black text-[#173f33]">{viewMode === "date" ? formatDateGroup(groupLabel) : viewMode === "student" ? "All enrolled students" : groupLabel}</h4>
                           {viewMode === "batch" ? (
                             <button
                               type="button"
                               onClick={() => openRosterPrint(groupLabel, groupApplications)}
-                              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#eef5ff] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[#2654d9]"
+                              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[#eef8f1] px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.1em] text-[#173f33]"
                             >
                               <Printer className="h-3.5 w-3.5" aria-hidden="true" />
                               Print batch
@@ -545,7 +545,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                           ) : null}
                         </div>
                         {viewMode === "student" ? (
-                          <p className="mt-1 truncate text-xs font-semibold text-[#75808a]">
+                          <p className="mt-1 truncate text-xs font-semibold text-[#607366]">
                             Recently joined students appear first
                           </p>
                         ) : null}
@@ -555,7 +555,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                       <button
                         type="button"
                         onClick={() => toggleGroup(groupLabel)}
-                      className="inline-flex items-center gap-2 rounded-md border border-[#edf0f2] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#5d6670]"
+                      className="inline-flex items-center gap-2 rounded-md border border-[#e7eee8] bg-white px-3 py-2 text-[11px] font-black uppercase tracking-[0.12em] text-[#607366]"
                       >
                         {isCollapsed ? <ChevronDown className="h-4 w-4" aria-hidden="true" /> : <ChevronUp className="h-4 w-4" aria-hidden="true" />}
                         {isCollapsed ? "Expand" : "Collapse"}
@@ -566,7 +566,7 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                   {!isCollapsed ? (
                     <div className="max-w-full overflow-x-auto">
                       <div className="min-w-[74rem]">
-                        <div className="grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_6.5rem] gap-3 border-b border-[#edf0f2] bg-[#fafbfc] px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#8a949f]">
+                        <div className="grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_6.5rem] gap-3 border-b border-[#e7eee8] bg-[#fbfdfb] px-4 py-3 text-[10px] font-black uppercase tracking-[0.08em] text-[#718477]">
                           <span>Student</span>
                           <span>Course</span>
                           <span>Phone</span>
@@ -583,10 +583,10 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                               <button
                           key={application.id}
                           onClick={() => setSelectedApplicationId(application.id)}
-                              className={`grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_6.5rem] items-center gap-3 border-b border-[#edf0f2] px-4 py-4 text-left transition last:border-b-0 ${
+                              className={`grid grid-cols-[minmax(16rem,2fr)_minmax(11rem,1.05fr)_7.5rem_9.5rem_6.5rem_6.75rem_minmax(10.5rem,1fr)_6.5rem] items-center gap-3 border-b border-[#e7eee8] px-4 py-4 text-left transition last:border-b-0 ${
                             isActive
-                                  ? "bg-[#f4f7ff] text-[#18212a]"
-                                  : "bg-white text-[#18212a] hover:bg-[#fafbfc]"
+                                  ? "bg-[#fff8df] text-[#173f33]"
+                                  : "bg-white text-[#173f33] hover:bg-[#fbfdfb]"
                           }`}
                           onKeyDown={(event) => {
                             if (event.key === "Enter" || event.key === " ") {
@@ -596,18 +596,18 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                           }}
                         >
                               <div className="min-w-0">
-                                <p className="line-clamp-2 break-words text-sm font-black leading-5 text-[#2654d9]">{application.payload.candidateName}</p>
-                                <p className="mt-1 line-clamp-1 break-words text-xs font-semibold text-[#75808a]">Guardian: {application.payload.guardianName}</p>
+                                <p className="line-clamp-2 break-words text-sm font-black leading-5 text-[#173f33]">{application.payload.candidateName}</p>
+                                <p className="mt-1 line-clamp-1 break-words text-xs font-semibold text-[#607366]">Guardian: {application.payload.guardianName}</p>
                             </div>
                               <div className="min-w-0">
                                 <p className="line-clamp-2 break-words text-xs font-black uppercase leading-4 tracking-[0.08em]">{application.payload.serviceName}</p>
-                                <p className="mt-1 truncate text-xs font-semibold text-[#75808a]">{meta.batchNumber}</p>
+                                <p className="mt-1 truncate text-xs font-semibold text-[#607366]">{meta.batchNumber}</p>
                               </div>
                               <span className="truncate text-sm font-semibold">{application.payload.phone}</span>
-                              <span className="text-xs font-semibold text-[#75808a]">{formatDateLabel(application.payload.submittedAt)}</span>
+                              <span className="text-xs font-semibold text-[#607366]">{formatDateLabel(application.payload.submittedAt)}</span>
                               <StatusBadge status={application.payload.paymentStatus} active={isActive} />
                               <StatusBadge status="ENROLLED" active={isActive} />
-                              <span className="truncate text-xs font-black text-[#5d6670]">
+                              <span className="truncate text-xs font-black text-[#607366]">
                                 {meta.studentCode ?? meta.applicationCode}
                               </span>
                               <span className="flex items-center justify-end gap-1.5">
@@ -618,8 +618,8 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                                   }}
                                   className={`inline-flex items-center justify-center rounded-full px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
                                   isActive
-                                    ? "bg-white text-[#2654d9] hover:bg-[#eef5ff]"
-                                    : "bg-[#eef5ff] text-[#2654d9] hover:bg-[#dfeaff]"
+                                    ? "bg-white text-[#173f33] hover:bg-[#eef8f1]"
+                                    : "bg-[#eef8f1] text-[#173f33] hover:bg-[#d8eadf]"
                                 }`}
                                 >
                                   Print
@@ -631,8 +631,8 @@ export function ApplicationAdminPanel({ storageMode, initialApplications, onAppl
                                   }}
                                   className={`inline-flex items-center justify-center rounded-full px-2.5 py-2 text-[11px] font-black uppercase tracking-[0.12em] transition ${
                                   isActive
-                                    ? "bg-[#2654d9] text-white hover:bg-[#1f45b8]"
-                                    : "bg-[#18212a] text-white hover:bg-[#2b3540]"
+                                    ? "bg-[#173f33] text-white hover:bg-[#0f2f25]"
+                                    : "bg-[#173f33] text-white hover:bg-[#2b3540]"
                                 }`}
                               >
                                 View
@@ -789,8 +789,8 @@ function buildProgramRosterCards(applications: TrainingApplicationRecord[]): Pro
 function BatchSummaryMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-md bg-[#fbfcfd] px-3 py-2">
-      <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[#9aa2ad]">{label}</p>
-      <p className="mt-1 truncate text-sm font-black text-[#18212a]">{value}</p>
+      <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[#90a094]">{label}</p>
+      <p className="mt-1 truncate text-sm font-black text-[#173f33]">{value}</p>
     </div>
   );
 }
@@ -826,16 +826,16 @@ function ProgramRosterCard({ card }: { card: ProgramRosterCardData }) {
   const capacityLabel = card.capacity === null ? "Capacity not set" : `${card.capacity.toLocaleString("en-IN")} seats`;
 
   return (
-    <article className="grid min-h-[12rem] w-[21rem] shrink-0 gap-3 rounded-lg border border-[#edf0f2] bg-[#fbfcfd] p-4 xl:w-[22rem]">
+    <article className="grid min-h-[12rem] w-[21rem] shrink-0 gap-3 rounded-lg border border-[#e7eee8] bg-[#fbfcfd] p-4 xl:w-[22rem]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <span className="inline-flex rounded-full bg-[#eef5ff] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#2654d9]">
+          <span className="inline-flex rounded-full bg-[#eef8f1] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-[#173f33]">
             {card.shortName}
           </span>
-          <h3 className="mt-3 line-clamp-2 max-w-[14rem] text-base font-black leading-5 text-[#18212a]">{card.title}</h3>
+          <h3 className="mt-3 line-clamp-2 max-w-[14rem] text-base font-black leading-5 text-[#173f33]">{card.title}</h3>
         </div>
         <div className="shrink-0 text-right">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#9aa2ad]">Students</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#90a094]">Students</p>
           <p className="text-3xl font-black leading-none text-[#173f33]">{card.enrolled.toLocaleString("en-IN")}</p>
         </div>
       </div>
@@ -847,8 +847,8 @@ function ProgramRosterCard({ card }: { card: ProgramRosterCardData }) {
         <ProgramRosterMetric label="Collected" value={formatRosterMoney(card.collectedPaise)} />
       </div>
 
-      <p className="truncate border-t border-[#edf0f2] pt-2 text-xs font-semibold text-[#75808a]">
-        Latest: <span className="font-black text-[#5d6670]">{card.latestEnrollment}</span>
+      <p className="truncate border-t border-[#e7eee8] pt-2 text-xs font-semibold text-[#607366]">
+        Latest: <span className="font-black text-[#607366]">{card.latestEnrollment}</span>
       </p>
     </article>
   );
@@ -857,8 +857,8 @@ function ProgramRosterCard({ card }: { card: ProgramRosterCardData }) {
 function ProgramRosterMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-md bg-white px-3 py-2">
-      <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[#9aa2ad]">{label}</p>
-      <p className="mt-1 truncate text-sm font-black text-[#18212a]">{value}</p>
+      <p className="text-[9px] font-black uppercase tracking-[0.12em] text-[#90a094]">{label}</p>
+      <p className="mt-1 truncate text-sm font-black text-[#173f33]">{value}</p>
     </div>
   );
 }
@@ -1001,7 +1001,7 @@ function StatusBadge({ status, active }: { status: string; active: boolean }) {
 
   if (active) {
     return (
-      <span className="w-fit rounded-full bg-[#eef5ff] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#2654d9]">
+      <span className="w-fit rounded-full bg-[#eef8f1] px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-[#173f33]">
         {normalized}
       </span>
     );
@@ -1466,3 +1466,4 @@ function buildStableStudentSequence(value: string) {
 
   return (hash % 999) + 1;
 }
+

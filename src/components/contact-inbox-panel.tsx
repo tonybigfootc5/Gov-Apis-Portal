@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
-import { BookOpenCheck, ChevronDown, ChevronUp, Mail, Phone, RefreshCw, Search, UserRound } from "lucide-react";
+import { BookOpenCheck, Check, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Mail, MailOpen, Phone, RefreshCw, Search } from "lucide-react";
 import { applicationErrorGuide } from "@/lib/application-error-codes";
 import type { ContactInboxRecord } from "@/lib/contact-inbox";
 
@@ -56,30 +56,55 @@ const helpCenterSections = [
   },
 ];
 
+const READ_STORAGE_KEY = "api-culture-contact-inbox-read-ids";
+const INBOX_PAGE_SIZE = 8;
+
 export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">("all");
+  const [page, setPage] = useState(1);
   const [openMessageId, setOpenMessageId] = useState<string>(messages[0]?.id ?? "");
+  const [readIds, setReadIds] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(READ_STORAGE_KEY) ?? "[]") as string[];
+      return new Set(saved);
+    } catch {
+      return new Set();
+    }
+  });
   const [now] = useState(() => Date.now());
-  const activeOpenMessageId =
-    openMessageId && messages.some((message) => message.id === openMessageId)
-      ? openMessageId
-      : messages[0]?.id ?? "";
 
   const filteredMessages = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    if (!normalizedQuery) return messages;
+    return messages.filter((message) => {
+      const isRead = readIds.has(message.id);
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "read" && isRead) ||
+        (statusFilter === "unread" && !isRead);
+      const matchesQuery =
+        !normalizedQuery ||
+        [
+          message.name,
+          message.email,
+          message.phone ?? "",
+          message.subject,
+          message.message,
+          formatDateTime(message.createdAt),
+        ].some((value) => value.toLowerCase().includes(normalizedQuery));
 
-    return messages.filter((message) =>
-      [
-        message.name,
-        message.email,
-        message.phone ?? "",
-        message.subject,
-        message.message,
-        formatDateTime(message.createdAt),
-      ].some((value) => value.toLowerCase().includes(normalizedQuery)),
-    );
-  }, [messages, query]);
+      return matchesStatus && matchesQuery;
+    });
+  }, [messages, query, readIds, statusFilter]);
+
+  const pageCount = Math.max(1, Math.ceil(filteredMessages.length / INBOX_PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pagedMessages = filteredMessages.slice((currentPage - 1) * INBOX_PAGE_SIZE, currentPage * INBOX_PAGE_SIZE);
+  const activeOpenMessageId =
+    openMessageId && pagedMessages.some((message) => message.id === openMessageId)
+      ? openMessageId
+      : pagedMessages[0]?.id ?? "";
 
   const totalThisWeek = useMemo(() => {
     return messages.filter((message) => now - new Date(message.createdAt).getTime() <= 7 * 24 * 60 * 60 * 1000).length;
@@ -91,46 +116,55 @@ export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
   }, [messages]);
 
   const phoneSharedCount = filteredMessages.filter((message) => Boolean(message.phone)).length;
-  const phoneSharePercent = filteredMessages.length ? Math.round((phoneSharedCount / filteredMessages.length) * 100) : 0;
+  const unreadCount = messages.filter((message) => !readIds.has(message.id)).length;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(READ_STORAGE_KEY, JSON.stringify(Array.from(readIds)));
+  }, [readIds]);
+
+  function markMessage(messageId: string, read: boolean) {
+    setReadIds((current) => {
+      const next = new Set(current);
+      if (read) {
+        next.add(messageId);
+      } else {
+        next.delete(messageId);
+      }
+      return next;
+    });
+  }
+
+  function markAllVisibleRead() {
+    setReadIds((current) => {
+      const next = new Set(current);
+      filteredMessages.forEach((message) => next.add(message.id));
+      return next;
+    });
+  }
 
   return (
     <div className="grid gap-4">
-      <div className="rounded-[1.8rem] bg-[radial-gradient(circle_at_85%_12%,rgba(245,198,94,0.34),transparent_30%),linear-gradient(135deg,#fbfdfb_0%,#fff8df_100%)] p-4 shadow-[0_24px_55px_rgba(23,63,51,0.10)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="overflow-hidden rounded-[1.35rem] border border-[#e7eee8] bg-white shadow-[0_18px_42px_rgba(23,63,51,0.08)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#eef3ef] px-4 py-4">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#9c6a18]">Contact desk</p>
-            <h2 className="mt-2 text-3xl font-black text-[#173f33]">Incoming inquiries</h2>
+            <h2 className="mt-1 text-2xl font-black text-[#173f33]">Incoming inquiries</h2>
+            <p className="mt-1 text-xs font-semibold text-[#607366]">
+              {filteredMessages.length} visible, {unreadCount} unread, {todayCount} today
+            </p>
           </div>
-          <div className="flex rounded-full bg-white/75 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.78)]">
-            <span className="rounded-full bg-[#173f33] px-4 py-2 text-xs font-black text-[#fff9ec]">Inbox</span>
-            <span className="px-4 py-2 text-xs font-black text-[#607366]">{messages.length} active</span>
-          </div>
-        </div>
-
-        <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,0.36fr)_minmax(13rem,0.36fr)]">
-          <MetricStrip label="Messages" primary={`${filteredMessages.length}`} secondary={`${todayCount} today`} fill="100%" />
-          <MetricStrip label="Phone shared" primary={`${phoneSharedCount}`} secondary={`${phoneSharePercent}% reachable`} fill={`${phoneSharePercent}%`} />
-          <MetricStrip label="This week" primary={`${totalThisWeek}`} secondary="30-day inbox" fill={`${Math.min(100, totalThisWeek * 12)}%`} />
-        </div>
-
-        <div className="mt-5 rounded-[1.35rem] bg-white/82 p-3 shadow-[0_14px_34px_rgba(23,63,51,0.06)]">
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex flex-wrap gap-2">
-              <StatusChip label="30-day window" />
-              <StatusChip label={`${phoneSharedCount} callable`} />
-              <StatusChip label={`${todayCount} today`} />
-            </div>
-            <label className="flex min-w-[16rem] flex-1 items-center rounded-full bg-white px-4 shadow-[inset_0_0_0_1px_#edf2ee] lg:ml-auto lg:max-w-md">
-              <Search className="h-4 w-4 text-[#718477]" aria-hidden="true" />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search..."
-                className="h-10 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#90a094]"
-              />
-            </label>
             <button
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[#f5c65e] px-4 text-xs font-black uppercase tracking-[0.12em] text-[#173f33] disabled:cursor-not-allowed disabled:opacity-60"
+              type="button"
+              onClick={markAllVisibleRead}
+              className="inline-flex h-10 items-center gap-2 rounded-[0.7rem] bg-[#173f33] px-4 text-xs font-black uppercase tracking-[0.1em] text-[#fff9ec]"
+            >
+              <Check className="h-4 w-4" aria-hidden="true" />
+              Mark all as read
+            </button>
+            <button
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-[0.7rem] border border-[#e5ebe6] bg-[#fbfdfb] px-4 text-xs font-black uppercase tracking-[0.1em] text-[#173f33] disabled:cursor-not-allowed disabled:opacity-60"
               type="button"
               onClick={onRefresh}
               disabled={loading || !onRefresh}
@@ -141,84 +175,191 @@ export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
           </div>
         </div>
 
-        <section className="mt-4 overflow-hidden rounded-[1.35rem] bg-white shadow-[0_18px_42px_rgba(23,63,51,0.10)]">
-          {filteredMessages.length ? (
-            <div className="overflow-x-auto">
-              <div className="min-w-[70rem]">
-                <div className="grid grid-cols-[0.35fr_1.15fr_1.1fr_1.35fr_1.3fr_0.95fr_0.78fr_0.28fr] gap-3 border-b border-[#edf2ee] px-4 py-4 text-[10px] font-black uppercase tracking-[0.13em] text-[#718477]">
-                  <span />
-                  <span>Name</span>
-                  <span>Phone</span>
-                  <span>Email</span>
-                  <span>Subject</span>
-                  <span>Received</span>
-                  <span>Status</span>
-                  <span />
-                </div>
-                {filteredMessages.map((message, index) => {
-                  const isOpen = activeOpenMessageId === message.id;
+        <div className="flex flex-wrap items-center gap-3 border-b border-[#eef3ef] bg-[#fbfdfb] px-4 py-3">
+          <label className="flex min-w-[18rem] flex-1 items-center rounded-[0.75rem] bg-white px-4 shadow-[inset_0_0_0_1px_#e5ebe6] lg:max-w-xl">
+            <Search className="h-4 w-4 text-[#718477]" aria-hidden="true" />
+            <input
+              value={query}
+              onChange={(event) => {
+                setQuery(event.target.value);
+                setPage(1);
+              }}
+              placeholder="Search name, email, phone, subject, message"
+              className="h-11 min-w-0 flex-1 bg-transparent px-3 text-sm font-semibold text-[#173f33] outline-none placeholder:text-[#90a094]"
+            />
+          </label>
+          <div className="flex rounded-[0.8rem] bg-[#eef3ef] p-1">
+            {([
+              ["all", "All"],
+              ["unread", "Unread"],
+              ["read", "Read"],
+            ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => {
+                  setStatusFilter(value);
+                  setPage(1);
+                }}
+                className={`rounded-[0.65rem] px-3 py-2 text-[11px] font-black uppercase tracking-[0.1em] ${
+                  statusFilter === value ? "bg-[#173f33] text-[#fff9ec]" : "text-[#607366] hover:bg-white"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="ml-auto flex flex-wrap gap-2">
+            <StatusChip label="30-day inbox" />
+            <StatusChip label={`${phoneSharedCount} callable`} />
+            <StatusChip label={`${totalThisWeek} this week`} />
+          </div>
+        </div>
 
-                  return (
-                    <article key={message.id} className="border-b border-[#edf2ee] last:border-b-0">
-                      <button
-                        type="button"
-                        onClick={() => setOpenMessageId((current) => (current === message.id ? "" : message.id))}
-                        className={`grid w-full grid-cols-[0.35fr_1.15fr_1.1fr_1.35fr_1.3fr_0.95fr_0.78fr_0.28fr] items-center gap-3 px-4 py-3 text-left transition ${
-                          isOpen ? "bg-[#f5c65e] text-[#173f33]" : "bg-white text-[#173f33] hover:bg-[#fffaf0]"
-                        }`}
-                      >
-                        <span className={`inline-flex h-5 w-5 items-center justify-center rounded-[0.35rem] border ${
-                          isOpen ? "border-[#173f33] bg-[#173f33]" : "border-[#dfe7e2]"
-                        }`}>
-                          {isOpen ? <span className="h-2 w-2 rounded-sm bg-[#f5c65e]" /> : null}
-                        </span>
-                        <div className="flex min-w-0 items-center gap-3">
-                          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#173f33] text-xs font-black text-[#fff9ec]">
-                            {initials(message.name, index)}
-                          </span>
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-black">{message.name}</p>
-                            <p className="mt-1 truncate text-xs font-semibold opacity-70">Inquiry #{String(index + 1).padStart(2, "0")}</p>
-                          </div>
-                        </div>
-                        <span className="truncate text-sm font-semibold">{message.phone || "Not shared"}</span>
-                        <span className="truncate text-xs font-semibold opacity-75">{message.email}</span>
-                        <span className="truncate text-sm font-semibold">{message.subject}</span>
-                        <span className="text-xs font-semibold opacity-75">{formatDateTime(message.createdAt)}</span>
-                        <span className={`w-fit rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.1em] ${
-                          message.phone ? "bg-[#eef8f1] text-[#1f6b4b]" : "bg-[#fff0ec] text-[#a74224]"
-                        }`}>
-                          {message.phone ? "Callable" : "Email only"}
-                        </span>
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/70 justify-self-end text-[#173f33]">
-                          {isOpen ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
-                        </span>
-                      </button>
-
-                      {isOpen ? (
-                        <div className="grid gap-4 bg-[#fffdf8] px-4 py-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.45fr)]">
-                          <div className="rounded-[1.1rem] border border-[#e5ebe6] bg-white p-4">
-                            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#9c6a18]">Message</p>
-                            <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-[#173f33]">{message.message}</p>
-                          </div>
-                          <div className="grid gap-3">
-                            <InfoTile icon={<Phone className="h-4 w-4" aria-hidden="true" />} label="Phone" value={message.phone || "Phone not shared"} />
-                            <InfoTile icon={<Mail className="h-4 w-4" aria-hidden="true" />} label="Email" value={message.email} />
-                            <InfoTile icon={<UserRound className="h-4 w-4" aria-hidden="true" />} label="Follow-up owner" value="Admin desk" />
-                          </div>
-                        </div>
-                      ) : null}
-                    </article>
-                  );
-                })}
+        {filteredMessages.length ? (
+          <div className="overflow-x-auto">
+            <div className="min-w-[76rem]">
+              <div className="grid grid-cols-[3rem_1.4fr_1.2fr_1.65fr_1.4fr_1.05fr_0.95fr_1.25fr] gap-4 border-b border-[#eef3ef] bg-white px-5 py-4 text-[11px] font-black text-[#2f3b45]">
+                <span />
+                <span>Name</span>
+                <span>Phone</span>
+                <span>Email</span>
+                <span>Subject</span>
+                <span>Received</span>
+                <span>Status</span>
+                <span className="text-right">Edit</span>
               </div>
+              {pagedMessages.map((message, index) => {
+                const absoluteIndex = (currentPage - 1) * INBOX_PAGE_SIZE + index;
+                const isOpen = activeOpenMessageId === message.id;
+                const isRead = readIds.has(message.id);
+
+                return (
+                  <article key={message.id} className={`${isOpen ? "ring-1 ring-[#2a86d8]" : ""}`}>
+                    <div
+                      className={`grid grid-cols-[3rem_1.4fr_1.2fr_1.65fr_1.4fr_1.05fr_0.95fr_1.25fr] items-center gap-4 border-b border-[#eef3ef] px-5 py-3 text-sm transition ${
+                        isOpen ? "bg-[#eef6ff]" : isRead ? "bg-white hover:bg-[#fbfdfb]" : "bg-[#fffaf0] hover:bg-[#fff6df]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => markMessage(message.id, !isRead)}
+                          aria-label={isRead ? "Mark unread" : "Mark read"}
+                          className={`inline-flex h-5 w-5 items-center justify-center rounded border ${
+                            isRead ? "border-[#1f6b4b] bg-[#1f6b4b] text-white" : "border-[#cfd8d2] bg-white text-transparent"
+                          }`}
+                        >
+                          <Check className="h-3.5 w-3.5" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setOpenMessageId((current) => (current === message.id ? "" : message.id))}
+                          aria-label={isOpen ? "Collapse enquiry" : "Expand enquiry"}
+                          className="inline-flex h-6 w-6 items-center justify-center rounded-full text-[#607366] hover:bg-white"
+                        >
+                          {isOpen ? <ChevronUp className="h-4 w-4" aria-hidden="true" /> : <ChevronDown className="h-4 w-4" aria-hidden="true" />}
+                        </button>
+                      </div>
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-black ${
+                          isRead ? "bg-[#eef3ef] text-[#607366]" : "bg-[#173f33] text-[#fff9ec]"
+                        }`}>
+                          {initials(message.name, absoluteIndex)}
+                        </span>
+                        <div className="min-w-0">
+                          <p className={`truncate font-black ${isRead ? "text-[#607366]" : "text-[#173f33]"}`}>{message.name}</p>
+                          <p className="mt-1 truncate text-xs font-semibold text-[#90a094]">Inquiry #{String(absoluteIndex + 1).padStart(2, "0")}</p>
+                        </div>
+                      </div>
+                      <span className="truncate font-semibold text-[#607366]">{message.phone || "Not shared"}</span>
+                      <span className="truncate font-semibold text-[#607366]">{message.email}</span>
+                      <span className="truncate font-semibold text-[#607366]">{message.subject}</span>
+                      <span className="text-xs font-semibold text-[#607366]">{formatDateTime(message.createdAt)}</span>
+                      <span className={`w-fit rounded-md px-3 py-1.5 text-xs font-black ${
+                        isRead ? "bg-[#e9f7ef] text-[#1f8f5f]" : "bg-[#fff3d6] text-[#9c6a18]"
+                      }`}>
+                        {isRead ? "Read" : "Unread"}
+                      </span>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => markMessage(message.id, true)}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-[0.65rem] bg-[#f7f9fb] text-[#607366] hover:bg-[#e9f7ef] hover:text-[#1f6b4b]"
+                          aria-label="Mark as read"
+                        >
+                          <MailOpen className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => markMessage(message.id, false)}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-[0.65rem] bg-[#f7f9fb] text-[#607366] hover:bg-[#fff3d6] hover:text-[#9c6a18]"
+                          aria-label="Mark unread"
+                        >
+                          <Mail className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {isOpen ? (
+                      <div className="grid gap-5 border-b border-[#2a86d8] bg-white px-5 py-5 lg:grid-cols-[1.25fr_1fr_0.75fr_0.8fr_1.35fr]">
+                        <ExpandedInfo label="Message" value={message.message} wide />
+                        <ExpandedInfo label="Phone" value={message.phone || "Phone not shared"} icon={<Phone className="h-4 w-4" aria-hidden="true" />} />
+                        <ExpandedInfo label="Status" value={isRead ? "Read enquiry" : "Unread enquiry"} icon={<MailOpen className="h-4 w-4" aria-hidden="true" />} />
+                        <ExpandedInfo label="Received" value={formatDateTime(message.createdAt)} />
+                        <ExpandedInfo label="Email" value={message.email} icon={<Mail className="h-4 w-4" aria-hidden="true" />} />
+                      </div>
+                    ) : null}
+                  </article>
+                );
+              })}
             </div>
-          ) : (
-            <div className="px-4 py-12 text-center text-sm font-semibold text-[#607366]">
-              {loading ? "Loading inbox..." : "No contact messages in the current 30-day window."}
+          </div>
+        ) : (
+          <div className="px-4 py-12 text-center text-sm font-semibold text-[#607366]">
+            {loading ? "Loading inbox..." : "No contact messages match this view."}
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#eef3ef] px-4 py-3">
+          <p className="text-xs font-semibold text-[#607366]">
+            Page {currentPage} of {pageCount} / showing {pagedMessages.length} of {filteredMessages.length}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              disabled={currentPage <= 1}
+              className="inline-flex h-9 items-center gap-2 rounded-[0.65rem] border border-[#e5ebe6] bg-white px-3 text-xs font-black text-[#173f33] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              Prev
+            </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: pageCount }, (_, index) => index + 1).slice(0, 7).map((pageNumber) => (
+                <button
+                  key={pageNumber}
+                  type="button"
+                  onClick={() => setPage(pageNumber)}
+                  className={`h-9 min-w-9 rounded-[0.65rem] px-3 text-xs font-black ${
+                    currentPage === pageNumber ? "bg-[#173f33] text-[#fff9ec]" : "bg-[#f7f9fb] text-[#607366]"
+                  }`}
+                >
+                  {pageNumber}
+                </button>
+              ))}
             </div>
-          )}
-        </section>
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+              disabled={currentPage >= pageCount}
+              className="inline-flex h-9 items-center gap-2 rounded-[0.65rem] border border-[#e5ebe6] bg-white px-3 text-xs font-black text-[#173f33] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
       </div>
 
       <section className="rounded-[1.35rem] bg-white p-4 shadow-[0_18px_42px_rgba(23,63,51,0.08)]">
@@ -260,33 +401,6 @@ export function ContactInboxPanel({ messages, loading, onRefresh }: Props) {
   );
 }
 
-function MetricStrip({
-  label,
-  primary,
-  secondary,
-  fill,
-}: {
-  label: string;
-  primary: string;
-  secondary: string;
-  fill: string;
-}) {
-  return (
-    <div className="rounded-[1.1rem] bg-white/72 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)]">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#607366]">{label}</p>
-          <p className="mt-1 text-lg font-black text-[#173f33]">{primary}</p>
-        </div>
-        <p className="text-xs font-black text-[#607366]">{secondary}</p>
-      </div>
-      <div className="mt-3 h-6 overflow-hidden rounded-full bg-white">
-        <div className="h-full rounded-full bg-[#f5c65e]" style={{ width: fill }} />
-      </div>
-    </div>
-  );
-}
-
 function StatusChip({ label }: { label: string }) {
   return (
     <span className="inline-flex h-10 items-center rounded-full bg-white px-3 text-xs font-black text-[#607366] shadow-[inset_0_0_0_1px_#edf2ee]">
@@ -295,22 +409,14 @@ function StatusChip({ label }: { label: string }) {
   );
 }
 
-function InfoTile({
-  icon,
-  label,
-  value,
-}: {
-  icon: ReactNode;
-  label: string;
-  value: string;
-}) {
+function ExpandedInfo({ icon, label, value, wide = false }: { icon?: ReactNode; label: string; value: string; wide?: boolean }) {
   return (
-    <div className="rounded-[1.05rem] border border-[#e5ebe6] bg-white p-3">
-      <div className="flex items-center gap-2 text-[#9c6a18]">
-        {icon}
-        <p className="text-[10px] font-black uppercase tracking-[0.14em]">{label}</p>
+    <div className={wide ? "lg:col-span-1" : ""}>
+      <div className="flex items-center gap-2">
+        {icon ? <span className="text-[#90a094]">{icon}</span> : null}
+        <p className="text-xs font-black text-[#2f3b45]">{label}</p>
       </div>
-      <p className="mt-2 break-words text-sm font-semibold text-[#173f33]">{value}</p>
+      <p className="mt-2 whitespace-pre-wrap text-xs font-semibold leading-6 text-[#7a8490]">{value}</p>
     </div>
   );
 }
