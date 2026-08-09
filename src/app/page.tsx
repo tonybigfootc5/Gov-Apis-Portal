@@ -9,6 +9,7 @@ import AboutUsSection from "@/components/ui/about-us-section";
 import { getPrograms } from "@/lib/data";
 import { institute } from "@/lib/fallback-data";
 import { getTranslatedProgramContent, t } from "@/lib/i18n";
+import { getProgramEnrollmentState } from "@/lib/program-enrollment";
 import { getRequestLanguage } from "@/lib/request-language";
 import { getSiteCopy } from "@/lib/site-copy";
 import { trainingProgramCatalogBySlug } from "@/lib/training-programs";
@@ -23,6 +24,7 @@ export default async function Home() {
   const courses: TrainingPreviewCourse[] = programs.slice(0, 3).map((program) => {
     const translatedProgram = getTranslatedProgramContent(program, language);
     const presentation = trainingProgramCatalogBySlug[program.slug];
+    const enrollmentState = getProgramEnrollmentState(program);
 
     return {
       id: program.id,
@@ -50,6 +52,9 @@ export default async function Home() {
       tools: presentation?.tools ?? [],
       certificate: presentation?.certificate ?? "Physical certificate issued after completion",
       taughtIn: presentation?.taughtIn ?? "English and Telugu",
+      enrollmentOpen: enrollmentState.canEnroll,
+      enrollmentStatusLabel: enrollmentState.statusLabel,
+      enrollmentMessage: enrollmentState.message,
       testimonial: presentation?.testimonial ?? {
         quote: "Field-led practice made the training practical and clear.",
         name: "Program trainee",

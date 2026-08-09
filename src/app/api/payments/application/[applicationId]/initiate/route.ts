@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getPrograms } from "@/lib/data";
 import { createPhonePePayment } from "@/lib/phonepe";
 import {
   buildPhonePeRedirectUrl,
@@ -6,6 +7,7 @@ import {
   getTrainingApplicationAmountPaise,
   getTrainingProgramFeeByServiceName,
 } from "@/lib/phonepe-config";
+import { getProgramEnrollmentState } from "@/lib/program-enrollment";
 import { prisma } from "@/lib/prisma";
 import { buildMerchantOrderId } from "@/lib/training-application";
 import { getTrainingApplicationEntityById } from "@/lib/training-application-store";
@@ -20,6 +22,20 @@ export async function POST(_request: Request, { params }: Props) {
 
   if (!application) {
     return NextResponse.json({ error: "Application not found." }, { status: 404 });
+  }
+
+  const enrollmentProgram = await getEnrollmentProgramForService(application.serviceName);
+  const enrollmentState = enrollmentProgram ? getProgramEnrollmentState(enrollmentProgram) : null;
+  if (!enrollmentState?.canEnroll) {
+    return NextResponse.json(
+      {
+        ok: false,
+        errorCode: "APP-ENROLL-001",
+        summary: enrollmentState?.message ?? "Selected program is not open for enrollment or payment.",
+        error: `${enrollmentState?.message ?? "Selected program is not open for enrollment or payment."} Error code: APP-ENROLL-001.`,
+      },
+      { status: 400 },
+    );
   }
 
   const amountPaise = getTrainingApplicationAmountPaise(getTrainingProgramFeeByServiceName(application.serviceName));
@@ -60,4 +76,14 @@ export async function POST(_request: Request, { params }: Props) {
     merchantOrderId,
     redirectUrl: checkoutUrl,
   });
+}
+
+async function getEnrollmentProgramForService(serviceName: string) {
+  const normalizedServiceName = serviceName.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const programs = await getPrograms();
+
+  return (
+    programs.find((program) => program.title.trim().toLowerCase().replace(/[\s_-]+/g, "") === normalizedServiceName) ??
+    null
+  );
 }

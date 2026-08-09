@@ -2,6 +2,7 @@ export type ApplicationErrorCode =
   | "APP-VAL-001"
   | "APP-PHOTO-001"
   | "APP-RATE-001"
+  | "APP-ENROLL-001"
   | "APP-FEE-001"
   | "APP-DB-001"
   | "APP-PAY-001"
@@ -30,6 +31,11 @@ export const applicationErrorGuide: ApplicationErrorGuideItem[] = [
     code: "APP-RATE-001",
     summary: "Too many application submissions came from the same connection.",
     adminMeaning: "Ask the applicant to wait for the retry window, or help them submit from the center desk if legitimate.",
+  },
+  {
+    code: "APP-ENROLL-001",
+    summary: "Selected program is not open for enrollment or payment.",
+    adminMeaning: "Check Admin > Programs. Random-batch programs need Enrollment closed turned off and a next batch date set; every program closes automatically on the batch date at 12:00 AM India time.",
   },
   {
     code: "APP-FEE-001",

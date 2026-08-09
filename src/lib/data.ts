@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { fallbackArticles, fallbackGalleryImages, fallbackPrograms } from "@/lib/fallback-data";
+import { getProgramEnrollmentState } from "@/lib/program-enrollment";
 import { deprecatedTrainingProgramSlugs, trainingProgramCatalog, trainingProgramCatalogBySlug } from "@/lib/training-programs";
 
 export type ProgramItem = {
@@ -124,7 +125,6 @@ function mergeProgramWithCatalog(program: ProgramItem): ProgramItem {
     level: catalog.level,
     fee: catalog.fee || program.fee,
     capacity: catalog.capacity,
-    batchStartsAt: catalog.batchStartsAt ? new Date(catalog.batchStartsAt) : null,
     slug: catalog.slug,
   };
 }
@@ -182,8 +182,7 @@ export function getAnnouncementPrograms(programs: ProgramItem[], now = new Date(
       (program) =>
         program.published &&
         program.popupEnabled &&
-        !program.enrollmentClosed &&
-        (!program.batchStartsAt || program.batchStartsAt > now),
+        getProgramEnrollmentState(program, now).canEnroll,
     )
     .sort((left, right) => {
       if (left.batchStartsAt && right.batchStartsAt) {
@@ -205,13 +204,11 @@ export async function getPopupAnnouncementPrograms(now = new Date()): Promise<Pr
       where: {
         published: true,
         popupEnabled: true,
-        enrollmentClosed: false,
-        OR: [{ batchStartsAt: null }, { batchStartsAt: { gt: now } }],
       },
       orderBy: [{ batchStartsAt: "asc" }, { title: "asc" }],
     });
 
-    return programs.filter(isActiveTrainingProgram).map(mergeProgramWithCatalog);
+    return getAnnouncementPrograms(programs.filter(isActiveTrainingProgram).map(mergeProgramWithCatalog), now);
   } catch {
     return getAnnouncementPrograms(fallbackPrograms, now);
   }

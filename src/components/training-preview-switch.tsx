@@ -68,6 +68,9 @@ export type TrainingPreviewCourse = {
   tools: string[];
   certificate: string;
   taughtIn: string;
+  enrollmentOpen: boolean;
+  enrollmentStatusLabel: string;
+  enrollmentMessage: string;
   testimonial: {
     quote: string;
     name: string;
@@ -358,24 +361,34 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
   const copy = trainingCopy[language] ?? trainingCopy.en;
   const [active, setActive] = React.useState(0);
   const [applicationCourse, setApplicationCourse] = React.useState<TrainingPreviewCourse | null>(null);
+  const [enrollmentNotice, setEnrollmentNotice] = React.useState("");
   const courseOverviewRef = React.useRef<HTMLElement | null>(null);
   const course = courses[active] ?? courses[0];
-  const serviceOptions = courses.map((item) => ({
-    title: item.serviceTitle,
-    duration: item.duration,
-    level: item.level,
-    imageSrc: item.imageSrc,
-    imageAlt: item.imageAlt,
-  }));
+  const serviceOptions = courses
+    .filter((item) => item.enrollmentOpen)
+    .map((item) => ({
+      title: item.serviceTitle,
+      duration: item.duration,
+      level: item.level,
+      imageSrc: item.imageSrc,
+      imageAlt: item.imageAlt,
+    }));
 
   if (!course) return null;
 
   function openApplicationForCourse(selectedCourse: TrainingPreviewCourse) {
+    if (!selectedCourse.enrollmentOpen) {
+      setEnrollmentNotice(selectedCourse.enrollmentMessage);
+      return;
+    }
+
+    setEnrollmentNotice("");
     setApplicationCourse(selectedCourse);
   }
 
   function selectCourse(index: number) {
     setActive(index);
+    setEnrollmentNotice("");
 
     if (typeof window !== "undefined" && window.innerWidth < 1280) {
       window.requestAnimationFrame(() => {
@@ -394,7 +407,14 @@ export function TrainingPreviewSwitch({ courses, language }: TrainingPreviewSwit
 
         <div className="mt-6" style={getCourseSurfaceStyle()}>
           <TrainingRail courses={courses} active={active} copy={copy} onSelect={selectCourse} />
-          <CourseOverview key={course.id} course={course} copy={copy} overviewRef={courseOverviewRef} onEnroll={() => openApplicationForCourse(course)} />
+          <CourseOverview
+            key={course.id}
+            course={course}
+            copy={copy}
+            overviewRef={courseOverviewRef}
+            enrollmentNotice={enrollmentNotice}
+            onEnroll={() => openApplicationForCourse(course)}
+          />
         </div>
       </div>
 
@@ -504,11 +524,13 @@ function CourseOverview({
   course,
   copy,
   overviewRef,
+  enrollmentNotice,
   onEnroll,
 }: {
   course: TrainingPreviewCourse;
   copy: TrainingCopy;
   overviewRef: React.RefObject<HTMLElement | null>;
+  enrollmentNotice: string;
   onEnroll: () => void;
 }) {
   const skills = normalizeSkills(course, copy);
@@ -619,6 +641,11 @@ function CourseOverview({
       </div>
 
       <div className="grid items-center gap-4 border-t border-[#ead7b0] bg-[#fffdf8] px-5 py-4 lg:grid-cols-[minmax(13rem,0.9fr)_repeat(3,minmax(7rem,0.52fr))_minmax(12rem,0.8fr)_minmax(12rem,0.8fr)] lg:px-7">
+        {enrollmentNotice ? (
+          <p className="rounded-lg border border-[#f2c45f] bg-[#fff7e2] px-4 py-3 text-sm font-black leading-6 text-[#6d4300] lg:col-span-full">
+            {enrollmentNotice}
+          </p>
+        ) : null}
         <div className="flex items-center gap-4">
           <Bug className="h-12 w-12 shrink-0 text-[#f2a900]" strokeWidth={1.7} aria-hidden="true" />
           <div>
@@ -635,9 +662,14 @@ function CourseOverview({
         <button
           type="button"
           onClick={handleEnrollClick}
-          className="group inline-flex min-h-14 items-center justify-center gap-5 rounded-lg bg-[#f2a900] px-6 py-3 text-base font-black text-[#102119] shadow-[0_14px_28px_rgba(242,169,0,0.22)] transition hover:-translate-y-0.5 hover:bg-[#ffb81f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]"
+          className={cn(
+            "group inline-flex min-h-14 items-center justify-center gap-5 rounded-lg px-6 py-3 text-base font-black shadow-[0_14px_28px_rgba(242,169,0,0.22)] transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#07351f]",
+            course.enrollmentOpen
+              ? "bg-[#f2a900] text-[#102119] hover:bg-[#ffb81f]"
+              : "border border-[#d2bd8b] bg-[#fff4d5] text-[#6d4300] hover:bg-[#ffe8a8]",
+          )}
         >
-          {copy.enrollNow}
+          {course.enrollmentOpen ? copy.enrollNow : course.enrollmentStatusLabel}
           <ArrowRight className="h-6 w-6 transition group-hover:translate-x-1" aria-hidden="true" />
         </button>
         <a

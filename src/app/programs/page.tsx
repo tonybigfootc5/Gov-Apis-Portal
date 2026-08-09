@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { TrainingPreviewSwitch, type TrainingPreviewCourse } from "@/components/training-preview-switch";
 import { getPrograms } from "@/lib/data";
 import { getTranslatedProgramContent, t } from "@/lib/i18n";
+import { getProgramEnrollmentState } from "@/lib/program-enrollment";
 import { getRequestLanguage } from "@/lib/request-language";
 import { trainingProgramCatalogBySlug } from "@/lib/training-programs";
 import { formatDate } from "@/lib/utils";
@@ -99,6 +100,7 @@ export default async function ProgramsPage() {
   const courses: TrainingPreviewCourse[] = programs.map((program) => {
     const translatedProgram = getTranslatedProgramContent(program, language);
     const presentation = trainingProgramCatalogBySlug[program.slug];
+    const enrollmentState = getProgramEnrollmentState(program);
     const override =
       language === "te" || language === "hi"
         ? programDisplayOverrides[language][program.slug as keyof (typeof programDisplayOverrides)[typeof language]]
@@ -130,6 +132,9 @@ export default async function ProgramsPage() {
       tools: presentation?.tools ?? [],
       certificate: presentation?.certificate ?? "Physical certificate issued after completion",
       taughtIn: override?.taughtIn ?? presentation?.taughtIn ?? "English and Telugu",
+      enrollmentOpen: enrollmentState.canEnroll,
+      enrollmentStatusLabel: enrollmentState.statusLabel,
+      enrollmentMessage: enrollmentState.message,
       testimonial: presentation?.testimonial ?? {
         quote: "Field-led practice made the training practical and clear.",
         name: "Program trainee",

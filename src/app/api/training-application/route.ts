@@ -10,6 +10,8 @@ import {
   getTrainingApplicationAmountPaise,
   getTrainingProgramFeeByServiceName,
 } from "@/lib/phonepe-config";
+import { getProgramEnrollmentState } from "@/lib/program-enrollment";
+import { getPrograms } from "@/lib/data";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { rateLimit } from "@/lib/rate-limit";
 import { buildMerchantOrderId, buildTrainingBatchCode, getTrainingCourseCode } from "@/lib/training-application";
@@ -46,6 +48,19 @@ export async function POST(request: Request) {
       429,
       requestId,
       { "Retry-After": String(retryAfterSeconds) },
+    );
+  }
+
+  const enrollmentProgram = await getEnrollmentProgramForService(parsed.data.serviceName);
+  if (!enrollmentProgram || !getProgramEnrollmentState(enrollmentProgram).canEnroll) {
+    const enrollmentState = enrollmentProgram
+      ? getProgramEnrollmentState(enrollmentProgram)
+      : null;
+    return applicationErrorResponse(
+      "APP-ENROLL-001",
+      enrollmentState?.message ?? "Selected program is not open for enrollment or payment.",
+      400,
+      requestId,
     );
   }
 
@@ -296,6 +311,16 @@ export async function POST(request: Request) {
       requestId,
     );
   }
+}
+
+async function getEnrollmentProgramForService(serviceName: string) {
+  const normalizedServiceName = serviceName.trim().toLowerCase().replace(/[\s_-]+/g, "");
+  const programs = await getPrograms();
+
+  return (
+    programs.find((program) => program.title.trim().toLowerCase().replace(/[\s_-]+/g, "") === normalizedServiceName) ??
+    null
+  );
 }
 
 function applicationErrorResponse(
