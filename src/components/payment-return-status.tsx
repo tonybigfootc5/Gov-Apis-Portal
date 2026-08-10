@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import QRCode from "qrcode";
-import { CheckCircle2, Clock3, Download, FileCheck2, QrCode, RefreshCw, X, XCircle } from "lucide-react";
+import { Check, CheckCircle2, Clock3, Copy, Download, FileCheck2, MapPin, QrCode, RefreshCw, X, XCircle } from "lucide-react";
 import type { SiteLanguage } from "@/lib/i18n";
 
 type PaymentStatus =
@@ -45,6 +45,9 @@ type ReceiptPayload = {
   currency: string;
   program: string;
   enrollmentId: string;
+  trainingAddress: string;
+  trainingMapsUrl: string;
+  trainingTimings: string;
   paidAt: string | null;
   issuedAt: string;
 };
@@ -63,6 +66,12 @@ const FINAL_STATUSES = new Set<PaymentStatus>([
   "REFUNDED",
   "REFUND_FAILED",
 ]);
+
+const TRAINING_LOCATION_LABEL = "State Office";
+const TRAINING_LOCATION_ADDRESS =
+  "\"Bee House\", Khadi Gramodyog Maha Vidyalaya (KGMV), Rajendranagar, Hyderabad - 500 030, Telangana, India";
+const TRAINING_LOCATION_MAPS_URL = "https://maps.app.goo.gl/MouDG368iNNpZjYE9";
+const TRAINING_CLASS_TIMINGS = "10:00 AM to 5:00 PM";
 
 export function PaymentReturnStatus({ initialPayment, language }: Props) {
   const copy = {
@@ -168,6 +177,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
   const [pollError, setPollError] = useState("");
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [downloadError, setDownloadError] = useState("");
+  const [locationCopied, setLocationCopied] = useState(false);
   const waitingForGatewayTransactionId = payment.status === "PAID" && !payment.paymentReference;
   const polling = POLLABLE_STATUSES.has(payment.status) || waitingForGatewayTransactionId;
   const paidAtLabel = formatDate(payment.paidAt);
@@ -191,6 +201,9 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
       currency: payment.currency,
       program: payment.serviceName,
       enrollmentId,
+      trainingAddress: TRAINING_LOCATION_ADDRESS,
+      trainingMapsUrl: TRAINING_LOCATION_MAPS_URL,
+      trainingTimings: TRAINING_CLASS_TIMINGS,
       paidAt: payment.paidAt,
       issuedAt: new Date().toISOString(),
     };
@@ -291,6 +304,36 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
     ["Invoice Number", payment.invoiceNumber],
   ];
 
+  async function copyTrainingLocation() {
+    const value = `${TRAINING_LOCATION_LABEL}\n${TRAINING_LOCATION_ADDRESS}\nGoogle Map: ${TRAINING_LOCATION_MAPS_URL}\nClass Timings: ${TRAINING_CLASS_TIMINGS}`;
+
+    try {
+      await navigator.clipboard.writeText(value);
+      setLocationCopied(true);
+      window.setTimeout(() => setLocationCopied(false), 1800);
+    } catch {
+      setDownloadError("Unable to copy the location on this device. Please use the Google Map link.");
+    }
+  }
+
+  const trainingRows: Array<[string, string | React.ReactNode]> = [
+    ["Training Location", TRAINING_LOCATION_LABEL],
+    [
+      "Address",
+      <a
+        key="training-address"
+        href={TRAINING_LOCATION_MAPS_URL}
+        target="_blank"
+        rel="noreferrer"
+        className="underline decoration-[#16a34a]/35 underline-offset-4 transition hover:text-[#0f7a42]"
+      >
+        {TRAINING_LOCATION_ADDRESS}
+      </a>,
+    ],
+    ["Google Map", <LocationCopyLink key="training-map-link" copied={locationCopied} onCopy={() => void copyTrainingLocation()} />],
+    ["Class Timings", TRAINING_CLASS_TIMINGS],
+  ];
+
   useEffect(() => {
     let cancelled = false;
 
@@ -329,6 +372,7 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
         enrollmentRows: enrollmentRows.map(([label, value]) => [label, typeof value === "string" ? value : "Successful"]),
         paymentRows: paymentRows.map(([label, value]) => [label, typeof value === "string" ? value : "Successful"]),
         studentRows,
+        trainingRows: trainingRows.map(([label, value]) => [label, typeof value === "string" ? value : TRAINING_LOCATION_MAPS_URL]),
         candidateName: payment.candidateName,
         programName: payment.serviceName,
       });
@@ -378,6 +422,8 @@ export function PaymentReturnStatus({ initialPayment, language }: Props) {
               <ReceiptSection title={receiptCopy.paymentDetails} rows={paymentRows} />
               <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
               <ReceiptSection title={receiptCopy.studentDetails} rows={studentRows} />
+              <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
+              <ReceiptSection title="Training Location & Timings" rows={trainingRows} />
               <div className="my-4 border-t border-dashed border-[#e5e7eb]" />
 
               {waitingForGatewayTransactionId ? (
@@ -530,11 +576,36 @@ function ReceiptSection({ title, rows }: { title: string; rows: Array<[string, s
   );
 }
 
+function LocationCopyLink({ copied, onCopy }: { copied: boolean; onCopy: () => void }) {
+  return (
+    <span className="grid gap-2">
+      <a
+        href={TRAINING_LOCATION_MAPS_URL}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-flex items-center gap-1.5 font-black text-[#0f7a42] underline decoration-[#16a34a]/35 underline-offset-4"
+      >
+        <MapPin className="h-4 w-4" aria-hidden="true" />
+        Open Google Map
+      </a>
+      <button
+        type="button"
+        onClick={onCopy}
+        className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[#d1fae5] bg-[#ecfdf5] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.08em] text-[#0f7a42] transition hover:bg-[#d1fae5]"
+      >
+        {copied ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
+        {copied ? "Copied" : "Copy location"}
+      </button>
+    </span>
+  );
+}
+
 async function buildReceiptImage({
   qrDataUrl,
   enrollmentRows,
   paymentRows,
   studentRows,
+  trainingRows,
   candidateName,
   programName,
 }: {
@@ -542,12 +613,13 @@ async function buildReceiptImage({
   enrollmentRows: Array<[string, string]>;
   paymentRows: Array<[string, string]>;
   studentRows: Array<[string, string]>;
+  trainingRows: Array<[string, string]>;
   candidateName: string;
   programName: string;
 }) {
   const canvas = document.createElement("canvas");
   const width = 900;
-  const height = 1650;
+  const height = 1940;
   canvas.width = width;
   canvas.height = height;
   const context = canvas.getContext("2d");
@@ -584,6 +656,9 @@ async function buildReceiptImage({
   drawDashedLine(context, 96, y + 22, width - 96, y + 22);
   y += 70;
   y = drawReceiptRows(context, "Student Details", studentRows, y);
+  drawDashedLine(context, 96, y + 22, width - 96, y + 22);
+  y += 70;
+  y = drawReceiptRows(context, "Training Location & Timings", trainingRows, y);
   drawDashedLine(context, 96, y + 22, width - 96, y + 22);
 
   const qrImage = await loadImage(qrDataUrl);
@@ -624,7 +699,9 @@ function drawReceiptRows(
 }
 
 function wrapCanvasText(context: CanvasRenderingContext2D, value: string, x: number, y: number, maxWidth: number, lineHeight: number) {
-  const words = value.split(" ");
+  const words = value
+    .split(" ")
+    .flatMap((word) => (context.measureText(word).width > maxWidth ? word.match(/.{1,24}/g) ?? [word] : [word]));
   let line = "";
   let lineY = y;
 
