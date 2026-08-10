@@ -15,7 +15,7 @@ const apiCultureFormation = {
 const supportingCultures = [
   {
     title: "Kavuri",
-    logo: "/kavuri-extract-3.png",
+    logo: "/kavuri-logo-orbit.png",
     eyebrow: "Technical support partner",
     description:
       "The source profile names Kavuri Bee Hive 'n' Natural Products as one of the supporting cultures behind the formation of API CULTURE.",
@@ -34,7 +34,7 @@ const supportingCultures = [
   },
   {
     title: "API Bee Keeper's Association",
-    logo: "/scientific-beekeeping-icon.png",
+    logo: "/apba-logo.png",
     eyebrow: "Registered beekeeping association",
     description:
       "The AP Bee Keeper's Association was formed under the leadership of Sri. Kavuri Venkateshwara Rao on 27th November 1980 and is part of the center's beekeeping support ecosystem.",
@@ -53,7 +53,7 @@ const supportingCultures = [
   },
   {
     title: "NIRDPR",
-    logo: "/nirdpr-logo.jpeg",
+    logo: "/nirdpr-logo-orbit.png",
     eyebrow: "Institutional association",
     description:
       "NIRDPR is the institutional anchor named in the source text, linking the center's formation to Rural Technology Park and a broader public-sector development context.",
@@ -94,6 +94,10 @@ const memberPortraits: Record<string, { src: string; alt: string; objectPosition
     objectPosition: "50% 7%",
   },
 };
+
+function isOrbitLogoOnlyTitle(title: string) {
+  return title === "API Bee Keeper's Association" || title === "NIRDPR" || title === "Kavuri";
+}
 
 const localizedOrbitCopy = {
   en: {
@@ -405,6 +409,7 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
         <div className="grid gap-3 lg:hidden">
           {supportingCultures.map((culture) => {
             const isActive = activeCulture === culture.title;
+            const logoOnly = isOrbitLogoOnlyTitle(culture.title) && !isActive;
             return (
               <button
                 type="button"
@@ -413,8 +418,12 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                   event.stopPropagation();
                   centerNode(culture.title);
                 }}
-                className={`rounded-[1.15rem] border p-4 text-left transition ${
-                  isActive ? "border-[#d6a84b] bg-white/90 shadow-[0_16px_34px_rgba(184,120,22,0.14)]" : "border-white/70 bg-white/56"
+                className={`text-left transition ${
+                  logoOnly
+                    ? "rounded-none border-0 bg-transparent p-0 shadow-none"
+                    : `rounded-[1.15rem] border p-4 ${
+                        isActive ? "border-[#d6a84b] bg-white/90 shadow-[0_16px_34px_rgba(184,120,22,0.14)]" : "border-white/70 bg-white/56"
+                      }`
                 }`}
               >
                 <CultureOrbitContent culture={culture} active={isActive} copy={copy} compact />
@@ -437,19 +446,6 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
           <div className="absolute left-1/2 top-1/2 h-[22rem] w-[22rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#d6a84b]/38" />
           <div className="absolute left-1/2 top-1/2 h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/48" />
           <div className="absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#e8d4a8]/22" />
-          {orbitPositions.map(({ culture, position }) => (
-            <span
-              key={`${culture.title}-connector`}
-              className="pointer-events-none absolute left-1/2 top-1/2 h-[1.5px] origin-left bg-[repeating-linear-gradient(90deg,#b97816_0_8px,transparent_8px_16px)]"
-              style={{
-                opacity: activeCulture === culture.title || hoveredCulture === culture.title ? 0.82 : 0.58,
-                transform: `rotate(${position.lineAngle}deg)`,
-                width: `${position.lineLength}px`,
-              }}
-              aria-hidden="true"
-            />
-          ))}
-
           <div className="absolute left-1/2 top-1/2 flex h-44 w-44 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-white/75 bg-[linear-gradient(180deg,rgba(255,255,255,0.88),rgba(255,248,234,0.64))] text-center shadow-[0_22px_54px_rgba(99,77,26,0.14)] ring-1 ring-[#e6d2a9]/40 backdrop-blur-xl">
             <div className="absolute -inset-4 rounded-full border border-[#d6a84b]/15 opacity-70 [animation:ping_2.8s_cubic-bezier(0,0,0.2,1)_infinite]" />
             <div className="absolute -inset-8 rounded-full border border-[#f2b544]/18 opacity-50 [animation:ping_3.6s_cubic-bezier(0,0,0.2,1)_infinite]" />
@@ -463,6 +459,7 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
           {orbitPositions.map(({ culture, position }) => {
             const isActive = activeCulture === culture.title;
             const isHovered = hoveredCulture === culture.title;
+            const logoOnly = isOrbitLogoOnlyTitle(culture.title) && !isActive;
             return (
               <button
                 type="button"
@@ -473,16 +470,21 @@ function AboutEcosystemOrbit({ copy }: { copy: Record<string, string> }) {
                 }}
                 onMouseEnter={() => setHoveredCulture(culture.title)}
                 onMouseLeave={() => setHoveredCulture(null)}
-                className={`absolute left-1/2 top-1/2 ${isActive ? "w-[22rem] xl:w-[24rem]" : culture.title === "API Bee Keeper's Association" ? "w-64" : "w-52"} rounded-[1.25rem] border p-4 text-left backdrop-blur-xl transition-[border-color,background-color,box-shadow,opacity,width] duration-200 ${
-                  isActive
-                    ? "border-[#d6a84b] bg-[linear-gradient(180deg,rgba(255,249,235,0.94),rgba(255,255,255,0.68))] shadow-[0_28px_60px_rgba(184,120,22,0.2)]"
-                    : isHovered
-                      ? "border-[#d6a84b]/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(255,250,242,0.8))] shadow-[0_22px_46px_rgba(99,77,26,0.14)]"
-                      : "border-[#e0c584]/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,250,242,0.74))] shadow-[0_18px_42px_rgba(99,77,26,0.12)]"
+                className={`absolute left-1/2 top-1/2 text-left duration-200 ${
+                  logoOnly
+                    ? `${culture.title === "API Bee Keeper's Association" ? "w-[11.5rem]" : "w-[16rem]"} border-0 bg-transparent p-0 shadow-none transition-[filter,opacity,transform]`
+                    : `${isActive ? "w-[22rem] xl:w-[24rem]" : "w-52"} rounded-[1.25rem] border p-4 backdrop-blur-xl transition-[border-color,background-color,box-shadow,opacity,width] ${
+                        isActive
+                          ? "border-[#d6a84b] bg-[linear-gradient(180deg,rgba(255,249,235,0.94),rgba(255,255,255,0.68))] shadow-[0_28px_60px_rgba(184,120,22,0.2)]"
+                          : isHovered
+                            ? "border-[#d6a84b]/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.94),rgba(255,250,242,0.8))] shadow-[0_22px_46px_rgba(99,77,26,0.14)]"
+                            : "border-[#e0c584]/85 bg-[linear-gradient(180deg,rgba(255,255,255,0.92),rgba(255,250,242,0.74))] shadow-[0_18px_42px_rgba(99,77,26,0.12)]"
+                      }`
                 }`}
                 style={{
                   opacity: isActive || isHovered ? 1 : position.opacity,
                   transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px)) scale(${isActive || isHovered ? 1.02 : position.scale})`,
+                  filter: logoOnly && isHovered ? "drop-shadow(0 20px 28px rgba(99,77,26,0.22))" : undefined,
                   zIndex: isActive || isHovered ? 140 : position.zIndex,
                 }}
               >
@@ -509,6 +511,27 @@ function CultureOrbitContent({
   copy: Record<string, string>;
   note?: string;
 }) {
+  const logoOnly = isOrbitLogoOnlyTitle(culture.title) && !active;
+
+  if (logoOnly) {
+    const isPortraitLogo = culture.title === "API Bee Keeper's Association";
+
+    return (
+      <div className="grid place-items-center" aria-label={`${culture.title} logo`}>
+        <div className={`${isPortraitLogo ? (compact ? "h-44 w-32" : "h-56 w-40") : compact ? "h-28 w-52" : "h-32 w-64"} relative transition duration-200 hover:-translate-y-1`}>
+          <Image
+            src={culture.logo}
+            alt={`${culture.title} logo`}
+            fill
+            className="object-contain"
+            sizes={isPortraitLogo ? (compact ? "128px" : "160px") : compact ? "208px" : "256px"}
+          />
+        </div>
+        {note ? <p className="mt-2 text-center text-[10px] font-black uppercase tracking-[0.18em] text-[#b97816]">{note}</p> : null}
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="flex items-center gap-3">

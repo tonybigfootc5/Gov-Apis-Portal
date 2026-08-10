@@ -53,7 +53,7 @@ export default async function Home() {
       experienceLabel: presentation?.experienceLabel ?? translatedProgram.level,
       tools: presentation?.tools ?? [],
       certificate: presentation?.certificate ?? "Physical certificate issued after completion",
-      taughtIn: presentation?.taughtIn ?? "English and Telugu",
+      taughtIn: presentation?.taughtIn ?? "EN, తె, हिं",
       enrollmentOpen: enrollmentState.canEnroll,
       enrollmentStatusLabel: enrollmentState.statusLabel,
       enrollmentMessage: enrollmentState.message,

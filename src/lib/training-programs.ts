@@ -79,7 +79,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     experienceLabel: "Beginner friendly",
     tools: ["Bee veil", "Hive tool", "Smoker", "Bee boxes", "Honey extractor"],
     certificate: "Physical certificate issued after completion",
-    taughtIn: "English and Telugu",
+    taughtIn: "EN, తె, हिं",
     testimonial: {
       quote: "The hands-on hive practice made it easier to understand how to start and manage an apiary.",
       name: "Foundation trainee",
@@ -120,7 +120,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     experienceLabel: "Beginner to practitioner",
     tools: ["Filter unit", "Settling tank", "Bottling tools", "Labeling tools", "Packing materials"],
     certificate: "Physical certificate issued after completion",
-    taughtIn: "English and Telugu",
+    taughtIn: "EN, తె, हिं",
     testimonial: {
       quote: "The processing workflow made hygiene, filtration, and market-ready packing clear.",
       name: "Honey unit trainee",
@@ -162,7 +162,7 @@ export const trainingProgramCatalog: TrainingProgramCatalogItem[] = [
     experienceLabel: "Prior hive experience preferred",
     tools: ["Grafting frame", "Queen cups", "Collection spoon", "Sterile containers", "Nucleus box", "Mating yard records", "Record sheets"],
     certificate: "Physical certificate issued after completion",
-    taughtIn: "English and Telugu",
+    taughtIn: "EN, తె, हिं",
     testimonial: {
       quote: "The queen breeding and royal jelly harvesting sessions connected field practice with real expansion planning.",
       name: "Advanced trainee",

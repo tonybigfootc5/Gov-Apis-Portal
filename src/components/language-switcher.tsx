@@ -12,7 +12,7 @@ type Props = {
 };
 
 const compactLanguageLabels: Record<SiteLanguage, { text: string; ariaLabel: string }> = {
-  en: { text: "En", ariaLabel: "Switch to English" },
+  en: { text: "EN", ariaLabel: "Switch to English" },
   te: { text: "తె", ariaLabel: "Switch to Telugu" },
   hi: { text: "हिं", ariaLabel: "Switch to Hindi" },
 };
